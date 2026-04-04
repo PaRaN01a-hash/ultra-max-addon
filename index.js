@@ -1,60 +1,68 @@
-const { addonBuilder } = require("stremio-addon-sdk");
+const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 const axios = require("axios");
-const http = require("http");
 
 const PORT = 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
 
-// =========================
-// 🎯 RULES (UNCHANGED)
-// =========================
+const cache = new Map();
+const imdbCache = new Map(); // ⭐ NEW
+
+// 🎬 GENRES
+const GENRES = {
+  action: 28,
+  comedy: 35,
+  horror: 27,
+  scifi: 878,
+  documentary: 99
+};
+
+// 📺 PROVIDERS
+const PROVIDERS = {
+  netflix: 8,
+  amazon: 9,
+  disney: 337,
+  hulu: 15,
+  hbo: 1899,
+  apple: 350,
+  paramount: 531
+};
+
+// 🧱 RULES
 const RULES = [
-  { id: "netflix_movies", type: "movie", name: "🔥 Netflix Movies", provider: 8 },
-  { id: "netflix_series", type: "series", name: "🔥 Netflix Series", provider: 8 },
-
-  { id: "prime_movies", type: "movie", name: "📦 Prime Movies", provider: 9 },
-  { id: "prime_series", type: "series", name: "📦 Prime Series", provider: 9 },
-
-  { id: "disney_movies", type: "movie", name: "🏰 Disney+ Movies", provider: 337 },
-  { id: "disney_series", type: "series", name: "🏰 Disney+ Series", provider: 337 },
-
-  { id: "apple_movies", type: "movie", name: "🍎 Apple TV+ Movies", provider: 350 },
-  { id: "apple_series", type: "series", name: "🍎 Apple TV+ Series", provider: 350 },
-
-  { id: "hbo_movies", type: "movie", name: "🎬 HBO Movies", provider: 384 },
-  { id: "hbo_series", type: "series", name: "🎬 HBO Series", provider: 384 },
-
-  { id: "hulu_movies", type: "movie", name: "📡 Hulu Movies", provider: 15 },
-  { id: "hulu_series", type: "series", name: "📡 Hulu Series", provider: 15 },
-
-  { id: "paramount_movies", type: "movie", name: "⭐ Paramount Movies", provider: 531 },
-  { id: "paramount_series", type: "series", name: "⭐ Paramount Series", provider: 531 },
-
-  { id: "trending_movies", type: "movie", name: "🔥 Trending Movies", source: "trending" },
-  { id: "trending_series", type: "series", name: "🔥 Trending Series", source: "trending" },
+  { id: "trending_movies", type: "movie", name: "🔥 Trending Movies", trending: true },
+  { id: "trending_series", type: "series", name: "🔥 Trending Series", trending: true },
 
   { id: "popular_movies", type: "movie", name: "⭐ Popular Movies", source: "popular" },
   { id: "popular_series", type: "series", name: "⭐ Popular Series", source: "popular" },
 
-  { id: "top_movies", type: "movie", name: "🏆 Top Rated Movies", source: "top_rated" },
-  { id: "top_series", type: "series", name: "🏆 Top Rated Series", source: "top_rated" },
+  { id: "top_movies", type: "movie", name: "🏆 Top Movies", source: "top_rated" },
+  { id: "top_series", type: "series", name: "🏆 Top Series", source: "top_rated" },
 
   { id: "now_movies", type: "movie", name: "🎬 Now Playing", source: "now_playing" },
-  { id: "airing_series", type: "series", name: "📺 Airing Today", source: "airing_today" },
+  { id: "upcoming_movies", type: "movie", name: "🚀 Upcoming", source: "upcoming" },
 
-  { id: "upcoming_movies", type: "movie", name: "🚀 Upcoming Movies", source: "upcoming" }
+  { id: "airing_series", type: "series", name: "📺 Airing Today", source: "airing_today" },
+  { id: "ontheair_series", type: "series", name: "📡 On The Air", source: "on_the_air" },
+
+  ...Object.entries(GENRES).flatMap(([key, id]) => ([
+    { id: `${key}_movies`, type: "movie", name: `🎭 ${key} Movies`, genre: id },
+    { id: `${key}_series`, type: "series", name: `🎭 ${key} Series`, genre: id }
+  ])),
+
+  ...Object.entries(PROVIDERS).flatMap(([key, id]) => ([
+    { id: `${key}_movies`, type: "movie", name: `${key.toUpperCase()} Movies`, provider: id },
+    { id: `${key}_series`, type: "series", name: `${key.toUpperCase()} Series`, provider: id }
+  ]))
 ];
 
-// =========================
 // 🧠 BUILDER
-// =========================
 const builder = new addonBuilder({
-  id: "org.kris.ultra.max.final.clean",
-  version: "9.0.1",
-  name: "Ultra MAX Clean+",
-  description: "Clean streaming catalogs",
+  id: "org.kris.ultra.max",
+  version: "1.0.1",
+  name: "Ultra MAX",
+  description: "Fast and Reliable",
   types: ["movie", "series"],
-  resources: ["catalog"],
+  resources: ["catalog", "meta"],
   catalogs: RULES.map(r => ({
     type: r.type,
     id: r.id,
@@ -62,83 +70,131 @@ const builder = new addonBuilder({
   }))
 });
 
-// =========================
-// 🎬 HANDLER (simplified for stability)
-// =========================
-builder.defineCatalogHandler(async ({ id }) => {
-  const rule = RULES.find(r => r.id === id);
-  if (!rule) return { metas: [] };
+// ⭐ NEW: TMDB → IMDb
+async function getImdbId(tmdbId, type) {
+  const key = `${type}-${tmdbId}`;
+  if (imdbCache.has(key)) return imdbCache.get(key);
 
-  const type = rule.type === "series" ? "tv" : "movie";
+  try {
+    const tmdbType = type === "series" ? "tv" : "movie";
 
-  let url = `https://api.themoviedb.org/3/${type}/popular?api_key=${TMDB_KEY}`;
+    const res = await axios.get(
+      `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/external_ids?api_key=${TMDB_KEY}`
+    );
 
-  const res = await axios.get(url);
+    const imdb = res.data.imdb_id;
+    if (!imdb) return null;
 
-  return {
-    metas: res.data.results.slice(0, 20).map(i => ({
-      id: "tt" + i.id,
-      type: rule.type,
-      name: i.title || i.name,
-      poster: i.poster_path
-        ? `https://image.tmdb.org/t/p/w500${i.poster_path}`
-        : null
-    }))
-  };
-});
-
-// =========================
-// 🎯 SERVER
-// =========================
-
-const addonInterface = builder.getInterface();
-
-const server = http.createServer((req, res) => {
-
-  // 🌐 Landing page
-  if (req.url === "/") {
-    const manifestUrl = `http://${req.headers.host}/manifest.json`;
-
-    res.writeHead(200, { "Content-Type": "text/html" });
-
-    return res.end(`
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Ultra MAX</title>
-        </head>
-        <body style="background:#020617;color:white;display:flex;justify-content:center;align-items:center;height:100vh;font-family:Arial;">
-          <div style="text-align:center;">
-            <h1>ULTRA MAX</h1>
-            <p>Clean catalogs • No junk</p>
-
-            <button onclick="install()" style="padding:15px;margin:10px;">🚀 Install</button>
-            <button onclick="copy()" style="padding:15px;margin:10px;">📋 Copy URL</button>
-          </div>
-
-          <script>
-            const manifest = "${manifestUrl}";
-
-            function install() {
-              window.location.href =
-                "stremio://" + manifest.replace("http://","").replace("https://","");
-            }
-
-            function copy() {
-              navigator.clipboard.writeText(manifest);
-              alert("Copied!");
-            }
-          </script>
-        </body>
-      </html>
-    `);
+    imdbCache.set(key, imdb);
+    return imdb;
+  } catch {
+    return null;
   }
+}
 
-  // 🔥 IMPORTANT FIX
-  addonInterface.get(req, res);
+// ⚡ CACHE
+async function fetchCached(url) {
+  if (cache.has(url)) return cache.get(url);
 
+  const res = await axios.get(url, { timeout: 1000 });
+  const data = res.data;
+
+  cache.set(url, data);
+  setTimeout(() => cache.delete(url), 300000);
+
+  return data;
+}
+// 🎬 CATALOG HANDLER
+builder.defineCatalogHandler(async ({ type, id }) => {
+  try {
+    const rule = RULES.find(r => r.id === id);
+    if (!rule) return { metas: [] };
+
+    const tmdbType = type === "series" ? "tv" : "movie";
+
+    let url;
+
+    if (rule.trending) {
+      url = `https://api.themoviedb.org/3/trending/${tmdbType}/week?api_key=${TMDB_KEY}`;
+    }
+    else if (rule.provider) {
+      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=${rule.provider}&watch_region=US&sort_by=popularity.desc`;
+    }
+    else if (rule.genre) {
+      let genre = rule.genre;
+      if (type === "series" && rule.genre === 28) genre = 10759;  // Action & Adventure
+      if (type === "series" && rule.genre === 878) genre = 10765; // Sci-Fi & Fantasy
+      if (type === "series" && rule.genre === 27) genre = 10765;  // Sci-Fi & Fantasy (horror shares it)
+      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`;
+    }
+    else {
+      url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}`;
+    }
+
+    const data = await fetchCached(url);
+    const seen = new Set();
+
+    // 🎯 FIX 2: single consolidated filter pass (no duplicate filtering)
+    let results = (data.results || []).filter(i => {
+      if (!i.poster_path) return false;
+      if (i.original_language === "hi") return false;
+      if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
+      const name = (i.title || i.name || "").toLowerCase();
+      if (name.includes("anime")) return false;
+      return true;
+    });
+
+    // 🎯 FIX 3: fallback block is now cleanly outside the filter, with its own filter pass
+    if (results.length < 10 && type === "series" && rule.genre === 28) {
+      const fallback = await fetchCached(
+        `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=10759&sort_by=popularity.desc`
+      );
+      results = (fallback.results || []).filter(i => {
+        if (!i.poster_path) return false;
+        if (i.original_language === "hi") return false;
+        if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
+        const name = (i.title || i.name || "").toLowerCase();
+        if (name.includes("anime")) return false;
+        return true;
+      });
+    }
+
+    const metas = (await Promise.all(
+      results
+        .filter(i => {
+          if (seen.has(i.id)) return false;
+          seen.add(i.id);
+          return true;
+        })
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 20)
+        .map(async (i) => {
+          const imdb = await getImdbId(i.id, type);
+          if (!imdb) return null;
+          return {
+            id: imdb,
+            type,
+            name: i.title || i.name,
+            poster: `https://image.tmdb.org/t/p/w500${i.poster_path}`
+          };
+        })
+    )).filter(Boolean);
+
+    return { metas };
+
+  } catch (e) {
+    console.log("❌", id, e.message);
+    return { metas: [] };
+  }
 });
 
-server.listen(PORT, () => {
-  console.log("🚀 ULTRA MAX READY (NO 502)");
+// 📦 META
+builder.defineMetaHandler(async ({ type, id }) => {
+  return { meta: { id, type } };
+});
+
+// 🌐 SERVER
+serveHTTP(builder.getInterface(), {
+  port: PORT,
+  host: "0.0.0.0"
 });
