@@ -189,12 +189,13 @@ else {
         .map(async (i) => {
           const imdb = await getImdbId(i.id, type);
           if (!imdb) return null;
-          return {
-            id: imdb,
-            type,
-            name: i.title || i.name,
-            poster: `https://image.tmdb.org/t/p/w500${i.poster_path}`
-          };
+        return {
+  id: imdb,
+  type,
+  name: i.title || i.name,
+  poster: `https://image.tmdb.org/t/p/w500${i.poster_path}`,
+  background: i.backdrop_path ? `https://image.tmdb.org/t/p/w1280${i.backdrop_path}` : null
+};
         })
     )).filter(Boolean);
 
