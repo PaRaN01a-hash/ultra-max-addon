@@ -39,8 +39,7 @@ Mystery
 
 ## 📦 Install
 
-Paste this into Stremio / Nuvio:
-http://max-streams.gleeze.com
+https://max-streams.gleeze.com
 
 Or open:
 
