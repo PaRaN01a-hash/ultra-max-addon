@@ -1,6 +1,6 @@
 # 🚀 Ultra MAX Clean+
 
-Clean Stremio catalogs — no anime, no bollywood, no junk.
+Clean catalogs — no anime, no bollywood, no junk.
 
 ## ✨ Features 
 Netflix
