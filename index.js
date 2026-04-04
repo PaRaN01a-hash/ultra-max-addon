@@ -8,15 +8,7 @@ const cache = new Map();
 const imdbCache = new Map(); // ⭐ NEW
 
 // 🎬 GENRES
-const GENRES = {
-  action: 28,
-  comedy: 35,
-  horror: 27,
-  scifi: 878,
-  documentary: 99
-};
 
-// 📺 PROVIDERS
 const PROVIDERS = {
   netflix: 8,
   amazon: 9,
@@ -24,9 +16,28 @@ const PROVIDERS = {
   hulu: 15,
   hbo: 1899,
   apple: 350,
-  paramount: 531
+  paramount: 531,                                                peacock: 386,
+  mgm: 268,
+  acorn: 87,
+  shudder: 99,
+  britbox: 151,
+  itvx: 584,
+  channel4: 583,
 };
-
+const GENRES = {
+  action: 28,
+  comedy: 35,
+  horror: 27,
+  scifi: 878,
+  documentary: 99,
+  romance: 10749,
+  thriller: 53,
+  crime: 80,
+  animation: 16,
+  family: 10751,
+  fantasy: 14,
+  mystery: 9648
+};
 // 🧱 RULES
 const RULES = [
   { id: "trending_movies", type: "movie", name: "🔥 Trending Movies", trending: true },
@@ -43,15 +54,15 @@ const RULES = [
 
   { id: "airing_series", type: "series", name: "📺 Airing Today", source: "airing_today" },
   { id: "ontheair_series", type: "series", name: "📡 On The Air", source: "on_the_air" },
+  
+  ...Object.entries(PROVIDERS).flatMap(([key, id]) => ([
+    { id: `${key}_movies`, type: "movie", name: `${key.toUpperCase()} Movies`, provider: id },
+    ...(key === "mgm" ? [] : [{ id: `${key}_series`, type: "series", name: `${key.toUpperCase()} Series`, provider: id }])
+  ])),
 
   ...Object.entries(GENRES).flatMap(([key, id]) => ([
     { id: `${key}_movies`, type: "movie", name: `🎭 ${key} Movies`, genre: id },
     { id: `${key}_series`, type: "series", name: `🎭 ${key} Series`, genre: id }
-  ])),
-
-  ...Object.entries(PROVIDERS).flatMap(([key, id]) => ([
-    { id: `${key}_movies`, type: "movie", name: `${key.toUpperCase()} Movies`, provider: id },
-    { id: `${key}_series`, type: "series", name: `${key.toUpperCase()} Series`, provider: id }
   ]))
 ];
 
@@ -96,7 +107,7 @@ async function getImdbId(tmdbId, type) {
 async function fetchCached(url) {
   if (cache.has(url)) return cache.get(url);
 
-  const res = await axios.get(url, { timeout: 1000 });
+  const res = await axios.get(url, { timeout: 5000 });
   const data = res.data;
 
   cache.set(url, data);
@@ -121,17 +132,24 @@ builder.defineCatalogHandler(async ({ type, id }) => {
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=${rule.provider}&watch_region=US&sort_by=popularity.desc`;
     }
     else if (rule.genre) {
-      let genre = rule.genre;
-      if (type === "series" && rule.genre === 28) genre = 10759;  // Action & Adventure
-      if (type === "series" && rule.genre === 878) genre = 10765; // Sci-Fi & Fantasy
-      if (type === "series" && rule.genre === 27) genre = 10765;  // Sci-Fi & Fantasy (horror shares it)
-      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`;
-    }
-    else {
+  let genre = rule.genre;
+  if (type === "series" && rule.genre === 28) genre = 10759;   // Action & Adventure
+  if (type === "series" && rule.genre === 878) genre = 10765;  // Sci-Fi & Fantasy
+  if (type === "series" && rule.genre === 27) genre = 10765;   // Sci-Fi & Fantasy (horror shares it)
+  if (type === "series" && rule.genre === 53) genre = 9648;    // Thriller → Mystery/Thriller
+  if (type === "series" && rule.genre === 14) genre = 10765;   // Fantasy → Sci-Fi & Fantasy
+  if (type === "series" && rule.genre === 80) genre = 80;      // Crime (same on TV)
+  if (type === "series" && rule.genre === 10749) genre = 10749; // Romance (same on TV)
+  if (type === "series" && rule.genre === 16) genre = 16;      // Animation (same on TV)
+  if (type === "series" && rule.genre === 10751) genre = 10751; // Family (same on TV)
+  if (type === "series" && rule.genre === 9648) genre = 9648;  // Mystery (same on TV)
+  url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`;
+}
+else {
       url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}`;
-    }
+    } 
 
-    const data = await fetchCached(url);
+   const data = await fetchCached(url);
     const seen = new Set();
 
     // 🎯 FIX 2: single consolidated filter pass (no duplicate filtering)
