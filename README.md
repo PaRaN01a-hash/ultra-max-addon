@@ -3,7 +3,8 @@
 Clean catalogs — no anime, no bollywood, no junk.
 
 ## ✨ Features 
-#Netflix
+
+Netflix
 Amazon
 Disney
 Hulu
@@ -30,7 +31,7 @@ Crime
 Animation
 Family
 Fantasy
-  mystery: 9648
+Mystery
 
 - 🎭 Genre filtering (Action, Comedy, Horror, etc)
 - 🧹 Clean results only (no trailers, no spam)
