@@ -3,7 +3,7 @@
 Clean catalogs — no anime, no bollywood, no junk.
 
 ## ✨ Features 
-Netflix
+#Netflix
 Amazon
 Disney
 Hulu
