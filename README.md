@@ -39,9 +39,7 @@ Mystery
 
 ## 📦 Install
 
-https://max-streams.gleeze.com
-
-Or open:
+https://max-streams.gleeze.com for the install page
 
 ## 🛠️ Tech
 - Node.js
@@ -49,4 +47,4 @@ Or open:
 - Stremio Addon SDK
 
 ## ⚠️ Notes
-- Filters out anime + Indian content
+- Filters out anime + Indian content on one Install or include them on a second.
