@@ -2,9 +2,36 @@
 
 Clean Stremio catalogs — no anime, no bollywood, no junk.
 
-## ✨ Features
-- 🎬 Trending, Popular, Top Rated
-- 📺 Netflix, Prime, Disney+, Apple TV+, HBO, Hulu, Paramount+
+## ✨ Features 
+Netflix
+Amazon
+Disney
+Hulu
+HBO
+Apple
+Paramount
+Peacock
+MGM
+Acorn TV
+Shudder
+Britbox
+ITVX
+Channel 4
+
+Genres -
+Action
+Comedy
+Horror
+Scifi
+Documentary
+Romance
+Thriller
+Crime
+Animation
+Family
+Fantasy
+  mystery: 9648
+
 - 🎭 Genre filtering (Action, Comedy, Horror, etc)
 - 🧹 Clean results only (no trailers, no spam)
 - ⚡ Fast + lightweight
