@@ -1,7 +1,7 @@
 const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 const axios = require("axios");
 
-const PORT = 7000;
+const PORT = 7001;
 const TMDB_KEY = process.env.TMDB_KEY;
 
 const cache = new Map();
@@ -18,6 +18,9 @@ const PROVIDERS = {
   apple: 350,
   paramount: 531,
   peacock: 386,
+  crunchyroll: 283,
+  funimation: 269,
+  hidive: 430,
   mgm: 268,
   acorn: 87,
   shudder: 99,
@@ -52,6 +55,9 @@ const RULES = [
 
   { id: "now_movies", type: "movie", name: "🎬 Now Playing", source: "now_playing" },
 
+  { id: "anime_movies", type: "movie", name: "🎌 Anime Movies", anime: true },
+  { id: "anime_series", type: "series", name: "🎌 Anime Series", anime: true },
+
   { id: "airing_series", type: "series", name: "📺 Airing Today", source: "airing_today" },
   { id: "ontheair_series", type: "series", name: "📡 On The Air", source: "on_the_air" },
 
@@ -68,10 +74,10 @@ const RULES = [
 
 // 🧠 BUILDER
 const builder = new addonBuilder({
-  id: "org.kris.ultra.max",
+  id: "org.kris.ultra.max.all",
   version: "1.0.1",
-  name: "Ultra MAX",
-  description: "Fast and Reliable",
+  name: "Ultra MAX All",
+  description: "All content, No filters",
   types: ["movie", "series"],
   resources: ["catalog", "meta"],
   catalogs: RULES.map(r => ({
@@ -147,21 +153,16 @@ builder.defineCatalogHandler(async ({ type, id }) => {
 }
 else {
       url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}`;
-    }
+    } 
 
    const data = await fetchCached(url);
     const seen = new Set();
 
     // 🎯 FIX 2: single consolidated filter pass (no duplicate filtering)
-    let results = (data.results || []).filter(i => {
-      if (!i.poster_path) return false;
-      if (i.original_language === "hi") return false;
-      if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
-      const name = (i.title || i.name || "").toLowerCase();
-      if (name.includes("anime")) return false;
-      return true;
-    });
-
+        let results = (data.results || []).filter(i => {
+        if (!i.poster_path) return false;
+         return true;
+      });
     // 🎯 FIX 3: fallback block is now cleanly outside the filter, with its own filter pass
     if (results.length < 10 && type === "series" && rule.genre === 28) {
       const fallback = await fetchCached(
