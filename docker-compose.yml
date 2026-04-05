@@ -1,0 +1,16 @@
+services:
+  stremio-addon:
+    image: stremio-addon
+    container_name: stremio-addon
+    restart: unless-stopped
+    ports:
+      - "7000:7000"
+      - "7001:7001"
+    env_file:
+      - .env
+    networks:
+      - npm_default
+
+networks:
+  npm_default:
+    external: true
