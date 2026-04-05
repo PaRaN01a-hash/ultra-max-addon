@@ -45,4 +45,4 @@ The filtered version runs on port 7000 and the unfiltered version on port 7001, 
 
 This addon provides catalogs and metadata only. A stream source addon such as aiostreams is required to play content.
 
-TMDB API key required. Free keys are available at [themoviedb.org](https://www.themoviedb.org/settings/api).
+TMDB API key required for self hosting. Free keys are available at [themoviedb.org](https://www.themoviedb.org/settings/api).
