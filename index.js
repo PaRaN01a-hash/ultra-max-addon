@@ -209,7 +209,53 @@ else {
 
 // 📦 META
 builder.defineMetaHandler(async ({ type, id }) => {
-  return { meta: { id, type } };
+  try {
+    const tmdbType = type === "series" ? "tv" : "movie";
+
+    // Look up TMDB ID from IMDb ID
+    const findRes = await axios.get(
+      `https://api.themoviedb.org/3/find/${id}?api_key=${TMDB_KEY}&external_source=imdb_id`
+    );
+
+    const results = findRes.data[`${tmdbType}_results`];
+    if (!results || results.length === 0) return { meta: { id, type } };
+
+    const tmdbId = results[0].id;
+
+    // Fetch full details
+    const detailRes = await axios.get(
+      `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits,videos`
+    );
+
+    const d = detailRes.data;
+
+    const cast = (d.credits?.cast || []).slice(0, 5).map(c => c.name);
+
+    const trailer = (d.videos?.results || []).find(
+      v => v.type === "Trailer" && v.site === "YouTube"
+    );
+
+    const meta = {
+      id,
+      type,
+      name: d.title || d.name,
+      description: d.overview,
+      poster: d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : null,
+      background: d.backdrop_path ? `https://image.tmdb.org/t/p/w1280${d.backdrop_path}` : null,
+      releaseInfo: d.release_date ? d.release_date.split("-")[0] : d.first_air_date ? d.first_air_date.split("-")[0] : null,
+      imdbRating: d.vote_average ? d.vote_average.toFixed(1) : null,
+      cast,
+      genres: (d.genres || []).map(g => g.name),
+      runtime: d.runtime || (d.episode_run_time && d.episode_run_time[0]) || null,
+      trailer: trailer ? { source: "yt", id: trailer.key } : null
+    };
+
+    return { meta };
+
+  } catch (e) {
+    console.log("❌ meta", id, e.message);
+    return { meta: { id, type } };
+  }
 });
 
 // 🌐 SERVER
