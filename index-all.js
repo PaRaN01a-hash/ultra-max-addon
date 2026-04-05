@@ -19,7 +19,6 @@ const PROVIDERS = {
   paramount: 531,
   peacock: 386,
   crunchyroll: 283,
-  funimation: 269,
   hidive: 430,
   mgm: 268,
   acorn: 87,
@@ -151,10 +150,12 @@ builder.defineCatalogHandler(async ({ type, id }) => {
   if (type === "series" && rule.genre === 9648) genre = 9648;  // Mystery (same on TV)
   url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`;
 }
-else {
+else if (rule.anime) {
+      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
+    }
+    else {
       url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}`;
-    } 
-
+    }
    const data = await fetchCached(url);
     const seen = new Set();
 
