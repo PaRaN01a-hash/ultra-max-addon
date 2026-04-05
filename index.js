@@ -1,13 +1,19 @@
 const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 const axios = require("axios");
 
-const PORT = 7000;
+const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
+const FILTER_ENABLED = process.env.FILTER_MODE !== "off";
+
+if (!TMDB_KEY) {
+  console.error("TMDB_KEY missing - exiting");
+  process.exit(1);
+}
 
 const cache = new Map();
 const imdbCache = new Map();
 
-// 📺 PROVIDERS
+// PROVIDERS
 const PROVIDERS = {
   netflix: 8,
   amazon: 9,
@@ -23,9 +29,13 @@ const PROVIDERS = {
   britbox: 151,
   itvx: 584,
   channel4: 583,
+
+  // only used in unfiltered mode
+  crunchyroll: 283,
+  hidive: 430
 };
 
-// 🎬 GENRES
+// GENRES
 const GENRES = {
   action: 28,
   comedy: 35,
@@ -41,39 +51,52 @@ const GENRES = {
   mystery: 9648
 };
 
-// 🧱 RULES
-const RULES = [
-  { id: "trending_movies", type: "movie", name: "🔥 Trending", trending: true },
-  { id: "trending_series", type: "series", name: "🔥 Trending", trending: true },
+// RULES
+let RULES = [
+  { id: "trending_movies", type: "movie", name: "Trending", trending: true },
+  { id: "trending_series", type: "series", name: "Trending", trending: true },
 
-  { id: "popular_movies", type: "movie", name: "⭐ Popular", source: "popular" },
-  { id: "popular_series", type: "series", name: "⭐ Popular", source: "popular" },
+  { id: "popular_movies", type: "movie", name: "Popular", source: "popular" },
+  { id: "popular_series", type: "series", name: "Popular", source: "popular" },
 
-  { id: "top_movies", type: "movie", name: "🏆 Top Rated", source: "top_rated" },
-  { id: "top_series", type: "series", name: "🏆 Top Rated", source: "top_rated" },
+  { id: "top_movies", type: "movie", name: "Top Rated", source: "top_rated" },
+  { id: "top_series", type: "series", name: "Top Rated", source: "top_rated" },
 
-  { id: "now_movies", type: "movie", name: "🎬 Now Playing", source: "now_playing" },
-
-  { id: "airing_series", type: "series", name: "📺 Airing Today", source: "airing_today" },
-  { id: "ontheair_series", type: "series", name: "📡 On The Air", source: "on_the_air" },
-
-  ...Object.entries(PROVIDERS).flatMap(([key, id]) => ([
-    { id: `${key}_movies`, type: "movie", name: `${key.charAt(0).toUpperCase() + key.slice(1)}`, provider: id },
-    ...(key === "mgm" ? [] : [{ id: `${key}_series`, type: "series", name: `${key.charAt(0).toUpperCase() + key.slice(1)}`, provider: id }])
-  ])),
-
-  ...Object.entries(GENRES).flatMap(([key, id]) => ([
-    { id: `${key}_movies`, type: "movie", name: `🎭 ${key.charAt(0).toUpperCase() + key.slice(1)}`, genre: id },
-    { id: `${key}_series`, type: "series", name: `🎭 ${key.charAt(0).toUpperCase() + key.slice(1)}`, genre: id }
-  ]))
+  { id: "now_movies", type: "movie", name: "Now Playing", source: "now_playing" },
+  { id: "airing_series", type: "series", name: "Airing Today", source: "airing_today" },
+  { id: "ontheair_series", type: "series", name: "On The Air", source: "on_the_air" }
 ];
 
-// 🧠 BUILDER
+// anime only if NOT filtered
+if (!FILTER_ENABLED) {
+  RULES.push(
+    { id: "anime_movies", type: "movie", name: "Anime", anime: true },
+    { id: "anime_series", type: "series", name: "Anime", anime: true }
+  );
+}
+
+// providers
+RULES.push(
+  ...Object.entries(PROVIDERS).flatMap(([key, id]) => ([
+    { id: `${key}_movies`, type: "movie", name: key, provider: id },
+    ...(key === "mgm" ? [] : [{ id: `${key}_series`, type: "series", name: key, provider: id }])
+  ]))
+);
+
+// genres
+RULES.push(
+  ...Object.entries(GENRES).flatMap(([key, id]) => ([
+    { id: `${key}_movies`, type: "movie", name: key, genre: id },
+    { id: `${key}_series`, type: "series", name: key, genre: id }
+  ]))
+);
+
+// BUILDER
 const builder = new addonBuilder({
-  id: "org.kris.ultra.max",
-  version: "1.0.2",
-  name: "Ultra MAX",
-  description: "Fast and Reliable",
+  id: FILTER_ENABLED ? "org.kris.ultra.max.v3" : "org.kris.ultra.max.all.v3",
+  version: "3.0.0",
+  name: FILTER_ENABLED ? "Ultra MAX" : "Ultra MAX All",
+  description: FILTER_ENABLED ? "Filtered content" : "All content",
   types: ["movie", "series"],
   resources: ["catalog", "meta"],
   catalogs: RULES.map(r => ({
@@ -84,7 +107,7 @@ const builder = new addonBuilder({
   }))
 });
 
-// ⭐ TMDB → IMDb
+// TMDB → IMDb
 async function getImdbId(tmdbId, type) {
   const key = `${type}-${tmdbId}`;
   if (imdbCache.has(key)) return imdbCache.get(key);
@@ -94,8 +117,10 @@ async function getImdbId(tmdbId, type) {
     const res = await axios.get(
       `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/external_ids?api_key=${TMDB_KEY}`
     );
+
     const imdb = res.data.imdb_id;
     if (!imdb) return null;
+
     imdbCache.set(key, imdb);
     return imdb;
   } catch {
@@ -103,80 +128,71 @@ async function getImdbId(tmdbId, type) {
   }
 }
 
-// ⚡ CACHE
+// CACHE
 async function fetchCached(url) {
   if (cache.has(url)) return cache.get(url);
+
   const res = await axios.get(url, { timeout: 5000 });
   const data = res.data;
+
   cache.set(url, data);
   setTimeout(() => cache.delete(url), 300000);
+
   return data;
 }
 
-// 🎬 CATALOG HANDLER
+// FILTER
+function isValidItem(i) {
+  if (!i.poster_path) return false;
+
+  if (!FILTER_ENABLED) return true;
+
+  if (i.original_language === "hi") return false;
+  if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
+
+  const name = (i.title || i.name || "").toLowerCase();
+  if (name.includes("anime")) return false;
+
+  return true;
+}
+
+// CATALOG
 builder.defineCatalogHandler(async ({ type, id, extra }) => {
   try {
     const rule = RULES.find(r => r.id === id);
     if (!rule) return { metas: [] };
 
     const tmdbType = type === "series" ? "tv" : "movie";
-    const skip = extra?.skip || 0;
-    const page = Math.floor(skip / 20) + 1;
+    const page = Math.floor((extra?.skip || 0) / 20) + 1;
 
     let url;
 
     if (rule.trending) {
       url = `https://api.themoviedb.org/3/trending/${tmdbType}/week?api_key=${TMDB_KEY}&page=${page}`;
-    }
-    else if (rule.provider) {
+    } else if (rule.provider) {
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=${rule.provider}&watch_region=US&sort_by=popularity.desc&page=${page}`;
-    }
-    else if (rule.genre) {
+    } else if (rule.genre) {
       let genre = rule.genre;
-      if (type === "series" && rule.genre === 28) genre = 10759;
-      if (type === "series" && rule.genre === 878) genre = 10765;
-      if (type === "series" && rule.genre === 27) genre = 10765;
-      if (type === "series" && rule.genre === 53) genre = 9648;
-      if (type === "series" && rule.genre === 14) genre = 10765;
-      if (type === "series" && rule.genre === 80) genre = 80;
-      if (type === "series" && rule.genre === 10749) genre = 10749;
-      if (type === "series" && rule.genre === 16) genre = 16;
-      if (type === "series" && rule.genre === 10751) genre = 10751;
-      if (type === "series" && rule.genre === 9648) genre = 9648;
+
+      if (type === "series") {
+        if (genre === 28) genre = 10759;
+        if ([878, 27, 14].includes(genre)) genre = 10765;
+        if (genre === 53) genre = 9648;
+      }
+
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc&page=${page}`;
-    }
-    else {
+    } else if (rule.anime) {
+      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
+    } else {
       url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}&page=${page}`;
     }
 
     const data = await fetchCached(url);
     const seen = new Set();
 
-    let results = (data.results || []).filter(i => {
-      if (!i.poster_path) return false;
-      if (i.original_language === "hi") return false;
-      if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
-      const name = (i.title || i.name || "").toLowerCase();
-      if (name.includes("anime")) return false;
-      return true;
-    });
-
-    if (results.length < 10 && type === "series" && rule.genre === 28) {
-      const fallback = await fetchCached(
-        `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=10759&sort_by=popularity.desc&page=${page}`
-      );
-      results = (fallback.results || []).filter(i => {
-        if (!i.poster_path) return false;
-        if (i.original_language === "hi") return false;
-        if (i.original_language === "ja" && i.genre_ids?.includes(16)) return false;
-        const name = (i.title || i.name || "").toLowerCase();
-        if (name.includes("anime")) return false;
-        return true;
-      });
-    }
-
     const metas = (await Promise.all(
-      results
+      (data.results || [])
+        .filter(isValidItem)
         .filter(i => {
           if (seen.has(i.id)) return false;
           seen.add(i.id);
@@ -191,20 +207,20 @@ builder.defineCatalogHandler(async ({ type, id, extra }) => {
             type,
             name: i.title || i.name,
             poster: `https://image.tmdb.org/t/p/w500${i.poster_path}`,
-            background: i.backdrop_path ? `https://image.tmdb.org/t/p/original${i.backdrop_path}` : null
+            background: i.backdrop_path
+              ? `https://image.tmdb.org/t/p/original${i.backdrop_path}`
+              : null
           };
         })
     )).filter(Boolean);
 
     return { metas };
-
   } catch (e) {
-    console.log("❌", id, e.message);
+    console.log("catalog error", id, e.message);
     return { metas: [] };
   }
 });
 
-// 📦 META
 builder.defineMetaHandler(async ({ type, id }) => {
   try {
     const tmdbType = type === "series" ? "tv" : "movie";
@@ -223,71 +239,26 @@ builder.defineMetaHandler(async ({ type, id }) => {
     );
 
     const d = detailRes.data;
-    const cast = (d.credits?.cast || []).slice(0, 5).map(c => c.name);
-    const trailer = (d.videos?.results || []).find(
-      v => v.type === "Trailer" && v.site === "YouTube"
-    );
 
-    const meta = {
-      id,
-      type,
-      name: d.title || d.name,
-      description: d.overview,
-      poster: d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : null,
-      background: d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : null,
-      releaseInfo: d.release_date ? d.release_date.split("-")[0] : d.first_air_date ? d.first_air_date.split("-")[0] : null,
-      imdbRating: d.vote_average ? d.vote_average.toFixed(1) : null,
-      cast,
-      genres: (d.genres || []).map(g => g.name),
-      runtime: d.runtime || (d.episode_run_time && d.episode_run_time[0]) || null,
-      trailer: trailer ? { source: "yt", id: trailer.key } : null
+    return {
+      meta: {
+        id,
+        type,
+        name: d.title || d.name,
+        description: d.overview,
+        poster: d.poster_path
+          ? `https://image.tmdb.org/t/p/w500${d.poster_path}`
+          : null,
+        background: d.backdrop_path
+          ? `https://image.tmdb.org/t/p/original${d.backdrop_path}`
+          : null
+      }
     };
-
-    // 📺 Fetch episodes for series
-    if (type === "series") {
-      const seasons = (d.seasons || []).filter(s => s.season_number > 0);
-      const videos = [];
-
-      await Promise.all(
-        seasons.map(async (season) => {
-          try {
-            const seasonRes = await axios.get(
-              `https://api.themoviedb.org/3/tv/${tmdbId}/season/${season.season_number}?api_key=${TMDB_KEY}`
-            );
-            const episodes = seasonRes.data.episodes || [];
-            episodes.forEach(ep => {
-              videos.push({
-                id: `${id}:${season.season_number}:${ep.episode_number}`,
-                title: ep.name || `Episode ${ep.episode_number}`,
-                season: season.season_number,
-                episode: ep.episode_number,
-                overview: ep.overview || "",
-                thumbnail: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : null,
-                released: ep.air_date ? new Date(ep.air_date).toISOString() : null
-              });
-            });
-          } catch {
-            // skip failed seasons
-          }
-        })
-      );
-
-      videos.sort((a, b) => {
-        if (a.season !== b.season) return a.season - b.season;
-        return a.episode - b.episode;
-      });
-
-      meta.videos = videos;
-    }
-
-    return { meta };
-
-  } catch (e) {
-    console.log("❌ meta", id, e.message);
+  } catch {
     return { meta: { id, type } };
   }
 });
-// 🌐 SERVER
+// SERVER
 serveHTTP(builder.getInterface(), {
   port: PORT,
   host: "0.0.0.0"
