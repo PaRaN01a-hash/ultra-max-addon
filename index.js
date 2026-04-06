@@ -42,7 +42,9 @@ let RULES = [
 if (!FILTER_ENABLED) {
   RULES.push(
     { id: "anime_movies", type: "movie", name: "Anime", anime: true },
-    { id: "anime_series", type: "series", name: "Anime", anime: true }
+    { id: "anime_series", type: "series", name: "Anime", anime: true },
+    { id: "bollywood_movies", type: "movie", name: "Bollywood", bollywood: true },
+    { id: "bollywood_series", type: "series", name: "Bollywood", bollywood: true }
   );
 }
 
@@ -72,7 +74,7 @@ const DYNAMIC = [
 
 const builder = new addonBuilder({
   id: FILTER_ENABLED ? "org.kris.ultra.max.v5" : "org.kris.ultra.max.all.v5",
-  version: "5.0.0",
+  version: "5.1.0",
   name: FILTER_ENABLED ? "Ultra MAX" : "Ultra MAX All",
   description: FILTER_ENABLED ? "Filtered content" : "All content",
   types: ["movie","series"],
@@ -181,6 +183,8 @@ builder.defineCatalogHandler(async ({type,id,extra})=>{
     }
     else if(rule.anime)
       url=`https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
+    else if(rule.bollywood)
+      url=`https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_original_language=hi&sort_by=popularity.desc&page=${page}`;
     else
       url=`https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}&page=${page}`;
 
