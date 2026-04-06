@@ -5,6 +5,32 @@ const path = require("path");
 const crypto = require("crypto");
 const express = require("express");
 
+// Simple in-memory rate limiter
+const rateLimits = new Map();
+
+function rateLimit(ip, max = 10, windowMs = 60000) {
+  const now = Date.now();
+  const record = rateLimits.get(ip) || { count: 0, resetAt: now + windowMs };
+
+  if (now > record.resetAt) {
+    record.count = 0;
+    record.resetAt = now + windowMs;
+  }
+
+  record.count++;
+  rateLimits.set(ip, record);
+
+  return record.count > max;
+}
+
+// Clean up old rate limit records every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of rateLimits.entries()) {
+    if (now > record.resetAt) rateLimits.delete(ip);
+  }
+}, 300000);
+
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
 const MDBLIST_KEY = process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960";
@@ -552,15 +578,20 @@ app.use(express.json());
 
 // Serve configure page
 app.get("/configure", (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "configure.html"));
 });
 
 app.get("/configure/:token", (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "configure.html"));
 });
+
 // Create new config
+app.post("/c/create", (req, res) => {
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  if (rateLimit(ip, 5, 60000)) {
+    return res.status(429).json({ error: "Too many requests. Please wait a minute." });
+  }
+  // ... rest of the route unchanged
 app.post("/c/create", (req, res) => {
   const { password, catalogs, mdblistKey } = req.body;
   if (!password || !catalogs || !catalogs.length) {
@@ -639,7 +670,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
 });
 
 // Dynamic catalog handler
-app.get(["/c/:token/catalog/:type/:id.json", "/c/:token/catalog/:type/:id/:extra.json"], async (req, res) => {
+app.get("/c/:token/catalog/:type/:id/:extra?.json", async (req, res) => {
   const { token, type, id } = req.params;
   const configs = loadConfigs();
   const config = configs[token];
