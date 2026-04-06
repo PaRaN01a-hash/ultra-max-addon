@@ -6,647 +6,336 @@
 <title>Ultra MAX — Build Your Addon</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap');
-
   *{box-sizing:border-box;margin:0;padding:0;}
-
-  body{
-    background:#0a0a0a;
-    color:#fff;
-    font-family:'Courier Prime',monospace;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    padding:40px 0;
-  }
-
-  .filmstrip{
-    display:flex;
-    width:100%;
-    max-width:860px;
-    min-height:100vh;
-  }
-
-  .sprocket{
-    width:52px;
-    background:#111;
-    border-right:3px solid #000;
-    display:flex;
-    flex-direction:column;
-    gap:0;
-    padding:12px 0;
-    flex-shrink:0;
-  }
+  body{background:#0a0a0a;color:#fff;font-family:'Courier Prime',monospace;min-height:100vh;display:flex;justify-content:center;padding:40px 0;}
+  .filmstrip{display:flex;width:100%;max-width:860px;min-height:100vh;}
+  .sprocket{width:52px;background:#111;border-right:3px solid #000;display:flex;flex-direction:column;gap:0;padding:12px 0;flex-shrink:0;}
   .sprocket.right{border-right:none;border-left:3px solid #000;}
-
-  .hole{
-    width:22px;
-    height:16px;
-    background:#000;
-    border-radius:3px;
-    border:1.5px solid #222;
-    margin:6px auto;
-    flex-shrink:0;
-  }
-
-  .cell{
-    flex:1;
-    background:#111;
-    border-left:4px solid #000;
-    border-right:4px solid #000;
-    padding:0 0 60px 0;
-  }
-
-  .cell-header{
-    border-bottom:1px solid #2a2a2a;
-    padding:20px 32px 16px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-
+  .hole{width:22px;height:16px;background:#000;border-radius:3px;border:1.5px solid #222;margin:6px auto;flex-shrink:0;}
+  .cell{flex:1;background:#111;border-left:4px solid #000;border-right:4px solid #000;padding:0 0 60px 0;}
+  .cell-header{border-bottom:1px solid #2a2a2a;padding:20px 32px 16px;display:flex;justify-content:space-between;align-items:center;}
   .frame-num{font-size:10px;color:#444;letter-spacing:0.1em;}
-
-  h1{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:3rem;
-    letter-spacing:0.08em;
-    text-align:center;
-    padding:32px 32px 8px;
-    color:#fff;
-  }
-
-  .subtitle{
-    text-align:center;
-    color:#666;
-    font-size:12px;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    padding-bottom:32px;
-    border-bottom:1px solid #1a1a1a;
-  }
-
-  /* Steps */
-  .step{
-    padding:28px 32px;
-    border-bottom:1px solid #1a1a1a;
-  }
-
-  .step-title{
-    font-size:11px;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    color:#555;
-    margin-bottom:16px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
+  h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.08em;text-align:center;padding:32px 32px 8px;color:#fff;}
+  .subtitle{text-align:center;color:#666;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:32px;border-bottom:1px solid #1a1a1a;}
+  .step{padding:28px 32px;border-bottom:1px solid #1a1a1a;}
+  .step-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#555;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
   .step-title::after{content:'';flex:1;height:1px;background:#222;}
-
-  .step-num{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:20px;
-    color:#333;
-  }
-
-  /* Password */
-  .password-row{display:flex;gap:12px;flex-wrap:wrap;}
-  input[type=password], input[type=text]{
-    background:#0a0a0a;
-    border:1px solid #2a2a2a;
-    color:#fff;
-    font-family:'Courier Prime',monospace;
-    font-size:14px;
-    padding:10px 14px;
-    border-radius:4px;
-    flex:1;
-    min-width:200px;
-    outline:none;
-    transition:border-color 0.2s;
-  }
+  .step-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#333;}
+  .input-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  input[type=password],input[type=text]{background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:14px;padding:10px 14px;border-radius:4px;flex:1;min-width:200px;outline:none;transition:border-color 0.2s;}
   input:focus{border-color:#555;}
-
-  /* Token input for returning users */
-  .returning{
-    margin-top:12px;
-    font-size:11px;
-    color:#444;
-    cursor:pointer;
-    text-decoration:underline;
-    text-underline-offset:3px;
-  }
+  .input-hint{font-size:11px;color:#333;margin-top:6px;letter-spacing:0.03em;}
+  .api-key-section{margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;}
+  .api-key-label{font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #2a2a2a;color:#444;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
+  .returning{margin-top:12px;font-size:11px;color:#444;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:inline-block;}
   .returning:hover{color:#888;}
-
-  /* Category sections */
-  .category{
-    padding:20px 32px;
-    border-bottom:1px solid #1a1a1a;
-  }
-
-  .cat-title{
-    font-size:10px;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    color:#444;
-    margin-bottom:14px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .cat-title::after{content:'';flex:1;height:1px;background:#1a1a1a;}
-
-  .cat-icon{font-size:14px;}
-
-  .pills{display:flex;flex-wrap:wrap;gap:8px;}
-
-  .pill{
-    background:transparent;
-    border:1px solid #2a2a2a;
-    color:#555;
-    font-family:'Courier Prime',monospace;
-    font-size:12px;
-    padding:6px 14px;
-    border-radius:3px;
-    cursor:pointer;
-    transition:all 0.15s;
-    user-select:none;
-    letter-spacing:0.03em;
-  }
-  .pill:hover{border-color:#555;color:#aaa;}
-  .pill.selected{
-    background:#fff;
-    border-color:#fff;
-    color:#000;
-    font-weight:700;
-  }
-
-  /* Select all toggle */
+  .category{padding:20px 32px;border-bottom:1px solid #1a1a1a;}
   .cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .select-all{
-    font-size:10px;
-    color:#333;
-    cursor:pointer;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-  }
-  .select-all:hover{color:#666;}
-
-  /* Counter */
-  .counter{
-    position:sticky;
-    bottom:0;
-    background:#111;
-    border-top:1px solid #2a2a2a;
-    padding:16px 32px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    z-index:10;
-  }
-
-  .count-display{
-    font-size:11px;
-    color:#444;
-    letter-spacing:0.1em;
-  }
+  .cat-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#444;display:flex;align-items:center;gap:8px;}
+  .cat-icon{font-size:14px;}
+  .select-all{font-size:10px;color:#333;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;}
+  .select-all:hover{color:#888;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{background:transparent;border:1px solid #2a2a2a;color:#777;font-family:'Courier Prime',monospace;font-size:12px;padding:6px 14px;border-radius:3px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.03em;}
+  .pill:hover{border-color:#555;color:#ccc;}
+  .pill.selected{background:#fff;border-color:#fff;color:#000;font-weight:700;}
+  .counter{position:sticky;bottom:0;background:#111;border-top:1px solid #2a2a2a;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+  .count-display{font-size:11px;color:#444;letter-spacing:0.1em;}
   .count-num{color:#fff;font-size:18px;font-family:'Bebas Neue',sans-serif;}
-
-  .gen-btn{
-    background:#fff;
-    color:#000;
-    border:none;
-    font-family:'Bebas Neue',sans-serif;
-    font-size:18px;
-    letter-spacing:0.1em;
-    padding:10px 28px;
-    cursor:pointer;
-    border-radius:3px;
-    transition:opacity 0.15s;
-  }
+  .gen-btn{background:#fff;color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;padding:10px 28px;cursor:pointer;border-radius:3px;transition:opacity 0.15s;}
   .gen-btn:hover{opacity:0.85;}
   .gen-btn:disabled{opacity:0.3;cursor:not-allowed;}
-
-  /* Result */
-  .result-box{
-    padding:28px 32px;
-    display:none;
-  }
+  .result-box{padding:28px 32px;display:none;}
   .result-box.visible{display:block;}
-
-  .result-label{
-    font-size:10px;
-    color:#444;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    margin-bottom:10px;
-  }
-
-  .url-display{
-    background:#0a0a0a;
-    border:1px solid #2a2a2a;
-    padding:12px 16px;
-    border-radius:4px;
-    font-size:12px;
-    color:#aaa;
-    word-break:break-all;
-    margin-bottom:12px;
-    font-family:'Courier Prime',monospace;
-  }
-
+  .result-label{font-size:10px;color:#444;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
+  .url-display{background:#0a0a0a;border:1px solid #2a2a2a;padding:12px 16px;border-radius:4px;font-size:12px;color:#fff;word-break:break-all;margin-bottom:12px;font-family:'Courier Prime',monospace;}
   .result-btns{display:flex;gap:10px;flex-wrap:wrap;}
-
-  .rbtn{
-    padding:10px 22px;
-    border-radius:4px;
-    font-family:'Courier Prime',monospace;
-    font-size:13px;
-    cursor:pointer;
-    border:1px solid #333;
-    background:transparent;
-    color:#aaa;
-    transition:all 0.15s;
-    text-decoration:none;
-    display:inline-block;
-  }
+  .rbtn{padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;cursor:pointer;border:1px solid #333;background:transparent;color:#aaa;transition:all 0.15s;text-decoration:none;display:inline-block;}
   .rbtn:hover{border-color:#888;color:#fff;}
   .rbtn.primary{background:#fff;color:#000;border-color:#fff;font-weight:700;}
   .rbtn.primary:hover{opacity:0.85;}
-
+  .token-save{margin-top:16px;padding:12px 16px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;font-size:11px;color:#444;letter-spacing:0.03em;}
+  .token-save span{color:#888;}
   .error-msg{color:#c0392b;font-size:12px;margin-top:8px;display:none;}
   .error-msg.visible{display:block;}
-
-  /* Loading */
-  .loading{
-    text-align:center;
-    padding:20px;
-    color:#444;
-    font-size:12px;
-    letter-spacing:0.1em;
-    display:none;
-  }
+  .loading{text-align:center;padding:20px;color:#444;font-size:12px;letter-spacing:0.1em;display:none;}
   .loading.visible{display:block;}
-
-  /* Edit mode banner */
-  .edit-banner{
-    background:#1a1a1a;
-    border-bottom:1px solid #2a2a2a;
-    padding:12px 32px;
-    font-size:11px;
-    color:#666;
-    letter-spacing:0.05em;
-    display:none;
-  }
+  .edit-banner{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 32px;font-size:11px;color:#666;letter-spacing:0.05em;display:none;}
   .edit-banner.visible{display:block;}
-
-  .film-sep{
-    border:none;
-    border-top:1px solid #1a1a1a;
-    margin:0;
-  }
-
-  /* Scrollbar */
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:#0a0a0a;}
   ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px;}
 </style>
 </head>
 <body>
-
 <div class="filmstrip">
   <div class="sprocket" id="s1"></div>
-
   <div class="cell">
     <div class="cell-header">
       <span class="frame-num">ULTRA MAX — CONFIGURE</span>
       <span class="frame-num">35mm</span>
     </div>
-
-    <div class="edit-banner" id="editBanner">
-      Editing existing configuration. Enter your password to save changes.
-    </div>
-
+    <div class="edit-banner" id="editBanner">Editing existing configuration. Enter your password to save changes.</div>
     <h1>Build Your Addon</h1>
     <p class="subtitle">Select your catalogs &bull; Set a password &bull; Install</p>
+    <p style="text-align:center;font-size:11px;color:#444;padding:12px 32px;letter-spacing:0.05em;">
+        &#9432; Catalogs appear in Stremio in the order you select them
+    </p>
 
-    <!-- STEP 1: PASSWORD -->
     <div class="step">
-      <div class="step-title"><span class="step-num">01</span> Set a Password</div>
-      <div class="password-row">
+      <div class="step-title"><span class="step-num">01</span> Account</div>
+      <div class="input-row">
         <input type="password" id="password" placeholder="Password" autocomplete="new-password" />
         <input type="password" id="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" />
       </div>
       <div class="error-msg" id="passError">Passwords do not match</div>
-      <p class="returning" onclick="toggleReturning()">Returning user? Load your existing config</p>
-      <div style="display:none;margin-top:12px;" id="returningBox">
-        <input type="text" id="tokenInput" placeholder="Enter your config token (e.g. ABC123)" style="max-width:300px;" />
-        <button onclick="loadConfig()" style="margin-left:8px;background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;padding:10px 16px;cursor:pointer;border-radius:4px;">Load</button>
+      <div class="api-key-section">
+        <div class="api-key-label">&#128273; MDBList API Key <span class="optional-badge">OPTIONAL</span></div>
+        <input type="text" id="mdblistKey" placeholder="Your MDBList API key — overrides the default" />
+        <p class="input-hint">Only needed if you want to use your own MDBList account. Leave blank to use the shared key.</p>
+      </div>
+      <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
+      <div style="display:none;" id="returningBox">
+        <div class="input-row" style="margin-top:12px;">
+          <input type="text" id="tokenInput" placeholder="Enter your config token (e.g. ABC123)" />
+          <button onclick="loadConfig()" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;padding:10px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;">Load Config</button>
+        </div>
       </div>
     </div>
 
-    <!-- STEP 2: ESSENTIAL -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">⚡</span> Essential</div>
-        <span class="select-all" onclick="selectAll('essential')">Select All</span>
+        <div class="cat-title"><span class="cat-icon">&#128293;</span> Trending &amp; Popular</div>
+        <span class="select-all" onclick="selectAll('trending')">Select All</span>
       </div>
-      <div class="pills" id="essential">
-        <div class="pill" data-id="trending_movies" data-type="movie">Trending Movies</div>
-        <div class="pill" data-id="trending_series" data-type="series">Trending Series</div>
-        <div class="pill" data-id="popular_movies" data-type="movie">Popular Movies</div>
-        <div class="pill" data-id="popular_series" data-type="series">Popular Series</div>
-        <div class="pill" data-id="top_movies" data-type="movie">Top Rated Movies</div>
-        <div class="pill" data-id="top_series" data-type="series">Top Rated Series</div>
-        <div class="pill" data-id="now_movies" data-type="movie">Now Playing</div>
-        <div class="pill" data-id="airing_series" data-type="series">Airing Today</div>
-        <div class="pill" data-id="ontheair_series" data-type="series">On The Air</div>
+      <div class="pills" id="trending">
+        <div class="pill" data-id="trending_movies">Trending Movies</div>
+        <div class="pill" data-id="trending_series">Trending Series</div>
+        <div class="pill" data-id="popular_movies">Popular Movies</div>
+        <div class="pill" data-id="popular_series">Popular Series</div>
+        <div class="pill" data-id="top_movies">Top Rated Movies</div>
+        <div class="pill" data-id="top_series">Top Rated Series</div>
+        <div class="pill" data-id="now_movies">Now Playing</div>
+        <div class="pill" data-id="airing_series">Airing Today</div>
+        <div class="pill" data-id="ontheair_series">On The Air</div>
+        <div class="pill" data-id="mdb_87667">Trakt Trending Movies</div>
+        <div class="pill" data-id="mdb_88434">Trakt Trending Series</div>
+        <div class="pill" data-id="mdb_2236">Top Movies This Week</div>
+        <div class="pill" data-id="mdb_1198">Most Popular (Top 20)</div>
+        <div class="pill" data-id="mdb_69">IMDb Moviemeter Top 100</div>
       </div>
     </div>
 
-    <!-- STREAMING PROVIDERS -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">📺</span> Streaming Providers</div>
-        <span class="select-all" onclick="selectAll('providers')">Select All</span>
-      </div>
-      <div class="pills" id="providers">
-        <div class="pill" data-id="netflix_movies" data-type="movie">Netflix Movies</div>
-        <div class="pill" data-id="netflix_series" data-type="series">Netflix Series</div>
-        <div class="pill" data-id="amazon_movies" data-type="movie">Amazon Movies</div>
-        <div class="pill" data-id="amazon_series" data-type="series">Amazon Series</div>
-        <div class="pill" data-id="disney_movies" data-type="movie">Disney+ Movies</div>
-        <div class="pill" data-id="disney_series" data-type="series">Disney+ Series</div>
-        <div class="pill" data-id="hbo_movies" data-type="movie">HBO Movies</div>
-        <div class="pill" data-id="hbo_series" data-type="series">HBO Series</div>
-        <div class="pill" data-id="apple_movies" data-type="movie">Apple TV+ Movies</div>
-        <div class="pill" data-id="apple_series" data-type="series">Apple TV+ Series</div>
-        <div class="pill" data-id="paramount_movies" data-type="movie">Paramount+ Movies</div>
-        <div class="pill" data-id="paramount_series" data-type="series">Paramount+ Series</div>
-        <div class="pill" data-id="peacock_movies" data-type="movie">Peacock Movies</div>
-        <div class="pill" data-id="peacock_series" data-type="series">Peacock Series</div>
-        <div class="pill" data-id="hulu_movies" data-type="movie">Hulu Movies</div>
-        <div class="pill" data-id="hulu_series" data-type="series">Hulu Series</div>
-        <div class="pill" data-id="mgm_movies" data-type="movie">MGM+ Movies</div>
-        <div class="pill" data-id="acorn_movies" data-type="movie">Acorn Movies</div>
-        <div class="pill" data-id="acorn_series" data-type="series">Acorn Series</div>
-        <div class="pill" data-id="shudder_movies" data-type="movie">Shudder Movies</div>
-        <div class="pill" data-id="shudder_series" data-type="series">Shudder Series</div>
-        <div class="pill" data-id="britbox_movies" data-type="movie">BritBox Movies</div>
-        <div class="pill" data-id="britbox_series" data-type="series">BritBox Series</div>
-        <div class="pill" data-id="itvx_movies" data-type="movie">ITVX Movies</div>
-        <div class="pill" data-id="itvx_series" data-type="series">ITVX Series</div>
-        <div class="pill" data-id="channel4_movies" data-type="movie">Channel 4 Movies</div>
-        <div class="pill" data-id="channel4_series" data-type="series">Channel 4 Series</div>
-        <div class="pill" data-id="crunchyroll_movies" data-type="movie">Crunchyroll Movies</div>
-        <div class="pill" data-id="crunchyroll_series" data-type="series">Crunchyroll Series</div>
-        <div class="pill" data-id="hidive_movies" data-type="movie">Hidive Movies</div>
-        <div class="pill" data-id="hidive_series" data-type="series">Hidive Series</div>
-      </div>
-    </div>
-
-    <!-- PROVIDER LATEST (MDBLIST) -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🆕</span> What's New On...</div>
+        <div class="cat-title"><span class="cat-icon">&#127381;</span> New &amp; Latest</div>
         <span class="select-all" onclick="selectAll('latest')">Select All</span>
       </div>
       <div class="pills" id="latest">
-        <div class="pill" data-id="mdb_88328" data-type="movie">Netflix Latest Movies</div>
-        <div class="pill" data-id="mdb_86751" data-type="series">Netflix Latest Series</div>
-        <div class="pill" data-id="mdb_86755" data-type="movie">Amazon Latest Movies</div>
-        <div class="pill" data-id="mdb_86753" data-type="series">Amazon Latest Series</div>
-        <div class="pill" data-id="mdb_88317" data-type="movie">Apple TV+ Latest Movies</div>
-        <div class="pill" data-id="mdb_88319" data-type="series">Apple TV+ Latest Series</div>
-        <div class="pill" data-id="mdb_86759" data-type="movie">Disney+ Latest Movies</div>
-        <div class="pill" data-id="mdb_86758" data-type="series">Disney+ Latest Series</div>
-        <div class="pill" data-id="mdb_89647" data-type="movie">HBO Latest Movies</div>
-        <div class="pill" data-id="mdb_89649" data-type="series">HBO Latest Series</div>
-        <div class="pill" data-id="mdb_86762" data-type="movie">Paramount+ Latest Movies</div>
-        <div class="pill" data-id="mdb_86761" data-type="series">Paramount+ Latest Series</div>
-        <div class="pill" data-id="mdb_88326" data-type="movie">Hulu Latest Movies</div>
-        <div class="pill" data-id="mdb_88327" data-type="series">Hulu Latest Series</div>
+        <div class="pill" data-id="mdb_86934">Latest Digital Release</div>
+        <div class="pill" data-id="mdb_960">Latest Releases</div>
+        <div class="pill" data-id="mdb_2202">Latest Blu-ray</div>
+        <div class="pill" data-id="mdb_1176">Latest Certified Fresh</div>
+        <div class="pill" data-id="mdb_86710">Latest Airing Shows</div>
+        <div class="pill" data-id="mdb_88328">Netflix Latest Movies</div>
+        <div class="pill" data-id="mdb_86751">Netflix Latest Series</div>
+        <div class="pill" data-id="mdb_86755">Amazon Latest Movies</div>
+        <div class="pill" data-id="mdb_86753">Amazon Latest Series</div>
+        <div class="pill" data-id="mdb_88317">Apple TV+ Latest Movies</div>
+        <div class="pill" data-id="mdb_88319">Apple TV+ Latest Series</div>
+        <div class="pill" data-id="mdb_86759">Disney+ Latest Movies</div>
+        <div class="pill" data-id="mdb_86758">Disney+ Latest Series</div>
+        <div class="pill" data-id="mdb_89647">HBO Latest Movies</div>
+        <div class="pill" data-id="mdb_89649">HBO Latest Series</div>
+        <div class="pill" data-id="mdb_86762">Paramount+ Latest Movies</div>
+        <div class="pill" data-id="mdb_86761">Paramount+ Latest Series</div>
+        <div class="pill" data-id="mdb_88326">Hulu Latest Movies</div>
+        <div class="pill" data-id="mdb_88327">Hulu Latest Series</div>
       </div>
     </div>
 
-    <!-- GENRES -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🎭</span> Genres</div>
+        <div class="cat-title"><span class="cat-icon">&#128250;</span> Streaming Providers</div>
+        <span class="select-all" onclick="selectAll('providers')">Select All</span>
+      </div>
+      <div class="pills" id="providers">
+        <div class="pill" data-id="netflix_movies">Netflix Movies</div>
+        <div class="pill" data-id="netflix_series">Netflix Series</div>
+        <div class="pill" data-id="amazon_movies">Amazon Movies</div>
+        <div class="pill" data-id="amazon_series">Amazon Series</div>
+        <div class="pill" data-id="disney_movies">Disney+ Movies</div>
+        <div class="pill" data-id="disney_series">Disney+ Series</div>
+        <div class="pill" data-id="hbo_movies">HBO Movies</div>
+        <div class="pill" data-id="hbo_series">HBO Series</div>
+        <div class="pill" data-id="apple_movies">Apple TV+ Movies</div>
+        <div class="pill" data-id="apple_series">Apple TV+ Series</div>
+        <div class="pill" data-id="paramount_movies">Paramount+ Movies</div>
+        <div class="pill" data-id="paramount_series">Paramount+ Series</div>
+        <div class="pill" data-id="peacock_movies">Peacock Movies</div>
+        <div class="pill" data-id="peacock_series">Peacock Series</div>
+        <div class="pill" data-id="hulu_movies">Hulu Movies</div>
+        <div class="pill" data-id="hulu_series">Hulu Series</div>
+        <div class="pill" data-id="mgm_movies">MGM+ Movies</div>
+        <div class="pill" data-id="acorn_movies">Acorn Movies</div>
+        <div class="pill" data-id="acorn_series">Acorn Series</div>
+        <div class="pill" data-id="shudder_movies">Shudder Movies</div>
+        <div class="pill" data-id="shudder_series">Shudder Series</div>
+        <div class="pill" data-id="britbox_movies">BritBox Movies</div>
+        <div class="pill" data-id="britbox_series">BritBox Series</div>
+        <div class="pill" data-id="itvx_movies">ITVX Movies</div>
+        <div class="pill" data-id="itvx_series">ITVX Series</div>
+        <div class="pill" data-id="channel4_movies">Channel 4 Movies</div>
+        <div class="pill" data-id="channel4_series">Channel 4 Series</div>
+        <div class="pill" data-id="crunchyroll_movies">Crunchyroll Movies</div>
+        <div class="pill" data-id="crunchyroll_series">Crunchyroll Series</div>
+        <div class="pill" data-id="hidive_movies">Hidive Movies</div>
+        <div class="pill" data-id="hidive_series">Hidive Series</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127917;</span> Genres</div>
         <span class="select-all" onclick="selectAll('genres')">Select All</span>
       </div>
       <div class="pills" id="genres">
-        <div class="pill" data-id="action_movies" data-type="movie">Action Movies</div>
-        <div class="pill" data-id="action_series" data-type="series">Action Series</div>
-        <div class="pill" data-id="comedy_movies" data-type="movie">Comedy Movies</div>
-        <div class="pill" data-id="comedy_series" data-type="series">Comedy Series</div>
-        <div class="pill" data-id="horror_movies" data-type="movie">Horror Movies</div>
-        <div class="pill" data-id="horror_series" data-type="series">Horror Series</div>
-        <div class="pill" data-id="scifi_movies" data-type="movie">Sci-Fi Movies</div>
-        <div class="pill" data-id="scifi_series" data-type="series">Sci-Fi Series</div>
-        <div class="pill" data-id="thriller_movies" data-type="movie">Thriller Movies</div>
-        <div class="pill" data-id="thriller_series" data-type="series">Thriller Series</div>
-        <div class="pill" data-id="crime_movies" data-type="movie">Crime Movies</div>
-        <div class="pill" data-id="crime_series" data-type="series">Crime Series</div>
-        <div class="pill" data-id="drama_movies" data-type="movie">Drama Movies</div>
-        <div class="pill" data-id="drama_series" data-type="series">Drama Series</div>
-        <div class="pill" data-id="romance_movies" data-type="movie">Romance Movies</div>
-        <div class="pill" data-id="romance_series" data-type="series">Romance Series</div>
-        <div class="pill" data-id="documentary_movies" data-type="movie">Documentary Movies</div>
-        <div class="pill" data-id="documentary_series" data-type="series">Documentary Series</div>
-        <div class="pill" data-id="animation_movies" data-type="movie">Animation Movies</div>
-        <div class="pill" data-id="animation_series" data-type="series">Animation Series</div>
-        <div class="pill" data-id="family_movies" data-type="movie">Family Movies</div>
-        <div class="pill" data-id="family_series" data-type="series">Family Series</div>
-        <div class="pill" data-id="fantasy_movies" data-type="movie">Fantasy Movies</div>
-        <div class="pill" data-id="fantasy_series" data-type="series">Fantasy Series</div>
-        <div class="pill" data-id="mystery_movies" data-type="movie">Mystery Movies</div>
-        <div class="pill" data-id="mystery_series" data-type="series">Mystery Series</div>
-        <div class="pill" data-id="anime_movies" data-type="movie">Anime Movies</div>
-        <div class="pill" data-id="anime_series" data-type="series">Anime Series</div>
-        <div class="pill" data-id="bollywood_movies" data-type="movie">Bollywood Movies</div>
-        <div class="pill" data-id="bollywood_series" data-type="series">Bollywood Series</div>
+        <div class="pill" data-id="mdb_91211">Action Movies</div>
+        <div class="pill" data-id="mdb_91213">Action Series</div>
+        <div class="pill" data-id="mdb_91223">Comedy Movies</div>
+        <div class="pill" data-id="mdb_91224">Comedy Series</div>
+        <div class="pill" data-id="mdb_91215">Horror Movies</div>
+        <div class="pill" data-id="mdb_91217">Horror Series</div>
+        <div class="pill" data-id="mdb_91220">Sci-Fi Movies</div>
+        <div class="pill" data-id="mdb_91221">Sci-Fi Series</div>
+        <div class="pill" data-id="mdb_91893">Thriller Movies</div>
+        <div class="pill" data-id="mdb_91894">Thriller Series</div>
+        <div class="pill" data-id="mdb_3108">Crime Movies</div>
+        <div class="pill" data-id="mdb_3126">Crime Series</div>
+        <div class="pill" data-id="mdb_91296">Drama Movies</div>
+        <div class="pill" data-id="mdb_91297">Drama Series</div>
+        <div class="pill" data-id="mdb_116037">Animated Movies</div>
+        <div class="pill" data-id="mdb_116038">Animated Series</div>
+        <div class="pill" data-id="mdb_84677">Top Documentaries</div>
+        <div class="pill" data-id="mdb_84403">Documentary Series</div>
+        <div class="pill" data-id="mdb_8043">History &amp; War</div>
+        <div class="pill" data-id="mdb_84487">Nature</div>
+        <div class="pill" data-id="mdb_84401">Reality TV</div>
+        <div class="pill" data-id="mdb_83497">Standup Comedy</div>
+        <div class="pill" data-id="anime_movies">Anime Movies</div>
+        <div class="pill" data-id="anime_series">Anime Series</div>
+        <div class="pill" data-id="bollywood_movies">Bollywood Movies</div>
+        <div class="pill" data-id="bollywood_series">Bollywood Series</div>
       </div>
     </div>
 
-    <!-- CURATED GENRES (MDBLIST) -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🏆</span> Curated Genre Lists</div>
-        <span class="select-all" onclick="selectAll('curated_genres')">Select All</span>
-      </div>
-      <div class="pills" id="curated_genres">
-        <div class="pill" data-id="mdb_91211" data-type="movie">Action Movies</div>
-        <div class="pill" data-id="mdb_91213" data-type="series">Action Series</div>
-        <div class="pill" data-id="mdb_91223" data-type="movie">Comedy Movies</div>
-        <div class="pill" data-id="mdb_91224" data-type="series">Comedy Series</div>
-        <div class="pill" data-id="mdb_91215" data-type="movie">Horror Movies</div>
-        <div class="pill" data-id="mdb_91217" data-type="series">Horror Series</div>
-        <div class="pill" data-id="mdb_91220" data-type="movie">Sci-Fi Movies</div>
-        <div class="pill" data-id="mdb_91221" data-type="series">Sci-Fi Series</div>
-        <div class="pill" data-id="mdb_91893" data-type="movie">Thriller Movies</div>
-        <div class="pill" data-id="mdb_91894" data-type="series">Thriller Series</div>
-        <div class="pill" data-id="mdb_3108" data-type="movie">Crime Movies</div>
-        <div class="pill" data-id="mdb_3126" data-type="series">Crime Series</div>
-        <div class="pill" data-id="mdb_91296" data-type="movie">Drama Movies</div>
-        <div class="pill" data-id="mdb_91297" data-type="series">Drama Series</div>
-        <div class="pill" data-id="mdb_116037" data-type="movie">Animated Movies</div>
-        <div class="pill" data-id="mdb_116038" data-type="series">Animated Series</div>
-        <div class="pill" data-id="mdb_84677" data-type="movie">Top Documentaries</div>
-        <div class="pill" data-id="mdb_84403" data-type="series">Top Documentary Series</div>
-        <div class="pill" data-id="mdb_8043" data-type="movie">History & War</div>
-        <div class="pill" data-id="mdb_84487" data-type="series">Top Nature</div>
-        <div class="pill" data-id="mdb_84401" data-type="series">Top Reality TV</div>
-        <div class="pill" data-id="mdb_83497" data-type="movie">Top Standup Comedy</div>
-      </div>
-    </div>
-
-    <!-- THEMED -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🎬</span> Themed & Curated</div>
+        <div class="cat-title"><span class="cat-icon">&#127916;</span> Themed &amp; Curated</div>
         <span class="select-all" onclick="selectAll('themed')">Select All</span>
       </div>
       <div class="pills" id="themed">
-        <div class="pill" data-id="mdb_3892" data-type="movie">Must-See Mindfuck</div>
-        <div class="pill" data-id="mdb_3923" data-type="movie">Crazy Plot Twists</div>
-        <div class="pill" data-id="mdb_3920" data-type="movie">Outer Space</div>
-        <div class="pill" data-id="mdb_2909" data-type="movie">Time Travel</div>
-        <div class="pill" data-id="mdb_102554" data-type="movie">Must-See Modern Horror</div>
-        <div class="pill" data-id="mdb_2410" data-type="movie">Horror Classics (1960-Today)</div>
-        <div class="pill" data-id="mdb_3885" data-type="movie">100% Rotten Tomatoes</div>
-        <div class="pill" data-id="mdb_4081" data-type="movie">Top 50 Parody Movies</div>
-        <div class="pill" data-id="mdb_4390" data-type="movie">True Crime Documentaries</div>
-        <div class="pill" data-id="mdb_2858" data-type="movie">Thrilling Movies</div>
-        <div class="pill" data-id="mdb_136620" data-type="movie">Seasonal</div>
-        <div class="pill" data-id="theme_superhero" data-type="movie">Superhero</div>
-        <div class="pill" data-id="theme_revenge" data-type="movie">Revenge</div>
-        <div class="pill" data-id="theme_roadtrip" data-type="movie">Road Trip</div>
-        <div class="pill" data-id="theme_heist" data-type="movie">Heist</div>
-        <div class="pill" data-id="theme_serialkiller" data-type="movie">Serial Killer</div>
-        <div class="pill" data-id="theme_timeloop" data-type="movie">Time Loop</div>
-        <div class="pill" data-id="theme_postapoc" data-type="movie">Post Apocalyptic</div>
-        <div class="pill" data-id="theme_dystopia" data-type="movie">Dystopia</div>
-        <div class="pill" data-id="theme_truestory" data-type="movie">Based on True Story</div>
-        <div class="pill" data-id="theme_ai" data-type="movie">Artificial Intelligence</div>
-        <div class="pill" data-id="theme_zombie" data-type="movie">Zombie</div>
+        <div class="pill" data-id="mdb_3892">Must-See Mindfuck</div>
+        <div class="pill" data-id="mdb_3923">Crazy Plot Twists</div>
+        <div class="pill" data-id="mdb_3920">Outer Space</div>
+        <div class="pill" data-id="mdb_2909">Time Travel</div>
+        <div class="pill" data-id="mdb_102554">Must-See Modern Horror</div>
+        <div class="pill" data-id="mdb_2410">Horror Classics</div>
+        <div class="pill" data-id="mdb_3885">100% Rotten Tomatoes</div>
+        <div class="pill" data-id="mdb_4081">Top 50 Parody Movies</div>
+        <div class="pill" data-id="mdb_4390">True Crime Docs</div>
+        <div class="pill" data-id="mdb_2858">Thrilling Movies</div>
+        <div class="pill" data-id="mdb_136620">Seasonal</div>
+        <div class="pill" data-id="theme_superhero">Superhero</div>
+        <div class="pill" data-id="theme_revenge">Revenge</div>
+        <div class="pill" data-id="theme_roadtrip">Road Trip</div>
+        <div class="pill" data-id="theme_heist">Heist</div>
+        <div class="pill" data-id="theme_serialkiller">Serial Killer</div>
+        <div class="pill" data-id="theme_timeloop">Time Loop</div>
+        <div class="pill" data-id="theme_postapoc">Post Apocalyptic</div>
+        <div class="pill" data-id="theme_dystopia">Dystopia</div>
+        <div class="pill" data-id="theme_truestory">Based on True Story</div>
+        <div class="pill" data-id="theme_ai">Artificial Intelligence</div>
+        <div class="pill" data-id="theme_zombie">Zombie</div>
       </div>
     </div>
 
-    <!-- STUDIOS -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🎥</span> Studios</div>
+        <div class="cat-title"><span class="cat-icon">&#127909;</span> Studios</div>
         <span class="select-all" onclick="selectAll('studios')">Select All</span>
       </div>
       <div class="pills" id="studios">
-        <div class="pill" data-id="studio_marvel" data-type="movie">Marvel</div>
-        <div class="pill" data-id="studio_dc" data-type="movie">DC Films</div>
-        <div class="pill" data-id="studio_a24" data-type="movie">A24</div>
-        <div class="pill" data-id="studio_blumhouse" data-type="movie">Blumhouse</div>
-        <div class="pill" data-id="studio_ghibli" data-type="movie">Studio Ghibli</div>
-        <div class="pill" data-id="mdb_3918" data-type="movie">Pixar</div>
-        <div class="pill" data-id="mdb_3928" data-type="movie">DreamWorks</div>
+        <div class="pill" data-id="studio_marvel">Marvel</div>
+        <div class="pill" data-id="studio_dc">DC Films</div>
+        <div class="pill" data-id="studio_a24">A24</div>
+        <div class="pill" data-id="studio_blumhouse">Blumhouse</div>
+        <div class="pill" data-id="studio_ghibli">Studio Ghibli</div>
+        <div class="pill" data-id="mdb_3918">Pixar</div>
+        <div class="pill" data-id="mdb_3928">DreamWorks</div>
       </div>
     </div>
 
-    <!-- UK SPECIFIC -->
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🇬🇧</span> UK Specific</div>
-        <span class="select-all" onclick="selectAll('uk')">Select All</span>
-      </div>
-      <div class="pills" id="uk">
-        <div class="pill" data-id="mdb_3087" data-type="series">BBC Shows</div>
-        <div class="pill" data-id="mdb_3091" data-type="series">UK Shows</div>
-      </div>
-    </div>
-
-    <!-- KIDS & FAMILY -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">👶</span> Kids & Family</div>
-        <span class="select-all" onclick="selectAll('kids')">Select All</span>
-      </div>
-      <div class="pills" id="kids">
-        <div class="pill" data-id="mdb_88307" data-type="movie">Trending Kids Movies</div>
-        <div class="pill" data-id="mdb_88309" data-type="series">Trending Kids Series</div>
-        <div class="pill" data-id="mdb_13" data-type="movie">Top Kids Movies This Week</div>
-      </div>
-    </div>
-
-    <!-- TRENDING & CHARTS -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">📊</span> Charts & Rankings</div>
-        <span class="select-all" onclick="selectAll('charts')">Select All</span>
-      </div>
-      <div class="pills" id="charts">
-        <div class="pill" data-id="mdb_87667" data-type="movie">Trakt Trending Movies</div>
-        <div class="pill" data-id="mdb_88434" data-type="series">Trakt Trending Series</div>
-        <div class="pill" data-id="mdb_2236" data-type="movie">Top Movies This Week</div>
-        <div class="pill" data-id="mdb_1198" data-type="movie">Most Popular (Top 20)</div>
-        <div class="pill" data-id="mdb_69" data-type="movie">IMDb Moviemeter Top 100</div>
-        <div class="pill" data-id="mdb_3885" data-type="movie">100% on Rotten Tomatoes</div>
-        <div class="pill" data-id="mdb_1176" data-type="movie">Latest Certified Fresh</div>
-      </div>
-    </div>
-
-    <!-- LATEST RELEASES -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">🆕</span> Latest Releases</div>
-        <span class="select-all" onclick="selectAll('releases')">Select All</span>
-      </div>
-      <div class="pills" id="releases">
-        <div class="pill" data-id="mdb_86934" data-type="movie">Latest Digital Release</div>
-        <div class="pill" data-id="mdb_960" data-type="movie">Latest Releases</div>
-        <div class="pill" data-id="mdb_2202" data-type="movie">Latest Blu-ray Releases</div>
-        <div class="pill" data-id="mdb_86710" data-type="series">Latest Airing Shows</div>
-      </div>
-    </div>
-
-    <!-- BY DECADE -->
-    <div class="category">
-      <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">📅</span> By Decade</div>
+        <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade</div>
         <span class="select-all" onclick="selectAll('decades')">Select All</span>
       </div>
       <div class="pills" id="decades">
-        <div class="pill" data-id="mdb_92337" data-type="movie">Best of 2025</div>
-        <div class="pill" data-id="mdb_91304" data-type="movie">Best of 2020s</div>
-        <div class="pill" data-id="mdb_91303" data-type="movie">Best of 2010s</div>
-        <div class="pill" data-id="mdb_91302" data-type="movie">Best of 2000s</div>
-        <div class="pill" data-id="mdb_91300" data-type="movie">Best of 1990s</div>
-        <div class="pill" data-id="mdb_91301" data-type="movie">Best of 1980s</div>
+        <div class="pill" data-id="mdb_92337">Best of 2025</div>
+        <div class="pill" data-id="mdb_91304">Best of 2020s</div>
+        <div class="pill" data-id="mdb_91303">Best of 2010s</div>
+        <div class="pill" data-id="mdb_91302">Best of 2000s</div>
+        <div class="pill" data-id="mdb_91300">Best of 1990s</div>
+        <div class="pill" data-id="mdb_91301">Best of 1980s</div>
       </div>
     </div>
 
-    <!-- RESULT -->
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#128118;</span> Kids &amp; Family</div>
+        <span class="select-all" onclick="selectAll('kids')">Select All</span>
+      </div>
+      <div class="pills" id="kids">
+        <div class="pill" data-id="mdb_88307">Trending Kids Movies</div>
+        <div class="pill" data-id="mdb_88309">Trending Kids Series</div>
+        <div class="pill" data-id="mdb_13">Top Kids Movies This Week</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127468;&#127463;</span> UK Specific</div>
+        <span class="select-all" onclick="selectAll('uk')">Select All</span>
+      </div>
+      <div class="pills" id="uk">
+        <div class="pill" data-id="mdb_3087">BBC Shows</div>
+        <div class="pill" data-id="mdb_3091">UK Shows</div>
+      </div>
+    </div>
+
     <div class="result-box" id="resultBox">
-      <div class="result-label">Your manifest URL</div>
+      <div class="result-label">Your Manifest URL</div>
       <div class="url-display" id="urlDisplay"></div>
       <div class="result-btns">
         <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
         <a class="rbtn" id="installBtn" href="#">Install in Stremio</a>
-        <button class="rbtn" onclick="copyUrl('nuvio')">Copy for Nuvio</button>
       </div>
-      <div style="margin-top:16px;font-size:11px;color:#333;letter-spacing:0.05em;">
-        Save your token: <span id="tokenDisplay" style="color:#555;"></span>
-        — you'll need it to edit your config later.
+      <div class="token-save">
+        Your token: <span id="tokenDisplay"></span> 
+        <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
+       <br><br>Return to edit at <span id="editLink"></span>
       </div>
     </div>
 
     <div class="loading" id="loading">Generating your addon...</div>
 
-    <!-- COUNTER BAR -->
     <div class="counter">
-      <div class="count-display">
-        <span class="count-num" id="countNum">0</span> catalogs selected
-      </div>
+      <div class="count-display"><span class="count-num" id="countNum">0</span> catalogs selected</div>
       <button class="gen-btn" id="genBtn" onclick="generate()" disabled>Generate Manifest</button>
     </div>
-
   </div>
-
   <div class="sprocket right" id="s2"></div>
 </div>
 
@@ -655,10 +344,9 @@ const BASE_URL = window.location.origin;
 let selected = new Set();
 let editToken = null;
 
-// Generate sprocket holes
 function makeSprockets(){
-  const count = Math.ceil(document.body.scrollHeight / 28) + 10;
-  ['s1','s2'].forEach(id => {
+  const count = Math.ceil(document.body.scrollHeight / 28) + 20;
+  ['s1','s2'].forEach(function(id){
     const el = document.getElementById(id);
     el.innerHTML = '';
     for(let i=0;i<count;i++){
@@ -668,13 +356,12 @@ function makeSprockets(){
     }
   });
 }
-makeSprockets();
 window.addEventListener('resize', makeSprockets);
-window.addEventListener('load', () => setTimeout(makeSprockets, 500));
+window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); });
+setTimeout(makeSprockets, 100);
 
-// Check for token in URL
-const pathParts = window.location.pathname.split('/');
-if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configure' && pathParts[pathParts.length-1] !== ''){
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configure'){
   editToken = pathParts[pathParts.length-1];
   document.getElementById('editBanner').classList.add('visible');
   document.getElementById('confirmPassword').style.display = 'none';
@@ -682,16 +369,11 @@ if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configu
   loadConfigByToken(editToken);
 }
 
-// Pill toggle
-document.querySelectorAll('.pill').forEach(pill => {
-  pill.addEventListener('click', () => {
+document.querySelectorAll('.pill').forEach(function(pill){
+  pill.addEventListener('click', function(){
     pill.classList.toggle('selected');
-    const id = pill.dataset.id;
-    if(pill.classList.contains('selected')){
-      selected.add(id);
-    } else {
-      selected.delete(id);
-    }
+    if(pill.classList.contains('selected')) selected.add(pill.dataset.id);
+    else selected.delete(pill.dataset.id);
     updateCounter();
   });
 });
@@ -699,17 +381,13 @@ document.querySelectorAll('.pill').forEach(pill => {
 function selectAll(groupId){
   const group = document.getElementById(groupId);
   const pills = group.querySelectorAll('.pill');
-  const allSelected = [...pills].every(p => p.classList.contains('selected'));
-  pills.forEach(p => {
-    if(allSelected){
-      p.classList.remove('selected');
-      selected.delete(p.dataset.id);
-    } else {
-      p.classList.add('selected');
-      selected.add(p.dataset.id);
-    }
+  const allSelected = Array.from(pills).every(function(p){ return p.classList.contains('selected'); });
+  pills.forEach(function(p){
+    if(allSelected){ p.classList.remove('selected'); selected.delete(p.dataset.id); }
+    else { p.classList.add('selected'); selected.add(p.dataset.id); }
   });
   updateCounter();
+  setTimeout(makeSprockets, 100);
 }
 
 function updateCounter(){
@@ -719,14 +397,14 @@ function updateCounter(){
 
 function toggleReturning(){
   const box = document.getElementById('returningBox');
-  box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+  box.style.display = box.style.display === 'none' || box.style.display === '' ? 'block' : 'none';
 }
 
 async function loadConfig(){
   const token = document.getElementById('tokenInput').value.trim();
   if(!token) return;
   editToken = token;
-  window.history.pushState({}, '', `/configure/${token}`);
+  window.history.pushState({}, '', '/configure/' + token);
   document.getElementById('editBanner').classList.add('visible');
   document.getElementById('confirmPassword').style.display = 'none';
   await loadConfigByToken(token);
@@ -734,39 +412,31 @@ async function loadConfig(){
 
 async function loadConfigByToken(token){
   try{
-    const res = await fetch(`/c/${token}/config`);
+    const res = await fetch('/c/' + token + '/config');
     if(!res.ok) return;
     const data = await res.json();
     selected.clear();
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
-    data.catalogs.forEach(id => {
+    document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
+    data.catalogs.forEach(function(id){
       selected.add(id);
-      const pill = document.querySelector(`.pill[data-id="${id}"]`);
+      const pill = document.querySelector('.pill[data-id="' + id + '"]');
       if(pill) pill.classList.add('selected');
     });
+    if(data.mdblistKey) document.getElementById('mdblistKey').value = data.mdblistKey;
     updateCounter();
-  }catch(e){
-    console.error(e);
-  }
+    setTimeout(makeSprockets, 200);
+  }catch(e){ console.error(e); }
 }
 
 async function generate(){
   const pass = document.getElementById('password').value;
   const confirm = document.getElementById('confirmPassword').value;
+  const mdbKey = document.getElementById('mdblistKey').value.trim();
   const passError = document.getElementById('passError');
 
-  if(!pass){
-    passError.textContent = 'Password is required';
-    passError.classList.add('visible');
-    return;
-  }
-
-  if(!editToken && pass !== confirm){
-    passError.classList.add('visible');
-    return;
-  }
+  if(!pass){ passError.textContent='Password is required'; passError.classList.add('visible'); return; }
+  if(!editToken && pass !== confirm){ passError.textContent='Passwords do not match'; passError.classList.add('visible'); return; }
   passError.classList.remove('visible');
-
   if(selected.size === 0) return;
 
   document.getElementById('loading').classList.add('visible');
@@ -774,16 +444,12 @@ async function generate(){
   document.getElementById('genBtn').disabled = true;
 
   try{
-    const endpoint = editToken ? `/c/${editToken}/update` : '/c/create';
+    const endpoint = editToken ? '/c/' + editToken + '/update' : '/c/create';
     const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        password: pass,
-        catalogs: [...selected]
-      })
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null })
     });
-
     const data = await res.json();
 
     if(!res.ok){
@@ -794,19 +460,17 @@ async function generate(){
       return;
     }
 
-    const manifestUrl = `${BASE_URL}/c/${data.token}/manifest.json`;
+    const manifestUrl = BASE_URL + '/c/' + data.token + '/manifest.json';
     document.getElementById('urlDisplay').textContent = manifestUrl;
-    document.getElementById('installBtn').href = `stremio://${manifestUrl.replace('https://','').replace('http://','')}`;
+    document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
     document.getElementById('tokenDisplay').textContent = data.token;
+    document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#666;">max-streams.gleeze.com/configure/' + data.token + '</a>';
     document.getElementById('resultBox').classList.add('visible');
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('genBtn').disabled = false;
 
-    if(!editToken){
-      editToken = data.token;
-      window.history.pushState({}, '', `/configure/${data.token}`);
-    }
-
+    if(!editToken){ editToken = data.token; window.history.pushState({}, '', '/configure/' + data.token); }
+    setTimeout(makeSprockets, 200);
   }catch(e){
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('genBtn').disabled = false;
@@ -829,9 +493,23 @@ function copyUrl(){
   document.execCommand('copy');
   document.body.removeChild(ta);
   btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = orig, 2000);
+  setTimeout(function(){ btn.textContent = orig; }, 2000);
+}
+function copyToken(){
+  const token = document.getElementById('tokenDisplay').textContent;
+  const btn = document.getElementById('copyTokenBtn');
+  const ta = document.createElement('textarea');
+  ta.value = token;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
 }
 </script>
 </body>
 </html>
-

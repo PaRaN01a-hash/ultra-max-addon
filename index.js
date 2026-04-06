@@ -10,7 +10,23 @@ const TMDB_KEY = process.env.TMDB_KEY;
 const MDBLIST_KEY = process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960";
 const FILTER_ENABLED = process.env.FILTER_MODE !== "off";
 const CONFIGS_FILE = path.join(__dirname, "configs.json");
+// Pre-warm MDBList cache on startup
+const PREWARM_LISTS = [
+  '92337','91304','91303','91302','91300','91301',
+  '86710','88307','88309','3087','3091'
+];
 
+setTimeout(async () => {
+  console.log('Pre-warming MDBList cache...');
+  for (const id of PREWARM_LISTS) {
+    try {
+      const url = `https://mdblist.com/api/lists/${id}/items/?apikey=${MDBLIST_KEY}&limit=20&type=movie`;
+      await fetchCached(url);
+      await new Promise(r => setTimeout(r, 500));
+    } catch(e) {}
+  }
+  console.log('Cache pre-warm complete');
+}, 5000);
 if (!TMDB_KEY) {
   console.error("TMDB_KEY missing - exiting");
   process.exit(1);
@@ -216,6 +232,7 @@ function buildCatalogsFromIds(selectedIds) {
 
   selectedIds.forEach(id => {
     // Base TMDB rule
+
     const rule = BASE_RULES.find(r => r.id === id);
     if (rule) {
       catalogs.push({
@@ -330,14 +347,13 @@ async function getImdbId(tmdbId, type) {
 }
 
 function isValidItem(i) {
-  if (!i.poster_path) return false;
   return true;
 }
 
 async function resultsToMetas(arr, type) {
   return (await Promise.all(
     arr.filter(isValidItem).slice(0, 20).map(async i => {
-      const imdb = await getImdbId(i.id || i.imdb_id, type);
+     const imdb = i.imdb_id || await getImdbId(i.id, type);
       if (!imdb) return null;
       return {
         id: imdb,
@@ -356,14 +372,13 @@ async function mdblistToMetas(listId, type, mdbKey) {
   const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=20&type=${type === "series" ? "show" : "movie"}`;
   try {
     const data = await fetchCached(url);
-    const items = data.movies || data.shows || data.items || [];
+    const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
 
     return (await Promise.all(
       items.slice(0, 20).map(async item => {
         const imdbId = item.imdb_id || item.imdbid;
         if (!imdbId) return null;
 
-        // Fetch TMDB data for poster
         const tmdbType = type === "series" ? "tv" : "movie";
         try {
           const find = await fetchCached(
@@ -762,3 +777,4 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`Ultra MAX v5.1 running on port ${PORT}`);
   console.log(`Configure page: http://localhost:${PORT}/configure`);
 });
+

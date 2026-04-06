@@ -5,32 +5,6 @@ const path = require("path");
 const crypto = require("crypto");
 const express = require("express");
 
-// Simple in-memory rate limiter
-const rateLimits = new Map();
-
-function rateLimit(ip, max = 10, windowMs = 60000) {
-  const now = Date.now();
-  const record = rateLimits.get(ip) || { count: 0, resetAt: now + windowMs };
-
-  if (now > record.resetAt) {
-    record.count = 0;
-    record.resetAt = now + windowMs;
-  }
-
-  record.count++;
-  rateLimits.set(ip, record);
-
-  return record.count > max;
-}
-
-// Clean up old rate limit records every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, record] of rateLimits.entries()) {
-    if (now > record.resetAt) rateLimits.delete(ip);
-  }
-}, 300000);
-
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
 const MDBLIST_KEY = process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960";
@@ -356,14 +330,13 @@ async function getImdbId(tmdbId, type) {
 }
 
 function isValidItem(i) {
-  if (!i.poster_path) return false;
   return true;
 }
 
 async function resultsToMetas(arr, type) {
   return (await Promise.all(
     arr.filter(isValidItem).slice(0, 20).map(async i => {
-      const imdb = await getImdbId(i.id || i.imdb_id, type);
+     const imdb = i.imdb_id || await getImdbId(i.id, type);
       if (!imdb) return null;
       return {
         id: imdb,
@@ -382,8 +355,7 @@ async function mdblistToMetas(listId, type, mdbKey) {
   const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=20&type=${type === "series" ? "show" : "movie"}`;
   try {
     const data = await fetchCached(url);
-    const items = data.movies || data.shows || data.items || [];
-
+    const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
     return (await Promise.all(
       items.slice(0, 20).map(async item => {
         const imdbId = item.imdb_id || item.imdbid;
@@ -578,20 +550,15 @@ app.use(express.json());
 
 // Serve configure page
 app.get("/configure", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "configure.html"));
 });
 
 app.get("/configure/:token", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "configure.html"));
 });
-
 // Create new config
-app.post("/c/create", (req, res) => {
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  if (rateLimit(ip, 5, 60000)) {
-    return res.status(429).json({ error: "Too many requests. Please wait a minute." });
-  }
-  // ... rest of the route unchanged
 app.post("/c/create", (req, res) => {
   const { password, catalogs, mdblistKey } = req.body;
   if (!password || !catalogs || !catalogs.length) {
@@ -670,7 +637,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
 });
 
 // Dynamic catalog handler
-app.get("/c/:token/catalog/:type/:id/:extra?.json", async (req, res) => {
+app.get(["/c/:token/catalog/:type/:id.json", "/c/:token/catalog/:type/:id/:extra.json"], async (req, res) => {
   const { token, type, id } = req.params;
   const configs = loadConfigs();
   const config = configs[token];
@@ -793,3 +760,4 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`Ultra MAX v5.1 running on port ${PORT}`);
   console.log(`Configure page: http://localhost:${PORT}/configure`);
 });
+
