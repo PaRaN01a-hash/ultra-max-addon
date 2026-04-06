@@ -26,3 +26,4 @@ build/
 # Temp files
 *.tmp
 *.swp
+configs.json
