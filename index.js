@@ -199,7 +199,7 @@ function buildManifestCatalogs(ids) {
   return ids.map(id => {
     const def = CATALOG_DEFS[id];
     if (!def) return null;
-    return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }] };
+    return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] };
   }).filter(Boolean);
 }
 
@@ -214,7 +214,7 @@ const builder = new addonBuilder({
   types: ["movie","series"],
   resources: ["catalog","meta","stream"],
   catalogs: [
-    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
+    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] }
   ]
 });
 
@@ -282,6 +282,21 @@ async function mdblistToMetas(listId, type, mdbKey) {
 
 async function handleCatalog(catalogId, type, extra, mdbKey) {
   const skip = extra?.skip || 0;
+  const search = extra?.search;
+  console.log("SEARCH CHECK:", catalogId, search);
+  if (search) {
+    if (catalogId !== "popular_movies" && catalogId !== "popular_series") return { metas: [] };
+    const tmdbType = type === "series" ? "tv" : "movie";
+    const url = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(search)}&page=1`;
+    const data = await fetchCached(url);
+    return { metas: await resultsToMetas(data.results || [], type) };
+  }
+
+
+
+
+
+
   const page = Math.floor(skip / 20) + 1;
   const tmdbType = type ==="series" ?"tv" :"movie";
   const tmdbId = extra?.tmdbId;
@@ -368,12 +383,13 @@ function buildCatalogsFromIds(selectedIds) {
   const catalogs = selectedIds.map(id => {
     const def = CATALOG_DEFS[id];
     if (!def) return null;
-   return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }] };
+   return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] };
   });
   return catalogs;
 }
 
 builder.defineCatalogHandler(async ({ type, id, extra }) => {
+  console.log("CATALOG REQUEST:", id, JSON.stringify(extra));
   try { return await handleCatalog(id, type, extra, null); }
   catch (e) { console.log("catalog error", id, e.message); return { metas: [] }; }
 });
@@ -496,7 +512,7 @@ app.get(["/c/:token/catalog/:type/:id.json","/c/:token/catalog/:type/:id/:extra.
   if (!config) return res.status(404).json({ metas: [] });
   try {
     let extra = {};
-    if (req.params.extra) { try { extra = JSON.parse(decodeURIComponent(req.params.extra)); } catch { } }
+    if (req.params.extra) { try { extra = JSON.parse(decodeURIComponent(req.params.extra)); } catch { decodeURIComponent(req.params.extra).split('&').forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
     if (req.query.skip) extra.skip = parseInt(req.query.skip);
     const result = await handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY);
     res.json(result);
@@ -592,7 +608,8 @@ app.use((req, res, next) => {
     if (match) {
       const [, type, id, extraStr] = match;
       let extra = {};
-      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { } }
+      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { const parts = decodeURIComponent(extraStr).split('&'); parts.forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
+      console.log("MIDDLEWARE extra:", JSON.stringify(extra), "extraStr:", extraStr);
       handleCatalog(id, type, extra, null)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
