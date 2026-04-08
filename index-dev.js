@@ -206,10 +206,10 @@ function buildManifestCatalogs(ids) {
 const staticIds = getStaticIds();
 
 const builder = new addonBuilder({
-  id: FILTER_ENABLED ?"org.kris.ultra.max.dev" :"org.kris.ultra.max.all.dev",
+  id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
   version:"5.3.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
-  name: FILTER_ENABLED ?"Ultra MAX Dev" :"Ultra MAX All Dev",
+  name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
   description:"Dev build v5.3",
   types: ["movie","series"],
   resources: ["catalog","meta","stream"],

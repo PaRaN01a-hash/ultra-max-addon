@@ -3,6 +3,7 @@ services:
     image: stremio-addon
     container_name: stremio-filtered
     restart: unless-stopped
+    env_file: .env
     environment:
       - TMDB_KEY=${TMDB_KEY}
       - MDBLIST_KEY=${MDBLIST_KEY}
@@ -20,6 +21,7 @@ services:
     image: stremio-addon
     container_name: stremio-all
     restart: unless-stopped
+    env_file: .env
     environment:
       - TMDB_KEY=${TMDB_KEY}
       - MDBLIST_KEY=${MDBLIST_KEY}
