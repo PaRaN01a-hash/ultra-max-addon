@@ -14,58 +14,87 @@
   .hole{width:22px;height:16px;background:#000;border-radius:3px;border:1.5px solid #222;margin:6px auto;flex-shrink:0;}
   .cell{flex:1;background:#111;border-left:4px solid #000;border-right:4px solid #000;padding:0 0 60px 0;}
   .cell-header{border-bottom:1px solid #2a2a2a;padding:20px 32px 16px;display:flex;justify-content:space-between;align-items:center;}
-  .frame-num{font-size:10px;color:#444;letter-spacing:0.1em;}
+  .frame-num{font-size:10px;color:#aaa;letter-spacing:0.1em;}
   h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.08em;text-align:center;padding:32px 32px 8px;color:#fff;}
-  .subtitle{text-align:center;color:#666;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:32px;border-bottom:1px solid #1a1a1a;}
+  .subtitle{text-align:center;color:#ccc;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:32px;border-bottom:1px solid #1a1a1a;}
   .step{padding:28px 32px;border-bottom:1px solid #1a1a1a;}
-  .step-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#555;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-  .step-title::after{content:'';flex:1;height:1px;background:#222;}
-  .step-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#333;}
+  .step-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .step-title::after{content:'';flex:1;height:1px;background:#444;}
+  .step-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#999;}
   .input-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
   input[type=password],input[type=text]{background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:14px;padding:10px 14px;border-radius:4px;flex:1;min-width:200px;outline:none;transition:border-color 0.2s;}
-  input:focus{border-color:#555;}
-  .input-hint{font-size:11px;color:#333;margin-top:6px;letter-spacing:0.03em;}
+  input:focus{border-color:#666;}
+  .input-hint{font-size:11px;color:#bbb;margin-top:6px;letter-spacing:0.03em;}
   .api-key-section{margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;}
-  .api-key-label{font-size:11px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #2a2a2a;color:#444;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
-  .returning{margin-top:12px;font-size:11px;color:#444;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:inline-block;}
-  .returning:hover{color:#888;}
+  .api-key-label{font-size:11px;color:#ccc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #444;color:#aaa;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
+  .mdb-upgrade{margin-top:10px;padding:12px 16px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:4px;}
+  .mdb-upgrade p{font-size:12px;color:#ccc;line-height:1.6;letter-spacing:0.02em;}
+  .mdb-upgrade a{color:#fff;text-decoration:underline;text-underline-offset:3px;}
+  .mdb-upgrade a:hover{color:#ccc;}
+  .mdb-upgrade strong{color:#fff;}
+  .returning{margin-top:12px;font-size:11px;color:#aaa;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:inline-block;}
+  .returning:hover{color:#fff;}
+
+  /* Presets */
+  .presets-section{padding:24px 32px;border-bottom:1px solid #1a1a1a;background:#0d0d0d;}
+  .presets-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+  .presets-title::after{content:'';flex:1;height:1px;background:#444;}
+  .presets-subtitle{font-size:11px;color:#bbb;margin-bottom:16px;letter-spacing:0.03em;}
+  .presets-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .preset-btn{background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:10px 18px;border-radius:3px;cursor:pointer;transition:all 0.15s;text-align:left;}
+  .preset-btn:hover{border-color:#999;color:#fff;}
+  .preset-btn .preset-name{display:block;font-weight:700;font-size:13px;color:#fff;margin-bottom:2px;}
+  .preset-btn .preset-desc{display:block;font-size:10px;color:#aaa;letter-spacing:0.05em;}
+  .preset-btn.active{border-color:#fff;background:#1a1a1a;}
+
+  /* Search & global controls */
+  .catalog-controls{padding:16px 32px;border-bottom:1px solid #1a1a1a;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:200px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:13px;padding:8px 14px;border-radius:4px;outline:none;transition:border-color 0.2s;}
+  .search-box:focus{border-color:#666;}
+  .search-box::placeholder{color:#777;}
+  .global-btn{background:transparent;border:1px solid #444;color:#bbb;font-family:'Courier Prime',monospace;font-size:11px;padding:8px 14px;border-radius:3px;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;white-space:nowrap;}
+  .global-btn:hover{border-color:#999;color:#fff;}
+
   .category{padding:20px 32px;border-bottom:1px solid #1a1a1a;}
+  .category.hidden{display:none;}
   .cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .cat-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#444;display:flex;align-items:center;gap:8px;}
+  .cat-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;display:flex;align-items:center;gap:8px;}
   .cat-icon{font-size:14px;}
-  .select-all{font-size:10px;color:#333;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;}
-  .select-all:hover{color:#888;}
+  .cat-count{font-size:10px;color:#888;margin-left:4px;font-family:'Courier Prime',monospace;}
+  .select-all{font-size:10px;color:#999;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;}
+  .select-all:hover{color:#fff;}
   .pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .pill{background:transparent;border:1px solid #2a2a2a;color:#777;font-family:'Courier Prime',monospace;font-size:12px;padding:6px 14px;border-radius:3px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.03em;}
-  .pill:hover{border-color:#555;color:#ccc;}
+  .pill{background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:6px 14px;border-radius:3px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.03em;}
+  .pill:hover{border-color:#999;color:#fff;}
   .pill.selected{background:#fff;border-color:#fff;color:#000;font-weight:700;}
+  .pill.hidden{display:none;}
   .counter{position:sticky;bottom:0;background:#111;border-top:1px solid #2a2a2a;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
-  .count-display{font-size:11px;color:#444;letter-spacing:0.1em;}
+  .count-display{font-size:11px;color:#bbb;letter-spacing:0.1em;}
   .count-num{color:#fff;font-size:18px;font-family:'Bebas Neue',sans-serif;}
   .gen-btn{background:#fff;color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;padding:10px 28px;cursor:pointer;border-radius:3px;transition:opacity 0.15s;}
   .gen-btn:hover{opacity:0.85;}
   .gen-btn:disabled{opacity:0.3;cursor:not-allowed;}
   .result-box{padding:28px 32px;display:none;}
   .result-box.visible{display:block;}
-  .result-label{font-size:10px;color:#444;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
+  .result-label{font-size:10px;color:#bbb;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
   .url-display{background:#0a0a0a;border:1px solid #2a2a2a;padding:12px 16px;border-radius:4px;font-size:12px;color:#fff;word-break:break-all;margin-bottom:12px;font-family:'Courier Prime',monospace;}
   .result-btns{display:flex;gap:10px;flex-wrap:wrap;}
-  .rbtn{padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;cursor:pointer;border:1px solid #333;background:transparent;color:#aaa;transition:all 0.15s;text-decoration:none;display:inline-block;}
-  .rbtn:hover{border-color:#888;color:#fff;}
+  .rbtn{padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;cursor:pointer;border:1px solid #555;background:transparent;color:#ddd;transition:all 0.15s;text-decoration:none;display:inline-block;}
+  .rbtn:hover{border-color:#999;color:#fff;}
   .rbtn.primary{background:#fff;color:#000;border-color:#fff;font-weight:700;}
   .rbtn.primary:hover{opacity:0.85;}
-  .token-save{margin-top:16px;padding:12px 16px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;font-size:11px;color:#444;letter-spacing:0.03em;}
-  .token-save span{color:#888;}
-  .error-msg{color:#c0392b;font-size:12px;margin-top:8px;display:none;}
+  .token-save{margin-top:16px;padding:12px 16px;background:#0a0a0a;border:1px solid #222;border-radius:4px;font-size:11px;color:#bbb;letter-spacing:0.03em;}
+  .token-save span{color:#fff;}
+  .error-msg{color:#e74c3c;font-size:12px;margin-top:8px;display:none;}
   .error-msg.visible{display:block;}
-  .loading{text-align:center;padding:20px;color:#444;font-size:12px;letter-spacing:0.1em;display:none;}
+  .loading{text-align:center;padding:20px;color:#888;font-size:12px;letter-spacing:0.1em;display:none;}
   .loading.visible{display:block;}
-  .edit-banner{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 32px;font-size:11px;color:#666;letter-spacing:0.05em;display:none;}
+  .edit-banner{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 32px;font-size:11px;color:#aaa;letter-spacing:0.05em;display:none;}
   .edit-banner.visible{display:block;}
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:#0a0a0a;}
-  ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px;}
+  ::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
 </style>
 </head>
 <body>
@@ -79,7 +108,7 @@
     <div class="edit-banner" id="editBanner">Editing existing configuration. Enter your password to save changes.</div>
     <h1>Build Your Addon</h1>
     <p class="subtitle">Select your catalogs &bull; Set a password &bull; Install</p>
-    <p style="text-align:center;font-size:11px;color:#444;padding:12px 32px;letter-spacing:0.05em;">
+    <p style="text-align:center;font-size:11px;color:#bbb;padding:12px 32px;letter-spacing:0.05em;">
         &#9432; Catalogs appear in Stremio in the order you select them
     </p>
 
@@ -92,21 +121,54 @@
       <div class="error-msg" id="passError">Passwords do not match</div>
       <div class="api-key-section">
         <div class="api-key-label">&#128273; MDBList API Key <span class="optional-badge">OPTIONAL</span></div>
-        <input type="text" id="mdblistKey" placeholder="Your MDBList API key — overrides the default" />
-        <p class="input-hint">Only needed if you want to use your own MDBList account. Leave blank to use the shared key.</p>
+        <input type="text" id="mdblistKey" placeholder="Your personal MDBList API key" />
+        <div class="mdb-upgrade">
+          <p>
+            <strong>Get a better experience with your own free key.</strong><br>
+            Using a personal API key gives you faster loading times, higher rate limits, and more reliable results — especially with lots of catalogs selected.<br><br>
+            It's completely free. <a href="https://mdblist.com/?ref=ultramax" target="_blank" rel="noopener">Get your free MDBList API key here &rarr;</a>
+          </p>
+        </div>
       </div>
       <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
       <div style="display:none;" id="returningBox">
         <div class="input-row" style="margin-top:12px;">
           <input type="text" id="tokenInput" placeholder="Enter your config token (e.g. ABC123)" />
-          <button onclick="loadConfig()" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;padding:10px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;">Load Config</button>
+          <button onclick="loadConfig()" style="background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;padding:10px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;">Load Config</button>
         </div>
       </div>
     </div>
 
+    <!-- PRESETS -->
+    <div class="presets-section">
+      <div class="presets-title">&#9889; Quick Start Presets</div>
+      <p class="presets-subtitle">Not sure where to start? Pick a preset and customise from there.</p>
+      <div class="presets-row">
+        <button class="preset-btn" onclick="applyPreset('casual')">
+          <span class="preset-name">&#127780; Casual Viewer</span>
+          <span class="preset-desc">The essentials — trending, popular & genres</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset('binge')">
+          <span class="preset-name">&#127871; Binge Watcher</span>
+          <span class="preset-desc">Streaming services, genres & curated lists</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset('everything')">
+          <span class="preset-name">&#128293; Everything</span>
+          <span class="preset-desc">All 141 catalogs — the full Ultra MAX experience</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SEARCH & GLOBAL CONTROLS -->
+    <div class="catalog-controls">
+      <input type="text" class="search-box" id="searchBox" placeholder="&#128269; Search catalogs..." oninput="filterCatalogs(this.value)" />
+      <button class="global-btn" onclick="selectAllGlobal()">Select All</button>
+      <button class="global-btn" onclick="clearAllGlobal()">Clear All</button>
+    </div>
+
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#128293;</span> Trending &amp; Popular</div>
+        <div class="cat-title"><span class="cat-icon">&#128293;</span> Trending &amp; Popular <span class="cat-count" id="count-trending"></span></div>
         <span class="select-all" onclick="selectAll('trending')">Select All</span>
       </div>
       <div class="pills" id="trending">
@@ -129,7 +191,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#127381;</span> New &amp; Latest</div>
+        <div class="cat-title"><span class="cat-icon">&#127381;</span> New &amp; Latest <span class="cat-count" id="count-latest"></span></div>
         <span class="select-all" onclick="selectAll('latest')">Select All</span>
       </div>
       <div class="pills" id="latest">
@@ -157,7 +219,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#128250;</span> Streaming Providers</div>
+        <div class="cat-title"><span class="cat-icon">&#128250;</span> Streaming Services <span class="cat-count" id="count-providers"></span></div>
         <span class="select-all" onclick="selectAll('providers')">Select All</span>
       </div>
       <div class="pills" id="providers">
@@ -197,28 +259,38 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#127917;</span> Genres</div>
+        <div class="cat-title"><span class="cat-icon">&#127917;</span> Genres <span class="cat-count" id="count-genres"></span></div>
         <span class="select-all" onclick="selectAll('genres')">Select All</span>
       </div>
       <div class="pills" id="genres">
-        <div class="pill" data-id="mdb_91211">Action Movies</div>
-        <div class="pill" data-id="mdb_91213">Action Series</div>
-        <div class="pill" data-id="mdb_91223">Comedy Movies</div>
-        <div class="pill" data-id="mdb_91224">Comedy Series</div>
-        <div class="pill" data-id="mdb_91215">Horror Movies</div>
-        <div class="pill" data-id="mdb_91217">Horror Series</div>
-        <div class="pill" data-id="mdb_91220">Sci-Fi Movies</div>
-        <div class="pill" data-id="mdb_91221">Sci-Fi Series</div>
-        <div class="pill" data-id="mdb_91893">Thriller Movies</div>
-        <div class="pill" data-id="mdb_91894">Thriller Series</div>
-        <div class="pill" data-id="mdb_3108">Crime Movies</div>
-        <div class="pill" data-id="mdb_3126">Crime Series</div>
-        <div class="pill" data-id="mdb_91296">Drama Movies</div>
-        <div class="pill" data-id="mdb_91297">Drama Series</div>
-        <div class="pill" data-id="mdb_116037">Animated Movies</div>
-        <div class="pill" data-id="mdb_116038">Animated Series</div>
+        <div class="pill" data-id="action_movies">Action Movies</div>
+        <div class="pill" data-id="action_series">Action Series</div>
+        <div class="pill" data-id="comedy_movies">Comedy Movies</div>
+        <div class="pill" data-id="comedy_series">Comedy Series</div>
+        <div class="pill" data-id="horror_movies">Horror Movies</div>
+        <div class="pill" data-id="horror_series">Horror Series</div>
+        <div class="pill" data-id="scifi_movies">Sci-Fi Movies</div>
+        <div class="pill" data-id="scifi_series">Sci-Fi Series</div>
+        <div class="pill" data-id="thriller_movies">Thriller Movies</div>
+        <div class="pill" data-id="thriller_series">Thriller Series</div>
+        <div class="pill" data-id="crime_movies">Crime Movies</div>
+        <div class="pill" data-id="crime_series">Crime Series</div>
+        <div class="pill" data-id="drama_movies">Drama Movies</div>
+        <div class="pill" data-id="drama_series">Drama Series</div>
+        <div class="pill" data-id="romance_movies">Romance Movies</div>
+        <div class="pill" data-id="romance_series">Romance Series</div>
+        <div class="pill" data-id="mystery_movies">Mystery Movies</div>
+        <div class="pill" data-id="mystery_series">Mystery Series</div>
+        <div class="pill" data-id="fantasy_movies">Fantasy Movies</div>
+        <div class="pill" data-id="fantasy_series">Fantasy Series</div>
+        <div class="pill" data-id="family_movies">Family Movies</div>
+        <div class="pill" data-id="family_series">Family Series</div>
+        <div class="pill" data-id="animation_movies">Animated Movies</div>
+        <div class="pill" data-id="animation_series">Animated Series</div>
+        <div class="pill" data-id="documentary_movies">Documentary Movies</div>
+        <div class="pill" data-id="documentary_series">Documentary Series</div>
         <div class="pill" data-id="mdb_84677">Top Documentaries</div>
-        <div class="pill" data-id="mdb_84403">Documentary Series</div>
+        <div class="pill" data-id="mdb_84403">Top Documentary Series</div>
         <div class="pill" data-id="mdb_8043">History &amp; War</div>
         <div class="pill" data-id="mdb_84487">Nature</div>
         <div class="pill" data-id="mdb_84401">Reality TV</div>
@@ -232,7 +304,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#127916;</span> Themed &amp; Curated</div>
+        <div class="cat-title"><span class="cat-icon">&#127916;</span> Themed &amp; Curated <span class="cat-count" id="count-themed"></span></div>
         <span class="select-all" onclick="selectAll('themed')">Select All</span>
       </div>
       <div class="pills" id="themed">
@@ -263,7 +335,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#127909;</span> Studios</div>
+        <div class="cat-title"><span class="cat-icon">&#127909;</span> Studios &amp; Collections <span class="cat-count" id="count-studios"></span></div>
         <span class="select-all" onclick="selectAll('studios')">Select All</span>
       </div>
       <div class="pills" id="studios">
@@ -279,7 +351,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade</div>
+        <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade <span class="cat-count" id="count-decades"></span></div>
         <span class="select-all" onclick="selectAll('decades')">Select All</span>
       </div>
       <div class="pills" id="decades">
@@ -294,7 +366,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#128118;</span> Kids &amp; Family</div>
+        <div class="cat-title"><span class="cat-icon">&#128118;</span> Kids &amp; Family <span class="cat-count" id="count-kids"></span></div>
         <span class="select-all" onclick="selectAll('kids')">Select All</span>
       </div>
       <div class="pills" id="kids">
@@ -306,7 +378,7 @@
 
     <div class="category">
       <div class="cat-header">
-        <div class="cat-title"><span class="cat-icon">&#127468;&#127463;</span> UK Specific</div>
+        <div class="cat-title"><span class="cat-icon">&#127468;&#127463;</span> UK Specific <span class="cat-count" id="count-uk"></span></div>
         <span class="select-all" onclick="selectAll('uk')">Select All</span>
       </div>
       <div class="pills" id="uk">
@@ -323,9 +395,9 @@
         <a class="rbtn" id="installBtn" href="#">Install in Stremio</a>
       </div>
       <div class="token-save">
-        Your token: <span id="tokenDisplay"></span> 
-        <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
-       <br><br>Return to edit at <span id="editLink"></span>
+        Your token: <span id="tokenDisplay"></span>
+        <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
+        <br><br>Return to edit at <span id="editLink"></span>
       </div>
     </div>
 
@@ -344,8 +416,110 @@ const BASE_URL = window.location.origin;
 let selected = new Set();
 let editToken = null;
 
+const PRESETS = {
+  casual: [
+    'trending_movies','trending_series','popular_movies','popular_series',
+    'top_movies','top_series','now_movies','airing_series',
+    'action_movies','action_series','comedy_movies','comedy_series',
+    'horror_movies','drama_movies','drama_series','scifi_movies',
+    'mdb_87667','mdb_960','mdb_69'
+  ],
+  binge: [
+    'trending_movies','trending_series','popular_movies','popular_series',
+    'top_movies','top_series','now_movies','airing_series','ontheair_series',
+    'mdb_87667','mdb_88434','mdb_2236','mdb_1198','mdb_69',
+    'mdb_86934','mdb_960','mdb_1176','mdb_86710',
+    'netflix_movies','netflix_series','amazon_movies','amazon_series',
+    'disney_movies','disney_series','hbo_movies','hbo_series',
+    'apple_movies','apple_series',
+    'action_movies','action_series','comedy_movies','comedy_series',
+    'horror_movies','horror_series','scifi_movies','scifi_series',
+    'thriller_movies','thriller_series','crime_movies','crime_series',
+    'drama_movies','drama_series','romance_movies','mystery_movies',
+    'animation_movies','animation_series','documentary_movies',
+    'mdb_3892','mdb_3920','mdb_2909','mdb_3885','mdb_136620',
+    'theme_superhero','theme_heist','theme_zombie',
+    'studio_marvel','studio_dc','studio_a24',
+    'mdb_92337','mdb_91304','mdb_91303'
+  ]
+};
+
+function applyPreset(name){
+  clearAllGlobal(true);
+  document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  let ids = [];
+  if(name === 'everything'){
+    ids = Array.from(document.querySelectorAll('.pill')).map(function(p){ return p.dataset.id; });
+  } else {
+    ids = PRESETS[name] || [];
+  }
+  ids.forEach(function(id){
+    selected.add(id);
+    const pill = document.querySelector('.pill[data-id="'+id+'"]');
+    if(pill) pill.classList.add('selected');
+  });
+  event.currentTarget.classList.add('active');
+  updateCounter();
+  updateCategoryCounts();
+  setTimeout(makeSprockets, 100);
+}
+
+function selectAllGlobal(){
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.add('selected');
+    selected.add(p.dataset.id);
+  });
+  document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  updateCounter();
+  updateCategoryCounts();
+}
+
+function clearAllGlobal(silent){
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.remove('selected');
+  });
+  selected.clear();
+  if(!silent){
+    document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  }
+  updateCounter();
+  updateCategoryCounts();
+}
+
+function filterCatalogs(query){
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.category').forEach(function(cat){
+    let anyVisible = false;
+    cat.querySelectorAll('.pill').forEach(function(pill){
+      const match = !q || pill.textContent.toLowerCase().includes(q);
+      pill.classList.toggle('hidden', !match);
+      if(match) anyVisible = true;
+    });
+    cat.classList.toggle('hidden', !anyVisible);
+  });
+  setTimeout(makeSprockets, 100);
+}
+
+function updateCategoryCounts(){
+  const groups = ['trending','latest','providers','genres','themed','studios','decades','kids','uk'];
+  groups.forEach(function(g){
+    const el = document.getElementById('count-'+g);
+    const group = document.getElementById(g);
+    if(!el || !group) return;
+    const total = group.querySelectorAll('.pill').length;
+    const sel = group.querySelectorAll('.pill.selected').length;
+    const visible = group.querySelectorAll('.pill:not(.hidden)').length;
+    const visibleSel = group.querySelectorAll('.pill.selected:not(.hidden)').length;
+    el.textContent = sel > 0 ? sel+'/'+total : total;
+    const btn = document.querySelector('[onclick="selectAll(\''+g+'\')"]');
+    if(btn) btn.textContent = (visible > 0 && visibleSel === visible) ? 'Clear All' : 'Select All';
+  });
+}
+
 function makeSprockets(){
-  const count = Math.ceil(document.body.scrollHeight / 28) + 20;
+  const cell = document.querySelector('.cell');
+  const height = cell ? cell.scrollHeight : document.body.scrollHeight;
+  const count = Math.ceil(height / 28) + 2;
   ['s1','s2'].forEach(function(id){
     const el = document.getElementById(id);
     el.innerHTML = '';
@@ -357,7 +531,7 @@ function makeSprockets(){
   });
 }
 window.addEventListener('resize', makeSprockets);
-window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); });
+window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); updateCategoryCounts(); });
 setTimeout(makeSprockets, 100);
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -374,19 +548,25 @@ document.querySelectorAll('.pill').forEach(function(pill){
     pill.classList.toggle('selected');
     if(pill.classList.contains('selected')) selected.add(pill.dataset.id);
     else selected.delete(pill.dataset.id);
+    document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
     updateCounter();
+    updateCategoryCounts();
   });
 });
 
 function selectAll(groupId){
   const group = document.getElementById(groupId);
-  const pills = group.querySelectorAll('.pill');
+  const pills = group.querySelectorAll('.pill:not(.hidden)');
   const allSelected = Array.from(pills).every(function(p){ return p.classList.contains('selected'); });
   pills.forEach(function(p){
     if(allSelected){ p.classList.remove('selected'); selected.delete(p.dataset.id); }
     else { p.classList.add('selected'); selected.add(p.dataset.id); }
   });
+  // Update button text
+  const btn = document.querySelector('[onclick="selectAll(\''+groupId+'\')"]');
+  if(btn) btn.textContent = allSelected ? 'Select All' : 'Clear All';
   updateCounter();
+  updateCategoryCounts();
   setTimeout(makeSprockets, 100);
 }
 
@@ -424,6 +604,7 @@ async function loadConfigByToken(token){
     });
     if(data.mdblistKey) document.getElementById('mdblistKey').value = data.mdblistKey;
     updateCounter();
+    updateCategoryCounts();
     setTimeout(makeSprockets, 200);
   }catch(e){ console.error(e); }
 }
@@ -464,13 +645,16 @@ async function generate(){
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
     document.getElementById('tokenDisplay').textContent = data.token;
-    document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#666;">max-streams.gleeze.com/configure/' + data.token + '</a>';
+    document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#888;">max-streams.gleeze.com/configure/' + data.token + '</a>';
     document.getElementById('resultBox').classList.add('visible');
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('genBtn').disabled = false;
 
     if(!editToken){ editToken = data.token; window.history.pushState({}, '', '/configure/' + data.token); }
-    setTimeout(makeSprockets, 200);
+    setTimeout(function(){
+      document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      makeSprockets();
+    }, 100);
   }catch(e){
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('genBtn').disabled = false;
@@ -487,9 +671,7 @@ function copyUrl(){
   ta.value = url;
   ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
   document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  ta.setSelectionRange(0, 99999);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
   document.execCommand('copy');
   document.body.removeChild(ta);
   btn.textContent = 'Copied!';
@@ -502,9 +684,7 @@ function copyToken(){
   ta.value = token;
   ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
   document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  ta.setSelectionRange(0, 99999);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
   document.execCommand('copy');
   document.body.removeChild(ta);
   btn.textContent = 'Copied!';

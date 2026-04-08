@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       - TMDB_KEY=${TMDB_KEY}
+      -  MDBLIST_KEY=${MDBLIST_KEY}
       - FILTER_MODE=on
       - PORT=7000
     ports:
@@ -18,12 +19,33 @@ services:
     restart: unless-stopped
     environment:
       - TMDB_KEY=${TMDB_KEY}
+      -  MDBLIST_KEY=${MDBLIST_KEY}
       - FILTER_MODE=off
       - PORT=7000
     ports:
       - "7001:7000"
     networks:
       - npm_default
+
+
+  stremio-dev:
+    image: stremio-addon
+    container_name: stremio-dev
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - TMDB_KEY=${TMDB_KEY}
+      - MDBLIST_KEY=${MDBLIST_KEY}
+      - FILTER_MODE=on
+      - PORT=7000
+    ports:
+      - "7003:7000"
+    volumes:
+      - ./index-dev.js:/app/index.js
+      - ./configure.html:/app/configure.html
+    networks:
+      - npm_default
+
 
 networks:
   npm_default:

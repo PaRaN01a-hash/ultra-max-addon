@@ -76,7 +76,7 @@ const imdbCache = new Map();
 
 const PROVIDERS = {
   netflix: 8, amazon: 9, disney: 337, hulu: 15,
-  hbo: 1899, apple: 350, peacock: 386,
+  hbo: 1899, apple: 350, paramount: 531, peacock: 386,
   mgm: 268, acorn: 87, shudder: 99, britbox: 151,
   itvx: 584, channel4: 583, crunchyroll: 283, hidive: 430
 };
@@ -197,8 +197,6 @@ let BASE_RULES = [
   { id: "anime_series",     type: "series", name: "Anime",       anime: true },
   { id: "bollywood_movies", type: "movie",  name: "Bollywood",   bollywood: true },
   { id: "bollywood_series", type: "series", name: "Bollywood",   bollywood: true },
-  { id: "paramount_movies", type: "movie",  name: "Paramount", paramountPlus: true },
-  { id: "paramount_series", type: "series", name: "Paramount", paramountPlus: true },
 ];
 
 // Add provider rules
@@ -354,7 +352,7 @@ function isValidItem(i) {
 
 async function resultsToMetas(arr, type) {
   return (await Promise.all(
-    arr.filter(isValidItem).map(async i => {
+    arr.filter(isValidItem).slice(0, 20).map(async i => {
      const imdb = i.imdb_id || await getImdbId(i.id, type);
       if (!imdb) return null;
       return {
@@ -377,7 +375,7 @@ async function mdblistToMetas(listId, type, mdbKey) {
     const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
 
     return (await Promise.all(
-      items.map(async item => {
+      items.slice(0, 20).map(async item => {
         const imdbId = item.imdb_id || item.imdbid;
         if (!imdbId) return null;
 
@@ -477,8 +475,6 @@ async function handleCatalog(type, id, extra, mdbKey) {
     url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
   else if (rule.bollywood)
     url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_original_language=hi&sort_by=popularity.desc&page=${page}`;
-  else if (rule.paramountPlus)
-    url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=2616%7C2303&watch_region=US&sort_by=popularity.desc&page=${page}`;
   else
     url = `https://api.themoviedb.org/3/${tmdbType}/${rule.source}?api_key=${TMDB_KEY}&page=${page}`;
 
@@ -653,7 +649,6 @@ app.get("/c/:token/manifest.json", (req, res) => {
     catalogs
   };
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
   res.json(manifest);
 });
 
@@ -675,7 +670,6 @@ app.get(["/c/:token/catalog/:type/:id.json", "/c/:token/catalog/:type/:id/:extra
 
     const mdbKey = config.mdblistKey || MDBLIST_KEY;
     const result = await handleCatalog(type, id, extra, mdbKey);
-    res.setHeader("Access-Control-Allow-Origin", "*");
     res.json(result);
   } catch (e) {
     console.log("custom catalog error", id, e.message);
@@ -731,7 +725,6 @@ app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
       meta.videos = videos;
     }
 
-    res.setHeader("Access-Control-Allow-Origin", "*");
     res.json({ meta });
   } catch (e) {
     res.json({ meta: { id, type } });
@@ -740,7 +733,6 @@ app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
 
 // Dynamic stream handler
 app.get("/c/:token/stream/:type/:id.json", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
   res.json({ streams: [] });
 });
 
@@ -762,7 +754,6 @@ app.use((req, res, next) => {
       }
       handleCatalog(type, id, extra, null)
         .then(result => {
-          res.setHeader("Access-Control-Allow-Origin", "*");
           res.json(result);
         })
         .catch(() => res.json({ metas: [] }));
