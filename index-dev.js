@@ -481,6 +481,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
     version:"5.3.0",
     name:"Ultra MAX",
     description: `Custom addon with ${config.catalogs.length} catalogs`,
+    logo: "https://max-streams.gleeze.com/logo.svg",
     types: ["movie","series"],
     resources: ["catalog","meta","stream"],
     catalogs: buildCatalogsFromIds(config.catalogs)

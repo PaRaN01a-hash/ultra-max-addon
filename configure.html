@@ -27,7 +27,7 @@
   .input-hint{font-size:11px;color:#bbb;margin-top:6px;letter-spacing:0.03em;}
   .api-key-section{margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;}
   .api-key-label{font-size:11px;color:#ccc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #444;color:#aaa;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
+  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #c0392b;color:#e74c3c;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
   .mdb-upgrade{margin-top:10px;padding:12px 16px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:4px;}
   .mdb-upgrade p{font-size:12px;color:#ccc;line-height:1.6;letter-spacing:0.02em;}
   .mdb-upgrade a{color:#fff;text-decoration:underline;text-underline-offset:3px;}
@@ -120,14 +120,27 @@
       </div>
       <div class="error-msg" id="passError">Passwords do not match</div>
       <div class="api-key-section">
-        <div class="api-key-label">&#128273; MDBList API Key <span class="optional-badge">OPTIONAL</span></div>
-        <input type="text" id="mdblistKey" placeholder="Your personal MDBList API key" />
+        <div class="api-key-label">&#128273; MDBList API Key <span class="optional-badge">REQUIRED</span></div>
+        <input type="text" id="mdblistKey" placeholder="Paste your free MDBList API key here" />
         <div class="mdb-upgrade">
           <p>
-            <strong>Get a better experience with your own free key.</strong><br>
-            Using a personal API key gives you faster loading times, higher rate limits, and more reliable results — especially with lots of catalogs selected.<br><br>
-            It's completely free. <a href="https://mdblist.com/?ref=ultramax" target="_blank" rel="noopener">Get your free MDBList API key here &rarr;</a>
+            <strong>A free MDBList API key is required.</strong><br>
+            This powers all the curated lists, latest releases, trending charts and more. Without it those catalogs won't load. It takes 30 seconds to get one and it's completely free.<br><br>
+            <a href="https://mdblist.com/?ref=ultramax" target="_blank" rel="noopener">Get your free MDBList API key here &rarr;</a>
           </p>
+        </div>
+        <p class="returning" onclick="toggleGuide()" id="guideToggle">&#9432; How do I get a key?</p>
+        <div style="display:none;" id="guideBox">
+          <div style="margin-top:12px;padding:16px;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;font-size:12px;color:#ccc;line-height:1.8;letter-spacing:0.02em;">
+            <strong style="color:#fff;letter-spacing:0.1em;font-size:11px;text-transform:uppercase;">How to get your free MDBList API key</strong>
+            <br><br>
+            <span style="color:#888;">Step 1 &mdash;</span> Go to <a href="https://mdblist.com/register" target="_blank" style="color:#fff;text-decoration:underline;text-underline-offset:3px;">mdblist.com/register</a> and create a free account. Just needs an email address — no credit card, no subscription.<br><br>
+            <span style="color:#888;">Step 2 &mdash;</span> Check your email and confirm your account.<br><br>
+            <span style="color:#888;">Step 3 &mdash;</span> Once logged in, go to <a href="https://mdblist.com/api/" target="_blank" style="color:#fff;text-decoration:underline;text-underline-offset:3px;">mdblist.com/api</a><br><br>
+            <span style="color:#888;">Step 4 &mdash;</span> Your API key is shown on that page. Copy it.<br><br>
+            <span style="color:#888;">Step 5 &mdash;</span> Paste it into the box above and you're done!<br><br>
+            <span style="color:#666;font-size:11px;">The free tier gives you 1,000 requests per day which is more than enough for personal use.</span>
+          </div>
         </div>
       </div>
       <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
@@ -580,6 +593,15 @@ function toggleReturning(){
   box.style.display = box.style.display === 'none' || box.style.display === '' ? 'block' : 'none';
 }
 
+function toggleGuide(){
+  const box = document.getElementById('guideBox');
+  const toggle = document.getElementById('guideToggle');
+  const isOpen = box.style.display === 'block';
+  box.style.display = isOpen ? 'none' : 'block';
+  toggle.textContent = isOpen ? 'ⓘ How do I get a key?' : 'ⓘ Hide guide';
+  setTimeout(makeSprockets, 100);
+}
+
 async function loadConfig(){
   const token = document.getElementById('tokenInput').value.trim();
   if(!token) return;
@@ -617,6 +639,7 @@ async function generate(){
 
   if(!pass){ passError.textContent='Password is required'; passError.classList.add('visible'); return; }
   if(!editToken && pass !== confirm){ passError.textContent='Passwords do not match'; passError.classList.add('visible'); return; }
+  if(!mdbKey){ passError.textContent='MDBList API key is required — get your free key at mdblist.com'; passError.classList.add('visible'); return; }
   passError.classList.remove('visible');
   if(selected.size === 0) return;
 

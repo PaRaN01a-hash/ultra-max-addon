@@ -299,6 +299,7 @@ let STATIC_RULES = BASE_RULES.filter(r =>
 const builder = new addonBuilder({
   id: FILTER_ENABLED ? "org.kris.ultra.max.v5" : "org.kris.ultra.max.all.v5",
   version: "5.1.0",
+  logo: "https://max-streams.gleeze.com/logo.svg",
   name: FILTER_ENABLED ? "Ultra MAX" : "Ultra MAX All",
   description: FILTER_ENABLED ? "Filtered content" : "All content including anime & Bollywood",
   types: ["movie", "series"],
@@ -572,6 +573,7 @@ app.get("/configure", (req, res) => {
 });
 
 app.get("/configure/:token", (req, res) => {
+app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
   res.setHeader("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "configure.html"));
 });
@@ -642,6 +644,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
   const manifest = {
     id: `org.kris.ultramax.custom.${token}`,
     version: "5.1.0",
+  logo: "https://max-streams.gleeze.com/logo.svg",
     name: "Ultra MAX",
     description: `Custom addon — ${config.catalogs.length} catalogs selected`,
     types: ["movie", "series"],
