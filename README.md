@@ -1,48 +1,84 @@
 # Ultra MAX
 
-A self-hosted Stremio addon that provides clean, curated movie and series catalogs powered by the TMDB API. Built with Node.js and the Stremio Addon SDK.
+A free, customisable catalog addon for Stremio/Nuvio with 140+ curated catalogs.
 
-## Install
+Browse trending movies, the latest from every major streaming service, curated genre lists, themed collections, and much more — all without leaving Stremio or Nuvio.
 
-Visit [max-streams.gleeze.com](https://max-streams.gleeze.com) to install via the landing page. Two versions are available — a filtered build and an unfiltered build that includes anime and Bollywood content.
+---
 
-## Features
+## Get Started
 
-**Providers**
-Netflix, Amazon, Disney+, Hulu, HBO/Max, Apple TV+, Paramount+, Peacock, MGM+, Acorn TV, Shudder, BritBox, ITVX, Channel 4
+### Option 1 — Build Your Own (Recommended)
 
-**Genres**
-Action, Comedy, Horror, Sci-Fi, Documentary, Romance, Thriller, Crime, Animation, Family, Fantasy, Mystery
+Personalise your experience by choosing exactly which catalogs appear on your home screen and in what order.
 
-**Catalogs**
-Trending, Popular, Top Rated, Now Playing, Airing Today, On The Air — all available for both movies and series.
+**[max-streams.gleeze.com](https://max-streams.gleeze.com)**
 
-**Metadata**
-Full metadata returned directly from TMDB including descriptions, cast, ratings, trailers, backdrop images and episode listings for series. No external metadata addon required.
+1. Grab a free MDBList API key at [mdblist.com](https://mdblist.com/api) — takes 30 seconds
+2. Go to the configure page and pick your catalogs
+3. Generate your manifest and install in Stremio/Nuvio
 
-**Pagination**
-Continuous scrolling supported across all catalogs.
+### Option 2 — Quick Install
 
-**Companion Addons**
-A Live TV addon is also available at [max-streams-tv.gleeze.com](https://max-streams-tv.gleeze.com) with 200+ UK, 47 Australian and 1500+ US channels sourced from the iptv-org project.
+| Version | Install |
+|---------|---------|
+| Filtered (no anime/Bollywood) | `https://max-streams.gleeze.com/manifest.json` |
+| All content | `https://max-streams-all.gleeze.com/manifest.json` |
 
-## Tech Stack
+---
 
-- Node.js
-- Stremio Addon SDK
-- TMDB API
-- Docker
+## What's Included
 
-## Self Hosting
+| Category | Catalogs |
+|----------|----------|
+| 🔥 Trending & Popular | Trending, Popular, Top Rated, Trakt charts, IMDb Moviemeter |
+| 🆕 New & Latest | Latest releases, Blu-ray drops, what's new on each streaming service |
+| 📺 Streaming Services | Netflix, Amazon, Disney+, HBO, Apple TV+, Paramount+, Peacock, Hulu, MGM+, Acorn, Shudder, BritBox, ITVX, Channel 4, Crunchyroll, Hidive |
+| 🎭 Genres | Action, Comedy, Horror, Sci-Fi, Thriller, Crime, Drama, Romance, Mystery, Fantasy, Family, Animated, Documentary and more |
+| 🎬 Themed & Curated | Mindfuck, Plot Twists, Outer Space, Time Travel, Horror Classics, Superhero, Heist, Zombie, Road Trip, Dystopia and more |
+| 🎥 Studios | Marvel, DC, A24, Blumhouse, Studio Ghibli, Pixar, DreamWorks |
+| 📅 By Decade | Best of 2025, 2020s, 2010s, 2000s, 1990s, 1980s |
+| 👶 Kids & Family | Trending kids movies and series |
+| 🇬🇧 UK Specific | BBC Shows, UK content |
 
-Clone the repository and create a `.env` file with your TMDB API key:
-TMDB_KEY=your_key_here
-Run with Docker Compose:
+---
+
+## Configure Page Features
+
+- **Quick Start Presets** — Casual Viewer, Binge Watcher, or Everything
+- **Search** — filter catalogs instantly
+- **Select All / Clear All** per category
+- **Custom order** — catalogs appear in Stremio/Nuvio in the order you select them
+- **Save & Edit** — return anytime with your token to update your selection
+
+---
+
+## Requirements
+
+- Stremio or Nuvio installed on your device
+- A free [MDBList API key](https://mdblist.com/api) (required for curated lists)
+
+---
+
+## Self-Hosting
+
+```bash
+git clone https://github.com/PaRaN01a-hash/stremio-catalog-addon
+cd stremio-catalog-addon
+cp .env.example .env
+# Add your TMDB_KEY and MDBLIST_KEY to .env
 docker compose up -d
-The filtered version runs on port 7000 and the unfiltered version on port 7001, controlled by the `FILTER_MODE` environment variable. Set `FILTER_MODE=off` to disable content filtering.
+```
 
-## Notes
+---
 
-This addon provides catalogs and metadata only. A stream source addon such as aiostreams is required to play content.
+## Version History
 
-TMDB API key required for self hosting. Free keys are available at [themoviedb.org](https://www.themoviedb.org/settings/api).
+- **v5.3** — New architecture, 140+ catalogs, custom configure page, presets, search, logo
+- **v5.1** — Configure page, custom manifests, MDBList integration
+- **v5.0** — Stable release, episode lists, metadata, filtering
+- **v4.0** — Similar/recommended catalogs, collections
+
+---
+
+*Free and open source. Not affiliated with any streaming service.*
