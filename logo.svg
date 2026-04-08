@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+  
+  <!-- Film strip holes - top -->
+  <rect x="32" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="90" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="148" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="206" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="264" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="322" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="380" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="438" y="28" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Film strip holes - bottom -->
+  <rect x="32" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="90" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="148" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="206" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="264" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="322" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="380" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+  <rect x="438" y="458" width="36" height="26" rx="5" fill="#1a1a1a" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Film strip side bars -->
+  <rect x="0" y="0" width="512" height="68" rx="0" fill="none" stroke="#222" stroke-width="2"/>
+  <line x1="0" y1="68" x2="512" y2="68" stroke="#222" stroke-width="2"/>
+  <line x1="0" y1="444" x2="512" y2="444" stroke="#222" stroke-width="2"/>
+
+  <!-- ULTRA text - small above -->
+  <text x="256" y="168" 
+    font-family="Arial Black, sans-serif" 
+    font-size="52" 
+    font-weight="900"
+    fill="#444"
+    text-anchor="middle"
+    letter-spacing="18">ULTRA</text>
+
+  <!-- MAX text - big and bold -->
+  <text x="256" y="330" 
+    font-family="Arial Black, sans-serif" 
+    font-size="200" 
+    font-weight="900"
+    fill="#ffffff"
+    text-anchor="middle"
+    letter-spacing="-8">MAX</text>
+
+  <!-- Subtle glow line under MAX -->
+  <line x1="80" y1="360" x2="432" y2="360" stroke="#333" stroke-width="1.5"/>
+  
+  <!-- Version dot indicators -->
+  <circle cx="220" cy="400" r="6" fill="#333"/>
+  <circle cx="256" cy="400" r="6" fill="#666"/>
+  <circle cx="292" cy="400" r="6" fill="#333"/>
+</svg>

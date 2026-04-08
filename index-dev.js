@@ -208,6 +208,7 @@ const staticIds = getStaticIds();
 const builder = new addonBuilder({
   id: FILTER_ENABLED ?"org.kris.ultra.max.dev" :"org.kris.ultra.max.all.dev",
   version:"5.3.0",
+  logo: "https://max-streams.gleeze.com/logo.svg",
   name: FILTER_ENABLED ?"Ultra MAX Dev" :"Ultra MAX All Dev",
   description:"Dev build v5.3",
   types: ["movie","series"],
@@ -434,6 +435,8 @@ app.use(express.json());
 
 app.get("/configure", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
+app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
+app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
@@ -567,6 +570,7 @@ app.use((req, res, next) => {
     const fullManifest = {
       id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
       version:"5.3.0",
+  logo: "https://max-streams.gleeze.com/logo.svg",
       name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
       description: FILTER_ENABLED ?"Filtered content" :"All content",
       types: ["movie","series"],
