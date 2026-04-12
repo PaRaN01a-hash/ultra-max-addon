@@ -209,7 +209,7 @@ const staticIds = getStaticIds();
 
 const builder = new addonBuilder({
   id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-  version:"5.3.0",
+  version:"5.4.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
   name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
   description:"Dev build v5.3",
@@ -518,7 +518,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
   if (!config) return res.status(404).json({ error:"Config not found" });
   const manifest = {
     id: `org.kris.ultramax.custom.${token}`,
-    version:"5.3.0",
+    version:"5.4.0",
     name:"Ultra MAX",
     description: `Custom addon with ${config.catalogs.length} catalogs`,
     logo: "https://max-streams.gleeze.com/logo.svg",
@@ -603,7 +603,7 @@ app.use((req, res, next) => {
   if (url.includes("/manifest.json") && !url.startsWith("/c/")) {
     const fullManifest = {
       id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-      version:"5.3.0",
+      version:"5.4.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
       name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
       description: FILTER_ENABLED ?"Filtered content" :"All content",
@@ -611,7 +611,9 @@ app.use((req, res, next) => {
       resources: ["catalog","meta","stream"],
       catalogs: [
         ...buildManifestCatalogs(staticIds),
-        ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] }))
+        ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] })),
+        { type:"movie", id:"search_movies", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] },
+        { type:"series", id:"search_series", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] }
       ]
     };
     fullManifest.catalogs = (fullManifest.catalogs || []).map(c => ({
@@ -623,7 +625,6 @@ app.use((req, res, next) => {
   if (url.match(/\/catalog\//) && !url.startsWith("/c/")) {
     const match = url.match(/\/catalog\/([^/]+)\/([^/]+)(?:\/(.+))?\.json/);
     if (match) {
-console.log("CUSTOM MIDDLEWARE:", id, "extraStr:", extraStr);
       const [, type, id, extraStr] = match;
       let extra = {};
       if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { decodeURIComponent(extraStr).split("&").forEach(p => { const [k,v] = p.split("="); if(k && v) extra[k]=decodeURIComponent(v); }); } }
