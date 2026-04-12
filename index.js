@@ -199,7 +199,7 @@ function buildManifestCatalogs(ids) {
   return ids.map(id => {
     const def = CATALOG_DEFS[id];
     if (!def) return null;
-    return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] };
+    return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }] };
   }).filter(Boolean);
 }
 
@@ -214,7 +214,7 @@ const builder = new addonBuilder({
   types: ["movie","series"],
   resources: ["catalog","meta","stream"],
   catalogs: [
-    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] }
+    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
   ]
 });
 
@@ -238,9 +238,9 @@ async function getImdbId(tmdbId, type) {
   } catch { return null; }
 }
 
-async function resultsToMetas(arr, type) {
+async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED) {
   return (await Promise.all(
-    arr.filter(i => i.poster_path).map(async i => {
+    arr.filter(i => i.poster_path && (!filterLang || (i.original_language !== "ja" && i.original_language !== "hi"))).map(async i => {
       const imdb = await getImdbId(i.id, type);
       if (!imdb) return null;
       return {
@@ -280,18 +280,16 @@ async function mdblistToMetas(listId, type, mdbKey) {
   } catch (e) { console.log("mdblist error", listId, e.message); return []; }
 }
 
-async function handleCatalog(catalogId, type, extra, mdbKey) {
+async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED) {
   const skip = extra?.skip || 0;
-  const search = extra?.search;
-  console.log("SEARCH CHECK:", catalogId, search);
+const search = extra?.search;
   if (search) {
-    if (catalogId !== "popular_movies" && catalogId !== "popular_series") return { metas: [] };
+    if (catalogId !== "search_movies" && catalogId !== "search_series") return { metas: [] };
     const tmdbType = type === "series" ? "tv" : "movie";
     const url = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(search)}&page=1`;
     const data = await fetchCached(url);
-    return { metas: await resultsToMetas(data.results || [], type) };
+    return { metas: await resultsToMetas(data.results || [], type, false) };
   }
-
 
 
 
@@ -304,17 +302,17 @@ async function handleCatalog(catalogId, type, extra, mdbKey) {
   if (catalogId ==="similar_movie" || catalogId ==="similar_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/similar?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang) };
   }
   if (catalogId ==="recommended_movie" || catalogId ==="recommended_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/recommendations?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang) };
   }
   if (catalogId ==="collection_movie") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/collection/${tmdbId}?api_key=${TMDB_KEY}`);
-    return { metas: await resultsToMetas(data.parts || [],"movie") };
+    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang) };
   }
 
   const def = CATALOG_DEFS[catalogId];
@@ -375,7 +373,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey) {
     )
   );
   const allResults = pages.flatMap(d => d.results || []);
-  return { metas: await resultsToMetas(allResults, type) };
+  return { metas: await resultsToMetas(allResults, type, filterLang) };
 
 }
 
@@ -383,7 +381,7 @@ function buildCatalogsFromIds(selectedIds) {
   const catalogs = selectedIds.map(id => {
     const def = CATALOG_DEFS[id];
     if (!def) return null;
-   return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }, { name:"search", isRequired: false }] };
+   return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }] };
   });
   return catalogs;
 }
@@ -505,19 +503,6 @@ app.get("/c/:token/manifest.json", (req, res) => {
   res.json(manifest);
 });
 
-app.get(["/c/:token/catalog/:type/:id.json","/c/:token/catalog/:type/:id/:extra.json"], async (req, res) => {
-  const { token, type, id } = req.params;
-  const configs = loadConfigs();
-  const config = configs[token];
-  if (!config) return res.status(404).json({ metas: [] });
-  try {
-    let extra = {};
-    if (req.params.extra) { try { extra = JSON.parse(decodeURIComponent(req.params.extra)); } catch { decodeURIComponent(req.params.extra).split('&').forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
-    if (req.query.skip) extra.skip = parseInt(req.query.skip);
-    const result = await handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY);
-    res.json(result);
-  } catch (e) { res.json({ metas: [] }); }
-});
 
 app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
   const { type, id } = req.params;
@@ -583,6 +568,7 @@ app.get("/c/:token/stream/:type/:id.json", (req, res) => res.json({ streams: [] 
 
 app.use((req, res, next) => {
   const url = req.url;
+  console.log("MIDDLEWARE HIT:", req.url);
   if (url.includes("/manifest.json") && !url.startsWith("/c/")) {
     const fullManifest = {
       id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
@@ -594,7 +580,9 @@ app.use((req, res, next) => {
       resources: ["catalog","meta","stream"],
       catalogs: [
         ...buildManifestCatalogs(staticIds),
-        ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] }))
+        ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] })),
+        { type: "movie", id: "search_movies", name: "Ultra MAX", extra: [{ name: "search", isRequired: true }] },
+        { type: "series", id: "search_series", name: "Ultra MAX", extra: [{ name: "search", isRequired: true }] }
       ]
     };
     fullManifest.catalogs = (fullManifest.catalogs || []).map(c => ({
@@ -611,6 +599,26 @@ app.use((req, res, next) => {
       if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { const parts = decodeURIComponent(extraStr).split('&'); parts.forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
       console.log("MIDDLEWARE extra:", JSON.stringify(extra), "extraStr:", extraStr);
       handleCatalog(id, type, extra, null)
+        .then(result => res.json(result))
+        .catch(() => res.json({ metas: [] }));
+      return;
+    }
+  }
+if (url.includes("/catalog/") && url.includes("/c/")) {
+    const match = url.match(/\/c\/([^/]+)\/catalog\/([^/]+)\/([^/]+)(?:\/(.+))?\.json/);
+console.log("URL CHECK:", url.includes("/catalog/"), url.includes("/c/"), url);
+    if (match) {
+      const [, token, type, id, extraStr] = match;
+      const configs = loadConfigs();
+      const config = configs[token];
+      if (!config) return res.json({ metas: [] });
+      let extra = {};
+      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { decodeURIComponent(extraStr).split('&').forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
+      if (req.query.skip) extra.skip = parseInt(req.query.skip);
+      if (req.query.search) extra.search = req.query.search;
+      const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
+      console.log("CUSTOM SEARCH:", id, type, JSON.stringify(extra));
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;

@@ -142,6 +142,21 @@
             <span style="color:#666;font-size:11px;">The free tier gives you 1,000 requests per day which is more than enough for personal use.</span>
           </div>
         </div>
+       <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;">
+        <div class="api-key-label">&#127760; Metadata Language</div>
+        <select id="language" style="width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:13px;padding:8px 14px;border-radius:4px;outline:none;margin-top:8px;">
+          <option value="en-US">🇬🇧 English</option>
+          <option value="es-ES">🇪🇸 Spanish</option>
+          <option value="fr-FR">🇫🇷 French</option>
+          <option value="de-DE">🇩🇪 German</option>
+          <option value="it-IT">🇮🇹 Italian</option>
+          <option value="pt-BR">🇧🇷 Portuguese</option>
+          <option value="nl-NL">🇳🇱 Dutch</option>
+          <option value="pl-PL">🇵🇱 Polish</option>
+          <option value="tr-TR">🇹🇷 Turkish</option>
+        </select>
+        <div class="input-hint">Movie and series titles and descriptions will appear in your chosen language.</div>
+      </div>
       </div>
       <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
       <div style="display:none;" id="returningBox">
@@ -624,7 +639,8 @@ async function loadConfigByToken(token){
       const pill = document.querySelector('.pill[data-id="' + id + '"]');
       if(pill) pill.classList.add('selected');
     });
-    if(data.mdblistKey) document.getElementById('mdblistKey').value = data.mdblistKey;
+    if(data.mdblistKey) document.getElementById("mdblistKey").value = data.mdblistKey;
+    if(data.language) document.getElementById("language").value = data.language;
     updateCounter();
     updateCategoryCounts();
     setTimeout(makeSprockets, 200);
@@ -652,7 +668,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById("language").value })
     });
     const data = await res.json();
 
