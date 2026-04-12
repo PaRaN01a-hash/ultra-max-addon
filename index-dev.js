@@ -177,6 +177,8 @@ const CATALOG_DEFS = {
   mdb_91302:  { name:"Best of 2000s",                  type:"movie",  handler:"mdb" },
   mdb_91300:  { name:"Best of 1990s",                  type:"movie",  handler:"mdb" },
   mdb_91301:  { name:"Best of 1980s",                  type:"movie",  handler:"mdb" },
+  search_movies: { name:"Ultra MAX", type:"movie",  handler:"search" },
+  search_series: { name:"Ultra MAX", type:"series", handler:"search" },
 };
 
 const DYNAMIC_CATALOGS = [
@@ -349,7 +351,12 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     case"tmdb_paramount":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=2616%7C2303&watch_region=US&sort_by=popularity.desc&page=${page}`;
       break;
+    case"search":
+      console.log("SEARCH CASE HIT:", catalogId, extra?.search);
+      if (!extra?.search) return { metas: [] };
+      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language) };
     default:
+      return { metas: [] };
       return { metas: [] };
   }
 
@@ -377,6 +384,7 @@ function buildCatalogsFromIds(selectedIds) {
 }
 
 builder.defineCatalogHandler(async ({ type, id, extra }) => {
+  console.log("SDK HANDLER:", id, extra);
   try { return await handleCatalog(id, type, extra, null); }
   catch (e) { console.log("catalog error", id, e.message); return { metas: [] }; }
 });
@@ -521,20 +529,6 @@ app.get("/c/:token/manifest.json", (req, res) => {
   res.json(manifest);
 });
 
-app.get(["/c/:token/catalog/:type/:id.json","/c/:token/catalog/:type/:id/:extra.json"], async (req, res) => {
-  const { token, type, id } = req.params;
-  const configs = loadConfigs();
-  const config = configs[token];
-  if (!config) return res.status(404).json({ metas: [] });
-  try {
-    let extra = {};
-    if (req.params.extra) { try { extra = JSON.parse(decodeURIComponent(req.params.extra)); } catch { } }
-    if (req.query.skip) extra.skip = parseInt(req.query.skip);
-    const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
-    const result = await handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US");
-    res.json(result);
-  } catch (e) { res.json({ metas: [] }); }
-});
 
 app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
   const { token, type, id } = req.params;
@@ -591,7 +585,6 @@ app.get("/meta/:type/:id.json", async (req, res) => {
     const result = findRes[`${tmdbType}_results`]?.[0];
     if (!result) return res.json({ meta: { id, type } });
     const tmdbId = result.id;
-    const d = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits`);
     const cast = (d.credits?.cast || []).slice(0, 5).map(c => c.name);
     const meta = { id, type, name: d.title || d.name, description: d.overview, poster: d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : null, background: d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : null, releaseInfo: d.release_date ? d.release_date.split("-")[0] : d.first_air_date ? d.first_air_date.split("-")[0] : null, imdbRating: d.vote_average ? d.vote_average.toFixed(1) : null, genres: (d.genres || []).map(g => g.name), cast };
     res.json({ meta });
@@ -626,10 +619,30 @@ app.use((req, res, next) => {
   if (url.match(/\/catalog\//) && !url.startsWith("/c/")) {
     const match = url.match(/\/catalog\/([^/]+)\/([^/]+)(?:\/(.+))?\.json/);
     if (match) {
+console.log("CUSTOM MIDDLEWARE:", id, "extraStr:", extraStr);
       const [, type, id, extraStr] = match;
       let extra = {};
-      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { } }
+      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { decodeURIComponent(extraStr).split("&").forEach(p => { const [k,v] = p.split("="); if(k && v) extra[k]=decodeURIComponent(v); }); } }
       handleCatalog(id, type, extra, null)
+        .then(result => res.json(result))
+        .catch(() => res.json({ metas: [] }));
+      return;
+    }
+  }
+if (url.includes("/catalog/") && url.includes("/c/")) {
+    const match = url.match(/\/c\/([^/]+)\/catalog\/([^/]+)\/([^/]+)(?:\/(.+))?\.json/);
+    if (match) {
+      const [, token, type, id, extraStr] = match;
+console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
+      const configs = loadConfigs();
+      const config = configs[token];
+      if (!config) return res.json({ metas: [] });
+      let extra = {};
+      if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { decodeURIComponent(extraStr).split('&').forEach(p => { const [k,v] = p.split('='); if(k && v) extra[k]=decodeURIComponent(v); }); } }
+      if (req.query.skip) extra.skip = parseInt(req.query.skip);
+      if (req.query.search) extra.search = req.query.search;
+      const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US")
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;
