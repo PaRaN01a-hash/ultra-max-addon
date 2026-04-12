@@ -524,7 +524,11 @@ app.get("/c/:token/manifest.json", (req, res) => {
     logo: "https://max-streams.gleeze.com/logo.svg",
     types: ["movie","series"],
     resources: ["catalog","meta","stream"],
-    catalogs: buildCatalogsFromIds(config.catalogs)
+    catalogs: [
+      ...buildCatalogsFromIds(config.catalogs),
+      { type:"movie", id:"search_movies", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] },
+      { type:"series", id:"search_series", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] }
+    ],
   };
   res.json(manifest);
 });
