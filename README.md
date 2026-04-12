@@ -50,6 +50,15 @@ Personalise your experience by choosing exactly which catalogs appear on your ho
 - **Select All / Clear All** per category
 - **Custom order** — catalogs appear in Stremio/Nuvio in the order you select them
 - **Save & Edit** — return anytime with your token to update your selection
+- **Multi-language support** — titles and descriptions in your language
+
+---
+
+## Supported Languages
+
+🇬🇧 English · 🇪🇸 Spanish · 🇫🇷 French · 🇩🇪 German · 🇮🇹 Italian · 🇧🇷 Portuguese · 🇳🇱 Dutch · 🇵🇱 Polish · 🇹🇷 Turkish
+
+Set your preferred language on the configure page and all movie/series titles and descriptions will be returned in that language.
 
 ---
 
@@ -57,6 +66,13 @@ Personalise your experience by choosing exactly which catalogs appear on your ho
 
 - Stremio or Nuvio installed on your device
 - A free [MDBList API key](https://mdblist.com/api) (required for curated lists)
+
+---
+
+## Community
+
+- 💬 **Reddit** — [r/Ultra_Max](https://www.reddit.com/r/Ultra_Max/)
+- 🐛 **Bug reports & feature requests** — open a GitHub Issue
 
 ---
 
@@ -74,6 +90,7 @@ docker compose up -d
 
 ## Version History
 
+- **v5.4** — Multi-language support (9 languages), search fixes, anime filter per config
 - **v5.3** — New architecture, 140+ catalogs, custom configure page, presets, search, logo
 - **v5.1** — Configure page, custom manifests, MDBList integration
 - **v5.0** — Stable release, episode lists, metadata, filtering
