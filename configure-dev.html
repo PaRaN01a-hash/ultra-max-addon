@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra MAX — Build Your Addon</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0a;color:#fff;font-family:'Courier Prime',monospace;min-height:100vh;display:flex;justify-content:center;padding:40px 0;}
+  .filmstrip{display:flex;width:100%;max-width:860px;min-height:100vh;}
+  .sprocket{width:52px;background:#111;border-right:3px solid #000;display:flex;flex-direction:column;gap:0;padding:12px 0;flex-shrink:0;}
+  .sprocket.right{border-right:none;border-left:3px solid #000;}
+  .hole{width:22px;height:16px;background:#000;border-radius:3px;border:1.5px solid #222;margin:6px auto;flex-shrink:0;}
+  .cell{flex:1;background:#111;border-left:4px solid #000;border-right:4px solid #000;padding:0 0 60px 0;}
+  .cell-header{border-bottom:1px solid #2a2a2a;padding:20px 32px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .frame-num{font-size:10px;color:#aaa;letter-spacing:0.1em;}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.08em;text-align:center;padding:32px 32px 8px;color:#fff;}
+  .subtitle{text-align:center;color:#ccc;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:32px;border-bottom:1px solid #1a1a1a;}
+  .step{padding:28px 32px;border-bottom:1px solid #1a1a1a;}
+  .step-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .step-title::after{content:'';flex:1;height:1px;background:#444;}
+  .step-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#999;}
+  .input-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  input[type=password],input[type=text]{background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:14px;padding:10px 14px;border-radius:4px;flex:1;min-width:200px;outline:none;transition:border-color 0.2s;}
+  input:focus{border-color:#666;}
+  .input-hint{font-size:11px;color:#bbb;margin-top:6px;letter-spacing:0.03em;}
+  .api-key-section{margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;}
+  .api-key-label{font-size:11px;color:#ccc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .optional-badge{font-size:9px;background:#1a1a1a;border:1px solid #c0392b;color:#e74c3c;padding:2px 6px;border-radius:2px;letter-spacing:0.1em;}
+  .mdb-upgrade{margin-top:10px;padding:12px 16px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:4px;}
+  .mdb-upgrade p{font-size:12px;color:#ccc;line-height:1.6;letter-spacing:0.02em;}
+  .mdb-upgrade a{color:#fff;text-decoration:underline;text-underline-offset:3px;}
+  .mdb-upgrade a:hover{color:#ccc;}
+  .mdb-upgrade strong{color:#fff;}
+  .returning{margin-top:12px;font-size:11px;color:#aaa;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:inline-block;}
+  .returning:hover{color:#fff;}
+
+  /* Presets */
+  .presets-section{padding:24px 32px;border-bottom:1px solid #1a1a1a;background:#0d0d0d;}
+  .presets-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+  .presets-title::after{content:'';flex:1;height:1px;background:#444;}
+  .presets-subtitle{font-size:11px;color:#bbb;margin-bottom:16px;letter-spacing:0.03em;}
+  .presets-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .preset-btn{background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:10px 18px;border-radius:3px;cursor:pointer;transition:all 0.15s;text-align:left;}
+  .preset-btn:hover{border-color:#999;color:#fff;}
+  .preset-btn .preset-name{display:block;font-weight:700;font-size:13px;color:#fff;margin-bottom:2px;}
+  .preset-btn .preset-desc{display:block;font-size:10px;color:#aaa;letter-spacing:0.05em;}
+  .preset-btn.active{border-color:#fff;background:#1a1a1a;}
+
+  /* Search & global controls */
+  .catalog-controls{padding:16px 32px;border-bottom:1px solid #1a1a1a;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:200px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:13px;padding:8px 14px;border-radius:4px;outline:none;transition:border-color 0.2s;}
+  .search-box:focus{border-color:#666;}
+  .search-box::placeholder{color:#777;}
+  .global-btn{background:transparent;border:1px solid #444;color:#bbb;font-family:'Courier Prime',monospace;font-size:11px;padding:8px 14px;border-radius:3px;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;white-space:nowrap;}
+  .global-btn:hover{border-color:#999;color:#fff;}
+
+  .category{padding:20px 32px;border-bottom:1px solid #1a1a1a;}
+  .category.hidden{display:none;}
+  .cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cat-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;display:flex;align-items:center;gap:8px;}
+  .cat-icon{font-size:14px;}
+  .cat-count{font-size:10px;color:#888;margin-left:4px;font-family:'Courier Prime',monospace;}
+  .select-all{font-size:10px;color:#999;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;}
+  .select-all:hover{color:#fff;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:6px 14px;border-radius:3px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.03em;}
+  .pill:hover{border-color:#999;color:#fff;}
+  .pill.selected{background:#fff;border-color:#fff;color:#000;font-weight:700;}
+  .pill.hidden{display:none;}
+  .counter{position:sticky;bottom:0;background:#111;border-top:1px solid #2a2a2a;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+  .count-display{font-size:11px;color:#bbb;letter-spacing:0.1em;}
+  .count-num{color:#fff;font-size:18px;font-family:'Bebas Neue',sans-serif;}
+  .gen-btn{background:#fff;color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;padding:10px 28px;cursor:pointer;border-radius:3px;transition:opacity 0.15s;}
+  .gen-btn:hover{opacity:0.85;}
+  .gen-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .result-box{padding:28px 32px;display:none;}
+  .result-box.visible{display:block;}
+  .result-label{font-size:10px;color:#bbb;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
+  .url-display{background:#0a0a0a;border:1px solid #2a2a2a;padding:12px 16px;border-radius:4px;font-size:12px;color:#fff;word-break:break-all;margin-bottom:12px;font-family:'Courier Prime',monospace;}
+  .result-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .rbtn{padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;cursor:pointer;border:1px solid #555;background:transparent;color:#ddd;transition:all 0.15s;text-decoration:none;display:inline-block;}
+  .rbtn:hover{border-color:#999;color:#fff;}
+  .rbtn.primary{background:#fff;color:#000;border-color:#fff;font-weight:700;}
+  .rbtn.primary:hover{opacity:0.85;}
+  .token-save{margin-top:16px;padding:12px 16px;background:#0a0a0a;border:1px solid #222;border-radius:4px;font-size:11px;color:#bbb;letter-spacing:0.03em;}
+  .token-save span{color:#fff;}
+  .error-msg{color:#e74c3c;font-size:12px;margin-top:8px;display:none;}
+  .error-msg.visible{display:block;}
+  .loading{text-align:center;padding:20px;color:#888;font-size:12px;letter-spacing:0.1em;display:none;}
+  .loading.visible{display:block;}
+  .edit-banner{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 32px;font-size:11px;color:#aaa;letter-spacing:0.05em;display:none;}
+  .edit-banner.visible{display:block;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:#0a0a0a;}
+  ::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="filmstrip">
+  <div class="sprocket" id="s1"></div>
+  <div class="cell">
+    <div class="cell-header">
+      <span class="frame-num">ULTRA MAX — CONFIGURE</span>
+      <span class="frame-num">35mm</span>
+    </div>
+    <div class="edit-banner" id="editBanner">Editing existing configuration. Enter your password to save changes.</div>
+    <h1>Build Your Addon</h1>
+    <p class="subtitle">Select your catalogs &bull; Set a password &bull; Install</p>
+    <p style="text-align:center;font-size:11px;color:#bbb;padding:12px 32px;letter-spacing:0.05em;">
+        &#9432; Catalogs appear in Stremio in the order you select them
+    </p>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">01</span> Account</div>
+      <div class="input-row">
+        <input type="password" id="password" placeholder="Password" autocomplete="new-password" />
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" />
+      </div>
+      <div class="error-msg" id="passError">Passwords do not match</div>
+      <div class="api-key-section">
+        <div class="api-key-label">&#128273; MDBList API Key <span class="optional-badge">REQUIRED</span></div>
+        <input type="text" id="mdblistKey" placeholder="Paste your free MDBList API key here" />
+        <div class="mdb-upgrade">
+          <p>
+            <strong>A free MDBList API key is required.</strong><br>
+            This powers all the curated lists, latest releases, trending charts and more. Without it those catalogs won't load. It takes 30 seconds to get one and it's completely free.<br><br>
+            <a href="https://mdblist.com/?ref=ultramax" target="_blank" rel="noopener">Get your free MDBList API key here &rarr;</a>
+          </p>
+        </div>
+        <p class="returning" onclick="toggleGuide()" id="guideToggle">&#9432; How do I get a key?</p>
+        <div style="display:none;" id="guideBox">
+          <div style="margin-top:12px;padding:16px;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;font-size:12px;color:#ccc;line-height:1.8;letter-spacing:0.02em;">
+            <strong style="color:#fff;letter-spacing:0.1em;font-size:11px;text-transform:uppercase;">How to get your free MDBList API key</strong>
+            <br><br>
+            <span style="color:#888;">Step 1 &mdash;</span> Go to <a href="https://mdblist.com/register" target="_blank" style="color:#fff;text-decoration:underline;text-underline-offset:3px;">mdblist.com/register</a> and create a free account. Just needs an email address — no credit card, no subscription.<br><br>
+            <span style="color:#888;">Step 2 &mdash;</span> Check your email and confirm your account.<br><br>
+            <span style="color:#888;">Step 3 &mdash;</span> Once logged in, go to <a href="https://mdblist.com/api/" target="_blank" style="color:#fff;text-decoration:underline;text-underline-offset:3px;">mdblist.com/api</a><br><br>
+            <span style="color:#888;">Step 4 &mdash;</span> Your API key is shown on that page. Copy it.<br><br>
+            <span style="color:#888;">Step 5 &mdash;</span> Paste it into the box above and you're done!<br><br>
+            <span style="color:#666;font-size:11px;">The free tier gives you 1,000 requests per day which is more than enough for personal use.</span>
+          </div>
+        </div>
+       <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;">
+        <div class="api-key-label">&#127760; Metadata Language</div>
+        <select id="language" style="width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:13px;padding:8px 14px;border-radius:4px;outline:none;margin-top:8px;">
+          <option value="en-US">🇬🇧 English</option>
+          <option value="es-ES">🇪🇸 Spanish</option>
+          <option value="fr-FR">🇫🇷 French</option>
+          <option value="de-DE">🇩🇪 German</option>
+          <option value="it-IT">🇮🇹 Italian</option>
+          <option value="pt-BR">🇧🇷 Portuguese</option>
+          <option value="nl-NL">🇳🇱 Dutch</option>
+          <option value="pl-PL">🇵🇱 Polish</option>
+          <option value="tr-TR">🇹🇷 Turkish</option>
+        </select>
+        <div class="input-hint">Movie and series titles and descriptions will appear in your chosen language.</div>
+      </div>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;">
+        <div class="api-key-label">🎬 RPDB API Key <span class="optional-badge">OPTIONAL</span></div>
+        <input type="text" id="rpdbKey" placeholder="Your RPDB API key for rated posters" />
+        <div class="mdb-upgrade">
+          <p>
+            <strong>Get rated posters with RPDB.</strong><br>
+            Adds rating overlays to all movie and series posters. Free tier available.<br><br>
+            <a href="https://ratingposterdb.com" target="_blank" rel="noopener">Get your RPDB API key here &rarr;</a>
+          </p>
+        </div>
+      </div>
+      </div>
+      <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
+      <div style="display:none;" id="returningBox">
+        <div class="input-row" style="margin-top:12px;">
+          <input type="text" id="tokenInput" placeholder="Enter your config token (e.g. ABC123)" />
+          <button onclick="loadConfig()" style="background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;padding:10px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;">Load Config</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESETS -->
+    <div class="presets-section">
+      <div class="presets-title">&#9889; Quick Start Presets</div>
+      <p class="presets-subtitle">Not sure where to start? Pick a preset and customise from there.</p>
+      <div class="presets-row">
+        <button class="preset-btn" onclick="applyPreset('casual')">
+          <span class="preset-name">&#127780; Casual Viewer</span>
+          <span class="preset-desc">The essentials — trending, popular & genres</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset('binge')">
+          <span class="preset-name">&#127871; Binge Watcher</span>
+          <span class="preset-desc">Streaming services, genres & curated lists</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset('everything')">
+          <span class="preset-name">&#128293; Everything</span>
+          <span class="preset-desc">All 140 catalogs — the full Ultra MAX experience</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SEARCH & GLOBAL CONTROLS -->
+    <div class="catalog-controls">
+      <input type="text" class="search-box" id="searchBox" placeholder="&#128269; Search catalogs..." oninput="filterCatalogs(this.value)" />
+      <button class="global-btn" onclick="selectAllGlobal()">Select All</button>
+      <button class="global-btn" onclick="clearAllGlobal()">Clear All</button>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#128293;</span> Trending &amp; Popular <span class="cat-count" id="count-trending"></span></div>
+        <span class="select-all" onclick="selectAll('trending')">Select All</span>
+      </div>
+      <div class="pills" id="trending">
+        <div class="pill" data-id="trending_movies">Trending Movies</div>
+        <div class="pill" data-id="trending_series">Trending Series</div>
+        <div class="pill" data-id="popular_movies">Popular Movies</div>
+        <div class="pill" data-id="popular_series">Popular Series</div>
+        <div class="pill" data-id="top_movies">Top Rated Movies</div>
+        <div class="pill" data-id="top_series">Top Rated Series</div>
+        <div class="pill" data-id="now_movies">Now Playing</div>
+        <div class="pill" data-id="airing_series">Airing Today</div>
+        <div class="pill" data-id="ontheair_series">On The Air</div>
+        <div class="pill" data-id="mdb_87667">Trakt Trending Movies</div>
+        <div class="pill" data-id="mdb_88434">Trakt Trending Series</div>
+        <div class="pill" data-id="mdb_2236">Top Movies This Week</div>
+        <div class="pill" data-id="mdb_1198">Most Popular (Top 20)</div>
+        <div class="pill" data-id="mdb_69">IMDb Moviemeter Top 100</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127381;</span> New &amp; Latest <span class="cat-count" id="count-latest"></span></div>
+        <span class="select-all" onclick="selectAll('latest')">Select All</span>
+      </div>
+      <div class="pills" id="latest">
+        <div class="pill" data-id="mdb_86934">Latest Digital Release</div>
+        <div class="pill" data-id="mdb_960">Latest Releases</div>
+        <div class="pill" data-id="mdb_2202">Latest Blu-ray</div>
+        <div class="pill" data-id="mdb_1176">Latest Certified Fresh</div>
+        <div class="pill" data-id="mdb_86710">Latest Airing Shows</div>
+        <div class="pill" data-id="mdb_88328">Netflix Latest Movies</div>
+        <div class="pill" data-id="mdb_86751">Netflix Latest Series</div>
+        <div class="pill" data-id="mdb_86755">Amazon Latest Movies</div>
+        <div class="pill" data-id="mdb_86753">Amazon Latest Series</div>
+        <div class="pill" data-id="mdb_88317">Apple TV+ Latest Movies</div>
+        <div class="pill" data-id="mdb_88319">Apple TV+ Latest Series</div>
+        <div class="pill" data-id="mdb_86759">Disney+ Latest Movies</div>
+        <div class="pill" data-id="mdb_86758">Disney+ Latest Series</div>
+        <div class="pill" data-id="mdb_89647">HBO Latest Movies</div>
+        <div class="pill" data-id="mdb_89649">HBO Latest Series</div>
+        <div class="pill" data-id="mdb_86762">Paramount+ Latest Movies</div>
+        <div class="pill" data-id="mdb_86761">Paramount+ Latest Series</div>
+        <div class="pill" data-id="mdb_88326">Hulu Latest Movies</div>
+        <div class="pill" data-id="mdb_88327">Hulu Latest Series</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#128250;</span> Streaming Services <span class="cat-count" id="count-providers"></span></div>
+        <span class="select-all" onclick="selectAll('providers')">Select All</span>
+      </div>
+      <div class="pills" id="providers">
+        <div class="pill" data-id="netflix_movies">Netflix Movies</div>
+        <div class="pill" data-id="netflix_series">Netflix Series</div>
+        <div class="pill" data-id="amazon_movies">Amazon Movies</div>
+        <div class="pill" data-id="amazon_series">Amazon Series</div>
+        <div class="pill" data-id="disney_movies">Disney+ Movies</div>
+        <div class="pill" data-id="disney_series">Disney+ Series</div>
+        <div class="pill" data-id="hbo_movies">HBO Movies</div>
+        <div class="pill" data-id="hbo_series">HBO Series</div>
+        <div class="pill" data-id="apple_movies">Apple TV+ Movies</div>
+        <div class="pill" data-id="apple_series">Apple TV+ Series</div>
+        <div class="pill" data-id="paramount_movies">Paramount+ Movies</div>
+        <div class="pill" data-id="paramount_series">Paramount+ Series</div>
+        <div class="pill" data-id="peacock_movies">Peacock Movies</div>
+        <div class="pill" data-id="peacock_series">Peacock Series</div>
+        <div class="pill" data-id="hulu_movies">Hulu Movies</div>
+        <div class="pill" data-id="hulu_series">Hulu Series</div>
+        <div class="pill" data-id="mgm_movies">MGM+ Movies</div>
+        <div class="pill" data-id="acorn_movies">Acorn Movies</div>
+        <div class="pill" data-id="acorn_series">Acorn Series</div>
+        <div class="pill" data-id="shudder_movies">Shudder Movies</div>
+        <div class="pill" data-id="shudder_series">Shudder Series</div>
+        <div class="pill" data-id="britbox_movies">BritBox Movies</div>
+        <div class="pill" data-id="britbox_series">BritBox Series</div>
+        <div class="pill" data-id="itvx_movies">ITVX Movies</div>
+        <div class="pill" data-id="itvx_series">ITVX Series</div>
+        <div class="pill" data-id="channel4_movies">Channel 4 Movies</div>
+        <div class="pill" data-id="channel4_series">Channel 4 Series</div>
+        <div class="pill" data-id="crunchyroll_movies">Crunchyroll Movies</div>
+        <div class="pill" data-id="crunchyroll_series">Crunchyroll Series</div>
+        <div class="pill" data-id="hidive_movies">Hidive Movies</div>
+        <div class="pill" data-id="hidive_series">Hidive Series</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127917;</span> Genres <span class="cat-count" id="count-genres"></span></div>
+        <span class="select-all" onclick="selectAll('genres')">Select All</span>
+      </div>
+      <div class="pills" id="genres">
+        <div class="pill" data-id="action_movies">Action Movies</div>
+        <div class="pill" data-id="action_series">Action Series</div>
+        <div class="pill" data-id="comedy_movies">Comedy Movies</div>
+        <div class="pill" data-id="comedy_series">Comedy Series</div>
+        <div class="pill" data-id="horror_movies">Horror Movies</div>
+        <div class="pill" data-id="horror_series">Horror Series</div>
+        <div class="pill" data-id="scifi_movies">Sci-Fi Movies</div>
+        <div class="pill" data-id="scifi_series">Sci-Fi Series</div>
+        <div class="pill" data-id="thriller_movies">Thriller Movies</div>
+        <div class="pill" data-id="thriller_series">Thriller Series</div>
+        <div class="pill" data-id="crime_movies">Crime Movies</div>
+        <div class="pill" data-id="crime_series">Crime Series</div>
+        <div class="pill" data-id="drama_movies">Drama Movies</div>
+        <div class="pill" data-id="drama_series">Drama Series</div>
+        <div class="pill" data-id="romance_movies">Romance Movies</div>
+        <div class="pill" data-id="romance_series">Romance Series</div>
+        <div class="pill" data-id="mystery_movies">Mystery Movies</div>
+        <div class="pill" data-id="mystery_series">Mystery Series</div>
+        <div class="pill" data-id="fantasy_movies">Fantasy Movies</div>
+        <div class="pill" data-id="fantasy_series">Fantasy Series</div>
+        <div class="pill" data-id="family_movies">Family Movies</div>
+        <div class="pill" data-id="family_series">Family Series</div>
+        <div class="pill" data-id="animation_movies">Animated Movies</div>
+        <div class="pill" data-id="animation_series">Animated Series</div>
+        <div class="pill" data-id="documentary_movies">Documentary Movies</div>
+        <div class="pill" data-id="documentary_series">Documentary Series</div>
+        <div class="pill" data-id="mdb_84677">Top Documentaries</div>
+        <div class="pill" data-id="mdb_84403">Top Documentary Series</div>
+        <div class="pill" data-id="mdb_8043">History &amp; War</div>
+        <div class="pill" data-id="mdb_84487">Nature</div>
+        <div class="pill" data-id="mdb_84401">Reality TV</div>
+        <div class="pill" data-id="mdb_83497">Standup Comedy</div>
+        <div class="pill" data-id="anime_movies">Anime Movies</div>
+        <div class="pill" data-id="anime_series">Anime Series</div>
+        <div class="pill" data-id="bollywood_movies">Bollywood Movies</div>
+        <div class="pill" data-id="bollywood_series">Bollywood Series</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127916;</span> Themed &amp; Curated <span class="cat-count" id="count-themed"></span></div>
+        <span class="select-all" onclick="selectAll('themed')">Select All</span>
+      </div>
+      <div class="pills" id="themed">
+        <div class="pill" data-id="mdb_3892">Must-See Mindfuck</div>
+        <div class="pill" data-id="mdb_3923">Crazy Plot Twists</div>
+        <div class="pill" data-id="mdb_3920">Outer Space</div>
+        <div class="pill" data-id="mdb_2909">Time Travel</div>
+        <div class="pill" data-id="mdb_102554">Must-See Modern Horror</div>
+        <div class="pill" data-id="mdb_2410">Horror Classics</div>
+        <div class="pill" data-id="mdb_3885">100% Rotten Tomatoes</div>
+        <div class="pill" data-id="mdb_4081">Top 50 Parody Movies</div>
+        <div class="pill" data-id="mdb_4390">True Crime Docs</div>
+        <div class="pill" data-id="mdb_2858">Thrilling Movies</div>
+        <div class="pill" data-id="mdb_136620">Seasonal</div>
+        <div class="pill" data-id="theme_superhero">Superhero</div>
+        <div class="pill" data-id="theme_revenge">Revenge</div>
+        <div class="pill" data-id="theme_roadtrip">Road Trip</div>
+        <div class="pill" data-id="theme_heist">Heist</div>
+        <div class="pill" data-id="theme_serialkiller">Serial Killer</div>
+        <div class="pill" data-id="theme_timeloop">Time Loop</div>
+        <div class="pill" data-id="theme_postapoc">Post Apocalyptic</div>
+        <div class="pill" data-id="theme_dystopia">Dystopia</div>
+        <div class="pill" data-id="theme_truestory">Based on True Story</div>
+        <div class="pill" data-id="theme_ai">Artificial Intelligence</div>
+        <div class="pill" data-id="theme_zombie">Zombie</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127909;</span> Studios &amp; Collections <span class="cat-count" id="count-studios"></span></div>
+        <span class="select-all" onclick="selectAll('studios')">Select All</span>
+      </div>
+      <div class="pills" id="studios">
+        <div class="pill" data-id="studio_marvel">Marvel</div>
+        <div class="pill" data-id="studio_dc">DC Films</div>
+        <div class="pill" data-id="studio_a24">A24</div>
+        <div class="pill" data-id="studio_blumhouse">Blumhouse</div>
+        <div class="pill" data-id="studio_ghibli">Studio Ghibli</div>
+        <div class="pill" data-id="mdb_3918">Pixar</div>
+        <div class="pill" data-id="mdb_3928">DreamWorks</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade <span class="cat-count" id="count-decades"></span></div>
+        <span class="select-all" onclick="selectAll('decades')">Select All</span>
+      </div>
+      <div class="pills" id="decades">
+        <div class="pill" data-id="mdb_92337">Best of 2025</div>
+        <div class="pill" data-id="mdb_91304">Best of 2020s</div>
+        <div class="pill" data-id="mdb_91303">Best of 2010s</div>
+        <div class="pill" data-id="mdb_91302">Best of 2000s</div>
+        <div class="pill" data-id="mdb_91300">Best of 1990s</div>
+        <div class="pill" data-id="mdb_91301">Best of 1980s</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#128118;</span> Kids &amp; Family <span class="cat-count" id="count-kids"></span></div>
+        <span class="select-all" onclick="selectAll('kids')">Select All</span>
+      </div>
+      <div class="pills" id="kids">
+        <div class="pill" data-id="mdb_88307">Trending Kids Movies</div>
+        <div class="pill" data-id="mdb_88309">Trending Kids Series</div>
+        <div class="pill" data-id="mdb_13">Top Kids Movies This Week</div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="cat-header">
+        <div class="cat-title"><span class="cat-icon">&#127468;&#127463;</span> UK Specific <span class="cat-count" id="count-uk"></span></div>
+        <span class="select-all" onclick="selectAll('uk')">Select All</span>
+      </div>
+      <div class="pills" id="uk">
+        <div class="pill" data-id="mdb_3087">BBC Shows</div>
+        <div class="pill" data-id="mdb_3091">UK Shows</div>
+      </div>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-label">Your Manifest URL</div>
+      <div class="url-display" id="urlDisplay"></div>
+      <div class="result-btns">
+        <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
+        <a class="rbtn" id="installBtn" href="#">Install in Stremio</a>
+      </div>
+      <div class="token-save">
+        Your token: <span id="tokenDisplay"></span>
+        <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #444;color:#ccc;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
+        <br><br>Return to edit at <span id="editLink"></span>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">Generating your addon...</div>
+
+    <div class="counter">
+      <div class="count-display"><span class="count-num" id="countNum">0</span> catalogs selected</div>
+      <button class="gen-btn" id="genBtn" onclick="generate()" disabled>Generate Manifest</button>
+    </div>
+  </div>
+  <div class="sprocket right" id="s2"></div>
+</div>
+
+<script>
+const BASE_URL = window.location.origin;
+let selected = new Set();
+let editToken = null;
+
+const PRESETS = {
+  casual: [
+    'trending_movies','trending_series','popular_movies','popular_series',
+    'top_movies','top_series','now_movies','airing_series',
+    'action_movies','action_series','comedy_movies','comedy_series',
+    'horror_movies','drama_movies','drama_series','scifi_movies',
+    'mdb_87667','mdb_960','mdb_69'
+  ],
+  binge: [
+    'trending_movies','trending_series','popular_movies','popular_series',
+    'top_movies','top_series','now_movies','airing_series','ontheair_series',
+    'mdb_87667','mdb_88434','mdb_2236','mdb_1198','mdb_69',
+    'mdb_86934','mdb_960','mdb_1176','mdb_86710',
+    'netflix_movies','netflix_series','amazon_movies','amazon_series',
+    'disney_movies','disney_series','hbo_movies','hbo_series',
+    'apple_movies','apple_series',
+    'action_movies','action_series','comedy_movies','comedy_series',
+    'horror_movies','horror_series','scifi_movies','scifi_series',
+    'thriller_movies','thriller_series','crime_movies','crime_series',
+    'drama_movies','drama_series','romance_movies','mystery_movies',
+    'animation_movies','animation_series','documentary_movies',
+    'mdb_3892','mdb_3920','mdb_2909','mdb_3885','mdb_136620',
+    'theme_superhero','theme_heist','theme_zombie',
+    'studio_marvel','studio_dc','studio_a24',
+    'mdb_92337','mdb_91304','mdb_91303'
+  ]
+};
+
+function applyPreset(name){
+  clearAllGlobal(true);
+  document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  let ids = [];
+  if(name === 'everything'){
+    ids = Array.from(document.querySelectorAll('.pill')).map(function(p){ return p.dataset.id; });
+  } else {
+    ids = PRESETS[name] || [];
+  }
+  ids.forEach(function(id){
+    selected.add(id);
+    const pill = document.querySelector('.pill[data-id="'+id+'"]');
+    if(pill) pill.classList.add('selected');
+  });
+  event.currentTarget.classList.add('active');
+  updateCounter();
+  updateCategoryCounts();
+  setTimeout(makeSprockets, 100);
+}
+
+function selectAllGlobal(){
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.add('selected');
+    selected.add(p.dataset.id);
+  });
+  document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  updateCounter();
+  updateCategoryCounts();
+}
+
+function clearAllGlobal(silent){
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.remove('selected');
+  });
+  selected.clear();
+  if(!silent){
+    document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  }
+  updateCounter();
+  updateCategoryCounts();
+}
+
+function filterCatalogs(query){
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.category').forEach(function(cat){
+    let anyVisible = false;
+    cat.querySelectorAll('.pill').forEach(function(pill){
+      const match = !q || pill.textContent.toLowerCase().includes(q);
+      pill.classList.toggle('hidden', !match);
+      if(match) anyVisible = true;
+    });
+    cat.classList.toggle('hidden', !anyVisible);
+  });
+  setTimeout(makeSprockets, 100);
+}
+
+function updateCategoryCounts(){
+  const groups = ['trending','latest','providers','genres','themed','studios','decades','kids','uk'];
+  groups.forEach(function(g){
+    const el = document.getElementById('count-'+g);
+    const group = document.getElementById(g);
+    if(!el || !group) return;
+    const total = group.querySelectorAll('.pill').length;
+    const sel = group.querySelectorAll('.pill.selected').length;
+    const visible = group.querySelectorAll('.pill:not(.hidden)').length;
+    const visibleSel = group.querySelectorAll('.pill.selected:not(.hidden)').length;
+    el.textContent = sel > 0 ? sel+'/'+total : total;
+    const btn = document.querySelector('[onclick="selectAll(\''+g+'\')"]');
+    if(btn) btn.textContent = (visible > 0 && visibleSel === visible) ? 'Clear All' : 'Select All';
+  });
+}
+
+function makeSprockets(){
+  const cell = document.querySelector('.cell');
+  const height = cell ? cell.scrollHeight : document.body.scrollHeight;
+  const count = Math.ceil(height / 28) + 2;
+  ['s1','s2'].forEach(function(id){
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    for(let i=0;i<count;i++){
+      const h = document.createElement('div');
+      h.className = 'hole';
+      el.appendChild(h);
+    }
+  });
+}
+window.addEventListener('resize', makeSprockets);
+window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); updateCategoryCounts(); });
+setTimeout(makeSprockets, 100);
+
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configure'){
+  editToken = pathParts[pathParts.length-1];
+  document.getElementById('editBanner').classList.add('visible');
+  document.getElementById('confirmPassword').style.display = 'none';
+  document.getElementById('password').placeholder = 'Enter your password to save changes';
+  loadConfigByToken(editToken);
+}
+
+document.querySelectorAll('.pill').forEach(function(pill){
+  pill.addEventListener('click', function(){
+    pill.classList.toggle('selected');
+    if(pill.classList.contains('selected')) selected.add(pill.dataset.id);
+    else selected.delete(pill.dataset.id);
+    document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+    updateCounter();
+    updateCategoryCounts();
+  });
+});
+
+function selectAll(groupId){
+  const group = document.getElementById(groupId);
+  const pills = group.querySelectorAll('.pill:not(.hidden)');
+  const allSelected = Array.from(pills).every(function(p){ return p.classList.contains('selected'); });
+  pills.forEach(function(p){
+    if(allSelected){ p.classList.remove('selected'); selected.delete(p.dataset.id); }
+    else { p.classList.add('selected'); selected.add(p.dataset.id); }
+  });
+  // Update button text
+  const btn = document.querySelector('[onclick="selectAll(\''+groupId+'\')"]');
+  if(btn) btn.textContent = allSelected ? 'Select All' : 'Clear All';
+  updateCounter();
+  updateCategoryCounts();
+  setTimeout(makeSprockets, 100);
+}
+
+function updateCounter(){
+  document.getElementById('countNum').textContent = selected.size;
+  document.getElementById('genBtn').disabled = selected.size === 0;
+}
+
+function toggleReturning(){
+  const box = document.getElementById('returningBox');
+  box.style.display = box.style.display === 'none' || box.style.display === '' ? 'block' : 'none';
+}
+
+function toggleGuide(){
+  const box = document.getElementById('guideBox');
+  const toggle = document.getElementById('guideToggle');
+  const isOpen = box.style.display === 'block';
+  box.style.display = isOpen ? 'none' : 'block';
+  toggle.textContent = isOpen ? 'ⓘ How do I get a key?' : 'ⓘ Hide guide';
+  setTimeout(makeSprockets, 100);
+}
+
+async function loadConfig(){
+  const token = document.getElementById('tokenInput').value.trim();
+  if(!token) return;
+  editToken = token;
+  window.history.pushState({}, '', '/configure/' + token);
+  document.getElementById('editBanner').classList.add('visible');
+  document.getElementById('confirmPassword').style.display = 'none';
+  await loadConfigByToken(token);
+}
+
+async function loadConfigByToken(token){
+  try{
+    const res = await fetch('/c/' + token + '/config');
+    if(!res.ok) return;
+    const data = await res.json();
+    selected.clear();
+    document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
+    data.catalogs.forEach(function(id){
+      selected.add(id);
+      const pill = document.querySelector('.pill[data-id="' + id + '"]');
+      if(pill) pill.classList.add('selected');
+    });
+    if(data.mdblistKey) document.getElementById("mdblistKey").value = data.mdblistKey;
+    if(data.language) document.getElementById("language").value = data.language;
+    if(data.rpdbKey) document.getElementById("rpdbKey").value = data.rpdbKey;
+    updateCounter();
+    updateCategoryCounts();
+    setTimeout(makeSprockets, 200);
+  }catch(e){ console.error(e); }
+}
+
+async function generate(){
+  const pass = document.getElementById('password').value;
+  const confirm = document.getElementById('confirmPassword').value;
+  const mdbKey = document.getElementById('mdblistKey').value.trim();
+  const passError = document.getElementById('passError');
+
+  if(!pass){ passError.textContent='Password is required'; passError.classList.add('visible'); return; }
+  if(!editToken && pass !== confirm){ passError.textContent='Passwords do not match'; passError.classList.add('visible'); return; }
+  if(!mdbKey){ passError.textContent='MDBList API key is required — get your free key at mdblist.com'; passError.classList.add('visible'); return; }
+  passError.classList.remove('visible');
+  if(selected.size === 0) return;
+
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('resultBox').classList.remove('visible');
+  document.getElementById('genBtn').disabled = true;
+
+  try{
+    const endpoint = editToken ? '/c/' + editToken + '/update' : '/c/create';
+    const res = await fetch(endpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById("language").value, rpdbKey: document.getElementById("rpdbKey").value.trim() || null })
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      document.getElementById('loading').classList.remove('visible');
+      passError.textContent = data.error || 'Something went wrong';
+      passError.classList.add('visible');
+      document.getElementById('genBtn').disabled = false;
+      return;
+    }
+
+    const manifestUrl = BASE_URL + '/c/' + data.token + '/manifest.json';
+    document.getElementById('urlDisplay').textContent = manifestUrl;
+    document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
+    document.getElementById('tokenDisplay').textContent = data.token;
+    document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#888;">max-streams.gleeze.com/configure/' + data.token + '</a>';
+    document.getElementById('resultBox').classList.add('visible');
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('genBtn').disabled = false;
+
+    if(!editToken){ editToken = data.token; window.history.pushState({}, '', '/configure/' + data.token); }
+    setTimeout(function(){
+      document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      makeSprockets();
+    }, 100);
+  }catch(e){
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('genBtn').disabled = false;
+    passError.textContent = 'Network error. Please try again.';
+    passError.classList.add('visible');
+  }
+}
+
+function copyUrl(){
+  const url = document.getElementById('urlDisplay').textContent;
+  const btn = event.target;
+  const orig = btn.textContent;
+  const ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = orig; }, 2000);
+}
+function copyToken(){
+  const token = document.getElementById('tokenDisplay').textContent;
+  const btn = document.getElementById('copyTokenBtn');
+  const ta = document.createElement('textarea');
+  ta.value = token;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+}
+</script>
+</body>
+</html>

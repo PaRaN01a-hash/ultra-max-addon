@@ -1,0 +1,268 @@
+[
+  {
+    "focusGlowEnabled": true,
+    "id": "collection-ultramax-streaming",
+    "title": "Streaming Services",
+    "pinToTop": true,
+    "showAllTab": true,
+    "viewMode": "FOLLOW_LAYOUT",
+    "folders": [
+      {
+        "id": "folder-netflix",
+        "title": "Netflix",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://nuvioapp.space/uploads/covers/0696cf9a-3612-4d9b-bb65-72c6c5a060ba.gif",
+        "focusGifUrl": "https://nuvioapp.space/uploads/covers/5928ff51-999f-491d-9b0c-5b442735b5d6.jpg",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "netflix_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "netflix_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-prime",
+        "title": "Prime Video",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://media1.tenor.com/m/T7L_NCdPIvAAAAAC/prime-video.gif",
+        "focusGifUrl": "https://nuvioapp.space/uploads/covers/f32bd112-9c7e-45d9-aa93-c76cffd7cbea.png",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "amazon_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "amazon_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-disney",
+        "title": "Disney+",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://nuvioapp.space/uploads/covers/d18e4e34-ec05-4cee-87d0-586cd83779d9.gif",
+        "focusGifUrl": "https://nuvioapp.space/uploads/covers/5928ff51-999f-491d-9b0c-5b442735b5d6.jpg",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "disney_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "disney_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-hbo",
+        "title": "HBO Max",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://nuvioapp.space/uploads/covers/1b0ddda8-649e-41f2-af27-70550964f03d.gif",
+        "focusGifUrl": "https://i.postimg.cc/MT2fZ1Rz/HBO-Max.jpg",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "hbo_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "hbo_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-apple",
+        "title": "Apple TV+",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://media1.tenor.com/m/1FiEEnGTgUcAAAAC/apple-appletv.gif",
+        "focusGifUrl": "https://nuvioapp.space/uploads/covers/3b379dee-815e-445e-8f67-d5a43b05d2da.jpg",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "apple_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "apple_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-paramount",
+        "title": "Paramount+",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://ingeniousguru.com/wp-content/uploads/2022/10/Paramount.gif",
+        "focusGifUrl": "https://i.postimg.cc/NMq2GRTg/Paramount.jpg",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "paramount_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "paramount_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-peacock",
+        "title": "Peacock",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://nuvioapp.space/uploads/covers/b921ca21-fbc8-4d43-885b-62b07f814c58.gif",
+        "focusGifUrl": "https://nuvioapp.space/uploads/covers/0947499b-4551-46db-abf7-f6a34501e565.png",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "peacock_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "peacock_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-hulu",
+        "title": "Hulu",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://nuvioapp.space/uploads/covers/c237c4b2-875e-4d54-802a-42a4316ff7ab.gif",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "hulu_movies", "type": "movie"},
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "hulu_series", "type": "series"}
+        ]
+      }
+    ]
+  },
+  {
+    "focusGlowEnabled": true,
+    "id": "collection-ultramax-trending",
+    "title": "Trending",
+    "pinToTop": false,
+    "showAllTab": true,
+    "viewMode": "FOLLOW_LAYOUT",
+    "folders": [
+      {
+        "id": "folder-trending-movies",
+        "title": "Trending Movies",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "trending_movies", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-trending-series",
+        "title": "Trending Series",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "trending_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-popular-movies",
+        "title": "Popular Movies",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "popular_movies", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-popular-series",
+        "title": "Popular Series",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "popular_series", "type": "series"}
+        ]
+      },
+      {
+        "id": "folder-top-movies",
+        "title": "Top Rated Movies",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "top_movies", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-top-series",
+        "title": "Top Rated Series",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "top_series", "type": "series"}
+        ]
+      }
+    ]
+  },
+  {
+    "focusGlowEnabled": true,
+    "id": "collection-ultramax-studios",
+    "title": "Studios",
+    "pinToTop": false,
+    "showAllTab": true,
+    "viewMode": "FOLLOW_LAYOUT",
+    "folders": [
+      {
+        "id": "folder-marvel",
+        "title": "Marvel",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "https://giffiles.alphacoders.com/127/12700.gif",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "studio_marvel", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-dc",
+        "title": "DC",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "studio_dc", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-a24",
+        "title": "A24",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "studio_a24", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-blumhouse",
+        "title": "Blumhouse",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "studio_blumhouse", "type": "movie"}
+        ]
+      },
+      {
+        "id": "folder-ghibli",
+        "title": "Studio Ghibli",
+        "tileShape": "LANDSCAPE",
+        "hideTitle": false,
+        "focusGifEnabled": false,
+        "coverImageUrl": "",
+        "focusGifUrl": "",
+        "catalogSources": [
+          {"addonId": "org.kris.ultra.max.v5", "catalogId": "studio_ghibli", "type": "movie"}
+        ]
+      }
+    ]
+  }
+]
