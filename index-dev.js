@@ -441,6 +441,7 @@ builder.defineMetaHandler(async ({ type, id }) => {
 
 const addonInterface = builder.getInterface();
 const app = express();
+app.use((req, res, next) => { res.setHeader("Access-Control-Allow-Origin", "*"); res.setHeader("Access-Control-Allow-Headers", "*"); res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); if (req.method === "OPTIONS") return res.sendStatus(200); next(); });
 app.use(express.json());
 
 app.get("/configure", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });

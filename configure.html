@@ -157,6 +157,17 @@
         </select>
         <div class="input-hint">Movie and series titles and descriptions will appear in your chosen language.</div>
       </div>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1a1a1a;">
+        <div class="api-key-label">🎬 RPDB API Key <span class="optional-badge">OPTIONAL</span></div>
+        <input type="text" id="rpdbKey" placeholder="Your RPDB API key for rated posters" />
+        <div class="mdb-upgrade">
+          <p>
+            <strong>Get rated posters with RPDB.</strong><br>
+            Adds rating overlays to all movie and series posters. Free tier available.<br><br>
+            <a href="https://ratingposterdb.com" target="_blank" rel="noopener">Get your RPDB API key here &rarr;</a>
+          </p>
+        </div>
+      </div>
       </div>
       <p class="returning" onclick="toggleReturning()">&#8617; Returning user? Load your existing config</p>
       <div style="display:none;" id="returningBox">
@@ -641,6 +652,7 @@ async function loadConfigByToken(token){
     });
     if(data.mdblistKey) document.getElementById("mdblistKey").value = data.mdblistKey;
     if(data.language) document.getElementById("language").value = data.language;
+    if(data.rpdbKey) document.getElementById("rpdbKey").value = data.rpdbKey;
     updateCounter();
     updateCategoryCounts();
     setTimeout(makeSprockets, 200);
@@ -668,7 +680,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById("language").value })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById("language").value, rpdbKey: document.getElementById("rpdbKey").value.trim() || null })
     });
     const data = await res.json();
 
