@@ -257,7 +257,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
   )).filter(Boolean);
 }
 
-async function mdblistToMetas(listId, type, mdbKey) {
+async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
   const key = mdbKey || MDBLIST_KEY;
   const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
   try {
@@ -275,7 +275,7 @@ async function mdblistToMetas(listId, type, mdbKey) {
           return {
             id: imdbId, type,
             name: item.title || result.title || result.name,
-            poster: result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
+            poster: rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
             background: result.backdrop_path ? `https://image.tmdb.org/t/p/original${result.backdrop_path}` : null
           };
         } catch { return { id: imdbId, type, name: item.title }; }
@@ -311,7 +311,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
 
   if (def.handler ==="mdb") {
     const listId = catalogId.replace("mdb_","");
-    return { metas: await mdblistToMetas(listId, type, mdbKey) };
+    return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey) };
   }
 
   let url;
