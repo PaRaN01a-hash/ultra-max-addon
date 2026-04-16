@@ -153,8 +153,19 @@
       <div class="image-grid" id="imageGrid"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn small" onclick="closeImagePicker()">Cancel</button>
-      <button class="btn small primary" onclick="confirmImagePick()">Select</button>
+      <div style="flex:1;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="customImageUrl" placeholder="Or paste any image URL..." style="flex:1;font-size:12px;padding:7px 10px;" oninput="previewCustomImage(this.value)" />
+          <button class="btn small primary" onclick="useCustomUrl()">Use</button>
+        </div>
+        <div id="customPreview" style="display:none;margin-top:8px;">
+          <img id="customPreviewImg" style="height:50px;border-radius:3px;border:1px solid #333;" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:12px;flex-shrink:0;">
+        <button class="btn small" onclick="closeImagePicker()">Cancel</button>
+        <button class="btn small primary" onclick="confirmImagePick()">Select</button>
+      </div>
     </div>
   </div>
 </div>
@@ -334,45 +345,103 @@ const ALL_CATALOGS = [
 ];
 
 // ---- IMAGE LIBRARY ----
+const BASE_IMG = 'https://max-streams.gleeze.com/images/';
 const IMAGE_LIBRARY = [
   {category:'Streaming Services', items:[
-    {name:'Netflix',url:'https://max-streams.gleeze.com/images/netflix.gif'},
-    {name:'Prime Video',url:'https://max-streams.gleeze.com/images/prime.gif'},
-    {name:'Disney+',url:'https://max-streams.gleeze.com/images/disney.gif'},
-    {name:'HBO Max',url:'https://max-streams.gleeze.com/images/hbo.gif'},
-    {name:'Apple TV+',url:'https://max-streams.gleeze.com/images/appletv.gif'},
-    {name:'Paramount+',url:'https://max-streams.gleeze.com/images/paramount.gif'},
-    {name:'Peacock',url:'https://max-streams.gleeze.com/images/peacock.gif'},
-    {name:'Hulu',url:'https://max-streams.gleeze.com/images/hulu.gif'},
-    {name:'Shudder',url:'https://max-streams.gleeze.com/images/shudder.gif'},
-    {name:'BritBox',url:'https://max-streams.gleeze.com/images/britbox.gif'},
+    {name:'Netflix',url:BASE_IMG+'netflix.gif'},
+    {name:'Prime Video',url:BASE_IMG+'Prime.gif'},
+    {name:'Disney+',url:BASE_IMG+'Disney.gif'},
+    {name:'HBO Max',url:BASE_IMG+'HBO.gif'},
+    {name:'Apple TV+',url:BASE_IMG+'Apple.gif'},
+    {name:'Paramount+',url:BASE_IMG+'Paramount.gif'},
+    {name:'Peacock',url:BASE_IMG+'Peacock.gif'},
+    {name:'Hulu',url:BASE_IMG+'Hulu.gif'},
+    {name:'Shudder',url:BASE_IMG+'Shudder.gif'},
+    {name:'BritBox',url:BASE_IMG+'Brit.gif'},
+    {name:'MGM+',url:BASE_IMG+'MGM.gif'},
   ]},
   {category:'Studios', items:[
-    {name:'Marvel',url:'https://max-streams.gleeze.com/images/marvel.gif'},
-    {name:'DC',url:'https://max-streams.gleeze.com/images/dc.gif'},
-    {name:'A24',url:'https://max-streams.gleeze.com/images/a24.gif'},
-    {name:'Pixar',url:'https://max-streams.gleeze.com/images/pixar.gif'},
-    {name:'Studio Ghibli',url:'https://max-streams.gleeze.com/images/ghibli.gif'},
-    {name:'Blumhouse',url:'https://max-streams.gleeze.com/images/blumhouse.gif'},
-    {name:'DreamWorks',url:'https://max-streams.gleeze.com/images/dreamworks.gif'},
+    {name:'Marvel',url:BASE_IMG+'Marvel.gif'},
+    {name:'DC',url:BASE_IMG+'DC.gif'},
+    {name:'A24',url:BASE_IMG+'A24.gif'},
+    {name:'Pixar',url:BASE_IMG+'Pixar.gif'},
+    {name:'Studio Ghibli',url:BASE_IMG+'Ghibli.jpeg'},
+    {name:'Blumhouse',url:BASE_IMG+'Blumhouse.gif'},
+    {name:'DreamWorks',url:BASE_IMG+'Dreamworks.gif'},
   ]},
   {category:'Genres', items:[
-    {name:'Action',url:'https://max-streams.gleeze.com/images/action.gif'},
-    {name:'Horror',url:'https://max-streams.gleeze.com/images/horror.gif'},
-    {name:'Comedy',url:'https://max-streams.gleeze.com/images/comedy.gif'},
-    {name:'Sci-Fi',url:'https://max-streams.gleeze.com/images/scifi.gif'},
-    {name:'Thriller',url:'https://max-streams.gleeze.com/images/thriller.gif'},
-    {name:'Drama',url:'https://max-streams.gleeze.com/images/drama.gif'},
-    {name:'Animation',url:'https://max-streams.gleeze.com/images/animation.gif'},
-    {name:'Anime',url:'https://max-streams.gleeze.com/images/anime.gif'},
-    {name:'Documentary',url:'https://max-streams.gleeze.com/images/documentary.gif'},
-    {name:'Romance',url:'https://max-streams.gleeze.com/images/romance.gif'},
+    {name:'Action',url:BASE_IMG+'action.svg'},
+    {name:'Horror',url:BASE_IMG+'horror.svg'},
+    {name:'Comedy',url:BASE_IMG+'comedy.svg'},
+    {name:'Sci-Fi',url:BASE_IMG+'scifi.svg'},
+    {name:'Thriller',url:BASE_IMG+'thriller.svg'},
+    {name:'Drama',url:BASE_IMG+'drama.svg'},
+    {name:'Animation',url:BASE_IMG+'animation.svg'},
+    {name:'Anime',url:BASE_IMG+'anime.svg'},
+    {name:'Documentary',url:BASE_IMG+'documentary.svg'},
+    {name:'Romance',url:BASE_IMG+'romance.svg'},
   ]},
   {category:'Trending & Popular', items:[
-    {name:'Trending',url:'https://max-streams.gleeze.com/images/trending.gif'},
-    {name:'Popular',url:'https://max-streams.gleeze.com/images/popular.gif'},
-    {name:'Top Rated',url:'https://max-streams.gleeze.com/images/toprated.gif'},
-    {name:'New Releases',url:'https://max-streams.gleeze.com/images/newreleases.gif'},
+    {name:'Trending',url:BASE_IMG+'trending.svg'},
+    {name:'Popular',url:BASE_IMG+'popular.svg'},
+    {name:'Top Rated',url:BASE_IMG+'toprated.svg'},
+    {name:'New Releases',url:BASE_IMG+'newreleases.svg'},
+  ]},
+  {category:'Film Collections', items:[
+    {name:'Harry Potter',url:BASE_IMG+'harrypotter.svg'},
+    {name:'Lord of the Rings',url:BASE_IMG+'lotr.svg'},
+    {name:'Star Wars',url:BASE_IMG+'starwars.svg'},
+    {name:'The Hobbit',url:BASE_IMG+'hobbit.svg'},
+    {name:'James Bond',url:BASE_IMG+'bond.svg'},
+    {name:'Mission Impossible',url:BASE_IMG+'missionimpossible.svg'},
+    {name:'Indiana Jones',url:BASE_IMG+'indianajones.svg'},
+    {name:'Jurassic Park',url:BASE_IMG+'jurassic.svg'},
+    {name:'Fast & Furious',url:BASE_IMG+'fastfurious.svg'},
+    {name:'John Wick',url:BASE_IMG+'johnwick.svg'},
+    {name:'The Matrix',url:BASE_IMG+'matrix.svg'},
+    {name:'Die Hard',url:BASE_IMG+'diehard.svg'},
+    {name:'Taken',url:BASE_IMG+'taken.svg'},
+    {name:'Bourne',url:BASE_IMG+'bourne.svg'},
+    {name:"Ocean's",url:BASE_IMG+'oceans.svg'},
+    {name:'Mad Max',url:BASE_IMG+'madmax.svg'},
+    {name:'Rambo',url:BASE_IMG+'rambo.svg'},
+    {name:'Expendables',url:BASE_IMG+'expendables.svg'},
+    {name:'Kingsman',url:BASE_IMG+'kingsman.svg'},
+    {name:'The Avengers',url:BASE_IMG+'avengers.svg'},
+    {name:'Captain America',url:BASE_IMG+'captainamerica.svg'},
+    {name:'Iron Man',url:BASE_IMG+'ironman.svg'},
+    {name:'Thor',url:BASE_IMG+'thor.svg'},
+    {name:'Guardians of the Galaxy',url:BASE_IMG+'gotg.svg'},
+    {name:'Doctor Strange',url:BASE_IMG+'doctorstrange.svg'},
+    {name:'Black Panther',url:BASE_IMG+'blackpanther.svg'},
+    {name:'Ant-Man',url:BASE_IMG+'antman.svg'},
+    {name:'Deadpool',url:BASE_IMG+'deadpool.svg'},
+    {name:'X-Men',url:BASE_IMG+'xmen.svg'},
+    {name:'Wonder Woman',url:BASE_IMG+'wonderwoman.svg'},
+    {name:'Aquaman',url:BASE_IMG+'aquaman.svg'},
+    {name:'Alien',url:BASE_IMG+'alien.svg'},
+    {name:'Terminator',url:BASE_IMG+'terminator.svg'},
+    {name:'Predator',url:BASE_IMG+'predator.svg'},
+    {name:'Halloween',url:BASE_IMG+'halloween.svg'},
+    {name:'Nightmare on Elm Street',url:BASE_IMG+'nightmare.svg'},
+    {name:'Saw',url:BASE_IMG+'saw.svg'},
+    {name:'Scream',url:BASE_IMG+'scream.svg'},
+    {name:'The Conjuring',url:BASE_IMG+'conjuring.svg'},
+    {name:'Planet of the Apes',url:BASE_IMG+'planetapes.svg'},
+    {name:'Transformers',url:BASE_IMG+'transformers.svg'},
+    {name:'Hunger Games',url:BASE_IMG+'hungergames.svg'},
+    {name:'Pirates of the Caribbean',url:BASE_IMG+'pirates.svg'},
+    {name:'Shrek',url:BASE_IMG+'shrek.svg'},
+    {name:'Ice Age',url:BASE_IMG+'iceage.svg'},
+    {name:'How To Train Your Dragon',url:BASE_IMG+'httyd.svg'},
+    {name:'Despicable Me',url:BASE_IMG+'despicableme.svg'},
+    {name:'Kung Fu Panda',url:BASE_IMG+'kungfupanda.svg'},
+    {name:'The Incredibles',url:BASE_IMG+'incredibles.svg'},
+    {name:'Toy Story',url:BASE_IMG+'toystory.svg'},
+    {name:'Finding Nemo',url:BASE_IMG+'findingnemo.svg'},
+    {name:'Minions',url:BASE_IMG+'minions.svg'},
+    {name:'Back to the Future',url:BASE_IMG+'backtofuture.svg'},
+    {name:'Sherlock Holmes',url:BASE_IMG+'sherlock.svg'},
   ]},
 ];
 
@@ -636,9 +705,31 @@ function openImagePicker(ci, fi){
 
 function closeImagePicker(){
   document.getElementById('imageModal').classList.remove('open');
+  document.getElementById('customImageUrl').value = '';
+  document.getElementById('customPreview').style.display = 'none';
   currentPickerCi = null;
   currentPickerFi = null;
   selectedImage = null;
+}
+
+function previewCustomImage(url){
+  const preview = document.getElementById('customPreview');
+  const img = document.getElementById('customPreviewImg');
+  if(url.trim()){
+    img.src = url.trim();
+    img.onerror = function(){ preview.style.display = 'none'; };
+    img.onload = function(){ preview.style.display = 'block'; };
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function useCustomUrl(){
+  const url = document.getElementById('customImageUrl').value.trim();
+  if(!url) return;
+  selectedImage = url;
+  document.querySelectorAll('.image-item').forEach(function(i){ i.classList.remove('selected'); });
+  confirmImagePick();
 }
 
 function confirmImagePick(){
