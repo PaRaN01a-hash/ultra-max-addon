@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra MAX — Collections Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0a;color:#fff;font-family:'Courier Prime',monospace;min-height:100vh;display:flex;justify-content:center;padding:20px 0;}
+
+  .filmstrip{display:flex;width:100%;max-width:860px;min-height:100vh;}
+  .sprocket{width:40px;background:#111;border-right:3px solid #000;display:flex;flex-direction:column;gap:0;padding:12px 0;flex-shrink:0;}
+  .sprocket.right{border-right:none;border-left:3px solid #000;}
+  .hole{width:18px;height:13px;background:#000;border-radius:3px;border:1.5px solid #222;margin:6px auto;flex-shrink:0;}
+  .cell{flex:1;background:#111;border-left:4px solid #000;border-right:4px solid #000;padding:0 0 100px 0;min-width:0;}
+  .cell-header{border-bottom:1px solid #2a2a2a;padding:20px 32px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .frame-num{font-size:10px;color:#aaa;letter-spacing:0.1em;}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.08em;text-align:center;padding:28px 32px 6px;color:#fff;}
+  .subtitle{text-align:center;color:#ccc;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:24px;border-bottom:1px solid #1a1a1a;}
+
+  .page{padding:28px 32px;display:none;}
+  .page.active{display:block;}
+
+  /* SETUP PAGE */
+  .section-title{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:1px;background:#444;}
+  .field-block{margin-bottom:20px;}
+  .field-label{font-size:11px;color:#ccc;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+  input[type=text]{background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:14px;padding:10px 14px;border-radius:4px;width:100%;outline:none;transition:border-color 0.2s;}
+  input:focus{border-color:#666;}
+  .input-hint{font-size:11px;color:#888;margin-top:6px;}
+  .btn{background:transparent;border:1px solid #444;color:#bbb;font-family:'Courier Prime',monospace;font-size:13px;padding:10px 20px;cursor:pointer;border-radius:4px;transition:all 0.15s;letter-spacing:0.05em;}
+  .btn:hover{border-color:#999;color:#fff;}
+  .btn.primary{background:#fff;color:#000;border-color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;}
+  .btn.primary:hover{opacity:0.85;}
+  .btn.danger{border-color:#c0392b;color:#e74c3c;}
+  .btn.danger:hover{background:#c0392b;color:#fff;border-color:#c0392b;}
+  .btn.small{font-size:11px;padding:6px 12px;}
+  .divider{height:1px;background:#1a1a1a;margin:20px 0;}
+  .error-msg{color:#e74c3c;font-size:12px;margin-top:8px;display:none;}
+  .error-msg.visible{display:block;}
+  .success-msg{color:#2ecc71;font-size:12px;margin-top:8px;display:none;}
+  .success-msg.visible{display:block;}
+
+  /* BUILDER PAGE */
+  .builder-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+  .builder-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  /* COLLECTION CARD */
+  .collection-card{background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;margin-bottom:16px;overflow:hidden;}
+  .collection-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;background:#111;border-bottom:1px solid #1a1a1a;cursor:pointer;user-select:none;}
+  .collection-header:hover{background:#161616;}
+  .collection-title-row{display:flex;align-items:center;gap:10px;}
+  .collection-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;}
+  .collection-meta{font-size:10px;color:#666;letter-spacing:0.1em;}
+  .collection-toggle{font-size:12px;color:#666;transition:transform 0.2s;}
+  .collection-toggle.open{transform:rotate(180deg);}
+  .collection-body{display:none;padding:16px;}
+  .collection-body.open{display:block;}
+  .collection-settings{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+  .collection-settings input{flex:1;min-width:150px;}
+  .pin-toggle{display:flex;align-items:center;gap:6px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;}
+  .pin-toggle input{width:auto;min-width:auto;}
+
+  /* FOLDER */
+  .folder-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+  .folder-item{background:#0a0a0a;border:1px solid #222;border-radius:4px;padding:12px;}
+  .folder-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .folder-title-input{font-family:'Courier Prime',monospace;font-size:13px;background:transparent;border:none;border-bottom:1px solid #333;color:#fff;padding:4px 0;outline:none;width:auto;min-width:120px;flex:1;max-width:200px;}
+  .folder-title-input:focus{border-bottom-color:#666;}
+  .folder-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .shape-toggle{display:flex;gap:4px;}
+  .shape-btn{font-size:10px;padding:4px 8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;border-radius:3px;font-family:'Courier Prime',monospace;transition:all 0.15s;}
+  .shape-btn.active{border-color:#fff;color:#fff;background:#1a1a1a;}
+  .folder-image-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+  .folder-image-preview{width:48px;height:32px;object-fit:cover;border-radius:3px;border:1px solid #333;display:none;}
+  .folder-image-preview.visible{display:block;}
+  .folder-image-input{flex:1;min-width:150px;font-size:12px;padding:6px 10px;}
+  .browse-btn{font-size:10px;padding:5px 10px;white-space:nowrap;}
+  .catalog-sources{display:flex;flex-direction:column;gap:6px;}
+  .source-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .source-select{flex:1;min-width:120px;background:#0d0d0d;border:1px solid #222;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:5px 8px;border-radius:3px;outline:none;}
+  .source-select:focus{border-color:#555;}
+  .type-select{width:80px;background:#0d0d0d;border:1px solid #222;color:#ccc;font-family:'Courier Prime',monospace;font-size:12px;padding:5px 8px;border-radius:3px;outline:none;}
+  .remove-source{font-size:10px;padding:4px 8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;border-radius:3px;font-family:'Courier Prime',monospace;transition:all 0.15s;flex-shrink:0;}
+  .remove-source:hover{border-color:#c0392b;color:#e74c3c;}
+  .add-source-btn{font-size:10px;padding:5px 12px;margin-top:4px;}
+
+  /* IMAGE PICKER MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#111;border:1px solid #2a2a2a;border-radius:6px;max-width:600px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;}
+  .modal-header{padding:16px 20px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center;}
+  .modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.05em;}
+  .modal-close{background:transparent;border:none;color:#888;font-size:20px;cursor:pointer;padding:0 4px;}
+  .modal-close:hover{color:#fff;}
+  .modal-search{padding:12px 20px;border-bottom:1px solid #1a1a1a;}
+  .modal-search input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;font-family:'Courier Prime',monospace;font-size:13px;padding:8px 12px;border-radius:4px;outline:none;}
+  .modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+  .image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+  .image-item{cursor:pointer;border-radius:4px;overflow:hidden;border:2px solid transparent;transition:border-color 0.15s;position:relative;}
+  .image-item:hover{border-color:#666;}
+  .image-item.selected{border-color:#fff;}
+  .image-item img{width:100%;height:70px;object-fit:cover;display:block;}
+  .image-item-label{font-size:9px;color:#888;padding:4px 6px;background:#0a0a0a;text-align:center;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .modal-footer{padding:12px 20px;border-top:1px solid #1a1a1a;display:flex;justify-content:flex-end;gap:8px;}
+  .image-category{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#666;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid #1a1a1a;}
+  .image-category:first-child{margin-top:0;}
+
+  /* RESULT */
+  .result-box{background:#0a0a0a;border:1px solid #2a2a2a;border-radius:6px;padding:20px;margin-top:20px;display:none;}
+  .result-box.visible{display:block;}
+  .result-label{font-size:10px;color:#bbb;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
+  .url-display{font-size:12px;color:#fff;word-break:break-all;padding:10px;background:#0f0f0f;border:1px solid #222;border-radius:4px;margin-bottom:12px;}
+  .result-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .rbtn{padding:10px 20px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;cursor:pointer;border:1px solid #444;background:transparent;color:#ccc;transition:all 0.15s;text-decoration:none;display:inline-block;}
+  .rbtn:hover{border-color:#999;color:#fff;}
+  .rbtn.primary{background:#fff;color:#000;border-color:#fff;font-weight:700;}
+  .rbtn.primary:hover{opacity:0.85;}
+
+  /* STICKY BOTTOM */
+  .sticky-bottom{position:sticky;bottom:0;background:#111;border-top:1px solid #2a2a2a;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+  .collection-count{font-size:11px;color:#888;letter-spacing:0.05em;}
+  .collection-count span{color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;}
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:#0a0a0a;}
+  ::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+  @media (max-width:600px){
+    body{padding:0;}
+    .sprocket{width:28px;}
+    .hole{width:14px;height:10px;margin:4px auto;}
+    .cell-header{padding:16px 16px 12px;}
+    h1{font-size:2.2rem;padding:20px 16px 6px;}
+    .page{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- IMAGE PICKER MODAL -->
+<div class="modal-overlay" id="imageModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Choose Cover Image</span>
+      <button class="modal-close" onclick="closeImagePicker()">&#10005;</button>
+    </div>
+    <div class="modal-search">
+      <input type="text" placeholder="&#128269; Search images..." oninput="filterImages(this.value)" />
+    </div>
+    <div class="modal-body">
+      <div class="image-grid" id="imageGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn small" onclick="closeImagePicker()">Cancel</button>
+      <button class="btn small primary" onclick="confirmImagePick()">Select</button>
+    </div>
+  </div>
+</div>
+
+<div class="filmstrip">
+  <div class="sprocket" id="s1"></div>
+  <div class="cell">
+    <div class="cell-header">
+      <span class="frame-num">ULTRA MAX — COLLECTIONS</span>
+      <span class="frame-num">35mm</span>
+    </div>
+    <h1>Collections Builder</h1>
+    <p class="subtitle">Build custom Nuvio collections from your Ultra MAX catalogs</p>
+
+    <!-- PAGE 1: SETUP -->
+    <div class="page active" id="page-setup">
+      <div class="section-title">&#128274; Link Your Config (Optional)</div>
+      <div class="field-block">
+        <div class="field-label">Your Ultra MAX Token</div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="tokenInput" placeholder="Enter your config token (e.g. ABC123)" />
+          <button class="btn" onclick="loadToken()">Load</button>
+        </div>
+        <div class="input-hint">Linking your config lets you pick from your selected catalogs. Leave blank to use all available catalogs.</div>
+        <div class="error-msg" id="tokenError"></div>
+        <div class="success-msg" id="tokenSuccess"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn primary" onclick="goToBuilder()">Start Building &rarr;</button>
+        <button class="btn" onclick="goToBuilder()">Skip — Use All Catalogs</button>
+      </div>
+    </div>
+
+    <!-- PAGE 2: BUILDER -->
+    <div class="page" id="page-builder">
+      <div class="builder-header">
+        <div class="section-title" style="margin:0;flex:1;">&#127917; Your Collections</div>
+        <div class="builder-actions">
+          <button class="btn small" onclick="goToSetup()">&#8592; Back</button>
+          <button class="btn small primary" onclick="addCollection()">+ Add Collection</button>
+        </div>
+      </div>
+
+      <div id="collections-list"></div>
+
+      <div id="empty-state" style="text-align:center;padding:40px;color:#555;font-size:12px;letter-spacing:0.1em;">
+        No collections yet. Click "+ Add Collection" to start.
+      </div>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-label">Your Collections URL</div>
+        <div class="url-display" id="urlDisplay"></div>
+        <div class="result-btns">
+          <button class="rbtn primary" onclick="copyCollUrl()">Copy URL</button>
+          <button class="rbtn" onclick="downloadJson()">Download JSON</button>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#888;line-height:1.6;">
+          Import this URL directly in Nuvio: <strong style="color:#ccc;">Account &rarr; Collections &rarr; Import from URL</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY BOTTOM (builder only) -->
+    <div class="sticky-bottom" id="stickyBottom" style="display:none;">
+      <div class="collection-count"><span id="collCount">0</span> collections · <span id="folderCount">0</span> folders</div>
+      <button class="btn primary" onclick="saveCollections()">Save &amp; Get URL</button>
+    </div>
+
+  </div>
+  <div class="sprocket right" id="s2"></div>
+</div>
+
+<script>
+const BASE_URL = window.location.origin;
+let userToken = null;
+let userCatalogs = null;
+let collections = [];
+let imagePickerCallback = null;
+let selectedImage = null;
+
+// ---- CATALOG DEFINITIONS ----
+const ALL_CATALOGS = [
+  {id:'trending_movies',name:'Trending Movies',type:'movie'},
+  {id:'trending_series',name:'Trending Series',type:'series'},
+  {id:'popular_movies',name:'Popular Movies',type:'movie'},
+  {id:'popular_series',name:'Popular Series',type:'series'},
+  {id:'top_movies',name:'Top Rated Movies',type:'movie'},
+  {id:'top_series',name:'Top Rated Series',type:'series'},
+  {id:'now_movies',name:'Now Playing',type:'movie'},
+  {id:'airing_series',name:'Airing Today',type:'series'},
+  {id:'mdb_87667',name:'Trakt Trending Movies',type:'movie'},
+  {id:'mdb_88434',name:'Trakt Trending Series',type:'series'},
+  {id:'mdb_2236',name:'Top Movies This Week',type:'movie'},
+  {id:'mdb_69',name:'IMDb Moviemeter Top 100',type:'movie'},
+  {id:'mdb_86934',name:'Latest Digital Release',type:'movie'},
+  {id:'mdb_960',name:'Latest Releases',type:'movie'},
+  {id:'mdb_88328',name:'Netflix Latest Movies',type:'movie'},
+  {id:'mdb_86751',name:'Netflix Latest Series',type:'series'},
+  {id:'mdb_86755',name:'Amazon Latest Movies',type:'movie'},
+  {id:'mdb_86753',name:'Amazon Latest Series',type:'series'},
+  {id:'mdb_88317',name:'Apple TV+ Latest Movies',type:'movie'},
+  {id:'mdb_88319',name:'Apple TV+ Latest Series',type:'series'},
+  {id:'mdb_86759',name:'Disney+ Latest Movies',type:'movie'},
+  {id:'mdb_86758',name:'Disney+ Latest Series',type:'series'},
+  {id:'mdb_89647',name:'HBO Latest Movies',type:'movie'},
+  {id:'mdb_89649',name:'HBO Latest Series',type:'series'},
+  {id:'netflix_movies',name:'Netflix Movies',type:'movie'},
+  {id:'netflix_series',name:'Netflix Series',type:'series'},
+  {id:'amazon_movies',name:'Amazon Movies',type:'movie'},
+  {id:'amazon_series',name:'Amazon Series',type:'series'},
+  {id:'disney_movies',name:'Disney+ Movies',type:'movie'},
+  {id:'disney_series',name:'Disney+ Series',type:'series'},
+  {id:'hbo_movies',name:'HBO Movies',type:'movie'},
+  {id:'hbo_series',name:'HBO Series',type:'series'},
+  {id:'apple_movies',name:'Apple TV+ Movies',type:'movie'},
+  {id:'apple_series',name:'Apple TV+ Series',type:'series'},
+  {id:'paramount_movies',name:'Paramount+ Movies',type:'movie'},
+  {id:'paramount_series',name:'Paramount+ Series',type:'series'},
+  {id:'peacock_movies',name:'Peacock Movies',type:'movie'},
+  {id:'peacock_series',name:'Peacock Series',type:'series'},
+  {id:'hulu_movies',name:'Hulu Movies',type:'movie'},
+  {id:'hulu_series',name:'Hulu Series',type:'series'},
+  {id:'mgm_movies',name:'MGM+ Movies',type:'movie'},
+  {id:'britbox_movies',name:'BritBox Movies',type:'movie'},
+  {id:'britbox_series',name:'BritBox Series',type:'series'},
+  {id:'shudder_movies',name:'Shudder Movies',type:'movie'},
+  {id:'shudder_series',name:'Shudder Series',type:'series'},
+  {id:'itvx_movies',name:'ITVX Movies',type:'movie'},
+  {id:'itvx_series',name:'ITVX Series',type:'series'},
+  {id:'channel4_movies',name:'Channel 4 Movies',type:'movie'},
+  {id:'channel4_series',name:'Channel 4 Series',type:'series'},
+  {id:'crunchyroll_movies',name:'Crunchyroll Movies',type:'movie'},
+  {id:'crunchyroll_series',name:'Crunchyroll Series',type:'series'},
+  {id:'action_movies',name:'Action Movies',type:'movie'},
+  {id:'action_series',name:'Action Series',type:'series'},
+  {id:'comedy_movies',name:'Comedy Movies',type:'movie'},
+  {id:'comedy_series',name:'Comedy Series',type:'series'},
+  {id:'horror_movies',name:'Horror Movies',type:'movie'},
+  {id:'horror_series',name:'Horror Series',type:'series'},
+  {id:'scifi_movies',name:'Sci-Fi Movies',type:'movie'},
+  {id:'scifi_series',name:'Sci-Fi Series',type:'series'},
+  {id:'thriller_movies',name:'Thriller Movies',type:'movie'},
+  {id:'drama_movies',name:'Drama Movies',type:'movie'},
+  {id:'drama_series',name:'Drama Series',type:'series'},
+  {id:'romance_movies',name:'Romance Movies',type:'movie'},
+  {id:'documentary_movies',name:'Documentary Movies',type:'movie'},
+  {id:'animation_movies',name:'Animated Movies',type:'movie'},
+  {id:'animation_series',name:'Animated Series',type:'series'},
+  {id:'anime_movies',name:'Anime Movies',type:'movie'},
+  {id:'anime_series',name:'Anime Series',type:'series'},
+  {id:'studio_marvel',name:'Marvel',type:'movie'},
+  {id:'studio_dc',name:'DC Films',type:'movie'},
+  {id:'studio_a24',name:'A24',type:'movie'},
+  {id:'studio_blumhouse',name:'Blumhouse',type:'movie'},
+  {id:'studio_ghibli',name:'Studio Ghibli',type:'movie'},
+  {id:'mdb_3918',name:'Pixar',type:'movie'},
+  {id:'mdb_3928',name:'DreamWorks',type:'movie'},
+  {id:'mdb_92337',name:'Best of 2025',type:'movie'},
+  {id:'mdb_91304',name:'Best of 2020s',type:'movie'},
+  {id:'mdb_91303',name:'Best of 2010s',type:'movie'},
+  {id:'mdb_91302',name:'Best of 2000s',type:'movie'},
+  {id:'mdb_91300',name:'Best of 1990s',type:'movie'},
+  {id:'mdb_91301',name:'Best of 1980s',type:'movie'},
+  {id:'mdb_88307',name:'Trending Kids Movies',type:'movie'},
+  {id:'mdb_88309',name:'Trending Kids Series',type:'series'},
+  {id:'mdb_3087',name:'BBC Shows',type:'series'},
+  {id:'mdb_3091',name:'UK Shows',type:'series'},
+  {id:'mdb_3892',name:'Must-See Mindfuck',type:'movie'},
+  {id:'mdb_3923',name:'Crazy Plot Twists',type:'movie'},
+  {id:'mdb_2909',name:'Time Travel',type:'movie'},
+  {id:'theme_superhero',name:'Superhero',type:'movie'},
+  {id:'theme_heist',name:'Heist',type:'movie'},
+  {id:'theme_zombie',name:'Zombie',type:'movie'},
+];
+
+// ---- IMAGE LIBRARY ----
+const IMAGE_LIBRARY = [
+  {category:'Streaming Services', items:[
+    {name:'Netflix',url:'https://max-streams.gleeze.com/images/netflix.gif'},
+    {name:'Prime Video',url:'https://max-streams.gleeze.com/images/prime.gif'},
+    {name:'Disney+',url:'https://max-streams.gleeze.com/images/disney.gif'},
+    {name:'HBO Max',url:'https://max-streams.gleeze.com/images/hbo.gif'},
+    {name:'Apple TV+',url:'https://max-streams.gleeze.com/images/appletv.gif'},
+    {name:'Paramount+',url:'https://max-streams.gleeze.com/images/paramount.gif'},
+    {name:'Peacock',url:'https://max-streams.gleeze.com/images/peacock.gif'},
+    {name:'Hulu',url:'https://max-streams.gleeze.com/images/hulu.gif'},
+    {name:'Shudder',url:'https://max-streams.gleeze.com/images/shudder.gif'},
+    {name:'BritBox',url:'https://max-streams.gleeze.com/images/britbox.gif'},
+  ]},
+  {category:'Studios', items:[
+    {name:'Marvel',url:'https://max-streams.gleeze.com/images/marvel.gif'},
+    {name:'DC',url:'https://max-streams.gleeze.com/images/dc.gif'},
+    {name:'A24',url:'https://max-streams.gleeze.com/images/a24.gif'},
+    {name:'Pixar',url:'https://max-streams.gleeze.com/images/pixar.gif'},
+    {name:'Studio Ghibli',url:'https://max-streams.gleeze.com/images/ghibli.gif'},
+    {name:'Blumhouse',url:'https://max-streams.gleeze.com/images/blumhouse.gif'},
+    {name:'DreamWorks',url:'https://max-streams.gleeze.com/images/dreamworks.gif'},
+  ]},
+  {category:'Genres', items:[
+    {name:'Action',url:'https://max-streams.gleeze.com/images/action.gif'},
+    {name:'Horror',url:'https://max-streams.gleeze.com/images/horror.gif'},
+    {name:'Comedy',url:'https://max-streams.gleeze.com/images/comedy.gif'},
+    {name:'Sci-Fi',url:'https://max-streams.gleeze.com/images/scifi.gif'},
+    {name:'Thriller',url:'https://max-streams.gleeze.com/images/thriller.gif'},
+    {name:'Drama',url:'https://max-streams.gleeze.com/images/drama.gif'},
+    {name:'Animation',url:'https://max-streams.gleeze.com/images/animation.gif'},
+    {name:'Anime',url:'https://max-streams.gleeze.com/images/anime.gif'},
+    {name:'Documentary',url:'https://max-streams.gleeze.com/images/documentary.gif'},
+    {name:'Romance',url:'https://max-streams.gleeze.com/images/romance.gif'},
+  ]},
+  {category:'Trending & Popular', items:[
+    {name:'Trending',url:'https://max-streams.gleeze.com/images/trending.gif'},
+    {name:'Popular',url:'https://max-streams.gleeze.com/images/popular.gif'},
+    {name:'Top Rated',url:'https://max-streams.gleeze.com/images/toprated.gif'},
+    {name:'New Releases',url:'https://max-streams.gleeze.com/images/newreleases.gif'},
+  ]},
+];
+
+function getActiveCatalogs(){
+  return userCatalogs || ALL_CATALOGS;
+}
+
+// ---- SETUP ----
+async function loadToken(){
+  const token = document.getElementById('tokenInput').value.trim();
+  const err = document.getElementById('tokenError');
+  const suc = document.getElementById('tokenSuccess');
+  err.classList.remove('visible');
+  suc.classList.remove('visible');
+  if(!token) { err.textContent='Enter a token'; err.classList.add('visible'); return; }
+  try {
+    const res = await fetch('/c/'+token+'/config');
+    if(!res.ok) { err.textContent='Token not found'; err.classList.add('visible'); return; }
+    const data = await res.json();
+    userToken = token;
+    userCatalogs = data.catalogs.map(function(id){
+      return ALL_CATALOGS.find(function(c){ return c.id === id; });
+    }).filter(Boolean);
+    suc.textContent = '✓ Loaded '+userCatalogs.length+' catalogs from your config';
+    suc.classList.add('visible');
+  } catch(e) {
+    err.textContent = 'Failed to load config';
+    err.classList.add('visible');
+  }
+}
+
+function goToSetup(){
+  document.getElementById('page-builder').classList.remove('active');
+  document.getElementById('page-setup').classList.add('active');
+  document.getElementById('stickyBottom').style.display = 'none';
+  setTimeout(makeSprockets, 100);
+}
+
+function goToBuilder(){
+  document.getElementById('page-setup').classList.remove('active');
+  document.getElementById('page-builder').classList.add('active');
+  document.getElementById('stickyBottom').style.display = 'flex';
+  renderCollections();
+  setTimeout(makeSprockets, 100);
+}
+
+// ---- COLLECTIONS ----
+function generateId(){
+  return Math.random().toString(36).substr(2,8).toUpperCase();
+}
+
+function addCollection(){
+  collections.push({
+    id: 'collection-'+generateId(),
+    title: 'New Collection',
+    pinToTop: false,
+    showAllTab: true,
+    viewMode: 'FOLLOW_LAYOUT',
+    focusGlowEnabled: true,
+    folders: []
+  });
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function removeCollection(idx){
+  collections.splice(idx, 1);
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function toggleCollection(idx){
+  const body = document.getElementById('coll-body-'+idx);
+  const toggle = document.getElementById('coll-toggle-'+idx);
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+  setTimeout(makeSprockets, 200);
+}
+
+function addFolder(collIdx){
+  collections[collIdx].folders.push({
+    id: 'folder-'+generateId(),
+    title: 'New Folder',
+    tileShape: 'LANDSCAPE',
+    hideTitle: false,
+    focusGifEnabled: false,
+    coverImageUrl: '',
+    focusGifUrl: '',
+    catalogSources: []
+  });
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function removeFolder(collIdx, folderIdx){
+  collections[collIdx].folders.splice(folderIdx, 1);
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function addSource(collIdx, folderIdx){
+  const cats = getActiveCatalogs();
+  if(!cats.length) return;
+  const first = cats[0];
+  collections[collIdx].folders[folderIdx].catalogSources.push({
+    addonId: 'org.kris.ultra.max.v5',
+    catalogId: first.id,
+    type: first.type
+  });
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function removeSource(collIdx, folderIdx, srcIdx){
+  collections[collIdx].folders[folderIdx].catalogSources.splice(srcIdx, 1);
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function renderCollections(){
+  const list = document.getElementById('collections-list');
+  const empty = document.getElementById('empty-state');
+  const cats = getActiveCatalogs();
+
+  empty.style.display = collections.length === 0 ? 'block' : 'none';
+
+  list.innerHTML = collections.map(function(coll, ci){
+    const folderCount = coll.folders.length;
+    return '<div class="collection-card">'+
+      '<div class="collection-header" onclick="toggleCollection('+ci+')">'+
+        '<div class="collection-title-row">'+
+          '<span class="collection-name">'+escHtml(coll.title)+'</span>'+
+          '<span class="collection-meta">'+folderCount+' folder'+(folderCount!==1?'s':'')+'</span>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center;">'+
+          '<button class="btn small danger" onclick="event.stopPropagation();removeCollection('+ci+')" style="font-size:10px;padding:4px 8px;">Remove</button>'+
+          '<span class="collection-toggle" id="coll-toggle-'+ci+'">&#9660;</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="collection-body open" id="coll-body-'+ci+'">'+
+        '<div class="collection-settings">'+
+          '<input type="text" value="'+escHtml(coll.title)+'" placeholder="Collection name" oninput="collections['+ci+'].title=this.value;updateCounters()" style="flex:1;min-width:150px;" />'+
+          '<label class="pin-toggle"><input type="checkbox" '+(coll.pinToTop?'checked':'')+' onchange="collections['+ci+'].pinToTop=this.checked" /> Pin to top</label>'+
+        '</div>'+
+        '<div class="folder-list" id="folders-'+ci+'">'+
+          coll.folders.map(function(folder, fi){
+            return '<div class="folder-item">'+
+              '<div class="folder-header">'+
+                '<input class="folder-title-input" type="text" value="'+escHtml(folder.title)+'" placeholder="Folder name" oninput="collections['+ci+'].folders['+fi+'].title=this.value" />'+
+                '<div class="folder-controls">'+
+                  '<div class="shape-toggle">'+
+                    '<button class="shape-btn'+(folder.tileShape==='LANDSCAPE'?' active':'')+'" onclick="setShape('+ci+','+fi+',\'LANDSCAPE\')">Wide</button>'+
+                    '<button class="shape-btn'+(folder.tileShape==='PORTRAIT'?' active':'')+'" onclick="setShape('+ci+','+fi+',\'PORTRAIT\')">Tall</button>'+
+                  '</div>'+
+                  '<button class="btn small danger" style="font-size:10px;padding:4px 8px;" onclick="removeFolder('+ci+','+fi+')">&#10005;</button>'+
+                '</div>'+
+              '</div>'+
+              '<div class="folder-image-row">'+
+                (folder.coverImageUrl ? '<img class="folder-image-preview visible" src="'+escHtml(folder.coverImageUrl)+'" onerror="this.style.display=\'none\'" />' : '<img class="folder-image-preview" />')+
+                '<input class="folder-image-input" type="text" value="'+escHtml(folder.coverImageUrl)+'" placeholder="Cover image URL" oninput="collections['+ci+'].folders['+fi+'].coverImageUrl=this.value;updatePreview(this,'+ci+','+fi+')" />'+
+                '<button class="btn small browse-btn" onclick="openImagePicker('+ci+','+fi+')">Browse</button>'+
+              '</div>'+
+              '<div class="catalog-sources">'+
+                folder.catalogSources.map(function(src, si){
+                  return '<div class="source-row">'+
+                    '<select class="source-select" onchange="updateSource('+ci+','+fi+','+si+',this.value)">'+
+                      cats.map(function(c){
+                        return '<option value="'+c.id+'" '+(c.id===src.catalogId?'selected':'')+'>'+escHtml(c.name)+'</option>';
+                      }).join('')+
+                    '</select>'+
+                    '<select class="type-select" onchange="collections['+ci+'].folders['+fi+'].catalogSources['+si+'].type=this.value">'+
+                      '<option value="movie" '+(src.type==='movie'?'selected':'')+'>Movie</option>'+
+                      '<option value="series" '+(src.type==='series'?'selected':'')+'>Series</option>'+
+                    '</select>'+
+                    '<button class="remove-source" onclick="removeSource('+ci+','+fi+','+si+')">&#10005;</button>'+
+                  '</div>';
+                }).join('')+
+                '<button class="btn small add-source-btn" onclick="addSource('+ci+','+fi+')">+ Add Catalog</button>'+
+              '</div>'+
+            '</div>';
+          }).join('')+
+        '</div>'+
+        '<button class="btn small" onclick="addFolder('+ci+')">+ Add Folder</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  updateCounters();
+}
+
+function setShape(ci, fi, shape){
+  collections[ci].folders[fi].tileShape = shape;
+  renderCollections();
+}
+
+function updateSource(ci, fi, si, catalogId){
+  const cat = ALL_CATALOGS.find(function(c){ return c.id === catalogId; });
+  if(cat){
+    collections[ci].folders[fi].catalogSources[si].catalogId = catalogId;
+    collections[ci].folders[fi].catalogSources[si].type = cat.type;
+    renderCollections();
+  }
+}
+
+function updatePreview(input, ci, fi){
+  const url = input.value.trim();
+  const row = input.parentElement;
+  const img = row.querySelector('.folder-image-preview');
+  if(url){ img.src = url; img.classList.add('visible'); }
+  else { img.classList.remove('visible'); }
+}
+
+function updateCounters(){
+  const totalFolders = collections.reduce(function(sum, c){ return sum + c.folders.length; }, 0);
+  document.getElementById('collCount').textContent = collections.length;
+  document.getElementById('folderCount').textContent = totalFolders;
+}
+
+function escHtml(str){
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---- IMAGE PICKER ----
+let currentPickerCi = null;
+let currentPickerFi = null;
+
+function buildImageGrid(filter){
+  const grid = document.getElementById('imageGrid');
+  const q = (filter||'').toLowerCase();
+  let html = '';
+  IMAGE_LIBRARY.forEach(function(cat){
+    const items = cat.items.filter(function(i){ return !q || i.name.toLowerCase().includes(q); });
+    if(!items.length) return;
+    html += '<div class="image-category" style="grid-column:1/-1;">'+cat.category+'</div>';
+    items.forEach(function(item){
+      const sel = selectedImage === item.url ? ' selected' : '';
+      html += '<div class="image-item'+sel+'" onclick="selectImage(\''+item.url+'\',this)" data-url="'+item.url+'">'+
+        '<img src="'+item.url+'" alt="'+item.name+'" onerror="this.parentElement.style.display=\'none\'" />'+
+        '<div class="image-item-label">'+item.name+'</div>'+
+      '</div>';
+    });
+  });
+  grid.innerHTML = html || '<div style="color:#555;font-size:12px;padding:20px;text-align:center;">No images found</div>';
+}
+
+function filterImages(q){ buildImageGrid(q); }
+
+function selectImage(url, el){
+  selectedImage = url;
+  document.querySelectorAll('.image-item').forEach(function(i){ i.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function openImagePicker(ci, fi){
+  currentPickerCi = ci;
+  currentPickerFi = fi;
+  selectedImage = collections[ci].folders[fi].coverImageUrl || null;
+  buildImageGrid('');
+  document.getElementById('imageModal').classList.add('open');
+}
+
+function closeImagePicker(){
+  document.getElementById('imageModal').classList.remove('open');
+  currentPickerCi = null;
+  currentPickerFi = null;
+  selectedImage = null;
+}
+
+function confirmImagePick(){
+  if(selectedImage && currentPickerCi !== null){
+    collections[currentPickerCi].folders[currentPickerFi].coverImageUrl = selectedImage;
+    renderCollections();
+  }
+  closeImagePicker();
+  setTimeout(makeSprockets, 200);
+}
+
+// ---- SAVE ----
+async function saveCollections(){
+  if(collections.length === 0) return;
+
+  const json = JSON.stringify(collections);
+
+  if(userToken){
+    try {
+      const res = await fetch('/c/'+userToken+'/collections', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({collections: collections})
+      });
+      if(res.ok){
+        const data = await res.json();
+        showResult(BASE_URL + '/c/' + userToken + '/collections.json');
+        return;
+      }
+    } catch(e){}
+  }
+
+  // Fallback: generate a new token
+  try {
+    const res = await fetch('/collections/save', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({collections: collections})
+    });
+    if(res.ok){
+      const data = await res.json();
+      showResult(BASE_URL + '/collections/' + data.token + '.json');
+      return;
+    }
+  } catch(e){}
+
+  // Last resort: offer download
+  downloadJson();
+}
+
+function showResult(url){
+  document.getElementById('urlDisplay').textContent = url;
+  const rb = document.getElementById('resultBox');
+  rb.classList.add('visible');
+  rb.scrollIntoView({behavior:'smooth'});
+  setTimeout(makeSprockets, 200);
+}
+
+function downloadJson(){
+  const blob = new Blob([JSON.stringify(collections, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ultramax-collections.json';
+  a.click();
+}
+
+function copyCollUrl(){
+  const url = document.getElementById('urlDisplay').textContent;
+  navigator.clipboard.writeText(url).catch(function(){
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const btn = event.target;
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = 'Copy URL'; }, 2000);
+}
+
+// ---- SPROCKETS ----
+function makeSprockets(){
+  const cell = document.querySelector('.cell');
+  const height = cell ? cell.scrollHeight : document.body.scrollHeight;
+  const count = Math.ceil(height / 28) + 2;
+  ['s1','s2'].forEach(function(id){
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    for(let i=0;i<count;i++){
+      const h = document.createElement('div');
+      h.className = 'hole';
+      el.appendChild(h);
+    }
+  });
+}
+
+window.addEventListener('resize', makeSprockets);
+window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); });
+setTimeout(makeSprockets, 100);
+</script>
+</body>
+</html>

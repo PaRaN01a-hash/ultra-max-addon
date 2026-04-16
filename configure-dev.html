@@ -104,7 +104,12 @@
   .category{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #1a1a1a;}
   .category:last-child{border-bottom:none;}
   .category.hidden{display:none;}
-  .cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;cursor:pointer;padding:4px 0;user-select:none;}
+  .cat-header:hover .cat-title{color:#fff;}
+  .cat-chevron{font-size:10px;color:#555;transition:transform 0.2s;margin-left:8px;flex-shrink:0;}
+  .cat-chevron.open{transform:rotate(180deg);}
+  .pills-wrap{display:none;padding-top:12px;}
+  .pills-wrap.open{display:block;}
   .cat-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#bbb;display:flex;align-items:center;gap:8px;}
   .cat-icon{font-size:13px;}
   .cat-count{font-size:10px;color:#888;margin-left:4px;}
@@ -505,6 +510,68 @@
 
       <div class="category">
         <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">&#127916;</span> Film Collections <span class="cat-count" id="count-collections"></span></div>
+          <span class="select-all" onclick="selectAll('collections')">Select All</span>
+        </div>
+        <div class="pills" id="collections">
+          <div class="pill" data-id="lotr_collection">Lord of the Rings</div>
+          <div class="pill" data-id="starwars_collection">Star Wars</div>
+          <div class="pill" data-id="hobbit_collection">The Hobbit</div>
+          <div class="pill" data-id="bond_collection">James Bond</div>
+          <div class="pill" data-id="mi_collection">Mission Impossible</div>
+          <div class="pill" data-id="indiana_collection">Indiana Jones</div>
+          <div class="pill" data-id="jurassic_coll">Jurassic Park</div>
+          <div class="pill" data-id="fastfurious_coll">Fast &amp; Furious</div>
+          <div class="pill" data-id="johnwick_coll">John Wick</div>
+          <div class="pill" data-id="matrix_collection">The Matrix</div>
+          <div class="pill" data-id="diehard_collection">Die Hard</div>
+          <div class="pill" data-id="taken_collection">Taken</div>
+          <div class="pill" data-id="bourne_collection">The Bourne</div>
+          <div class="pill" data-id="oceans_collection">Ocean's</div>
+          <div class="pill" data-id="madmax_collection">Mad Max</div>
+          <div class="pill" data-id="rambo_collection">Rambo</div>
+          <div class="pill" data-id="expendables_coll">The Expendables</div>
+          <div class="pill" data-id="kingsman_coll">Kingsman</div>
+          <div class="pill" data-id="avengers_coll">The Avengers</div>
+          <div class="pill" data-id="captainamerica_coll">Captain America</div>
+          <div class="pill" data-id="ironman_collection">Iron Man</div>
+          <div class="pill" data-id="thor_collection">Thor</div>
+          <div class="pill" data-id="gotg_collection">Guardians of the Galaxy</div>
+          <div class="pill" data-id="doctorstrange_coll">Doctor Strange</div>
+          <div class="pill" data-id="blackpanther_coll">Black Panther</div>
+          <div class="pill" data-id="antman_collection">Ant-Man</div>
+          <div class="pill" data-id="deadpool_coll">Deadpool</div>
+          <div class="pill" data-id="xmen_collection">X-Men</div>
+          <div class="pill" data-id="wonderwoman_coll">Wonder Woman</div>
+          <div class="pill" data-id="aquaman_collection">Aquaman</div>
+          <div class="pill" data-id="alien_collection">Alien</div>
+          <div class="pill" data-id="terminator_coll">Terminator</div>
+          <div class="pill" data-id="predator_coll">Predator</div>
+          <div class="pill" data-id="halloween_coll">Halloween</div>
+          <div class="pill" data-id="nightmare_coll">Nightmare on Elm Street</div>
+          <div class="pill" data-id="saw_collection">Saw</div>
+          <div class="pill" data-id="scream_collection">Scream</div>
+          <div class="pill" data-id="conjuring_coll">The Conjuring</div>
+          <div class="pill" data-id="planetapes_coll">Planet of the Apes</div>
+          <div class="pill" data-id="transformers_coll">Transformers</div>
+          <div class="pill" data-id="hungergames_coll">Hunger Games</div>
+          <div class="pill" data-id="pirates_collection">Pirates of the Caribbean</div>
+          <div class="pill" data-id="shrek_collection">Shrek</div>
+          <div class="pill" data-id="iceage_collection">Ice Age</div>
+          <div class="pill" data-id="httyd_collection">How To Train Your Dragon</div>
+          <div class="pill" data-id="despicableme_coll">Despicable Me</div>
+          <div class="pill" data-id="kungfupanda_coll">Kung Fu Panda</div>
+          <div class="pill" data-id="incredibles_coll">The Incredibles</div>
+          <div class="pill" data-id="toystory_coll">Toy Story</div>
+          <div class="pill" data-id="findingnemo_coll">Finding Nemo</div>
+          <div class="pill" data-id="shrek2_collection">Minions</div>
+          <div class="pill" data-id="backtofuture_coll">Back to the Future</div>
+          <div class="pill" data-id="sherlock_coll">Sherlock Holmes</div>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="cat-header">
           <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade <span class="cat-count" id="count-decades"></span></div>
           <span class="select-all" onclick="selectAll('decades')">Select All</span>
         </div>
@@ -684,7 +751,7 @@ function selectAll(groupId){
 }
 
 function updateCategoryCounts(){
-  const groups = ['trending','latest','providers','genres','themed','studios','decades','kids','uk'];
+  const groups = ['trending','latest','providers','genres','themed','studios','collections','decades','kids','uk'];
   groups.forEach(function(g){
     const el = document.getElementById('count-'+g);
     const group = document.getElementById(g);
@@ -850,6 +917,38 @@ function makeSprockets(){
   });
 }
 
+// Collapsible categories
+function initCollapsible(){
+  const groups = ["trending","latest","providers","genres","themed","studios","collections","decades","kids","uk"];
+  groups.forEach(function(g, idx){
+    const header = document.querySelector(`[onclick="selectAll('${g}')"]`).closest(".cat-header");
+    const pills = document.getElementById(g);
+    if(!header || !pills) return;
+    // Wrap pills
+    const wrap = document.createElement("div");
+    wrap.className = "pills-wrap" + (idx === 0 ? " open" : "");
+    wrap.id = "wrap-"+g;
+    pills.parentNode.insertBefore(wrap, pills);
+    wrap.appendChild(pills);
+    // Add chevron
+    const chevron = document.createElement("span");
+    chevron.className = "cat-chevron" + (idx === 0 ? " open" : "");
+    chevron.innerHTML = "&#9660;";
+    chevron.id = "chev-"+g;
+    header.appendChild(chevron);
+    // Add click handler
+    header.style.cursor = "pointer";
+    header.addEventListener("click", function(e){
+      if(e.target.classList.contains("select-all")) return;
+      const w = document.getElementById("wrap-"+g);
+      const c = document.getElementById("chev-"+g);
+      w.classList.toggle("open");
+      c.classList.toggle("open");
+      setTimeout(makeSprockets, 200);
+    });
+  });
+}
+
 // Init
 document.querySelectorAll('.pill').forEach(function(pill){
   pill.addEventListener('click', function(){
@@ -871,7 +970,7 @@ if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configu
 }
 
 window.addEventListener('resize', makeSprockets);
-window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); updateCategoryCounts(); });
+window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); updateCategoryCounts(); initCollapsible(); });
 setTimeout(makeSprockets, 100);
 async function verifyKey(type) {
   const ids = { mdblist: "mdblistKey", rpdb: "rpdbKey", tp: "tpKey" };
