@@ -240,7 +240,7 @@ async function getImdbId(tmdbId, type) {
   } catch { return null; }
 }
 
-async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null) {
+async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
   return (await Promise.all(
     arr.filter(i => i.poster_path).map(async i => {
       const imdb = await getImdbId(i.id, type);
@@ -248,7 +248,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
       const meta = {
         id: imdb, type,
         name: i.title || i.name || i.original_title,
-        poster: rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : `https://image.tmdb.org/t/p/w500${i.poster_path}`,
+        poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdb}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : `https://image.tmdb.org/t/p/w500${i.poster_path}`,
         background: i.backdrop_path ? `https://image.tmdb.org/t/p/original${i.backdrop_path}` : null
       };
       if (language && language !== "en-US" && i.overview) meta.description = i.overview;
@@ -257,7 +257,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
   )).filter(Boolean);
 }
 
-async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
+async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null) {
   const key = mdbKey || MDBLIST_KEY;
   const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
   try {
@@ -275,7 +275,7 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
           return {
             id: imdbId, type,
             name: item.title || result.title || result.name,
-            poster: rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
+            poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdbId}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
             background: result.backdrop_path ? `https://image.tmdb.org/t/p/original${result.backdrop_path}` : null
           };
         } catch { return { id: imdbId, type, name: item.title }; }
@@ -284,7 +284,7 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
   } catch (e) { console.log("mdblist error", listId, e.message); return []; }
 }
 
-async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null) {
+async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
   const skip = extra?.skip || 0;
   const page = Math.floor(skip / 20) + 1;
   const tmdbType = type ==="series" ?"tv" :"movie";
@@ -293,17 +293,17 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
   if (catalogId ==="similar_movie" || catalogId ==="similar_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/similar?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
   }
   if (catalogId ==="recommended_movie" || catalogId ==="recommended_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/recommendations?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
   }
   if (catalogId ==="collection_movie") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/collection/${tmdbId}?api_key=${TMDB_KEY}`);
-    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey, tpKey) };
   }
 
   const def = CATALOG_DEFS[catalogId];
@@ -311,7 +311,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
 
   if (def.handler ==="mdb") {
     const listId = catalogId.replace("mdb_","");
-    return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey) };
+    return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey, tpKey) };
   }
 
   let url;
@@ -354,7 +354,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     case"search":
       console.log("SEARCH CASE HIT:", catalogId, extra?.search);
       if (!extra?.search) return { metas: [] };
-      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language, rpdbKey) };
+      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language, rpdbKey, tpKey) };
     default:
       return { metas: [] };
       return { metas: [] };
@@ -370,7 +370,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     )
   );
   const allResults = pages.flatMap(d => d.results || []);
-  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey) };
+  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey) };
 
 }
 
@@ -454,25 +454,26 @@ app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"c
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
-  const { password, catalogs, mdblistKey, language, rpdbKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
   if (!password || !catalogs || !catalogs.length) return res.status(400).json({ error:"Password and catalogs required" });
   const configs = loadConfigs();
   let token = generateToken();
   while (configs[token]) token = generateToken();
-  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, createdAt: new Date().toISOString() };
+  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, createdAt: new Date().toISOString() };
   saveConfigs(configs);
   res.json({ token });
 });
 
 app.post("/c/:token/update", (req, res) => {
   const { token } = req.params;
-  const { password, catalogs, mdblistKey, language, rpdbKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Config not found" });
   if (configs[token].passwordHash !== hashPassword(password)) return res.status(401).json({ error:"Incorrect password" });
   configs[token].catalogs = catalogs;
   configs[token].language = language || configs[token].language || "en-US";
   configs[token].rpdbKey = rpdbKey || configs[token].rpdbKey || null;
+  configs[token].tpKey = tpKey || configs[token].tpKey || null;
   configs[token].mdblistKey = mdblistKey || configs[token].mdblistKey || null;
   configs[token].updatedAt = new Date().toISOString();
   saveConfigs(configs);
@@ -483,7 +484,7 @@ app.get("/c/:token/config", (req, res) => {
   const { token } = req.params;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Not found" });
-  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey });
+  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey });
 });
 
 app.get("/c/:token/manifest.json", (req, res) => {
@@ -622,7 +623,7 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
       if (req.query.skip) extra.skip = parseInt(req.query.skip);
       if (req.query.search) extra.search = req.query.search;
       const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
-      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null)
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;
