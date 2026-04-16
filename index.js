@@ -123,6 +123,60 @@ const CATALOG_DEFS = {
   studio_a24:         { name:"A24",                    type:"movie",  handler:"tmdb_company", company: 41077 },
   studio_blumhouse:   { name:"Blumhouse",              type:"movie",  handler:"tmdb_company", company: 3172 },
   studio_ghibli:      { name:"Studio Ghibli",          type:"movie",  handler:"tmdb_company", company: 10342 },
+  hp_collection:      { name:"Harry Potter",          type:"movie",  handler:"tmdb_collection", collectionId: 1241 },
+  lotr_collection:    { name:"Lord of the Rings",       type:"movie",  handler:"tmdb_collection", collectionId: 119 },
+  starwars_collection:{ name:"Star Wars",               type:"movie",  handler:"tmdb_collection", collectionId: 10 },
+  bond_collection:    { name:"James Bond",              type:"movie",  handler:"tmdb_collection", collectionId: 645 },
+  fastfurious_coll:   { name:"Fast & Furious",         type:"movie",  handler:"tmdb_collection", collectionId: 9485 },
+  johnwick_coll:      { name:"John Wick",               type:"movie",  handler:"tmdb_collection", collectionId: 404609 },
+  mi_collection:      { name:"Mission Impossible",      type:"movie",  handler:"tmdb_collection", collectionId: 87359 },
+  indiana_collection: { name:"Indiana Jones",           type:"movie",  handler:"tmdb_collection", collectionId: 84 },
+  jurassic_coll:      { name:"Jurassic Park",           type:"movie",  handler:"tmdb_collection", collectionId: 328 },
+  hobbit_collection:  { name:"The Hobbit",              type:"movie",  handler:"tmdb_collection", collectionId: 121938 },
+  avengers_coll:      { name:"The Avengers",            type:"movie",  handler:"tmdb_collection", collectionId: 86311 },
+  xmen_collection:    { name:"X-Men",                   type:"movie",  handler:"tmdb_collection", collectionId: 748 },
+  hungergames_coll:   { name:"Hunger Games",            type:"movie",  handler:"tmdb_collection", collectionId: 131635 },
+  pirates_collection: { name:"Pirates of Caribbean",   type:"movie",  handler:"tmdb_collection", collectionId: 295 },
+  shrek_collection:   { name:"Shrek",                  type:"movie",  handler:"tmdb_collection", collectionId: 2150 },
+  iceage_collection:  { name:"Ice Age",                type:"movie",  handler:"tmdb_collection", collectionId: 8354 },
+  httyd_collection:   { name:"How To Train Your Dragon",type:"movie",  handler:"tmdb_collection", collectionId: 89137 },
+  madmax_collection:  { name:"Mad Max",                type:"movie",  handler:"tmdb_collection", collectionId: 8945 },
+  bourne_collection:  { name:"The Bourne",             type:"movie",  handler:"tmdb_collection", collectionId: 31562 },
+  oceans_collection:  { name:"Ocean's",              type:"movie",  handler:"tmdb_collection", collectionId: 304 },
+  transformers_coll:  { name:"Transformers",           type:"movie",  handler:"tmdb_collection", collectionId: 8650 },
+  captainamerica_coll:{ name:"Captain America",        type:"movie",  handler:"tmdb_collection", collectionId: 131295 },
+  ironman_collection: { name:"Iron Man",               type:"movie",  handler:"tmdb_collection", collectionId: 131292 },
+  gotg_collection:    { name:"Guardians of the Galaxy",type:"movie",  handler:"tmdb_collection", collectionId: 284433 },
+  doctorstrange_coll: { name:"Doctor Strange",         type:"movie",  handler:"tmdb_collection", collectionId: 618529 },
+  blackpanther_coll:  { name:"Black Panther",          type:"movie",  handler:"tmdb_collection", collectionId: 529892 },
+  antman_collection:  { name:"Ant-Man",                type:"movie",  handler:"tmdb_collection", collectionId: 422834 },
+  wonderwoman_coll:   { name:"Wonder Woman",           type:"movie",  handler:"tmdb_collection", collectionId: 468552 },
+  aquaman_collection: { name:"Aquaman",                type:"movie",  handler:"tmdb_collection", collectionId: 573693 },
+  planetapes_coll:    { name:"Planet of the Apes",     type:"movie",  handler:"tmdb_collection", collectionId: 1709 },
+  kingsman_coll:      { name:"Kingsman",               type:"movie",  handler:"tmdb_collection", collectionId: 391860 },
+  taken_collection:   { name:"Taken",                 type:"movie",  handler:"tmdb_collection", collectionId: 135483 },
+  alien_collection:   { name:"Alien",                 type:"movie",  handler:"tmdb_collection", collectionId: 8091 },
+  terminator_coll:    { name:"Terminator",            type:"movie",  handler:"tmdb_collection", collectionId: 528 },
+  predator_coll:      { name:"Predator",              type:"movie",  handler:"tmdb_collection", collectionId: 399 },
+  thor_collection:    { name:"Thor",                  type:"movie",  handler:"tmdb_collection", collectionId: 131296 },
+  halloween_coll:     { name:"Halloween",             type:"movie",  handler:"tmdb_collection", collectionId: 91361 },
+  nightmare_coll:     { name:"Nightmare on Elm Street",type:"movie", handler:"tmdb_collection", collectionId: 8581 },
+  saw_collection:     { name:"Saw",                   type:"movie",  handler:"tmdb_collection", collectionId: 656 },
+  scream_collection:  { name:"Scream",                type:"movie",  handler:"tmdb_collection", collectionId: 2602 },
+  conjuring_coll:     { name:"The Conjuring",         type:"movie",  handler:"tmdb_collection", collectionId: 313086 },
+  despicableme_coll:  { name:"Despicable Me",         type:"movie",  handler:"tmdb_collection", collectionId: 86066 },
+  kungfupanda_coll:   { name:"Kung Fu Panda",         type:"movie",  handler:"tmdb_collection", collectionId: 77816 },
+  incredibles_coll:   { name:"The Incredibles",       type:"movie",  handler:"tmdb_collection", collectionId: 468222 },
+  deadpool_coll:      { name:"Deadpool",              type:"movie",  handler:"tmdb_collection", collectionId: 448150 },
+  sherlock_coll:      { name:"Sherlock Holmes",       type:"movie",  handler:"tmdb_collection", collectionId: 102322 },
+  findingnemo_coll:   { name:"Finding Nemo",          type:"movie",  handler:"tmdb_collection", collectionId: 137697 },
+  toystory_coll:      { name:"Toy Story",             type:"movie",  handler:"tmdb_collection", collectionId: 10194 },
+  backtofuture_coll:  { name:"Back to the Future",    type:"movie",  handler:"tmdb_collection", collectionId: 264 },
+  matrix_collection:  { name:"The Matrix",            type:"movie",  handler:"tmdb_collection", collectionId: 2344 },
+  diehard_collection: { name:"Die Hard",              type:"movie",  handler:"tmdb_collection", collectionId: 1570 },
+  rambo_collection:   { name:"Rambo",                 type:"movie",  handler:"tmdb_collection", collectionId: 5039 },
+  expendables_coll:   { name:"The Expendables",       type:"movie",  handler:"tmdb_collection", collectionId: 126125 },
+  shrek2_collection:  { name:"Minions",               type:"movie",  handler:"tmdb_collection", collectionId: 544669 },
   mdb_87667:  { name:"Trakt Trending",          type:"movie",  handler:"mdb" },
   mdb_88434:  { name:"Trakt Trending",          type:"series", handler:"mdb" },
   mdb_2236:   { name:"Top Movies This Week",           type:"movie",  handler:"mdb" },
@@ -240,7 +294,7 @@ async function getImdbId(tmdbId, type) {
   } catch { return null; }
 }
 
-async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null) {
+async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
   return (await Promise.all(
     arr.filter(i => i.poster_path).map(async i => {
       const imdb = await getImdbId(i.id, type);
@@ -248,7 +302,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
       const meta = {
         id: imdb, type,
         name: i.title || i.name || i.original_title,
-        poster: rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : `https://image.tmdb.org/t/p/w500${i.poster_path}`,
+        poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdb}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : `https://image.tmdb.org/t/p/w500${i.poster_path}`,
         background: i.backdrop_path ? `https://image.tmdb.org/t/p/original${i.backdrop_path}` : null
       };
       if (language && language !== "en-US" && i.overview) meta.description = i.overview;
@@ -257,7 +311,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
   )).filter(Boolean);
 }
 
-async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
+async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null) {
   const key = mdbKey || MDBLIST_KEY;
   const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
   try {
@@ -275,7 +329,7 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
           return {
             id: imdbId, type,
             name: item.title || result.title || result.name,
-            poster: rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
+            poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdbId}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : null,
             background: result.backdrop_path ? `https://image.tmdb.org/t/p/original${result.backdrop_path}` : null
           };
         } catch { return { id: imdbId, type, name: item.title }; }
@@ -284,7 +338,7 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null) {
   } catch (e) { console.log("mdblist error", listId, e.message); return []; }
 }
 
-async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null) {
+async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
   const skip = extra?.skip || 0;
   const page = Math.floor(skip / 20) + 1;
   const tmdbType = type ==="series" ?"tv" :"movie";
@@ -293,17 +347,17 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
   if (catalogId ==="similar_movie" || catalogId ==="similar_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/similar?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
   }
   if (catalogId ==="recommended_movie" || catalogId ==="recommended_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/recommendations?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
   }
   if (catalogId ==="collection_movie") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/collection/${tmdbId}?api_key=${TMDB_KEY}`);
-    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey) };
+    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey, tpKey) };
   }
 
   const def = CATALOG_DEFS[catalogId];
@@ -311,7 +365,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
 
   if (def.handler ==="mdb") {
     const listId = catalogId.replace("mdb_","");
-    return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey) };
+    return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey, tpKey) };
   }
 
   let url;
@@ -342,6 +396,8 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     case"tmdb_company":
       url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${def.company}&sort_by=popularity.desc&page=${page}`;
       break;
+    case"tmdb_collection":
+      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [], type, filterLang, language, rpdbKey, tpKey) };
     case"tmdb_anime":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
       break;
@@ -354,7 +410,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     case"search":
       console.log("SEARCH CASE HIT:", catalogId, extra?.search);
       if (!extra?.search) return { metas: [] };
-      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language, rpdbKey) };
+      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language, rpdbKey, tpKey) };
     default:
       return { metas: [] };
       return { metas: [] };
@@ -370,7 +426,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     )
   );
   const allResults = pages.flatMap(d => d.results || []);
-  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey) };
+  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey) };
 
 }
 
@@ -447,6 +503,7 @@ app.use(express.json());
 app.get("/configure", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
+app.get("/collections-builder", (req, res) => { res.sendFile(path.join(__dirname,"collections-builder.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.use("/images", express.static(path.join(__dirname,"images")));
 app.use("/images", express.static(path.join(__dirname,"images")));
@@ -454,25 +511,26 @@ app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"c
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
-  const { password, catalogs, mdblistKey, language, rpdbKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
   if (!password || !catalogs || !catalogs.length) return res.status(400).json({ error:"Password and catalogs required" });
   const configs = loadConfigs();
   let token = generateToken();
   while (configs[token]) token = generateToken();
-  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, createdAt: new Date().toISOString() };
+  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, createdAt: new Date().toISOString() };
   saveConfigs(configs);
   res.json({ token });
 });
 
 app.post("/c/:token/update", (req, res) => {
   const { token } = req.params;
-  const { password, catalogs, mdblistKey, language, rpdbKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Config not found" });
   if (configs[token].passwordHash !== hashPassword(password)) return res.status(401).json({ error:"Incorrect password" });
   configs[token].catalogs = catalogs;
   configs[token].language = language || configs[token].language || "en-US";
   configs[token].rpdbKey = rpdbKey || configs[token].rpdbKey || null;
+  configs[token].tpKey = tpKey || configs[token].tpKey || null;
   configs[token].mdblistKey = mdblistKey || configs[token].mdblistKey || null;
   configs[token].updatedAt = new Date().toISOString();
   saveConfigs(configs);
@@ -483,7 +541,25 @@ app.get("/c/:token/config", (req, res) => {
   const { token } = req.params;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Not found" });
-  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey });
+  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey });
+});
+
+app.post("/c/:token/collections", (req, res) => {
+  const { token } = req.params;
+  const configs = loadConfigs();
+  if (!configs[token]) return res.status(404).json({ error:"Not found" });
+  const { collections } = req.body;
+  if (!Array.isArray(collections)) return res.status(400).json({ error:"Invalid collections" });
+  configs[token].collections = collections;
+  saveConfigs(configs);
+  res.json({ ok: true });
+});
+
+app.get("/c/:token/collections.json", (req, res) => {
+  const { token } = req.params;
+  const configs = loadConfigs();
+  if (!configs[token]) return res.status(404).json([]);
+  res.json(configs[token].collections || []);
 });
 
 app.get("/c/:token/manifest.json", (req, res) => {
@@ -622,7 +698,7 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
       if (req.query.skip) extra.skip = parseInt(req.query.skip);
       if (req.query.search) extra.search = req.query.search;
       const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
-      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null)
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;
