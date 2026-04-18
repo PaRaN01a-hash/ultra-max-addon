@@ -87,6 +87,8 @@ const CATALOG_DEFS = {
   natgeo_series:      { name:"National Geographic", type:"series", handler:"tmdb_provider", provider: 1964 },
   ae_movies:          { name:"A&E",             type:"movie",  handler:"tmdb_provider", provider: 156 },
   ae_series:          { name:"A&E",             type:"series", handler:"tmdb_provider", provider: 156 },
+  animalplanet_movies:{ name:"Animal Planet",   type:"movie",  handler:"tmdb_provider", provider: 399 },
+  animalplanet_series:{ name:"Animal Planet",   type:"series", handler:"tmdb_provider", provider: 399 },
   action_movies:      { name:"Action",          type:"movie",  handler:"tmdb_genre", genre: 28 },
   action_series:      { name:"Action",          type:"series", handler:"tmdb_genre", genre: 28 },
   comedy_movies:      { name:"Comedy",          type:"movie",  handler:"tmdb_genre", genre: 35 },
