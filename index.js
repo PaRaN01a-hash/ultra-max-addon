@@ -505,8 +505,7 @@ app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","no-s
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.get("/collections-builder", (req, res) => { res.sendFile(path.join(__dirname,"collections-builder.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
-app.use("/images", express.static(path.join(__dirname,"images")));
-app.use("/images", express.static(path.join(__dirname,"images")));
+app.use("/images", express.static(path.join(__dirname,"images"), { maxAge: '7d', etag: true }));
 app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"collections.json")); });
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;

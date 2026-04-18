@@ -229,6 +229,7 @@
         <select id="language">
           <option value="en-US">🇬🇧 English</option>
           <option value="es-ES">🇪🇸 Spanish</option>
+          <option value="es-MX">🇲🇽 Spanish (Latin American)</option>
           <option value="fr-FR">🇫🇷 French</option>
           <option value="de-DE">🇩🇪 German</option>
           <option value="it-IT">🇮🇹 Italian</option>
@@ -309,7 +310,7 @@
         </button>
         <button class="preset-btn" onclick="applyPreset('everything', event)">
           <span class="preset-name">&#128293; Everything</span>
-          <span class="preset-desc">All 140 catalogs</span>
+          <span class="preset-desc">All 195+ catalogs</span>
         </button>
       </div>
 
@@ -398,6 +399,10 @@
           <div class="pill" data-id="peacock_series">Peacock Series</div>
           <div class="pill" data-id="hulu_movies">Hulu Movies</div>
           <div class="pill" data-id="hulu_series">Hulu Series</div>
+          <div class="pill" data-id="discovery_movies">Discovery+ Movies</div>
+          <div class="pill" data-id="discovery_series">Discovery+ Series</div>
+          <div class="pill" data-id="natgeo_movies">National Geographic Movies</div>
+          <div class="pill" data-id="natgeo_series">National Geographic Series</div>
           <div class="pill" data-id="mgm_movies">MGM+ Movies</div>
           <div class="pill" data-id="acorn_movies">Acorn Movies</div>
           <div class="pill" data-id="acorn_series">Acorn Series</div>
@@ -642,6 +647,7 @@
 
     <!-- STICKY COUNTER (step 2 only) -->
     <div class="counter-bar" id="counterBar" style="display:none;">
+      <button class="global-btn" onclick="setStep(1)">&larr; Back</button>
       <div class="count-display"><span class="count-num" id="countNum">0</span> selected</div>
       <button class="next-btn" id="nextBtn" onclick="goToStep3()" disabled>Next — Generate &rarr;</button>
     </div>
@@ -688,6 +694,10 @@ function updateProgress(){
 }
 
 function goToStep2(){
+  const pass = document.getElementById('password').value;
+  const mdbKey = document.getElementById('mdblistKey').value.trim();
+  const passError = document.getElementById('passError');
+  passError.classList.remove('visible');
   setStep(2);
 }
 

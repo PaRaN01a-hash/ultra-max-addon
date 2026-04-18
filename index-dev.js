@@ -81,6 +81,10 @@ const CATALOG_DEFS = {
   hidive_series:      { name:"Hidive",          type:"series", handler:"tmdb_provider", provider: 430 },
   hulu_movies:        { name:"Hulu",            type:"movie",  handler:"tmdb_provider", provider: 15 },
   hulu_series:        { name:"Hulu",            type:"series", handler:"tmdb_provider", provider: 15 },
+  discovery_movies:   { name:"Discovery+",      type:"movie",  handler:"tmdb_provider", provider: 520 },
+  discovery_series:   { name:"Discovery+",      type:"series", handler:"tmdb_provider", provider: 520 },
+  natgeo_movies:      { name:"National Geographic", type:"movie",  handler:"tmdb_provider", provider: 1964 },
+  natgeo_series:      { name:"National Geographic", type:"series", handler:"tmdb_provider", provider: 1964 },
   action_movies:      { name:"Action",          type:"movie",  handler:"tmdb_genre", genre: 28 },
   action_series:      { name:"Action",          type:"series", handler:"tmdb_genre", genre: 28 },
   comedy_movies:      { name:"Comedy",          type:"movie",  handler:"tmdb_genre", genre: 35 },
@@ -505,8 +509,7 @@ app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","no-s
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.get("/collections-builder", (req, res) => { res.sendFile(path.join(__dirname,"collections-builder.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
-app.use("/images", express.static(path.join(__dirname,"images")));
-app.use("/images", express.static(path.join(__dirname,"images")));
+app.use("/images", express.static(path.join(__dirname,"images"), { maxAge: '7d', etag: true }));
 app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"collections.json")); });
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;

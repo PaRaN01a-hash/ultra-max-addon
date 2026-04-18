@@ -155,11 +155,14 @@
     <div class="modal-footer">
       <div style="flex:1;">
         <div style="display:flex;gap:8px;align-items:center;">
+          <input type="file" id="imgUploadInput" accept="image/*" style="display:none" onchange="uploadToImgbb(this)" />
+          <button class="btn small" onclick="document.getElementById('imgUploadInput').click()" id="uploadBtn">&#8593; Upload Image</button>
           <input type="text" id="customImageUrl" placeholder="Or paste any image URL..." style="flex:1;font-size:12px;padding:7px 10px;" oninput="previewCustomImage(this.value)" />
           <button class="btn small primary" onclick="useCustomUrl()">Use</button>
         </div>
         <div id="customPreview" style="display:none;margin-top:8px;">
           <img id="customPreviewImg" style="height:50px;border-radius:3px;border:1px solid #333;" />
+            <span id="uploadStatus" style="font-size:11px;color:#888;margin-left:8px;"></span>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-left:12px;flex-shrink:0;">
@@ -208,10 +211,26 @@
         <div class="section-title" style="margin:0;flex:1;">&#127917; Your Collections</div>
         <div class="builder-actions">
           <button class="btn small" onclick="goToSetup()">&#8592; Back</button>
+          <button class="btn small" onclick="togglePresets()">&#9889; Load Presets</button>
           <button class="btn small primary" onclick="addCollection()">+ Add Collection</button>
         </div>
       </div>
 
+      <div id="presetsPanel" style="display:none;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#bbb;margin-bottom:12px;">Choose a preset to add:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button class="btn small" onclick="loadPreset('streaming')">&#128250; Streaming Services</button>
+          <button class="btn small" onclick="loadPreset('trending')">&#128293; Trending &amp; Popular</button>
+          <button class="btn small" onclick="loadPreset('latest')">&#127381; New &amp; Latest</button>
+          <button class="btn small" onclick="loadPreset('genres')">&#127917; Genres</button>
+          <button class="btn small" onclick="loadPreset('themed')">&#127916; Themed &amp; Curated</button>
+          <button class="btn small" onclick="loadPreset('studios')">&#127909; Studios</button>
+          <button class="btn small" onclick="loadPreset('collections')">&#127916; Film Collections</button>
+          <button class="btn small" onclick="loadPreset('decades')">&#128197; By Decade</button>
+          <button class="btn small" onclick="loadPreset('kids')">&#128118; Kids &amp; Family</button>
+          <button class="btn small" onclick="loadPreset('uk')">&#127468;&#127463; UK</button>
+        </div>
+      </div>
       <div id="collections-list"></div>
 
       <div id="empty-state" style="text-align:center;padding:40px;color:#555;font-size:12px;letter-spacing:0.1em;">
@@ -245,6 +264,7 @@
 const BASE_URL = window.location.origin;
 let userToken = null;
 let userCatalogs = null;
+let addonId = 'org.kris.ultra.max.v5';
 let collections = [];
 let imagePickerCallback = null;
 let selectedImage = null;
@@ -370,78 +390,78 @@ const IMAGE_LIBRARY = [
     {name:'DreamWorks',url:BASE_IMG+'Dreamworks.gif'},
   ]},
   {category:'Genres', items:[
-    {name:'Action',url:BASE_IMG+'action.svg'},
-    {name:'Horror',url:BASE_IMG+'horror.svg'},
-    {name:'Comedy',url:BASE_IMG+'comedy.svg'},
-    {name:'Sci-Fi',url:BASE_IMG+'scifi.svg'},
-    {name:'Thriller',url:BASE_IMG+'thriller.svg'},
-    {name:'Drama',url:BASE_IMG+'drama.svg'},
-    {name:'Animation',url:BASE_IMG+'animation.svg'},
-    {name:'Anime',url:BASE_IMG+'anime.svg'},
-    {name:'Documentary',url:BASE_IMG+'documentary.svg'},
-    {name:'Romance',url:BASE_IMG+'romance.svg'},
+    {name:'Action',url:BASE_IMG+'action.jpg'},
+    {name:'Horror',url:BASE_IMG+'horror.jpg'},
+    {name:'Comedy',url:BASE_IMG+'comedy.jpg'},
+    {name:'Sci-Fi',url:BASE_IMG+'scifi.png'},
+    {name:'Thriller',url:BASE_IMG+'thriller.png'},
+    {name:'Drama',url:BASE_IMG+'drama.jpg'},
+    {name:'Animation',url:BASE_IMG+'animation.jpg'},
+    {name:'Anime',url:BASE_IMG+'anime.jpg'},
+    {name:'Documentary',url:BASE_IMG+'documentary.jpg'},
+    {name:'Romance',url:BASE_IMG+'romance.jpg'},
   ]},
   {category:'Trending & Popular', items:[
-    {name:'Trending',url:BASE_IMG+'trending.svg'},
-    {name:'Popular',url:BASE_IMG+'popular.svg'},
-    {name:'Top Rated',url:BASE_IMG+'toprated.svg'},
-    {name:'New Releases',url:BASE_IMG+'newreleases.svg'},
+    {name:'Trending',url:BASE_IMG+'trending.jpg'},
+    {name:'Popular',url:BASE_IMG+'popular.jpg'},
+    {name:'Top Rated',url:BASE_IMG+'toprated.png'},
+    {name:'New Releases',url:BASE_IMG+'newreleases.png'},
   ]},
   {category:'Film Collections', items:[
-    {name:'Harry Potter',url:BASE_IMG+'harrypotter.svg'},
-    {name:'Lord of the Rings',url:BASE_IMG+'lotr.svg'},
-    {name:'Star Wars',url:BASE_IMG+'starwars.svg'},
-    {name:'The Hobbit',url:BASE_IMG+'hobbit.svg'},
-    {name:'James Bond',url:BASE_IMG+'bond.svg'},
-    {name:'Mission Impossible',url:BASE_IMG+'missionimpossible.svg'},
-    {name:'Indiana Jones',url:BASE_IMG+'indianajones.svg'},
-    {name:'Jurassic Park',url:BASE_IMG+'jurassic.svg'},
-    {name:'Fast & Furious',url:BASE_IMG+'fastfurious.svg'},
-    {name:'John Wick',url:BASE_IMG+'johnwick.svg'},
-    {name:'The Matrix',url:BASE_IMG+'matrix.svg'},
-    {name:'Die Hard',url:BASE_IMG+'diehard.svg'},
-    {name:'Taken',url:BASE_IMG+'taken.svg'},
-    {name:'Bourne',url:BASE_IMG+'bourne.svg'},
-    {name:"Ocean's",url:BASE_IMG+'oceans.svg'},
-    {name:'Mad Max',url:BASE_IMG+'madmax.svg'},
-    {name:'Rambo',url:BASE_IMG+'rambo.svg'},
-    {name:'Expendables',url:BASE_IMG+'expendables.svg'},
-    {name:'Kingsman',url:BASE_IMG+'kingsman.svg'},
-    {name:'The Avengers',url:BASE_IMG+'avengers.svg'},
-    {name:'Captain America',url:BASE_IMG+'captainamerica.svg'},
-    {name:'Iron Man',url:BASE_IMG+'ironman.svg'},
-    {name:'Thor',url:BASE_IMG+'thor.svg'},
-    {name:'Guardians of the Galaxy',url:BASE_IMG+'gotg.svg'},
-    {name:'Doctor Strange',url:BASE_IMG+'doctorstrange.svg'},
-    {name:'Black Panther',url:BASE_IMG+'blackpanther.svg'},
-    {name:'Ant-Man',url:BASE_IMG+'antman.svg'},
-    {name:'Deadpool',url:BASE_IMG+'deadpool.svg'},
-    {name:'X-Men',url:BASE_IMG+'xmen.svg'},
-    {name:'Wonder Woman',url:BASE_IMG+'wonderwoman.svg'},
-    {name:'Aquaman',url:BASE_IMG+'aquaman.svg'},
-    {name:'Alien',url:BASE_IMG+'alien.svg'},
-    {name:'Terminator',url:BASE_IMG+'terminator.svg'},
-    {name:'Predator',url:BASE_IMG+'predator.svg'},
-    {name:'Halloween',url:BASE_IMG+'halloween.svg'},
-    {name:'Nightmare on Elm Street',url:BASE_IMG+'nightmare.svg'},
-    {name:'Saw',url:BASE_IMG+'saw.svg'},
-    {name:'Scream',url:BASE_IMG+'scream.svg'},
-    {name:'The Conjuring',url:BASE_IMG+'conjuring.svg'},
-    {name:'Planet of the Apes',url:BASE_IMG+'planetapes.svg'},
-    {name:'Transformers',url:BASE_IMG+'transformers.svg'},
-    {name:'Hunger Games',url:BASE_IMG+'hungergames.svg'},
-    {name:'Pirates of the Caribbean',url:BASE_IMG+'pirates.svg'},
-    {name:'Shrek',url:BASE_IMG+'shrek.svg'},
-    {name:'Ice Age',url:BASE_IMG+'iceage.svg'},
-    {name:'How To Train Your Dragon',url:BASE_IMG+'httyd.svg'},
-    {name:'Despicable Me',url:BASE_IMG+'despicableme.svg'},
-    {name:'Kung Fu Panda',url:BASE_IMG+'kungfupanda.svg'},
-    {name:'The Incredibles',url:BASE_IMG+'incredibles.svg'},
-    {name:'Toy Story',url:BASE_IMG+'toystory.svg'},
-    {name:'Finding Nemo',url:BASE_IMG+'findingnemo.svg'},
-    {name:'Minions',url:BASE_IMG+'minions.svg'},
-    {name:'Back to the Future',url:BASE_IMG+'backtofuture.svg'},
-    {name:'Sherlock Holmes',url:BASE_IMG+'sherlock.svg'},
+    {name:'Harry Potter',url:BASE_IMG+'harrypotter.gif'},
+    {name:'Lord of the Rings',url:BASE_IMG+'lotr.gif'},
+    {name:'Star Wars',url:BASE_IMG+'starwars.gif'},
+    {name:'The Hobbit',url:BASE_IMG+'hobbit.jpg'},
+    {name:'James Bond',url:BASE_IMG+'bond.gif'},
+    {name:'Mission Impossible',url:BASE_IMG+'missionimpossible.jpg'},
+    {name:'Indiana Jones',url:BASE_IMG+'indianajones.gif'},
+    {name:'Jurassic Park',url:BASE_IMG+'jurassic.jpg'},
+    {name:'Fast & Furious',url:BASE_IMG+'fastfurious.jpg'},
+    {name:'John Wick',url:BASE_IMG+'johnwick.gif'},
+    {name:'The Matrix',url:BASE_IMG+'matrix.gif'},
+    {name:'Die Hard',url:BASE_IMG+'diehard.jpg'},
+    {name:'Taken',url:BASE_IMG+'taken.jpg'},
+    {name:'Bourne',url:BASE_IMG+'bourne.gif'},
+    {name:"Ocean's",url:BASE_IMG+'oceans.jpg'},
+    {name:'Mad Max',url:BASE_IMG+'madmax.jpg'},
+    {name:'Rambo',url:BASE_IMG+'rambo.jpg'},
+    {name:'Expendables',url:BASE_IMG+'expendables.jpg'},
+    {name:'Kingsman',url:BASE_IMG+'kingsman.jpg'},
+    {name:'The Avengers',url:BASE_IMG+'avengers.jpg'},
+    {name:'Captain America',url:BASE_IMG+'captainamerica.jpg'},
+    {name:'Iron Man',url:BASE_IMG+'ironman.jpg'},
+    {name:'Thor',url:BASE_IMG+'thor.jpg'},
+    {name:'Guardians of the Galaxy',url:BASE_IMG+'gotg.jpg'},
+    {name:'Doctor Strange',url:BASE_IMG+'doctorstrange.jpg'},
+    {name:'Black Panther',url:BASE_IMG+'blackpanther.jpg'},
+    {name:'Ant-Man',url:BASE_IMG+'antman.jpg'},
+    {name:'Deadpool',url:BASE_IMG+'deadpool.jpg'},
+    {name:'X-Men',url:BASE_IMG+'xmen.jpg'},
+    {name:'Wonder Woman',url:BASE_IMG+'wonderwoman.jpg'},
+    {name:'Aquaman',url:BASE_IMG+'aquaman.jpg'},
+    {name:'Alien',url:BASE_IMG+'alien.jpg'},
+    {name:'Terminator',url:BASE_IMG+'terminator.jpg'},
+    {name:'Predator',url:BASE_IMG+'predator.jpg'},
+    {name:'Halloween',url:BASE_IMG+'halloween.jpg'},
+    {name:'Nightmare on Elm Street',url:BASE_IMG+'nightmare.jpg'},
+    {name:'Saw',url:BASE_IMG+'saw.jpg'},
+    {name:'Scream',url:BASE_IMG+'scream.jpg'},
+    {name:'The Conjuring',url:BASE_IMG+'conjuring.jpg'},
+    {name:'Planet of the Apes',url:BASE_IMG+'planetapes.png'},
+    {name:'Transformers',url:BASE_IMG+'transformers.jpg'},
+    {name:'Hunger Games',url:BASE_IMG+'hungergames.jpg'},
+    {name:'Pirates of the Caribbean',url:BASE_IMG+'pirates.png'},
+    {name:'Shrek',url:BASE_IMG+'shrek.jpg'},
+    {name:'Ice Age',url:BASE_IMG+'iceage.jpg'},
+    {name:'How To Train Your Dragon',url:BASE_IMG+'httyd.jpg'},
+    {name:'Despicable Me',url:BASE_IMG+'despicableme.jpg'},
+    {name:'Kung Fu Panda',url:BASE_IMG+'kungfupanda.jpg'},
+    {name:'The Incredibles',url:BASE_IMG+'incredibles.jpg'},
+    {name:'Toy Story',url:BASE_IMG+'toystory.jpg'},
+    {name:'Finding Nemo',url:BASE_IMG+'findingnemo.jpg'},
+    {name:'Minions',url:BASE_IMG+'minions.jpg'},
+    {name:'Back to the Future',url:BASE_IMG+'backtofuture.jpg'},
+    {name:'Sherlock Holmes',url:BASE_IMG+'sherlock.jpg'},
   ]},
 ];
 
@@ -462,6 +482,11 @@ async function loadToken(){
     if(!res.ok) { err.textContent='Token not found'; err.classList.add('visible'); return; }
     const data = await res.json();
     userToken = token;
+    // Fetch the correct addonId from the manifest
+    try {
+      const mres = await fetch('/c/'+token+'/manifest.json');
+      if(mres.ok){ const mdata = await mres.json(); addonId = mdata.id || addonId; }
+    } catch(e){}
     userCatalogs = data.catalogs.map(function(id){
       return ALL_CATALOGS.find(function(c){ return c.id === id; });
     }).filter(Boolean);
@@ -493,15 +518,178 @@ function generateId(){
   return Math.random().toString(36).substr(2,8).toUpperCase();
 }
 
-function addCollection(){
-  collections.push({
+function togglePresets(){
+  const p = document.getElementById("presetsPanel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+  setTimeout(makeSprockets, 200);
+}
+
+const COLLECTION_PRESETS = {
+  streaming: { title:"Streaming Services", image_prefix:"", folders:[
+    {title:"Netflix", cover:"https://max-streams.gleeze.com/images/netflix.gif", catalogs:[{id:"netflix_movies",type:"movie"},{id:"netflix_series",type:"series"}]},
+    {title:"Prime Video", cover:"https://max-streams.gleeze.com/images/Prime.gif", catalogs:[{id:"amazon_movies",type:"movie"},{id:"amazon_series",type:"series"}]},
+    {title:"Disney+", cover:"https://max-streams.gleeze.com/images/Disney.gif", catalogs:[{id:"disney_movies",type:"movie"},{id:"disney_series",type:"series"}]},
+    {title:"HBO Max", cover:"https://max-streams.gleeze.com/images/HBO.gif", catalogs:[{id:"hbo_movies",type:"movie"},{id:"hbo_series",type:"series"}]},
+    {title:"Apple TV+", cover:"https://max-streams.gleeze.com/images/Apple.gif", catalogs:[{id:"apple_movies",type:"movie"},{id:"apple_series",type:"series"}]},
+    {title:"Paramount+", cover:"https://max-streams.gleeze.com/images/Paramount.gif", catalogs:[{id:"paramount_movies",type:"movie"},{id:"paramount_series",type:"series"}]},
+    {title:"Peacock", cover:"https://max-streams.gleeze.com/images/Peacock.gif", catalogs:[{id:"peacock_movies",type:"movie"},{id:"peacock_series",type:"series"}]},
+    {title:"Hulu", cover:"https://max-streams.gleeze.com/images/Hulu.gif", catalogs:[{id:"hulu_movies",type:"movie"},{id:"hulu_series",type:"series"}]},
+    {title:"Shudder", cover:"https://max-streams.gleeze.com/images/Shudder.gif", catalogs:[{id:"shudder_movies",type:"movie"},{id:"shudder_series",type:"series"}]},
+    {title:"BritBox", cover:"https://max-streams.gleeze.com/images/Brit.gif", catalogs:[{id:"britbox_movies",type:"movie"},{id:"britbox_series",type:"series"}]},
+    {title:"MGM+", cover:"https://max-streams.gleeze.com/images/MGM.gif", catalogs:[{id:"mgm_movies",type:"movie"}]},
+  ]},
+  trending: { title:"Trending & Popular", folders:[
+    {title:"Trending Movies", cover:"https://max-streams.gleeze.com/images/trending.jpg", catalogs:[{id:"trending_movies",type:"movie"}]},
+    {title:"Trending Series", cover:"https://max-streams.gleeze.com/images/trending.jpg", catalogs:[{id:"trending_series",type:"series"}]},
+    {title:"Popular Movies", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"popular_movies",type:"movie"}]},
+    {title:"Popular Series", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"popular_series",type:"series"}]},
+    {title:"Top Rated Movies", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"top_movies",type:"movie"}]},
+    {title:"Top Rated Series", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"top_series",type:"series"}]},
+    {title:"Trakt Trending", cover:"https://max-streams.gleeze.com/images/trending.jpg", catalogs:[{id:"mdb_87667",type:"movie"},{id:"mdb_88434",type:"series"}]},
+    {title:"Top This Week", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_2236",type:"movie"}]},
+    {title:"IMDb Moviemeter", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"mdb_69",type:"movie"}]},
+  ]},
+  latest: { title:"New & Latest", folders:[
+    {title:"Netflix Latest", cover:"https://max-streams.gleeze.com/images/netflix.gif", catalogs:[{id:"mdb_88328",type:"movie"},{id:"mdb_86751",type:"series"}]},
+    {title:"Amazon Latest", cover:"https://max-streams.gleeze.com/images/Prime.gif", catalogs:[{id:"mdb_86755",type:"movie"},{id:"mdb_86753",type:"series"}]},
+    {title:"Disney+ Latest", cover:"https://max-streams.gleeze.com/images/Disney.gif", catalogs:[{id:"mdb_86759",type:"movie"},{id:"mdb_86758",type:"series"}]},
+    {title:"HBO Latest", cover:"https://max-streams.gleeze.com/images/HBO.gif", catalogs:[{id:"mdb_89647",type:"movie"},{id:"mdb_89649",type:"series"}]},
+    {title:"Apple Latest", cover:"https://max-streams.gleeze.com/images/Apple.gif", catalogs:[{id:"mdb_88317",type:"movie"},{id:"mdb_88319",type:"series"}]},
+    {title:"Paramount+ Latest", cover:"https://max-streams.gleeze.com/images/Paramount.gif", catalogs:[{id:"mdb_86762",type:"movie"},{id:"mdb_86761",type:"series"}]},
+    {title:"Hulu Latest", cover:"https://max-streams.gleeze.com/images/Hulu.gif", catalogs:[{id:"mdb_88326",type:"movie"},{id:"mdb_88327",type:"series"}]},
+    {title:"Latest Releases", cover:"https://max-streams.gleeze.com/images/newreleases.png", catalogs:[{id:"mdb_960",type:"movie"},{id:"mdb_86934",type:"movie"}]},
+  ]},
+  genres: { title:"Genres", folders:[
+    {title:"Action", cover:"https://max-streams.gleeze.com/images/action.jpg", catalogs:[{id:"action_movies",type:"movie"},{id:"action_series",type:"series"}]},
+    {title:"Horror", cover:"https://max-streams.gleeze.com/images/horror.jpg", catalogs:[{id:"horror_movies",type:"movie"},{id:"horror_series",type:"series"}]},
+    {title:"Comedy", cover:"https://max-streams.gleeze.com/images/comedy.png", catalogs:[{id:"comedy_movies",type:"movie"},{id:"comedy_series",type:"series"}]},
+    {title:"Sci-Fi", cover:"https://max-streams.gleeze.com/images/scifi.jpg", catalogs:[{id:"scifi_movies",type:"movie"},{id:"scifi_series",type:"series"}]},
+    {title:"Thriller", cover:"https://max-streams.gleeze.com/images/thriller.png", catalogs:[{id:"thriller_movies",type:"movie"},{id:"thriller_series",type:"series"}]},
+    {title:"Drama", cover:"https://max-streams.gleeze.com/images/drama.jpg", catalogs:[{id:"drama_movies",type:"movie"},{id:"drama_series",type:"series"}]},
+    {title:"Romance", cover:"https://max-streams.gleeze.com/images/romance.jpg", catalogs:[{id:"romance_movies",type:"movie"},{id:"romance_series",type:"series"}]},
+    {title:"Animation", cover:"https://max-streams.gleeze.com/images/animation.jpg", catalogs:[{id:"animation_movies",type:"movie"},{id:"animation_series",type:"series"}]},
+    {title:"Anime", cover:"https://max-streams.gleeze.com/images/anime.jpg", catalogs:[{id:"anime_movies",type:"movie"},{id:"anime_series",type:"series"}]},
+    {title:"Documentary", cover:"https://max-streams.gleeze.com/images/documentary.jpg", catalogs:[{id:"documentary_movies",type:"movie"},{id:"documentary_series",type:"series"}]},
+    {title:"Crime", cover:"https://max-streams.gleeze.com/images/thriller.png", catalogs:[{id:"crime_movies",type:"movie"},{id:"crime_series",type:"series"}]},
+    {title:"Fantasy", cover:"https://max-streams.gleeze.com/images/scifi.jpg", catalogs:[{id:"fantasy_movies",type:"movie"},{id:"fantasy_series",type:"series"}]},
+  ]},
+  themed: { title:"Themed & Curated", folders:[
+    {title:"Must-See Mindfuck", cover:"https://max-streams.gleeze.com/images/thriller.png", catalogs:[{id:"mdb_3892",type:"movie"}]},
+    {title:"Crazy Plot Twists", cover:"https://max-streams.gleeze.com/images/thriller.png", catalogs:[{id:"mdb_3923",type:"movie"}]},
+    {title:"Outer Space", cover:"https://max-streams.gleeze.com/images/scifi.jpg", catalogs:[{id:"mdb_3920",type:"movie"}]},
+    {title:"Time Travel", cover:"https://max-streams.gleeze.com/images/scifi.jpg", catalogs:[{id:"mdb_2909",type:"movie"}]},
+    {title:"Horror Classics", cover:"https://max-streams.gleeze.com/images/horror.jpg", catalogs:[{id:"mdb_2410",type:"movie"}]},
+    {title:"100% Rotten Tomatoes", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"mdb_3885",type:"movie"}]},
+    {title:"True Crime", cover:"https://max-streams.gleeze.com/images/documentary.jpg", catalogs:[{id:"mdb_4390",type:"movie"}]},
+    {title:"Superhero", cover:"https://max-streams.gleeze.com/images/avengers.jpg", catalogs:[{id:"theme_superhero",type:"movie"}]},
+    {title:"Heist", cover:"https://max-streams.gleeze.com/images/oceans.png", catalogs:[{id:"theme_heist",type:"movie"}]},
+    {title:"Zombie", cover:"https://max-streams.gleeze.com/images/horror.jpg", catalogs:[{id:"theme_zombie",type:"movie"}]},
+    {title:"Post Apocalyptic", cover:"https://max-streams.gleeze.com/images/madmax.png", catalogs:[{id:"theme_postapoc",type:"movie"}]},
+  ]},
+  studios: { title:"Studios", folders:[
+    {title:"Marvel", cover:"https://max-streams.gleeze.com/images/Marvel.gif", catalogs:[{id:"studio_marvel",type:"movie"}]},
+    {title:"DC", cover:"https://max-streams.gleeze.com/images/DC.gif", catalogs:[{id:"studio_dc",type:"movie"}]},
+    {title:"A24", cover:"https://max-streams.gleeze.com/images/A24.gif", catalogs:[{id:"studio_a24",type:"movie"}]},
+    {title:"Blumhouse", cover:"https://max-streams.gleeze.com/images/Blumhouse.gif", catalogs:[{id:"studio_blumhouse",type:"movie"}]},
+    {title:"Studio Ghibli", cover:"https://max-streams.gleeze.com/images/Ghibli.jpeg", catalogs:[{id:"studio_ghibli",type:"movie"}]},
+    {title:"Pixar", cover:"https://max-streams.gleeze.com/images/Pixar.gif", catalogs:[{id:"mdb_3918",type:"movie"}]},
+    {title:"DreamWorks", cover:"https://max-streams.gleeze.com/images/Dreamworks.gif", catalogs:[{id:"mdb_3928",type:"movie"}]},
+  ]},
+  collections: { title:"Film Collections", folders:[
+    {title:"Harry Potter", cover:"https://max-streams.gleeze.com/images/harrypotter.png", catalogs:[{id:"hp_collection",type:"movie"}]},
+    {title:"Lord of the Rings", cover:"https://max-streams.gleeze.com/images/lotr.png", catalogs:[{id:"lotr_collection",type:"movie"}]},
+    {title:"Star Wars", cover:"https://max-streams.gleeze.com/images/starwars.png", catalogs:[{id:"starwars_collection",type:"movie"}]},
+    {title:"The Hobbit", cover:"https://max-streams.gleeze.com/images/hobbit.png", catalogs:[{id:"hobbit_collection",type:"movie"}]},
+    {title:"James Bond", cover:"https://max-streams.gleeze.com/images/bond.png", catalogs:[{id:"bond_collection",type:"movie"}]},
+    {title:"Marvel Avengers", cover:"https://max-streams.gleeze.com/images/avengers.jpg", catalogs:[{id:"avengers_coll",type:"movie"}]},
+    {title:"John Wick", cover:"https://max-streams.gleeze.com/images/johnwick.png", catalogs:[{id:"johnwick_coll",type:"movie"}]},
+    {title:"Fast & Furious", cover:"https://max-streams.gleeze.com/images/fastfurious.png", catalogs:[{id:"fastfurious_coll",type:"movie"}]},
+    {title:"Jurassic Park", cover:"https://max-streams.gleeze.com/images/jurassic.jpg", catalogs:[{id:"jurassic_coll",type:"movie"}]},
+    {title:"Mission Impossible", cover:"https://max-streams.gleeze.com/images/missionimpossible.png", catalogs:[{id:"mi_collection",type:"movie"}]},
+    {title:"Indiana Jones", cover:"https://max-streams.gleeze.com/images/indianajones.png", catalogs:[{id:"indiana_collection",type:"movie"}]},
+    {title:"The Matrix", cover:"https://max-streams.gleeze.com/images/matrix.png", catalogs:[{id:"matrix_collection",type:"movie"}]},
+    {title:"Alien", cover:"https://max-streams.gleeze.com/images/alien.jpg", catalogs:[{id:"alien_collection",type:"movie"}]},
+    {title:"Terminator", cover:"https://max-streams.gleeze.com/images/terminator.png", catalogs:[{id:"terminator_coll",type:"movie"}]},
+    {title:"Predator", cover:"https://max-streams.gleeze.com/images/predator.png", catalogs:[{id:"predator_coll",type:"movie"}]},
+    {title:"Halloween", cover:"https://max-streams.gleeze.com/images/halloween.png", catalogs:[{id:"halloween_coll",type:"movie"}]},
+    {title:"Saw", cover:"https://max-streams.gleeze.com/images/saw.png", catalogs:[{id:"saw_collection",type:"movie"}]},
+    {title:"Scream", cover:"https://max-streams.gleeze.com/images/scream.png", catalogs:[{id:"scream_collection",type:"movie"}]},
+    {title:"Toy Story", cover:"https://max-streams.gleeze.com/images/toystory.jpg", catalogs:[{id:"toystory_coll",type:"movie"}]},
+    {title:"Shrek", cover:"https://max-streams.gleeze.com/images/shrek.png", catalogs:[{id:"shrek_collection",type:"movie"}]},
+  ]},
+  decades: { title:"By Decade", folders:[
+    {title:"Best of 2025", cover:"https://max-streams.gleeze.com/images/newreleases.png", catalogs:[{id:"mdb_92337",type:"movie"}]},
+    {title:"Best of 2020s", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_91304",type:"movie"}]},
+    {title:"Best of 2010s", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_91303",type:"movie"}]},
+    {title:"Best of 2000s", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_91302",type:"movie"}]},
+    {title:"Best of 1990s", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_91300",type:"movie"}]},
+    {title:"Best of 1980s", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"mdb_91301",type:"movie"}]},
+  ]},
+  kids: { title:"Kids & Family", folders:[
+    {title:"Trending Kids Movies", cover:"https://max-streams.gleeze.com/images/animation.jpg", catalogs:[{id:"mdb_88307",type:"movie"}]},
+    {title:"Trending Kids Series", cover:"https://max-streams.gleeze.com/images/animation.jpg", catalogs:[{id:"mdb_88309",type:"series"}]},
+    {title:"Top Kids Movies", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"mdb_13",type:"movie"}]},
+  ]},
+  uk: { title:"UK", folders:[
+    {title:"BBC Shows", cover:"https://max-streams.gleeze.com/images/drama.jpg", catalogs:[{id:"mdb_3087",type:"series"}]},
+    {title:"UK Shows", cover:"https://max-streams.gleeze.com/images/drama.jpg", catalogs:[{id:"mdb_3091",type:"series"}]},
+  ]},
+};
+
+function loadPreset(key){
+  const preset = COLLECTION_PRESETS[key];
+  if(!preset) return;
+  const newColl = {
     id: 'collection-'+generateId(),
-    title: 'New Collection',
-    pinToTop: false,
+    title: preset.title,
+    pinToTop: true,
     showAllTab: true,
     viewMode: 'FOLLOW_LAYOUT',
     focusGlowEnabled: true,
-    folders: []
+    folders: preset.folders.map(function(f){
+      return {
+        id: 'folder-'+generateId(),
+        title: f.title,
+        tileShape: 'LANDSCAPE',
+        hideTitle: false,
+        focusGifEnabled: false,
+        coverImageUrl: f.cover || '',
+        focusGifUrl: '',
+        catalogSources: f.catalogs.map(function(c){
+          return { addonId: addonId, catalogId: c.id, type: c.type };
+        })
+      };
+    })
+  };
+  collections.push(newColl);
+  document.getElementById('presetsPanel').style.display = 'none';
+  renderCollections();
+  setTimeout(makeSprockets, 300);
+}
+function addCollection(){
+  const cats = getActiveCatalogs();
+  const first = cats[0] || {id:'trending_movies', type:'movie'};
+  collections.push({
+    id: 'collection-'+generateId(),
+    title: 'New Collection',
+    pinToTop: true,
+    showAllTab: true,
+    viewMode: 'FOLLOW_LAYOUT',
+    focusGlowEnabled: true,
+    folders: [{
+      id: 'folder-'+generateId(),
+      title: 'New Folder',
+      tileShape: 'LANDSCAPE',
+      hideTitle: false,
+      focusGifEnabled: false,
+      coverImageUrl: '',
+      focusGifUrl: '',
+      catalogSources: [{
+        addonId: addonId,
+        catalogId: first.id,
+        type: first.type
+      }]
+    }]
   });
   renderCollections();
   setTimeout(makeSprockets, 200);
@@ -509,6 +697,27 @@ function addCollection(){
 
 function removeCollection(idx){
   collections.splice(idx, 1);
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function duplicateCollection(idx){
+  const copy = JSON.parse(JSON.stringify(collections[idx]));
+  copy.id = 'collection-'+generateId();
+  copy.title = copy.title + ' (Copy)';
+  copy.folders = copy.folders.map(function(f){
+    return Object.assign({}, f, {id: 'folder-'+generateId()});
+  });
+  collections.splice(idx+1, 0, copy);
+  renderCollections();
+  setTimeout(makeSprockets, 200);
+}
+
+function duplicateFolder(ci, fi){
+  const copy = JSON.parse(JSON.stringify(collections[ci].folders[fi]));
+  copy.id = 'folder-'+generateId();
+  copy.title = copy.title + ' (Copy)';
+  collections[ci].folders.splice(fi+1, 0, copy);
   renderCollections();
   setTimeout(makeSprockets, 200);
 }
@@ -547,7 +756,7 @@ function addSource(collIdx, folderIdx){
   if(!cats.length) return;
   const first = cats[0];
   collections[collIdx].folders[folderIdx].catalogSources.push({
-    addonId: 'org.kris.ultra.max.v5',
+    addonId: addonId,
     catalogId: first.id,
     type: first.type
   });
@@ -577,14 +786,14 @@ function renderCollections(){
           '<span class="collection-meta">'+folderCount+' folder'+(folderCount!==1?'s':'')+'</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px;align-items:center;">'+
-          '<button class="btn small danger" onclick="event.stopPropagation();removeCollection('+ci+')" style="font-size:10px;padding:4px 8px;">Remove</button>'+
+          '<button class="btn small" onclick="event.stopPropagation();duplicateCollection('+ci+')" style="font-size:10px;padding:4px 8px;">Duplicate</button>'+'<button class="btn small danger" onclick="event.stopPropagation();removeCollection('+ci+')" style="font-size:10px;padding:4px 8px;">Remove</button>'+
           '<span class="collection-toggle" id="coll-toggle-'+ci+'">&#9660;</span>'+
         '</div>'+
       '</div>'+
       '<div class="collection-body open" id="coll-body-'+ci+'">'+
         '<div class="collection-settings">'+
           '<input type="text" value="'+escHtml(coll.title)+'" placeholder="Collection name" oninput="collections['+ci+'].title=this.value;updateCounters()" style="flex:1;min-width:150px;" />'+
-          '<label class="pin-toggle"><input type="checkbox" '+(coll.pinToTop?'checked':'')+' onchange="collections['+ci+'].pinToTop=this.checked" /> Pin to top</label>'+
+          '<label class="pin-toggle"><input type="checkbox" '+(coll.pinToTop?'checked':'')+' onchange="collections['+ci+'].pinToTop=this.checked" /> Pin to top</label>'+'<select class="source-select" style="width:auto;" onchange="collections['+ci+'].viewMode=this.value">'+'<option value="FOLLOW_LAYOUT" '+(coll.viewMode==="FOLLOW_LAYOUT"?'selected':'')+'>Rows</option>'+'<option value="TABBED_GRID" '+(coll.viewMode==="TABBED_GRID"?'selected':'')+'>Grid</option>'+'</select>'+
         '</div>'+
         '<div class="folder-list" id="folders-'+ci+'">'+
           coll.folders.map(function(folder, fi){
@@ -596,13 +805,18 @@ function renderCollections(){
                     '<button class="shape-btn'+(folder.tileShape==='LANDSCAPE'?' active':'')+'" onclick="setShape('+ci+','+fi+',\'LANDSCAPE\')">Wide</button>'+
                     '<button class="shape-btn'+(folder.tileShape==='PORTRAIT'?' active':'')+'" onclick="setShape('+ci+','+fi+',\'PORTRAIT\')">Tall</button>'+
                   '</div>'+
-                  '<button class="btn small danger" style="font-size:10px;padding:4px 8px;" onclick="removeFolder('+ci+','+fi+')">&#10005;</button>'+
+                  '<button class="btn small" style="font-size:10px;padding:4px 8px;" onclick="duplicateFolder('+ci+','+fi+')">&#10697;</button>'+'<button class="btn small danger" style="font-size:10px;padding:4px 8px;" onclick="removeFolder('+ci+','+fi+')">&#10005;</button>'+
                 '</div>'+
               '</div>'+
               '<div class="folder-image-row">'+
                 (folder.coverImageUrl ? '<img class="folder-image-preview visible" src="'+escHtml(folder.coverImageUrl)+'" onerror="this.style.display=\'none\'" />' : '<img class="folder-image-preview" />')+
                 '<input class="folder-image-input" type="text" value="'+escHtml(folder.coverImageUrl)+'" placeholder="Cover image URL" oninput="collections['+ci+'].folders['+fi+'].coverImageUrl=this.value;updatePreview(this,'+ci+','+fi+')" />'+
-                '<button class="btn small browse-btn" onclick="openImagePicker('+ci+','+fi+')">Browse</button>'+
+                '<button class="btn small browse-btn" onclick="openImagePicker('+ci+','+fi+',\'cover\')">Browse</button>'+
+              '</div>'+
+              '<div class="folder-image-row">'+
+                (folder.focusGifUrl ? '<img class="folder-image-preview visible" src="'+escHtml(folder.focusGifUrl)+'" onerror="this.style.display=\'none\'" />' : '<img class="folder-image-preview" />')+
+                '<input class="folder-image-input" type="text" value="'+escHtml(folder.focusGifUrl)+'" placeholder="Focus GIF URL (plays on hover)" oninput="collections['+ci+'].folders['+fi+'].focusGifUrl=this.value;collections['+ci+'].folders['+fi+'].focusGifEnabled=!!this.value" />'+
+                '<button class="btn small browse-btn" onclick="openImagePicker('+ci+','+fi+',\'focus\')">Browse</button>'+
               '</div>'+
               '<div class="catalog-sources">'+
                 folder.catalogSources.map(function(src, si){
@@ -667,6 +881,7 @@ function escHtml(str){
 // ---- IMAGE PICKER ----
 let currentPickerCi = null;
 let currentPickerFi = null;
+let currentPickerTarget = "cover";
 
 function buildImageGrid(filter){
   const grid = document.getElementById('imageGrid');
@@ -695,10 +910,12 @@ function selectImage(url, el){
   el.classList.add('selected');
 }
 
-function openImagePicker(ci, fi){
+function openImagePicker(ci, fi, target){
   currentPickerCi = ci;
   currentPickerFi = fi;
-  selectedImage = collections[ci].folders[fi].coverImageUrl || null;
+  currentPickerTarget = target || 'cover';
+  const field = currentPickerTarget === 'focus' ? 'focusGifUrl' : 'coverImageUrl';
+  selectedImage = collections[ci].folders[fi][field] || null;
   buildImageGrid('');
   document.getElementById('imageModal').classList.add('open');
 }
@@ -712,6 +929,51 @@ function closeImagePicker(){
   selectedImage = null;
 }
 
+async function uploadToImgbb(input){
+  const file = input.files[0];
+  if(!file) return;
+  const btn = document.getElementById("uploadBtn");
+  const status = document.getElementById("uploadStatus");
+  const preview = document.getElementById("customPreview");
+  btn.textContent = "Uploading...";
+  btn.disabled = true;
+  status.textContent = "";
+  preview.style.display = "block";
+  try {
+    const reader = new FileReader();
+    reader.onload = async function(e){
+      const base64 = e.target.result.split(",")[1];
+      const formData = new FormData();
+      formData.append("image", base64);
+      const res = await fetch("https://api.imgbb.com/1/upload?key=d0026ed308566f06ab36d87a816cc26c", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if(data.success){
+        const url = data.data.url;
+        document.getElementById("customImageUrl").value = url;
+        document.getElementById("customPreviewImg").src = url;
+        document.getElementById("customPreviewImg").style.display = "block";
+        status.textContent = "✓ Uploaded!";
+        status.style.color = "#2ecc71";
+        selectedImage = url;
+      } else {
+        status.textContent = "✗ Upload failed";
+        status.style.color = "#e74c3c";
+      }
+      btn.textContent = "↑ Upload Image";
+      btn.disabled = false;
+      input.value = "";
+    };
+    reader.readAsDataURL(file);
+  } catch(e) {
+    status.textContent = "✗ Upload failed";
+    status.style.color = "#e74c3c";
+    btn.textContent = "↑ Upload Image";
+    btn.disabled = false;
+  }
+}
 function previewCustomImage(url){
   const preview = document.getElementById('customPreview');
   const img = document.getElementById('customPreviewImg');
@@ -734,7 +996,11 @@ function useCustomUrl(){
 
 function confirmImagePick(){
   if(selectedImage && currentPickerCi !== null){
-    collections[currentPickerCi].folders[currentPickerFi].coverImageUrl = selectedImage;
+    const field = currentPickerTarget === 'focus' ? 'focusGifUrl' : 'coverImageUrl';
+    collections[currentPickerCi].folders[currentPickerFi][field] = selectedImage;
+    if(currentPickerTarget === 'focus'){
+      collections[currentPickerCi].folders[currentPickerFi].focusGifEnabled = true;
+    }
     renderCollections();
   }
   closeImagePicker();
@@ -831,6 +1097,13 @@ function makeSprockets(){
 window.addEventListener('resize', makeSprockets);
 window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); });
 setTimeout(makeSprockets, 100);
+// Auto-load token from URL if present
+const urlParams = new URLSearchParams(window.location.search);
+const urlToken = urlParams.get("token");
+if(urlToken){
+  document.getElementById("tokenInput").value = urlToken;
+  loadToken().then(function(){ goToBuilder(); });
+}
 </script>
 </body>
 </html>

@@ -57,6 +57,7 @@ services:
       - ./logo.svg:/app/logo.svg
       - /home/ubuntu/images:/app/images
       - ./collections-builder.html:/app/collections-builder.html
+      - ./configs.json:/app/configs.json
     networks:
       - npm_default
 
