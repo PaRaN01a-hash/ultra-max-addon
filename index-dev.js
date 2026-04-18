@@ -85,6 +85,8 @@ const CATALOG_DEFS = {
   discovery_series:   { name:"Discovery+",      type:"series", handler:"tmdb_provider", provider: 520 },
   natgeo_movies:      { name:"National Geographic", type:"movie",  handler:"tmdb_provider", provider: 1964 },
   natgeo_series:      { name:"National Geographic", type:"series", handler:"tmdb_provider", provider: 1964 },
+  ae_movies:          { name:"A&E",             type:"movie",  handler:"tmdb_provider", provider: 156 },
+  ae_series:          { name:"A&E",             type:"series", handler:"tmdb_provider", provider: 156 },
   action_movies:      { name:"Action",          type:"movie",  handler:"tmdb_genre", genre: 28 },
   action_series:      { name:"Action",          type:"series", handler:"tmdb_genre", genre: 28 },
   comedy_movies:      { name:"Comedy",          type:"movie",  handler:"tmdb_genre", genre: 35 },
