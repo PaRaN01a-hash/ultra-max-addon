@@ -123,7 +123,7 @@ const CATALOG_DEFS = {
   theme_ai:           { name:"Artificial Intelligence",type:"movie",  handler:"tmdb_keyword", keyword: 310,   lang:"en" },
   theme_zombie:       { name:"Zombie",                 type:"movie",  handler:"tmdb_keyword", keyword: 12377, lang:"en" },
   studio_marvel:      { name:"Marvel",                 type:"movie",  handler:"tmdb_company", company: 420 },
-  studio_dc:          { name:"DC Films",               type:"movie",  handler:"tmdb_company", company: 9993 },
+  studio_dc:          { name:"DC Films",               type:"movie",  handler:"tmdb_company", company: "429|128064|9993", excludeAnimation: true },
   studio_a24:         { name:"A24",                    type:"movie",  handler:"tmdb_company", company: 41077 },
   studio_blumhouse:   { name:"Blumhouse",              type:"movie",  handler:"tmdb_company", company: 3172 },
   studio_ghibli:      { name:"Studio Ghibli",          type:"movie",  handler:"tmdb_company", company: 10342 },
@@ -181,6 +181,9 @@ const CATALOG_DEFS = {
   rambo_collection:   { name:"Rambo",                 type:"movie",  handler:"tmdb_collection", collectionId: 5039 },
   expendables_coll:   { name:"The Expendables",       type:"movie",  handler:"tmdb_collection", collectionId: 126125 },
   shrek2_collection:  { name:"Minions",               type:"movie",  handler:"tmdb_collection", collectionId: 544669 },
+  superman_collection:{ name:"Superman",               type:"movie",  handler:"tmdb_multi_collection", collectionIds: [8537, 209131, 1540907, 593251] },
+  batman_collection:  { name:"Batman",                type:"movie",  handler:"tmdb_multi_collection", collectionIds: [120794, 263, 948485] },
+  justiceleague_coll: { name:"Justice League",          type:"movie",  handler:"tmdb_collection", collectionId: 468550 },
   mdb_87667:  { name:"Trakt Trending",          type:"movie",  handler:"mdb" },
   mdb_88434:  { name:"Trakt Trending",          type:"series", handler:"mdb" },
   mdb_2236:   { name:"Top Movies This Week",           type:"movie",  handler:"mdb" },
@@ -398,10 +401,20 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
       if (def.lang) url += `&with_original_language=${def.lang}`;
       break;
     case"tmdb_company":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${def.company}&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${encodeURIComponent(def.company)}&sort_by=popularity.desc&page=${page}${def.excludeAnimation?"&without_genres=16":""}`;
       break;
     case"tmdb_collection":
       return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [], type, filterLang, language, rpdbKey, tpKey) };
+    case"tmdb_multi_collection": {
+      const allParts = [];
+      for(const cid of def.collectionIds) {
+        try {
+          const d = await fetchCached(`https://api.themoviedb.org/3/collection/${cid}?api_key=${TMDB_KEY}`);
+          if(d.parts) allParts.push(...d.parts);
+        } catch(e) {}
+      }
+      return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey) };
+    }
     case"tmdb_anime":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
       break;
