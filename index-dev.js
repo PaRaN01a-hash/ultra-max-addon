@@ -8,6 +8,7 @@ const express = require("express");
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
 const MDBLIST_KEY = process.env.MDBLIST_KEY ||"5woimia0xf19uqr4rd7wl1960";
+const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
 const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
 const CONFIGS_FILE = path.join(__dirname,"configs.json");
 
@@ -185,11 +186,25 @@ const CATALOG_DEFS = {
   rambo_collection:   { name:"Rambo",                 type:"movie",  handler:"tmdb_collection", collectionId: 5039 },
   expendables_coll:   { name:"The Expendables",       type:"movie",  handler:"tmdb_collection", collectionId: 126125 },
   shrek2_collection:  { name:"Minions",               type:"movie",  handler:"tmdb_collection", collectionId: 544669 },
+  dune_collection:    { name:"Dune",                   type:"movie",  handler:"tmdb_collection", collectionId: 726871 },
+  godfather_collection:{ name:"The Godfather",         type:"movie",  handler:"tmdb_collection", collectionId: 230 },
   superman_collection:{ name:"Superman",               type:"movie",  handler:"tmdb_multi_collection", collectionIds: [8537, 209131, 1540907, 593251] },
   batman_collection:  { name:"Batman",                type:"movie",  handler:"tmdb_multi_collection", collectionIds: [120794, 263, 948485] },
   justiceleague_coll: { name:"Justice League",          type:"movie",  handler:"tmdb_collection", collectionId: 468550 },
   mdb_87667:  { name:"Trakt Trending",          type:"movie",  handler:"mdb" },
   mdb_88434:  { name:"Trakt Trending",          type:"series", handler:"mdb" },
+  trakt_trending_movies:   { name:"Trakt Trending",    type:"movie",  handler:"trakt_trending" },
+  trakt_trending_series:   { name:"Trakt Trending",    type:"series", handler:"trakt_trending" },
+  trakt_popular_movies:    { name:"Trakt Popular",     type:"movie",  handler:"trakt_popular" },
+  trakt_popular_series:    { name:"Trakt Popular",     type:"series", handler:"trakt_popular" },
+  trakt_anticipated_movies:{ name:"Trakt Anticipated", type:"movie",  handler:"trakt_anticipated" },
+  trakt_anticipated_series:{ name:"Trakt Anticipated", type:"series", handler:"trakt_anticipated" },
+  trakt_fav_movies:        { name:"My Trakt Favorites",type:"movie",  handler:"trakt_user_favorites" },
+  trakt_fav_series:        { name:"My Trakt Favorites",type:"series", handler:"trakt_user_favorites" },
+  trakt_watchlist_movies:  { name:"My Trakt Watchlist",type:"movie",  handler:"trakt_user_watchlist" },
+  trakt_watchlist_series:  { name:"My Trakt Watchlist",type:"series", handler:"trakt_user_watchlist" },
+  trakt_collection_movies: { name:"My Trakt Collection",type:"movie", handler:"trakt_user_collection" },
+  trakt_collection_series: { name:"My Trakt Collection",type:"series",handler:"trakt_user_collection" },
   mdb_2236:   { name:"Top Movies This Week",           type:"movie",  handler:"mdb" },
   mdb_1198:   { name:"Most Popular (Top 20)",          type:"movie",  handler:"mdb" },
   mdb_69:     { name:"IMDb Moviemeter Top 100",        type:"movie",  handler:"mdb" },
@@ -274,7 +289,7 @@ const staticIds = getStaticIds();
 
 const builder = new addonBuilder({
   id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-  version:"5.4.0",
+  version:"5.5.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
   name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
   description:"Dev build v5.3",
@@ -291,6 +306,43 @@ async function fetchCached(url) {
   cache.set(url, res.data);
   setTimeout(() => cache.delete(url), 300000);
   return res.data;
+}
+
+async function fetchTrakt(path) {
+  if (!TRAKT_CLIENT_ID) return [];
+  const url = `https://api.trakt.tv${path}`;
+  if (cache.has(url)) return cache.get(url);
+  try {
+    const res = await axios.get(url, {
+      timeout: 10000,
+      headers: {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": TRAKT_CLIENT_ID
+      }
+    });
+    cache.set(url, res.data);
+    setTimeout(() => cache.delete(url), 300000);
+    return res.data;
+  } catch(e) {
+    console.error("Trakt fetch error:", e.message);
+    return [];
+  }
+}
+
+async function traktToMetas(arr, type, language, rpdbKey, tpKey) {
+  const tmdbResults = [];
+  for (const item of arr) {
+    const entity = item.movie || item.show || item;
+    const tmdbId = entity?.ids?.tmdb;
+    if (!tmdbId) continue;
+    try {
+      const tmdbType = type === "series" ? "tv" : "movie";
+      const tmdbData = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
+      tmdbResults.push(tmdbData);
+    } catch(e) {}
+  }
+  return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey);
 }
 
 async function getImdbId(tmdbId, type) {
@@ -349,7 +401,7 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null
   } catch (e) { console.log("mdblist error", listId, e.message); return []; }
 }
 
-async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
+async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, traktUser = null) {
   const skip = extra?.skip || 0;
   const page = Math.floor(skip / 20) + 1;
   const tmdbType = type ==="series" ?"tv" :"movie";
@@ -418,6 +470,39 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
         } catch(e) {}
       }
       return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey) };
+    }
+    case"trakt_trending": {
+      const path = type === "series" ? "/shows/trending" : "/movies/trending";
+      const data = await fetchTrakt(`${path}?limit=50`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+    }
+    case"trakt_popular": {
+      const path = type === "series" ? "/shows/popular" : "/movies/popular";
+      const data = await fetchTrakt(`${path}?limit=50&extended=full`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+    }
+    case"trakt_anticipated": {
+      const path = type === "series" ? "/shows/anticipated" : "/movies/anticipated";
+      const data = await fetchTrakt(`${path}?limit=50`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+    }
+    case"trakt_user_favorites": {
+      if (!traktUser) return { metas: [] };
+      const t = type === "series" ? "shows" : "movies";
+      const data = await fetchTrakt(`/users/${traktUser}/favorites/${t}?limit=50`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+    }
+    case"trakt_user_watchlist": {
+      if (!traktUser) return { metas: [] };
+      const t = type === "series" ? "shows" : "movies";
+      const data = await fetchTrakt(`/users/${traktUser}/watchlist/${t}?limit=50`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+    }
+    case"trakt_user_collection": {
+      if (!traktUser) return { metas: [] };
+      const t = type === "series" ? "shows" : "movies";
+      const data = await fetchTrakt(`/users/${traktUser}/collection/${t}`);
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
     }
     case"tmdb_anime":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
@@ -531,19 +616,19 @@ app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"c
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser } = req.body;
   if (!password || !catalogs || !catalogs.length) return res.status(400).json({ error:"Password and catalogs required" });
   const configs = loadConfigs();
   let token = generateToken();
   while (configs[token]) token = generateToken();
-  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, createdAt: new Date().toISOString() };
+  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, traktUser: traktUser || null, createdAt: new Date().toISOString() };
   saveConfigs(configs);
   res.json({ token });
 });
 
 app.post("/c/:token/update", (req, res) => {
   const { token } = req.params;
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser } = req.body;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Config not found" });
   if (configs[token].passwordHash !== hashPassword(password)) return res.status(401).json({ error:"Incorrect password" });
@@ -552,6 +637,7 @@ app.post("/c/:token/update", (req, res) => {
   configs[token].rpdbKey = rpdbKey || configs[token].rpdbKey || null;
   configs[token].tpKey = tpKey || configs[token].tpKey || null;
   configs[token].mdblistKey = mdblistKey || configs[token].mdblistKey || null;
+  configs[token].traktUser = traktUser !== undefined ? traktUser : configs[token].traktUser;
   configs[token].updatedAt = new Date().toISOString();
   saveConfigs(configs);
   res.json({ token });
@@ -561,7 +647,7 @@ app.get("/c/:token/config", (req, res) => {
   const { token } = req.params;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Not found" });
-  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey });
+  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey, traktUser: configs[token].traktUser });
 });
 
 app.post("/c/:token/collections", (req, res) => {
@@ -589,7 +675,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
   if (!config) return res.status(404).json({ error:"Config not found" });
   const manifest = {
     id: `org.kris.ultramax.custom.${token}`,
-    version:"5.4.0",
+    version:"5.5.0",
     name:"Ultra MAX",
     description: `Custom addon with ${config.catalogs.length} catalogs`,
     logo: "https://max-streams.gleeze.com/logo.svg",
@@ -674,7 +760,7 @@ app.use((req, res, next) => {
   if (url.includes("/manifest.json") && !url.startsWith("/c/")) {
     const fullManifest = {
       id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-      version:"5.4.0",
+      version:"5.5.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
       name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
       description: FILTER_ENABLED ?"Filtered content" :"All content",
@@ -718,7 +804,7 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
       if (req.query.skip) extra.skip = parseInt(req.query.skip);
       if (req.query.search) extra.search = req.query.search;
       const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
-      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null)
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null, config.traktUser || null)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;

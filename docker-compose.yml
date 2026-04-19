@@ -7,6 +7,7 @@ services:
     environment:
       - TMDB_KEY=${TMDB_KEY}
       - MDBLIST_KEY=${MDBLIST_KEY}
+      - TRAKT_CLIENT_ID=${TRAKT_CLIENT_ID}
       - FILTER_MODE=on
       - PORT=7000
     ports:
@@ -27,6 +28,7 @@ services:
     environment:
       - TMDB_KEY=${TMDB_KEY}
       - MDBLIST_KEY=${MDBLIST_KEY}
+      - TRAKT_CLIENT_ID=${TRAKT_CLIENT_ID}
       - FILTER_MODE=off
       - PORT=7000
     ports:
@@ -47,6 +49,7 @@ services:
     environment:
       - TMDB_KEY=${TMDB_KEY}
       - MDBLIST_KEY=${MDBLIST_KEY}
+      - TRAKT_CLIENT_ID=${TRAKT_CLIENT_ID}
       - FILTER_MODE=on
       - PORT=7000
     ports:

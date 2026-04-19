@@ -275,6 +275,19 @@
         </div>
       </div>
 
+      <!-- Trakt Username -->
+      <div class="field-block">
+        <div class="field-label">&#127909; Trakt Username <span class="badge badge-optional">OPTIONAL</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="traktUser" placeholder="Your Trakt.tv username" style="flex:1;" />
+        </div>
+        <div class="info-box" style="margin-top:10px;">
+          <strong>Connect your Trakt account.</strong><br>
+          Adds your Favorites, Watchlist, and Collection as personal catalogs. Make sure your Trakt profile is set to Public.<br><br>
+          <a href="https://trakt.tv/settings/profile" target="_blank" rel="noopener">Trakt Settings &rarr;</a>
+        </div>
+      </div>
+
       <div class="divider"></div>
 
       <!-- Returning user -->
@@ -343,6 +356,18 @@
           <div class="pill" data-id="ontheair_series">On The Air</div>
           <div class="pill" data-id="mdb_87667">Trakt Trending Movies</div>
           <div class="pill" data-id="mdb_88434">Trakt Trending Series</div>
+          <div class="pill" data-id="trakt_trending_movies">Trakt Trending (Native) Movies</div>
+          <div class="pill" data-id="trakt_trending_series">Trakt Trending (Native) Series</div>
+          <div class="pill" data-id="trakt_popular_movies">Trakt Popular Movies</div>
+          <div class="pill" data-id="trakt_popular_series">Trakt Popular Series</div>
+          <div class="pill" data-id="trakt_anticipated_movies">Trakt Anticipated Movies</div>
+          <div class="pill" data-id="trakt_anticipated_series">Trakt Anticipated Series</div>
+          <div class="pill" data-id="trakt_fav_movies">My Trakt Favorites (Movies)</div>
+          <div class="pill" data-id="trakt_fav_series">My Trakt Favorites (Series)</div>
+          <div class="pill" data-id="trakt_watchlist_movies">My Trakt Watchlist (Movies)</div>
+          <div class="pill" data-id="trakt_watchlist_series">My Trakt Watchlist (Series)</div>
+          <div class="pill" data-id="trakt_collection_movies">My Trakt Collection (Movies)</div>
+          <div class="pill" data-id="trakt_collection_series">My Trakt Collection (Series)</div>
           <div class="pill" data-id="mdb_2236">Top Movies This Week</div>
           <div class="pill" data-id="mdb_1198">Most Popular (Top 20)</div>
           <div class="pill" data-id="mdb_69">IMDb Moviemeter Top 100</div>
@@ -523,6 +548,7 @@
           <span class="select-all" onclick="selectAll('collections')">Select All</span>
         </div>
         <div class="pills" id="collections">
+          <div class="pill" data-id="hp_collection">Harry Potter</div>
           <div class="pill" data-id="lotr_collection">Lord of the Rings</div>
           <div class="pill" data-id="starwars_collection">Star Wars</div>
           <div class="pill" data-id="hobbit_collection">The Hobbit</div>
@@ -574,6 +600,8 @@
           <div class="pill" data-id="toystory_coll">Toy Story</div>
           <div class="pill" data-id="findingnemo_coll">Finding Nemo</div>
           <div class="pill" data-id="shrek2_collection">Minions</div>
+          <div class="pill" data-id="dune_collection">Dune</div>
+          <div class="pill" data-id="godfather_collection">The Godfather</div>
           <div class="pill" data-id="superman_collection">Superman</div>
           <div class="pill" data-id="batman_collection">Batman</div>
           <div class="pill" data-id="justiceleague_coll">Justice League</div>
@@ -635,6 +663,9 @@
           <div class="result-btns">
             <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
             <a class="rbtn" id="installBtn" href="#">Install in Stremio/Nuvio</a>
+          </div>
+          <div class="result-btns" style="margin-top:8px;">
+            <a class="rbtn" id="collectionsBtn" href="#" style="background:#e67e22;color:#fff;font-weight:700;">&#127917; Build Your Nuvio Collections &rarr;</a>
           </div>
           <div class="token-save">
             Your token: <span id="tokenDisplay"></span>
@@ -828,6 +859,7 @@ async function loadConfigByToken(token){
     if(data.language) document.getElementById('language').value = data.language;
     if(data.rpdbKey) document.getElementById('rpdbKey').value = data.rpdbKey;
     if(data.tpKey) document.getElementById('tpKey').value = data.tpKey;
+    if(data.traktUser) document.getElementById('traktUser').value = data.traktUser;
     updateCounter(); updateCategoryCounts();
     setTimeout(makeSprockets, 200);
   }catch(e){ console.error(e); }
@@ -854,7 +886,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null })
     });
     const data = await res.json();
 
@@ -869,6 +901,7 @@ async function generate(){
     const manifestUrl = BASE_URL + '/c/' + data.token + '/manifest.json';
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
+    document.getElementById('collectionsBtn').href = '/collections-builder?token=' + data.token;
     document.getElementById('tokenDisplay').textContent = data.token;
     document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#888;">max-streams.gleeze.com/configure/' + data.token + '</a>';
     document.getElementById('resultBox').style.display = 'block';
