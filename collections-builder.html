@@ -203,6 +203,24 @@
         <button class="btn primary" onclick="goToBuilder()">Start Building &rarr;</button>
         <button class="btn" onclick="goToBuilder()">Skip — Use All Catalogs</button>
       </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>&#128196; Import Existing Collections JSON <span style="color:#666;font-weight:normal;font-size:11px;">(optional)</span></label>
+        <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJsonFile(this)" />
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn" onclick="document.getElementById('importFile').click()">&#8593; Upload JSON File</button>
+          <button class="btn" onclick="document.getElementById('pasteArea').style.display=document.getElementById('pasteArea').style.display==='block'?'none':'block'">&#128221; Or Paste JSON</button>
+        </div>
+        <div id="pasteArea" style="display:none;margin-top:10px;">
+          <textarea id="pasteJson" placeholder="Paste your collections JSON here..." style="width:100%;min-height:120px;font-family:monospace;font-size:11px;padding:10px;background:#0d0d0d;color:#bbb;border:1px solid #2a2a2a;border-radius:6px;"></textarea>
+          <button class="btn small primary" onclick="importJsonPaste()" style="margin-top:8px;">Import</button>
+        </div>
+        <div class="input-hint">Import an existing collections JSON file to edit or add to it. You can download it from Nuvio first.</div>
+        <div class="error-msg" id="importError"></div>
+        <div class="success-msg" id="importSuccess"></div>
+      </div>
     </div>
 
     <!-- PAGE 2: BUILDER -->
@@ -225,6 +243,9 @@
           <button class="btn small" onclick="loadPreset('genres')">&#127917; Genres</button>
           <button class="btn small" onclick="loadPreset('themed')">&#127916; Themed &amp; Curated</button>
           <button class="btn small" onclick="loadPreset('studios')">&#127909; Studios</button>
+          <button class="btn small" onclick="loadPreset('directors')">&#127908; Directors</button>
+          <button class="btn small" onclick="loadPreset('actors')">&#127911; Actors</button>
+          <button class="btn small" onclick="loadPreset('trakt')">&#127908; Trakt</button>
           <button class="btn small" onclick="loadPreset('collections')">&#127916; Film Collections</button>
           <button class="btn small" onclick="loadPreset('decades')">&#128197; By Decade</button>
           <button class="btn small" onclick="loadPreset('kids')">&#128118; Kids &amp; Family</button>
@@ -362,6 +383,35 @@ const ALL_CATALOGS = [
   {id:'theme_superhero',name:'Superhero',type:'movie'},
   {id:'theme_heist',name:'Heist',type:'movie'},
   {id:'theme_zombie',name:'Zombie',type:'movie'},
+  {id:'director_nolan',name:'Christopher Nolan',type:'movie'},
+  {id:'director_scorsese',name:'Martin Scorsese',type:'movie'},
+  {id:'director_spielberg',name:'Steven Spielberg',type:'movie'},
+  {id:'director_villeneuve',name:'Denis Villeneuve',type:'movie'},
+  {id:'director_fincher',name:'David Fincher',type:'movie'},
+  {id:'director_kubrick',name:'Stanley Kubrick',type:'movie'},
+  {id:'director_hitchcock',name:'Alfred Hitchcock',type:'movie'},
+  {id:'director_anderson',name:'Wes Anderson',type:'movie'},
+  {id:'actor_sandler',name:'Adam Sandler',type:'movie'},
+  {id:'actor_jolie',name:'Angelina Jolie',type:'movie'},
+  {id:'actor_pitt',name:'Brad Pitt',type:'movie'},
+  {id:'actor_bale',name:'Christian Bale',type:'movie'},
+  {id:'actor_eastwood',name:'Clint Eastwood',type:'movie'},
+  {id:'actor_denzel',name:'Denzel Washington',type:'movie'},
+  {id:'actor_carrey',name:'Jim Carrey',type:'movie'},
+  {id:'actor_depp',name:'Johnny Depp',type:'movie'},
+  {id:'actor_dicaprio',name:'Leonardo DiCaprio',type:'movie'},
+  {id:'actor_robbie',name:'Margot Robbie',type:'movie'},
+  {id:'actor_damon',name:'Matt Damon',type:'movie'},
+  {id:'actor_freeman',name:'Morgan Freeman',type:'movie'},
+  {id:'actor_deniro',name:'Robert De Niro',type:'movie'},
+  {id:'actor_rdj',name:'Robert Downey Jr',type:'movie'},
+  {id:'actor_gosling',name:'Ryan Gosling',type:'movie'},
+  {id:'actor_reynolds',name:'Ryan Reynolds',type:'movie'},
+  {id:'actor_rogen',name:'Seth Rogen',type:'movie'},
+  {id:'actor_cruise',name:'Tom Cruise',type:'movie'},
+  {id:'actor_hanks',name:'Tom Hanks',type:'movie'},
+  {id:'actor_ferrell',name:'Will Ferrell',type:'movie'},
+  {id:'actor_smith',name:'Will Smith',type:'movie'},
   {id:'discovery_movies',name:'Discovery+ Movies',type:'movie'},
   {id:'discovery_series',name:'Discovery+ Series',type:'series'},
   {id:'natgeo_movies',name:'National Geographic Movies',type:'movie'},
@@ -461,6 +511,15 @@ const IMAGE_LIBRARY = [
     {name:'Discovery+',url:BASE_IMG+'Discovery.gif'},
     {name:'National Geographic',url:BASE_IMG+'NatGeo.gif'},
     {name:'A&E',url:BASE_IMG+'A&E.gif'},
+    {name:'Netflix (Alt)',url:BASE_IMG+'streaming_netflix.png'},
+    {name:'Prime Video (Alt)',url:BASE_IMG+'streaming_prime.png'},
+    {name:'Disney+ (Alt)',url:BASE_IMG+'streaming_disney.png'},
+    {name:'HBO Max (Alt)',url:BASE_IMG+'streaming_hbo.png'},
+    {name:'Apple TV+ (Alt)',url:BASE_IMG+'streaming_apple.png'},
+    {name:'Paramount+ (Alt)',url:BASE_IMG+'streaming_paramount.png'},
+    {name:'Hulu (Alt)',url:BASE_IMG+'streaming_hulu.png'},
+    {name:'Peacock (Alt)',url:BASE_IMG+'streaming_peacock.png'},
+    {name:'Crunchyroll (Alt)',url:BASE_IMG+'streaming_crunchyroll.png'},
   ]},
   {category:'Studios', items:[
     {name:'Marvel',url:BASE_IMG+'Marvel.gif'},
@@ -470,6 +529,39 @@ const IMAGE_LIBRARY = [
     {name:'Studio Ghibli',url:BASE_IMG+'Ghibli.jpeg'},
     {name:'Blumhouse',url:BASE_IMG+'Blumhouse.gif'},
     {name:'DreamWorks',url:BASE_IMG+'Dreamworks.gif'},
+  ]},
+  {category:'Directors', items:[
+    {name:'Christopher Nolan',url:BASE_IMG+'director_nolan.jpg'},
+    {name:'Martin Scorsese',url:BASE_IMG+'director_scorsese.jpg'},
+    {name:'Steven Spielberg',url:BASE_IMG+'director_spielberg.jpg'},
+    {name:'Denis Villeneuve',url:BASE_IMG+'director_villeneuve.jpg'},
+    {name:'David Fincher',url:BASE_IMG+'director_fincher.jpg'},
+    {name:'Stanley Kubrick',url:BASE_IMG+'director_kubrick.jpg'},
+    {name:'Alfred Hitchcock',url:BASE_IMG+'director_hitchcock.jpg'},
+    {name:'Wes Anderson',url:BASE_IMG+'director_anderson.jpg'},
+  ]},
+  {category:'Actors', items:[
+    {name:'Adam Sandler',url:BASE_IMG+'actor_sandler.jpg'},
+    {name:'Angelina Jolie',url:BASE_IMG+'actor_jolie.jpg'},
+    {name:'Brad Pitt',url:BASE_IMG+'actor_pitt.jpg'},
+    {name:'Christian Bale',url:BASE_IMG+'actor_bale.jpg'},
+    {name:'Clint Eastwood',url:BASE_IMG+'actor_eastwood.jpg'},
+    {name:'Denzel Washington',url:BASE_IMG+'actor_denzel.jpg'},
+    {name:'Jim Carrey',url:BASE_IMG+'actor_carrey.jpg'},
+    {name:'Johnny Depp',url:BASE_IMG+'actor_depp.jpg'},
+    {name:'Leonardo DiCaprio',url:BASE_IMG+'actor_dicaprio.jpg'},
+    {name:'Margot Robbie',url:BASE_IMG+'actor_robbie.jpg'},
+    {name:'Matt Damon',url:BASE_IMG+'actor_damon.jpg'},
+    {name:'Morgan Freeman',url:BASE_IMG+'actor_freeman.jpg'},
+    {name:'Robert De Niro',url:BASE_IMG+'actor_deniro.jpg'},
+    {name:'Robert Downey Jr',url:BASE_IMG+'actor_rdj.jpg'},
+    {name:'Ryan Gosling',url:BASE_IMG+'actor_gosling.jpg'},
+    {name:'Ryan Reynolds',url:BASE_IMG+'actor_reynolds.jpg'},
+    {name:'Seth Rogen',url:BASE_IMG+'actor_rogen.jpg'},
+    {name:'Tom Cruise',url:BASE_IMG+'actor_cruise.jpg'},
+    {name:'Tom Hanks',url:BASE_IMG+'actor_hanks.jpg'},
+    {name:'Will Ferrell',url:BASE_IMG+'actor_ferrell.jpg'},
+    {name:'Will Smith',url:BASE_IMG+'actor_smith.jpg'},
   ]},
   {category:'Genres', items:[
     {name:'Action',url:BASE_IMG+'action.jpg'},
@@ -482,12 +574,51 @@ const IMAGE_LIBRARY = [
     {name:'Anime',url:BASE_IMG+'anime.jpg'},
     {name:'Documentary',url:BASE_IMG+'documentary.jpg'},
     {name:'Romance',url:BASE_IMG+'romance.jpg'},
+    {name:'Action (Elucid)',url:BASE_IMG+'elucid_action.png'},
+    {name:'Comedy (Elucid)',url:BASE_IMG+'elucid_comedy.png'},
+    {name:'Crime (Elucid)',url:BASE_IMG+'elucid_crime.png'},
+    {name:'Thriller (Elucid)',url:BASE_IMG+'elucid_thriller.png'},
+    {name:'Drama (Elucid)',url:BASE_IMG+'elucid_drama.png'},
+    {name:'Horror (Elucid)',url:BASE_IMG+'elucid_horror.png'},
+    {name:'Mystery (Elucid)',url:BASE_IMG+'elucid_mystery.png'},
+    {name:'Mindfuck (Elucid)',url:BASE_IMG+'elucid_mindfuck.png'},
+    {name:'Anime (Elucid)',url:BASE_IMG+'elucid_anime.png'},
+    {name:'Sci-Fi (Elucid)',url:BASE_IMG+'elucid_scifi.png'},
+    {name:'Documentary (Elucid)',url:BASE_IMG+'elucid_documentary.jpg'},
+    {name:'Romance (Elucid)',url:BASE_IMG+'elucid_romance.jpg'},
+    {name:'History (Elucid)',url:BASE_IMG+'elucid_history.jpg'},
+    {name:'Animation (Elucid)',url:BASE_IMG+'elucid_animation.jpg'},
+    {name:'Reality TV (Elucid)',url:BASE_IMG+'elucid_reality_tv.jpg'},
+    {name:'Family (Elucid)',url:BASE_IMG+'elucid_family.jpg'},
+    {name:'Nature (Elucid)',url:BASE_IMG+'elucid_nature.jpg'},
+    {name:'Action (Alt)',url:BASE_IMG+'v2_action.png'},
+    {name:'Animation (Alt)',url:BASE_IMG+'v2_animation.png'},
+    {name:'Anime (Alt)',url:BASE_IMG+'v2_anime.png'},
+    {name:'Comedy (Alt)',url:BASE_IMG+'v2_comedy.png'},
+    {name:'Documentary (Alt)',url:BASE_IMG+'v2_documentary.png'},
+    {name:'Drama (Alt)',url:BASE_IMG+'v2_drama.png'},
+    {name:'Family (Alt)',url:BASE_IMG+'v2_family.png'},
+    {name:'Horror (Alt)',url:BASE_IMG+'v2_horror.png'},
+    {name:'Korean (Alt)',url:BASE_IMG+'v2_korean.png'},
+    {name:'Mystery (Alt)',url:BASE_IMG+'v2_mystery.png'},
+    {name:'Romance (Alt)',url:BASE_IMG+'v2_romance.png'},
+    {name:'Sci-Fi (Alt)',url:BASE_IMG+'v2_scifi.png'},
+    {name:'Thriller (Alt)',url:BASE_IMG+'v2_thriller.png'},
   ]},
   {category:'Trending & Popular', items:[
     {name:'Trending',url:BASE_IMG+'trending.jpg'},
     {name:'Popular',url:BASE_IMG+'popular.jpg'},
     {name:'Top Rated',url:BASE_IMG+'toprated.png'},
     {name:'New Releases',url:BASE_IMG+'newreleases.png'},
+  ]},
+    {category:'Decades', items:[
+    {name:'2020s (Elucid)',url:BASE_IMG+'elucid_20s.jpg'},
+    {name:'2010s (Elucid)',url:BASE_IMG+'elucid_10s.jpg'},
+    {name:'2000s (Elucid)',url:BASE_IMG+'elucid_00s.jpg'},
+    {name:'90s (Elucid)',url:BASE_IMG+'elucid_90s.jpg'},
+    {name:'80s (Elucid)',url:BASE_IMG+'elucid_80s.jpg'},
+    {name:'70s (Elucid)',url:BASE_IMG+'elucid_70s.png'},
+    {name:'60s (Elucid)',url:BASE_IMG+'elucid_60s.png'},
   ]},
   {category:'Film Collections', items:[
     {name:'Harry Potter',url:BASE_IMG+'harrypotter.gif'},
@@ -544,6 +675,75 @@ const IMAGE_LIBRARY = [
     {name:'Minions',url:BASE_IMG+'minions.jpg'},
     {name:'Back to the Future',url:BASE_IMG+'backtofuture.jpg'},
     {name:'Sherlock Holmes',url:BASE_IMG+'sherlock.jpg'},
+    {name:'Spider-Man',url:BASE_IMG+'spiderman.jpg'},
+    {name:'Avatar',url:BASE_IMG+'avatar.jpg'},
+    {name:'Scary Movie',url:BASE_IMG+'scarymovie.jpg'},
+    {name:'Knives Out',url:BASE_IMG+'knivesout.jpg'},
+    {name:'Maze Runner',url:BASE_IMG+'mazerunner.jpg'},
+    {name:'Harry Potter (TMDB)',url:BASE_IMG+'harrypotter_tmdb.jpg'},
+    {name:'Lord of the Rings (TMDB)',url:BASE_IMG+'lotr_tmdb.jpg'},
+    {name:'Star Wars (TMDB)',url:BASE_IMG+'starwars_tmdb.jpg'},
+    {name:'The Hobbit (TMDB)',url:BASE_IMG+'hobbit_tmdb.jpg'},
+    {name:'James Bond (TMDB)',url:BASE_IMG+'bond_tmdb.jpg'},
+    {name:'Indiana Jones (TMDB)',url:BASE_IMG+'indianajones_tmdb.jpg'},
+    {name:'Jurassic Park (TMDB)',url:BASE_IMG+'jurassic_tmdb.jpg'},
+    {name:'Fast & Furious (TMDB)',url:BASE_IMG+'fastfurious_tmdb.jpg'},
+    {name:'John Wick (TMDB)',url:BASE_IMG+'johnwick_tmdb.jpg'},
+    {name:'The Matrix (TMDB)',url:BASE_IMG+'matrix_tmdb.jpg'},
+    {name:'Die Hard (TMDB)',url:BASE_IMG+'diehard_tmdb.jpg'},
+    {name:'Taken (TMDB)',url:BASE_IMG+'taken_tmdb.jpg'},
+    {name:'Bourne (TMDB)',url:BASE_IMG+'bourne_tmdb.jpg'},
+    {name:'Oceans (TMDB)',url:BASE_IMG+'oceans_tmdb.jpg'},
+    {name:'Mad Max (TMDB)',url:BASE_IMG+'madmax_tmdb.jpg'},
+    {name:'Rambo (TMDB)',url:BASE_IMG+'rambo_tmdb.jpg'},
+    {name:'Expendables (TMDB)',url:BASE_IMG+'expendables_tmdb.jpg'},
+    {name:'Kingsman (TMDB)',url:BASE_IMG+'kingsman_tmdb.jpg'},
+    {name:'Avengers (TMDB)',url:BASE_IMG+'avengers_tmdb.jpg'},
+    {name:'Captain America (TMDB)',url:BASE_IMG+'captainamerica_tmdb.jpg'},
+    {name:'Iron Man (TMDB)',url:BASE_IMG+'ironman_tmdb.jpg'},
+    {name:'Thor (TMDB)',url:BASE_IMG+'thor_tmdb.jpg'},
+    {name:'Guardians of the Galaxy (TMDB)',url:BASE_IMG+'gotg_tmdb.jpg'},
+    {name:'Doctor Strange (TMDB)',url:BASE_IMG+'doctorstrange_tmdb.jpg'},
+    {name:'Black Panther (TMDB)',url:BASE_IMG+'blackpanther_tmdb.jpg'},
+    {name:'Ant-Man (TMDB)',url:BASE_IMG+'antman_tmdb.jpg'},
+    {name:'Deadpool (TMDB)',url:BASE_IMG+'deadpool_tmdb.jpg'},
+    {name:'X-Men (TMDB)',url:BASE_IMG+'xmen_tmdb.jpg'},
+    {name:'Wonder Woman (TMDB)',url:BASE_IMG+'wonderwoman_tmdb.jpg'},
+    {name:'Aquaman (TMDB)',url:BASE_IMG+'aquaman_tmdb.jpg'},
+    {name:'Superman (TMDB)',url:BASE_IMG+'superman_tmdb.jpg'},
+    {name:'Batman (TMDB)',url:BASE_IMG+'batman_tmdb.jpg'},
+    {name:'Alien (TMDB)',url:BASE_IMG+'alien_tmdb.jpg'},
+    {name:'Terminator (TMDB)',url:BASE_IMG+'terminator_tmdb.jpg'},
+    {name:'Predator (TMDB)',url:BASE_IMG+'predator_tmdb.jpg'},
+    {name:'Halloween (TMDB)',url:BASE_IMG+'halloween_tmdb.jpg'},
+    {name:'Nightmare on Elm Street (TMDB)',url:BASE_IMG+'nightmare_tmdb.jpg'},
+    {name:'Saw (TMDB)',url:BASE_IMG+'saw_tmdb.jpg'},
+    {name:'Scream (TMDB)',url:BASE_IMG+'scream_tmdb.jpg'},
+    {name:'Conjuring (TMDB)',url:BASE_IMG+'conjuring_tmdb.jpg'},
+    {name:'Planet of the Apes (TMDB)',url:BASE_IMG+'planetapes_tmdb.jpg'},
+    {name:'Transformers (TMDB)',url:BASE_IMG+'transformers_tmdb.jpg'},
+    {name:'Hunger Games (TMDB)',url:BASE_IMG+'hungergames_tmdb.jpg'},
+    {name:'Pirates of the Caribbean (TMDB)',url:BASE_IMG+'pirates_tmdb.jpg'},
+    {name:'Shrek (TMDB)',url:BASE_IMG+'shrek_tmdb.jpg'},
+    {name:'Ice Age (TMDB)',url:BASE_IMG+'iceage_tmdb.jpg'},
+    {name:'How to Train Your Dragon (TMDB)',url:BASE_IMG+'httyd_tmdb.jpg'},
+    {name:'Despicable Me (TMDB)',url:BASE_IMG+'despicableme_tmdb.jpg'},
+    {name:'Kung Fu Panda (TMDB)',url:BASE_IMG+'kungfupanda_tmdb.jpg'},
+    {name:'Incredibles (TMDB)',url:BASE_IMG+'incredibles_tmdb.jpg'},
+    {name:'Toy Story (TMDB)',url:BASE_IMG+'toystory_tmdb.jpg'},
+    {name:'Finding Nemo (TMDB)',url:BASE_IMG+'findingnemo_tmdb.jpg'},
+    {name:'Minions (TMDB)',url:BASE_IMG+'minions_tmdb.jpg'},
+    {name:'Back to the Future (TMDB)',url:BASE_IMG+'backtofuture_tmdb.jpg'},
+    {name:'Sherlock Holmes (TMDB)',url:BASE_IMG+'sherlock_tmdb.jpg'},
+    {name:'Dune (TMDB)',url:BASE_IMG+'dune_tmdb.jpg'},
+    {name:'The Godfather (TMDB)',url:BASE_IMG+'godfather_tmdb.jpg'},
+    {name:'Spider-Man (TMDB)',url:BASE_IMG+'spiderman_tmdb.jpg'},
+    {name:'Avatar (TMDB)',url:BASE_IMG+'avatar_tmdb.jpg'},
+    {name:'Scary Movie (TMDB)',url:BASE_IMG+'scarymovie_tmdb.jpg'},
+    {name:'Knives Out (TMDB)',url:BASE_IMG+'knivesout_tmdb.jpg'},
+    {name:'Maze Runner (TMDB)',url:BASE_IMG+'mazerunner_tmdb.jpg'},
+    {name:"Mission Impossible (TMDB)",url:BASE_IMG+"missionimpossible_tmdb.jpg"},
+    {name:"Justice League (TMDB)",url:BASE_IMG+"justiceleague_tmdb.jpg"},
   ]},
 ];
 
@@ -595,6 +795,43 @@ function goToBuilder(){
   setTimeout(makeSprockets, 100);
 }
 
+function importJsonFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){ processImportedJson(e.target.result); };
+  reader.readAsText(file);
+}
+
+function importJsonPaste(){
+  const text = document.getElementById("pasteJson").value.trim();
+  if(!text) return;
+  processImportedJson(text);
+}
+
+function processImportedJson(text){
+  const err = document.getElementById("importError");
+  const suc = document.getElementById("importSuccess");
+  err.classList.remove("visible");
+  suc.classList.remove("visible");
+  try {
+    const data = JSON.parse(text);
+    if(!Array.isArray(data)){ err.textContent = "Invalid format — expected an array of collections"; err.classList.add("visible"); return; }
+    collections = data.map(function(c){
+      return Object.assign({ id: "collection-"+generateId(), folders: [] }, c, {
+        folders: (c.folders||[]).map(function(f){
+          return Object.assign({ id: "folder-"+generateId(), catalogSources: [] }, f);
+        })
+      });
+    });
+    suc.textContent = "\u2713 Imported "+collections.length+" collection(s) — click Start Building to edit";
+    suc.classList.add("visible");
+  } catch(e) {
+    err.textContent = "Invalid JSON: "+e.message;
+    err.classList.add("visible");
+  }
+}
+
 // ---- COLLECTIONS ----
 function generateId(){
   return Math.random().toString(36).substr(2,8).toUpperCase();
@@ -608,14 +845,15 @@ function togglePresets(){
 
 const COLLECTION_PRESETS = {
   streaming: { title:"Streaming Services", image_prefix:"", folders:[
-    {title:"Netflix", cover:"https://max-streams.gleeze.com/images/netflix.gif", catalogs:[{id:"netflix_movies",type:"movie"},{id:"netflix_series",type:"series"}]},
-    {title:"Prime Video", cover:"https://max-streams.gleeze.com/images/Prime.gif", catalogs:[{id:"amazon_movies",type:"movie"},{id:"amazon_series",type:"series"}]},
-    {title:"Disney+", cover:"https://max-streams.gleeze.com/images/Disney.gif", catalogs:[{id:"disney_movies",type:"movie"},{id:"disney_series",type:"series"}]},
-    {title:"HBO Max", cover:"https://max-streams.gleeze.com/images/HBO.gif", catalogs:[{id:"hbo_movies",type:"movie"},{id:"hbo_series",type:"series"}]},
-    {title:"Apple TV+", cover:"https://max-streams.gleeze.com/images/Apple.gif", catalogs:[{id:"apple_movies",type:"movie"},{id:"apple_series",type:"series"}]},
-    {title:"Paramount+", cover:"https://max-streams.gleeze.com/images/Paramount.gif", catalogs:[{id:"paramount_movies",type:"movie"},{id:"paramount_series",type:"series"}]},
-    {title:"Peacock", cover:"https://max-streams.gleeze.com/images/Peacock.gif", catalogs:[{id:"peacock_movies",type:"movie"},{id:"peacock_series",type:"series"}]},
-    {title:"Hulu", cover:"https://max-streams.gleeze.com/images/Hulu.gif", catalogs:[{id:"hulu_movies",type:"movie"},{id:"hulu_series",type:"series"}]},
+    {title:"Netflix", cover:"https://max-streams.gleeze.com/images/streaming_netflix.png", focusGif:"https://max-streams.gleeze.com/images/netflix.gif", catalogs:[{id:"netflix_movies",type:"movie"},{id:"netflix_series",type:"series"}]},
+    {title:"Prime Video", cover:"https://max-streams.gleeze.com/images/streaming_prime.png", focusGif:"https://max-streams.gleeze.com/images/Prime.gif", catalogs:[{id:"amazon_movies",type:"movie"},{id:"amazon_series",type:"series"}]},
+    {title:"Disney+", cover:"https://max-streams.gleeze.com/images/streaming_disney.png", focusGif:"https://max-streams.gleeze.com/images/Disney.gif", catalogs:[{id:"disney_movies",type:"movie"},{id:"disney_series",type:"series"}]},
+    {title:"HBO Max", cover:"https://max-streams.gleeze.com/images/streaming_hbo.png", focusGif:"https://max-streams.gleeze.com/images/HBO.gif", catalogs:[{id:"hbo_movies",type:"movie"},{id:"hbo_series",type:"series"}]},
+    {title:"Apple TV+", cover:"https://max-streams.gleeze.com/images/streaming_apple.png", focusGif:"https://max-streams.gleeze.com/images/Apple.gif", catalogs:[{id:"apple_movies",type:"movie"},{id:"apple_series",type:"series"}]},
+    {title:"Paramount+", cover:"https://max-streams.gleeze.com/images/streaming_paramount.png", focusGif:"https://max-streams.gleeze.com/images/Paramount.gif", catalogs:[{id:"paramount_movies",type:"movie"},{id:"paramount_series",type:"series"}]},
+    {title:"Peacock", cover:"https://max-streams.gleeze.com/images/streaming_peacock.png", focusGif:"https://max-streams.gleeze.com/images/Peacock.gif", catalogs:[{id:"peacock_movies",type:"movie"},{id:"peacock_series",type:"series"}]},
+    {title:"Hulu", cover:"https://max-streams.gleeze.com/images/streaming_hulu.png", focusGif:"https://max-streams.gleeze.com/images/Hulu.gif", catalogs:[{id:"hulu_movies",type:"movie"},{id:"hulu_series",type:"series"}]},
+    {title:"Crunchyroll", cover:"https://max-streams.gleeze.com/images/streaming_crunchyroll.png", catalogs:[{id:"crunchyroll_movies",type:"movie"},{id:"crunchyroll_series",type:"series"}]},
     {title:"Shudder", cover:"https://max-streams.gleeze.com/images/Shudder.gif", catalogs:[{id:"shudder_movies",type:"movie"},{id:"shudder_series",type:"series"}]},
     {title:"BritBox", cover:"https://max-streams.gleeze.com/images/Brit.gif", catalogs:[{id:"britbox_movies",type:"movie"},{id:"britbox_series",type:"series"}]},
     {title:"MGM+", cover:"https://max-streams.gleeze.com/images/MGM.gif", catalogs:[{id:"mgm_movies",type:"movie"}]},
@@ -672,35 +910,79 @@ const COLLECTION_PRESETS = {
     {title:"Post Apocalyptic", cover:"https://max-streams.gleeze.com/images/madmax.png", catalogs:[{id:"theme_postapoc",type:"movie"}]},
   ]},
   studios: { title:"Studios", folders:[
-    {title:"Marvel", cover:"https://max-streams.gleeze.com/images/Marvel.gif", catalogs:[{id:"studio_marvel",type:"movie"}]},
-    {title:"DC", cover:"https://max-streams.gleeze.com/images/DC.gif", catalogs:[{id:"studio_dc",type:"movie"}]},
-    {title:"A24", cover:"https://max-streams.gleeze.com/images/A24.gif", catalogs:[{id:"studio_a24",type:"movie"}]},
-    {title:"Blumhouse", cover:"https://max-streams.gleeze.com/images/Blumhouse.gif", catalogs:[{id:"studio_blumhouse",type:"movie"}]},
-    {title:"Studio Ghibli", cover:"https://max-streams.gleeze.com/images/Ghibli.jpeg", catalogs:[{id:"studio_ghibli",type:"movie"}]},
-    {title:"Pixar", cover:"https://max-streams.gleeze.com/images/Pixar.gif", catalogs:[{id:"mdb_3918",type:"movie"}]},
-    {title:"DreamWorks", cover:"https://max-streams.gleeze.com/images/Dreamworks.gif", catalogs:[{id:"mdb_3928",type:"movie"}]},
+    {title:"Marvel", cover:"https://max-streams.gleeze.com/images/Marvel.jpg", focusGif:"https://max-streams.gleeze.com/images/Marvel.gif", catalogs:[{id:"studio_marvel",type:"movie"}]},
+    {title:"DC", cover:"https://max-streams.gleeze.com/images/DC.jpg", focusGif:"https://max-streams.gleeze.com/images/DC.gif", catalogs:[{id:"studio_dc",type:"movie"}]},
+    {title:"A24", cover:"https://max-streams.gleeze.com/images/A24.jpg", focusGif:"https://max-streams.gleeze.com/images/A24.gif", catalogs:[{id:"studio_a24",type:"movie"}]},
+    {title:"Blumhouse", cover:"https://max-streams.gleeze.com/images/Blumhouse.jpg", focusGif:"https://max-streams.gleeze.com/images/Blumhouse.gif", catalogs:[{id:"studio_blumhouse",type:"movie"}]},
+    {title:"Studio Ghibli", cover:"https://max-streams.gleeze.com/images/Ghibli.jpg", catalogs:[{id:"studio_ghibli",type:"movie"}]},
+    {title:"Pixar", cover:"https://max-streams.gleeze.com/images/Pixar.jpg", focusGif:"https://max-streams.gleeze.com/images/Pixar.gif", catalogs:[{id:"mdb_3918",type:"movie"}]},
+    {title:"DreamWorks", cover:"https://max-streams.gleeze.com/images/Dreamworks.jpg", focusGif:"https://max-streams.gleeze.com/images/Dreamworks.gif", catalogs:[{id:"mdb_3928",type:"movie"}]},
   ]},
   collections: { title:"Film Collections", folders:[
-    {title:"Harry Potter", cover:"https://max-streams.gleeze.com/images/harrypotter.png", catalogs:[{id:"hp_collection",type:"movie"}]},
-    {title:"Lord of the Rings", cover:"https://max-streams.gleeze.com/images/lotr.png", catalogs:[{id:"lotr_collection",type:"movie"}]},
-    {title:"Star Wars", cover:"https://max-streams.gleeze.com/images/starwars.png", catalogs:[{id:"starwars_collection",type:"movie"}]},
-    {title:"The Hobbit", cover:"https://max-streams.gleeze.com/images/hobbit.png", catalogs:[{id:"hobbit_collection",type:"movie"}]},
-    {title:"James Bond", cover:"https://max-streams.gleeze.com/images/bond.png", catalogs:[{id:"bond_collection",type:"movie"}]},
-    {title:"Marvel Avengers", cover:"https://max-streams.gleeze.com/images/avengers.jpg", catalogs:[{id:"avengers_coll",type:"movie"}]},
-    {title:"John Wick", cover:"https://max-streams.gleeze.com/images/johnwick.png", catalogs:[{id:"johnwick_coll",type:"movie"}]},
-    {title:"Fast & Furious", cover:"https://max-streams.gleeze.com/images/fastfurious.png", catalogs:[{id:"fastfurious_coll",type:"movie"}]},
-    {title:"Jurassic Park", cover:"https://max-streams.gleeze.com/images/jurassic.jpg", catalogs:[{id:"jurassic_coll",type:"movie"}]},
-    {title:"Mission Impossible", cover:"https://max-streams.gleeze.com/images/missionimpossible.png", catalogs:[{id:"mi_collection",type:"movie"}]},
-    {title:"Indiana Jones", cover:"https://max-streams.gleeze.com/images/indianajones.png", catalogs:[{id:"indiana_collection",type:"movie"}]},
-    {title:"The Matrix", cover:"https://max-streams.gleeze.com/images/matrix.png", catalogs:[{id:"matrix_collection",type:"movie"}]},
-    {title:"Alien", cover:"https://max-streams.gleeze.com/images/alien.jpg", catalogs:[{id:"alien_collection",type:"movie"}]},
-    {title:"Terminator", cover:"https://max-streams.gleeze.com/images/terminator.png", catalogs:[{id:"terminator_coll",type:"movie"}]},
-    {title:"Predator", cover:"https://max-streams.gleeze.com/images/predator.png", catalogs:[{id:"predator_coll",type:"movie"}]},
-    {title:"Halloween", cover:"https://max-streams.gleeze.com/images/halloween.png", catalogs:[{id:"halloween_coll",type:"movie"}]},
-    {title:"Saw", cover:"https://max-streams.gleeze.com/images/saw.png", catalogs:[{id:"saw_collection",type:"movie"}]},
-    {title:"Scream", cover:"https://max-streams.gleeze.com/images/scream.png", catalogs:[{id:"scream_collection",type:"movie"}]},
-    {title:"Toy Story", cover:"https://max-streams.gleeze.com/images/toystory.jpg", catalogs:[{id:"toystory_coll",type:"movie"}]},
-    {title:"Shrek", cover:"https://max-streams.gleeze.com/images/shrek.png", catalogs:[{id:"shrek_collection",type:"movie"}]},
+    {title:"Harry Potter", cover:"https://max-streams.gleeze.com/images/harrypotter_tmdb.jpg", catalogs:[{id:"hp_collection",type:"movie"}]},
+    {title:"Lord of the Rings", cover:"https://max-streams.gleeze.com/images/lotr_tmdb.jpg", catalogs:[{id:"lotr_collection",type:"movie"}]},
+    {title:"The Hobbit", cover:"https://max-streams.gleeze.com/images/hobbit_tmdb.jpg", catalogs:[{id:"hobbit_collection",type:"movie"}]},
+    {title:"Star Wars", cover:"https://max-streams.gleeze.com/images/starwars_tmdb.jpg", catalogs:[{id:"starwars_collection",type:"movie"}]},
+    {title:"James Bond", cover:"https://max-streams.gleeze.com/images/bond_tmdb.jpg", catalogs:[{id:"bond_collection",type:"movie"}]},
+    {title:"Mission Impossible", cover:"https://max-streams.gleeze.com/images/missionimpossible_tmdb.jpg", catalogs:[{id:"mi_collection",type:"movie"}]},
+    {title:"Indiana Jones", cover:"https://max-streams.gleeze.com/images/indianajones_tmdb.jpg", catalogs:[{id:"indiana_collection",type:"movie"}]},
+    {title:"Jurassic Park", cover:"https://max-streams.gleeze.com/images/jurassic_tmdb.jpg", catalogs:[{id:"jurassic_coll",type:"movie"}]},
+    {title:"Fast & Furious", cover:"https://max-streams.gleeze.com/images/fastfurious_tmdb.jpg", catalogs:[{id:"fastfurious_coll",type:"movie"}]},
+    {title:"John Wick", cover:"https://max-streams.gleeze.com/images/johnwick_tmdb.jpg", catalogs:[{id:"johnwick_coll",type:"movie"}]},
+    {title:"The Matrix", cover:"https://max-streams.gleeze.com/images/matrix_tmdb.jpg", catalogs:[{id:"matrix_collection",type:"movie"}]},
+    {title:"Die Hard", cover:"https://max-streams.gleeze.com/images/diehard_tmdb.jpg", catalogs:[{id:"diehard_collection",type:"movie"}]},
+    {title:"Taken", cover:"https://max-streams.gleeze.com/images/taken_tmdb.jpg", catalogs:[{id:"taken_collection",type:"movie"}]},
+    {title:"Bourne", cover:"https://max-streams.gleeze.com/images/bourne_tmdb.jpg", catalogs:[{id:"bourne_collection",type:"movie"}]},
+    {title:"Oceans", cover:"https://max-streams.gleeze.com/images/oceans_tmdb.jpg", catalogs:[{id:"oceans_collection",type:"movie"}]},
+    {title:"Mad Max", cover:"https://max-streams.gleeze.com/images/madmax_tmdb.jpg", catalogs:[{id:"madmax_collection",type:"movie"}]},
+    {title:"Rambo", cover:"https://max-streams.gleeze.com/images/rambo_tmdb.jpg", catalogs:[{id:"rambo_collection",type:"movie"}]},
+    {title:"Expendables", cover:"https://max-streams.gleeze.com/images/expendables_tmdb.jpg", catalogs:[{id:"expendables_coll",type:"movie"}]},
+    {title:"Kingsman", cover:"https://max-streams.gleeze.com/images/kingsman_tmdb.jpg", catalogs:[{id:"kingsman_coll",type:"movie"}]},
+    {title:"Marvel Avengers", cover:"https://max-streams.gleeze.com/images/avengers_tmdb.jpg", catalogs:[{id:"avengers_coll",type:"movie"}]},
+    {title:"Captain America", cover:"https://max-streams.gleeze.com/images/captainamerica_tmdb.jpg", catalogs:[{id:"captainamerica_coll",type:"movie"}]},
+    {title:"Iron Man", cover:"https://max-streams.gleeze.com/images/ironman_tmdb.jpg", catalogs:[{id:"ironman_coll",type:"movie"}]},
+    {title:"Thor", cover:"https://max-streams.gleeze.com/images/thor_tmdb.jpg", catalogs:[{id:"thor_collection",type:"movie"}]},
+    {title:"Guardians of the Galaxy", cover:"https://max-streams.gleeze.com/images/gotg_tmdb.jpg", catalogs:[{id:"gotg_collection",type:"movie"}]},
+    {title:"Doctor Strange", cover:"https://max-streams.gleeze.com/images/doctorstrange_tmdb.jpg", catalogs:[{id:"doctorstrange_coll",type:"movie"}]},
+    {title:"Black Panther", cover:"https://max-streams.gleeze.com/images/blackpanther_tmdb.jpg", catalogs:[{id:"blackpanther_coll",type:"movie"}]},
+    {title:"Ant-Man", cover:"https://max-streams.gleeze.com/images/antman_tmdb.jpg", catalogs:[{id:"antman_collection",type:"movie"}]},
+    {title:"Deadpool", cover:"https://max-streams.gleeze.com/images/deadpool_tmdb.jpg", catalogs:[{id:"deadpool_coll",type:"movie"}]},
+    {title:"X-Men", cover:"https://max-streams.gleeze.com/images/xmen_tmdb.jpg", catalogs:[{id:"xmen_collection",type:"movie"}]},
+    {title:"Spider-Man", cover:"https://max-streams.gleeze.com/images/spiderman.jpg", catalogs:[{id:"spiderman_collection",type:"movie"}]},
+    {title:"Wonder Woman", cover:"https://max-streams.gleeze.com/images/wonderwoman_tmdb.jpg", catalogs:[{id:"wonderwoman_coll",type:"movie"}]},
+    {title:"Aquaman", cover:"https://max-streams.gleeze.com/images/aquaman_tmdb.jpg", catalogs:[{id:"aquaman_collection",type:"movie"}]},
+    {title:"Superman", cover:"https://max-streams.gleeze.com/images/superman_tmdb.jpg", catalogs:[{id:"superman_collection",type:"movie"}]},
+    {title:"Batman", cover:"https://max-streams.gleeze.com/images/batman_tmdb.jpg", catalogs:[{id:"batman_collection",type:"movie"}]},
+    {title:"Justice League", cover:"https://max-streams.gleeze.com/images/justiceleague_tmdb.jpg", catalogs:[{id:"justiceleague_coll",type:"movie"}]},
+    {title:"Alien", cover:"https://max-streams.gleeze.com/images/alien_tmdb.jpg", catalogs:[{id:"alien_collection",type:"movie"}]},
+    {title:"Terminator", cover:"https://max-streams.gleeze.com/images/terminator_tmdb.jpg", catalogs:[{id:"terminator_coll",type:"movie"}]},
+    {title:"Predator", cover:"https://max-streams.gleeze.com/images/predator_tmdb.jpg", catalogs:[{id:"predator_coll",type:"movie"}]},
+    {title:"Halloween", cover:"https://max-streams.gleeze.com/images/halloween_tmdb.jpg", catalogs:[{id:"halloween_coll",type:"movie"}]},
+    {title:"Nightmare on Elm Street", cover:"https://max-streams.gleeze.com/images/nightmare_tmdb.jpg", catalogs:[{id:"nightmare_coll",type:"movie"}]},
+    {title:"Saw", cover:"https://max-streams.gleeze.com/images/saw_tmdb.jpg", catalogs:[{id:"saw_collection",type:"movie"}]},
+    {title:"Scream", cover:"https://max-streams.gleeze.com/images/scream_tmdb.jpg", catalogs:[{id:"scream_collection",type:"movie"}]},
+    {title:"Conjuring", cover:"https://max-streams.gleeze.com/images/conjuring_tmdb.jpg", catalogs:[{id:"conjuring_coll",type:"movie"}]},
+    {title:"Scary Movie", cover:"https://max-streams.gleeze.com/images/scarymovie.jpg", catalogs:[{id:"scarymovie_coll",type:"movie"}]},
+    {title:"Planet of the Apes", cover:"https://max-streams.gleeze.com/images/planetapes_tmdb.jpg", catalogs:[{id:"planetapes_coll",type:"movie"}]},
+    {title:"Transformers", cover:"https://max-streams.gleeze.com/images/transformers_tmdb.jpg", catalogs:[{id:"transformers_coll",type:"movie"}]},
+    {title:"Hunger Games", cover:"https://max-streams.gleeze.com/images/hungergames_tmdb.jpg", catalogs:[{id:"hungergames_coll",type:"movie"}]},
+    {title:"Maze Runner", cover:"https://max-streams.gleeze.com/images/mazerunner.jpg", catalogs:[{id:"mazerunner_coll",type:"movie"}]},
+    {title:"Pirates of the Caribbean", cover:"https://max-streams.gleeze.com/images/pirates_tmdb.jpg", catalogs:[{id:"pirates_collection",type:"movie"}]},
+    {title:"Shrek", cover:"https://max-streams.gleeze.com/images/shrek_tmdb.jpg", catalogs:[{id:"shrek_collection",type:"movie"}]},
+    {title:"Ice Age", cover:"https://max-streams.gleeze.com/images/iceage_tmdb.jpg", catalogs:[{id:"iceage_collection",type:"movie"}]},
+    {title:"How to Train Your Dragon", cover:"https://max-streams.gleeze.com/images/httyd_tmdb.jpg", catalogs:[{id:"httyd_collection",type:"movie"}]},
+    {title:"Despicable Me", cover:"https://max-streams.gleeze.com/images/despicableme_tmdb.jpg", catalogs:[{id:"despicableme_coll",type:"movie"}]},
+    {title:"Minions", cover:"https://max-streams.gleeze.com/images/minions_tmdb.jpg", catalogs:[{id:"shrek2_collection",type:"movie"}]},
+    {title:"Kung Fu Panda", cover:"https://max-streams.gleeze.com/images/kungfupanda_tmdb.jpg", catalogs:[{id:"kungfupanda_coll",type:"movie"}]},
+    {title:"Incredibles", cover:"https://max-streams.gleeze.com/images/incredibles_tmdb.jpg", catalogs:[{id:"incredibles_coll",type:"movie"}]},
+    {title:"Toy Story", cover:"https://max-streams.gleeze.com/images/toystory_tmdb.jpg", catalogs:[{id:"toystory_coll",type:"movie"}]},
+    {title:"Finding Nemo", cover:"https://max-streams.gleeze.com/images/findingnemo_tmdb.jpg", catalogs:[{id:"findingnemo_coll",type:"movie"}]},
+    {title:"Avatar", cover:"https://max-streams.gleeze.com/images/avatar.jpg", catalogs:[{id:"avatar_collection",type:"movie"}]},
+    {title:"Back to the Future", cover:"https://max-streams.gleeze.com/images/backtofuture_tmdb.jpg", catalogs:[{id:"backtofuture_coll",type:"movie"}]},
+    {title:"Sherlock Holmes", cover:"https://max-streams.gleeze.com/images/sherlock_tmdb.jpg", catalogs:[{id:"sherlock_coll",type:"movie"}]},
+    {title:"Dune", cover:"https://max-streams.gleeze.com/images/dune_tmdb.jpg", catalogs:[{id:"dune_collection",type:"movie"}]},
+    {title:"The Godfather", cover:"https://max-streams.gleeze.com/images/godfather_tmdb.jpg", catalogs:[{id:"godfather_collection",type:"movie"}]},
+    {title:"Knives Out", cover:"https://max-streams.gleeze.com/images/knivesout.jpg", catalogs:[{id:"knivesout_coll",type:"movie"}]},
   ]},
   decades: { title:"By Decade", folders:[
     {title:"Best of 2025", cover:"https://max-streams.gleeze.com/images/newreleases.png", catalogs:[{id:"mdb_92337",type:"movie"}]},
@@ -714,6 +996,53 @@ const COLLECTION_PRESETS = {
     {title:"Trending Kids Movies", cover:"https://max-streams.gleeze.com/images/animation.jpg", catalogs:[{id:"mdb_88307",type:"movie"}]},
     {title:"Trending Kids Series", cover:"https://max-streams.gleeze.com/images/animation.jpg", catalogs:[{id:"mdb_88309",type:"series"}]},
     {title:"Top Kids Movies", cover:"https://max-streams.gleeze.com/images/toprated.jpg", catalogs:[{id:"mdb_13",type:"movie"}]},
+  ]},
+  directors: { title:"Directors", folders:[
+    {title:"Christopher Nolan", cover:"https://max-streams.gleeze.com/images/director_nolan.jpg", catalogs:[{id:"director_nolan",type:"movie"}]},
+    {title:"Martin Scorsese", cover:"https://max-streams.gleeze.com/images/director_scorsese.jpg", catalogs:[{id:"director_scorsese",type:"movie"}]},
+    {title:"Steven Spielberg", cover:"https://max-streams.gleeze.com/images/director_spielberg.jpg", catalogs:[{id:"director_spielberg",type:"movie"}]},
+    {title:"Denis Villeneuve", cover:"https://max-streams.gleeze.com/images/director_villeneuve.jpg", catalogs:[{id:"director_villeneuve",type:"movie"}]},
+    {title:"David Fincher", cover:"https://max-streams.gleeze.com/images/director_fincher.jpg", catalogs:[{id:"director_fincher",type:"movie"}]},
+    {title:"Stanley Kubrick", cover:"https://max-streams.gleeze.com/images/director_kubrick.jpg", catalogs:[{id:"director_kubrick",type:"movie"}]},
+    {title:"Alfred Hitchcock", cover:"https://max-streams.gleeze.com/images/director_hitchcock.jpg", catalogs:[{id:"director_hitchcock",type:"movie"}]},
+    {title:"Wes Anderson", cover:"https://max-streams.gleeze.com/images/director_anderson.jpg", catalogs:[{id:"director_anderson",type:"movie"}]},
+  ]},
+  actors: { title:"Actors", folders:[
+    {title:"Adam Sandler", cover:"https://max-streams.gleeze.com/images/actor_sandler.jpg", catalogs:[{id:"actor_sandler",type:"movie"}]},
+    {title:"Angelina Jolie", cover:"https://max-streams.gleeze.com/images/actor_jolie.jpg", catalogs:[{id:"actor_jolie",type:"movie"}]},
+    {title:"Brad Pitt", cover:"https://max-streams.gleeze.com/images/actor_pitt.jpg", catalogs:[{id:"actor_pitt",type:"movie"}]},
+    {title:"Christian Bale", cover:"https://max-streams.gleeze.com/images/actor_bale.jpg", catalogs:[{id:"actor_bale",type:"movie"}]},
+    {title:"Clint Eastwood", cover:"https://max-streams.gleeze.com/images/actor_eastwood.jpg", catalogs:[{id:"actor_eastwood",type:"movie"}]},
+    {title:"Denzel Washington", cover:"https://max-streams.gleeze.com/images/actor_denzel.jpg", catalogs:[{id:"actor_denzel",type:"movie"}]},
+    {title:"Jim Carrey", cover:"https://max-streams.gleeze.com/images/actor_carrey.jpg", catalogs:[{id:"actor_carrey",type:"movie"}]},
+    {title:"Johnny Depp", cover:"https://max-streams.gleeze.com/images/actor_depp.jpg", catalogs:[{id:"actor_depp",type:"movie"}]},
+    {title:"Leonardo DiCaprio", cover:"https://max-streams.gleeze.com/images/actor_dicaprio.jpg", catalogs:[{id:"actor_dicaprio",type:"movie"}]},
+    {title:"Margot Robbie", cover:"https://max-streams.gleeze.com/images/actor_robbie.jpg", catalogs:[{id:"actor_robbie",type:"movie"}]},
+    {title:"Matt Damon", cover:"https://max-streams.gleeze.com/images/actor_damon.jpg", catalogs:[{id:"actor_damon",type:"movie"}]},
+    {title:"Morgan Freeman", cover:"https://max-streams.gleeze.com/images/actor_freeman.jpg", catalogs:[{id:"actor_freeman",type:"movie"}]},
+    {title:"Robert De Niro", cover:"https://max-streams.gleeze.com/images/actor_deniro.jpg", catalogs:[{id:"actor_deniro",type:"movie"}]},
+    {title:"Robert Downey Jr", cover:"https://max-streams.gleeze.com/images/actor_rdj.jpg", catalogs:[{id:"actor_rdj",type:"movie"}]},
+    {title:"Ryan Gosling", cover:"https://max-streams.gleeze.com/images/actor_gosling.jpg", catalogs:[{id:"actor_gosling",type:"movie"}]},
+    {title:"Ryan Reynolds", cover:"https://max-streams.gleeze.com/images/actor_reynolds.jpg", catalogs:[{id:"actor_reynolds",type:"movie"}]},
+    {title:"Seth Rogen", cover:"https://max-streams.gleeze.com/images/actor_rogen.jpg", catalogs:[{id:"actor_rogen",type:"movie"}]},
+    {title:"Tom Cruise", cover:"https://max-streams.gleeze.com/images/actor_cruise.jpg", catalogs:[{id:"actor_cruise",type:"movie"}]},
+    {title:"Tom Hanks", cover:"https://max-streams.gleeze.com/images/actor_hanks.jpg", catalogs:[{id:"actor_hanks",type:"movie"}]},
+    {title:"Will Ferrell", cover:"https://max-streams.gleeze.com/images/actor_ferrell.jpg", catalogs:[{id:"actor_ferrell",type:"movie"}]},
+    {title:"Will Smith", cover:"https://max-streams.gleeze.com/images/actor_smith.jpg", catalogs:[{id:"actor_smith",type:"movie"}]},
+  ]},
+  trakt: { title:"Trakt", folders:[
+    {title:"Trakt Trending Movies", cover:"https://max-streams.gleeze.com/images/trending.jpg", catalogs:[{id:"trakt_trending_movies",type:"movie"}]},
+    {title:"Trakt Trending Series", cover:"https://max-streams.gleeze.com/images/trending.jpg", catalogs:[{id:"trakt_trending_series",type:"series"}]},
+    {title:"Trakt Popular Movies", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"trakt_popular_movies",type:"movie"}]},
+    {title:"Trakt Popular Series", cover:"https://max-streams.gleeze.com/images/popular.jpg", catalogs:[{id:"trakt_popular_series",type:"series"}]},
+    {title:"Trakt Anticipated Movies", cover:"https://max-streams.gleeze.com/images/newreleases.png", catalogs:[{id:"trakt_anticipated_movies",type:"movie"}]},
+    {title:"Trakt Anticipated Series", cover:"https://max-streams.gleeze.com/images/newreleases.png", catalogs:[{id:"trakt_anticipated_series",type:"series"}]},
+    {title:"My Trakt Favorites (Movies)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_fav_movies",type:"movie"}]},
+    {title:"My Trakt Favorites (Series)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_fav_series",type:"series"}]},
+    {title:"My Trakt Watchlist (Movies)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_watchlist_movies",type:"movie"}]},
+    {title:"My Trakt Watchlist (Series)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_watchlist_series",type:"series"}]},
+    {title:"My Trakt Collection (Movies)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_collection_movies",type:"movie"}]},
+    {title:"My Trakt Collection (Series)", cover:"https://max-streams.gleeze.com/images/toprated.png", catalogs:[{id:"trakt_collection_series",type:"series"}]},
   ]},
   uk: { title:"UK", folders:[
     {title:"BBC Shows", cover:"https://max-streams.gleeze.com/images/drama.jpg", catalogs:[{id:"mdb_3087",type:"series"}]},
@@ -737,9 +1066,9 @@ function loadPreset(key){
         title: f.title,
         tileShape: 'LANDSCAPE',
         hideTitle: false,
-        focusGifEnabled: false,
+        focusGifEnabled: !!f.focusGif,
         coverImageUrl: f.cover || '',
-        focusGifUrl: '',
+        focusGifUrl: f.focusGif || '',
         catalogSources: f.catalogs.map(function(c){
           return { addonId: addonId, catalogId: c.id, type: c.type };
         })

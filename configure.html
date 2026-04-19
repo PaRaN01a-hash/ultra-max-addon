@@ -544,6 +544,53 @@
 
       <div class="category">
         <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">&#127908;</span> Directors <span class="cat-count" id="count-directors"></span></div>
+          <span class="select-all" onclick="selectAll('directors')">Select All</span>
+        </div>
+        <div class="pills" id="directors">
+          <div class="pill" data-id="director_nolan">Christopher Nolan</div>
+          <div class="pill" data-id="director_scorsese">Martin Scorsese</div>
+          <div class="pill" data-id="director_spielberg">Steven Spielberg</div>
+          <div class="pill" data-id="director_villeneuve">Denis Villeneuve</div>
+          <div class="pill" data-id="director_fincher">David Fincher</div>
+          <div class="pill" data-id="director_kubrick">Stanley Kubrick</div>
+          <div class="pill" data-id="director_hitchcock">Alfred Hitchcock</div>
+          <div class="pill" data-id="director_anderson">Wes Anderson</div>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">&#127911;</span> Actors <span class="cat-count" id="count-actors"></span></div>
+          <span class="select-all" onclick="selectAll('actors')">Select All</span>
+        </div>
+        <div class="pills" id="actors">
+          <div class="pill" data-id="actor_sandler">Adam Sandler</div>
+          <div class="pill" data-id="actor_jolie">Angelina Jolie</div>
+          <div class="pill" data-id="actor_pitt">Brad Pitt</div>
+          <div class="pill" data-id="actor_bale">Christian Bale</div>
+          <div class="pill" data-id="actor_eastwood">Clint Eastwood</div>
+          <div class="pill" data-id="actor_denzel">Denzel Washington</div>
+          <div class="pill" data-id="actor_carrey">Jim Carrey</div>
+          <div class="pill" data-id="actor_depp">Johnny Depp</div>
+          <div class="pill" data-id="actor_dicaprio">Leonardo DiCaprio</div>
+          <div class="pill" data-id="actor_robbie">Margot Robbie</div>
+          <div class="pill" data-id="actor_damon">Matt Damon</div>
+          <div class="pill" data-id="actor_freeman">Morgan Freeman</div>
+          <div class="pill" data-id="actor_deniro">Robert De Niro</div>
+          <div class="pill" data-id="actor_rdj">Robert Downey Jr</div>
+          <div class="pill" data-id="actor_gosling">Ryan Gosling</div>
+          <div class="pill" data-id="actor_reynolds">Ryan Reynolds</div>
+          <div class="pill" data-id="actor_rogen">Seth Rogen</div>
+          <div class="pill" data-id="actor_cruise">Tom Cruise</div>
+          <div class="pill" data-id="actor_hanks">Tom Hanks</div>
+          <div class="pill" data-id="actor_ferrell">Will Ferrell</div>
+          <div class="pill" data-id="actor_smith">Will Smith</div>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="cat-header">
           <div class="cat-title"><span class="cat-icon">&#127916;</span> Film Collections <span class="cat-count" id="count-collections"></span></div>
           <span class="select-all" onclick="selectAll('collections')">Select All</span>
         </div>
@@ -602,6 +649,11 @@
           <div class="pill" data-id="shrek2_collection">Minions</div>
           <div class="pill" data-id="dune_collection">Dune</div>
           <div class="pill" data-id="godfather_collection">The Godfather</div>
+          <div class="pill" data-id="spiderman_collection">Spider-Man</div>
+          <div class="pill" data-id="avatar_collection">Avatar</div>
+          <div class="pill" data-id="scarymovie_coll">Scary Movie</div>
+          <div class="pill" data-id="knivesout_coll">Knives Out</div>
+          <div class="pill" data-id="mazerunner_coll">Maze Runner</div>
           <div class="pill" data-id="superman_collection">Superman</div>
           <div class="pill" data-id="batman_collection">Batman</div>
           <div class="pill" data-id="justiceleague_coll">Justice League</div>
@@ -969,7 +1021,7 @@ function makeSprockets(){
 
 // Collapsible categories
 function initCollapsible(){
-  const groups = ["trending","latest","providers","genres","themed","studios","collections","decades","kids","uk"];
+  const groups = ["trending","latest","providers","genres","themed","studios","directors","actors","collections","decades","kids","uk"];
   groups.forEach(function(g, idx){
     const header = document.querySelector(`[onclick="selectAll('${g}')"]`).closest(".cat-header");
     const pills = document.getElementById(g);

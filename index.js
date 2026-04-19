@@ -132,6 +132,35 @@ const CATALOG_DEFS = {
   studio_a24:         { name:"A24",                    type:"movie",  handler:"tmdb_company", company: 41077 },
   studio_blumhouse:   { name:"Blumhouse",              type:"movie",  handler:"tmdb_company", company: 3172 },
   studio_ghibli:      { name:"Studio Ghibli",          type:"movie",  handler:"tmdb_company", company: 10342 },
+  director_nolan:     { name:"Christopher Nolan",      type:"movie",  handler:"tmdb_director", personId: 525 },
+  director_scorsese:  { name:"Martin Scorsese",         type:"movie",  handler:"tmdb_director", personId: 1032 },
+  director_spielberg: { name:"Steven Spielberg",        type:"movie",  handler:"tmdb_director", personId: 488 },
+  director_villeneuve:{ name:"Denis Villeneuve",        type:"movie",  handler:"tmdb_director", personId: 137427 },
+  director_fincher:   { name:"David Fincher",           type:"movie",  handler:"tmdb_director", personId: 7467 },
+  director_kubrick:   { name:"Stanley Kubrick",         type:"movie",  handler:"tmdb_director", personId: 240 },
+  director_hitchcock: { name:"Alfred Hitchcock",        type:"movie",  handler:"tmdb_director", personId: 2636 },
+  director_anderson:  { name:"Wes Anderson",            type:"movie",  handler:"tmdb_director", personId: 5655 },
+  actor_sandler:         { name:"Adam Sandler",               type:"movie",  handler:"tmdb_actor", personId: 19292 },
+  actor_jolie:         { name:"Angelina Jolie",               type:"movie",  handler:"tmdb_actor", personId: 11701 },
+  actor_pitt:         { name:"Brad Pitt",               type:"movie",  handler:"tmdb_actor", personId: 287 },
+  actor_bale:         { name:"Christian Bale",               type:"movie",  handler:"tmdb_actor", personId: 3894 },
+  actor_eastwood:         { name:"Clint Eastwood",               type:"movie",  handler:"tmdb_actor", personId: 190 },
+  actor_denzel:         { name:"Denzel Washington",               type:"movie",  handler:"tmdb_actor", personId: 5292 },
+  actor_carrey:         { name:"Jim Carrey",               type:"movie",  handler:"tmdb_actor", personId: 206 },
+  actor_depp:         { name:"Johnny Depp",               type:"movie",  handler:"tmdb_actor", personId: 85 },
+  actor_dicaprio:         { name:"Leonardo DiCaprio",               type:"movie",  handler:"tmdb_actor", personId: 6193 },
+  actor_robbie:         { name:"Margot Robbie",               type:"movie",  handler:"tmdb_actor", personId: 234352 },
+  actor_damon:         { name:"Matt Damon",               type:"movie",  handler:"tmdb_actor", personId: 1892 },
+  actor_freeman:         { name:"Morgan Freeman",               type:"movie",  handler:"tmdb_actor", personId: 192 },
+  actor_deniro:         { name:"Robert De Niro",               type:"movie",  handler:"tmdb_actor", personId: 380 },
+  actor_rdj:         { name:"Robert Downey Jr",               type:"movie",  handler:"tmdb_actor", personId: 3223 },
+  actor_gosling:         { name:"Ryan Gosling",               type:"movie",  handler:"tmdb_actor", personId: 30614 },
+  actor_reynolds:         { name:"Ryan Reynolds",               type:"movie",  handler:"tmdb_actor", personId: 10859 },
+  actor_rogen:         { name:"Seth Rogen",               type:"movie",  handler:"tmdb_actor", personId: 19274 },
+  actor_cruise:         { name:"Tom Cruise",               type:"movie",  handler:"tmdb_actor", personId: 500 },
+  actor_hanks:         { name:"Tom Hanks",               type:"movie",  handler:"tmdb_actor", personId: 31 },
+  actor_ferrell:         { name:"Will Ferrell",               type:"movie",  handler:"tmdb_actor", personId: 23659 },
+  actor_smith:         { name:"Will Smith",               type:"movie",  handler:"tmdb_actor", personId: 2888 },
   hp_collection:      { name:"Harry Potter",          type:"movie",  handler:"tmdb_collection", collectionId: 1241 },
   lotr_collection:    { name:"Lord of the Rings",       type:"movie",  handler:"tmdb_collection", collectionId: 119 },
   starwars_collection:{ name:"Star Wars",               type:"movie",  handler:"tmdb_collection", collectionId: 10 },
@@ -188,6 +217,11 @@ const CATALOG_DEFS = {
   shrek2_collection:  { name:"Minions",               type:"movie",  handler:"tmdb_collection", collectionId: 544669 },
   dune_collection:    { name:"Dune",                   type:"movie",  handler:"tmdb_collection", collectionId: 726871 },
   godfather_collection:{ name:"The Godfather",         type:"movie",  handler:"tmdb_collection", collectionId: 230 },
+  spiderman_collection:{ name:"Spider-Man",              type:"movie",  handler:"tmdb_multi_collection", collectionIds: [556, 531241, 573436] },
+  avatar_collection:  { name:"Avatar",                   type:"movie",  handler:"tmdb_collection", collectionId: 87096 },
+  scarymovie_coll:    { name:"Scary Movie",              type:"movie",  handler:"tmdb_collection", collectionId: 4246 },
+  knivesout_coll:     { name:"Knives Out",               type:"movie",  handler:"tmdb_collection", collectionId: 722971 },
+  mazerunner_coll:    { name:"Maze Runner",              type:"movie",  handler:"tmdb_collection", collectionId: 295130 },
   superman_collection:{ name:"Superman",               type:"movie",  handler:"tmdb_multi_collection", collectionIds: [8537, 209131, 1540907, 593251] },
   batman_collection:  { name:"Batman",                type:"movie",  handler:"tmdb_multi_collection", collectionIds: [120794, 263, 948485] },
   justiceleague_coll: { name:"Justice League",          type:"movie",  handler:"tmdb_collection", collectionId: 468550 },
@@ -458,6 +492,12 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
       break;
     case"tmdb_company":
       url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${encodeURIComponent(def.company)}&sort_by=popularity.desc&page=${page}${def.excludeAnimation?"&without_genres=16":""}`;
+      break;
+    case"tmdb_director":
+    case"tmdb_actor":
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${def.personId}&sort_by=popularity.desc&page=${page}`;
+      break;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_crew=${def.personId}&sort_by=popularity.desc&page=${page}`;
       break;
     case"tmdb_collection":
       return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [], type, filterLang, language, rpdbKey, tpKey) };
