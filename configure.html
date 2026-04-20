@@ -539,6 +539,31 @@
           <div class="pill" data-id="studio_ghibli">Studio Ghibli</div>
           <div class="pill" data-id="mdb_3918">Pixar</div>
           <div class="pill" data-id="mdb_3928">DreamWorks</div>
+          <div class="pill" data-id="studio_wb">Warner Bros</div>
+          <div class="pill" data-id="studio_universal">Universal</div>
+          <div class="pill" data-id="studio_sony">Sony Pictures</div>
+          <div class="pill" data-id="studio_paramount">Paramount</div>
+          <div class="pill" data-id="studio_20thcentury">20th Century</div>
+          <div class="pill" data-id="studio_lionsgate">Lionsgate</div>
+          <div class="pill" data-id="studio_newline">New Line</div>
+          <div class="pill" data-id="studio_canalplus">Canal+</div>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">&#128250;</span> TV Networks <span class="cat-count" id="count-networks"></span></div>
+          <span class="select-all" onclick="selectAll('networks')">Select All</span>
+        </div>
+        <div class="pills" id="networks">
+          <div class="pill" data-id="network_abc">ABC</div>
+          <div class="pill" data-id="network_cbs">CBS</div>
+          <div class="pill" data-id="network_fox">FOX</div>
+          <div class="pill" data-id="network_nbc">NBC</div>
+          <div class="pill" data-id="starz_series">Starz</div>
+          <div class="pill" data-id="network_nickelodeon">Nickelodeon</div>
+          <div class="pill" data-id="network_nickjr">Nick Jr</div>
+          <div class="pill" data-id="startrek_coll">Star Trek</div>
         </div>
       </div>
 
@@ -912,6 +937,8 @@ async function loadConfigByToken(token){
     if(data.rpdbKey) document.getElementById('rpdbKey').value = data.rpdbKey;
     if(data.tpKey) document.getElementById('tpKey').value = data.tpKey;
     if(data.traktUser) document.getElementById('traktUser').value = data.traktUser;
+    if(data.excludeUnreleased) document.getElementById('excludeUnreleased').checked = true;
+    if(data.maxRating) document.getElementById('maxRating').value = data.maxRating;
     updateCounter(); updateCategoryCounts();
     setTimeout(makeSprockets, 200);
   }catch(e){ console.error(e); }
@@ -938,7 +965,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: document.getElementById('excludeUnreleased').checked, maxRating: document.getElementById('maxRating').value || null })
     });
     const data = await res.json();
 
@@ -1021,7 +1048,7 @@ function makeSprockets(){
 
 // Collapsible categories
 function initCollapsible(){
-  const groups = ["trending","latest","providers","genres","themed","studios","directors","actors","collections","decades","kids","uk"];
+  const groups = ["trending","latest","providers","genres","themed","studios","networks","directors","actors","collections","decades","kids","uk"];
   groups.forEach(function(g, idx){
     const header = document.querySelector(`[onclick="selectAll('${g}')"]`).closest(".cat-header");
     const pills = document.getElementById(g);
@@ -1106,5 +1133,9 @@ async function verifyKey(type) {
   btn.disabled = false;
 }
 </script>
+<div style="text-align:center;padding:30px 20px;margin-top:40px;border-top:1px solid #222;color:#666;font-size:12px;">
+  <div style="margin-bottom:12px;">Ultra MAX is a free project. If it's improved your setup, consider supporting development:</div>
+  <a href="https://ko-fi.com/ultramaxaddon" target="_blank" style="display:inline-block;padding:10px 20px;background:#FF5E5B;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">&#9749; Buy me a coffee</a>
+</div>
 </body>
 </html>

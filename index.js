@@ -7,7 +7,8 @@ const express = require("express");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
-const MDBLIST_KEY = process.env.MDBLIST_KEY ||"5woimia0xf19uqr4rd7wl1960";
+const MDBLIST_KEYS = (process.env.MDBLIST_KEYS || process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960").split(",").map(k => k.trim()).filter(Boolean);
+const MDBLIST_KEY = MDBLIST_KEYS[0];
 const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
 const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
 const CONFIGS_FILE = path.join(__dirname,"configs.json");
@@ -132,6 +133,22 @@ const CATALOG_DEFS = {
   studio_a24:         { name:"A24",                    type:"movie",  handler:"tmdb_company", company: 41077 },
   studio_blumhouse:   { name:"Blumhouse",              type:"movie",  handler:"tmdb_company", company: 3172 },
   studio_ghibli:      { name:"Studio Ghibli",          type:"movie",  handler:"tmdb_company", company: 10342 },
+  studio_wb:          { name:"Warner Bros",              type:"movie",  handler:"tmdb_company", company: "174" },
+  studio_universal:   { name:"Universal Pictures",        type:"movie",  handler:"tmdb_company", company: "33" },
+  studio_sony:        { name:"Sony Pictures",             type:"movie",  handler:"tmdb_company", company: "34|5" },
+  studio_paramount:   { name:"Paramount Pictures",        type:"movie",  handler:"tmdb_company", company: "4" },
+  studio_20thcentury: { name:"20th Century",              type:"movie",  handler:"tmdb_company", company: "25" },
+  studio_lionsgate:   { name:"Lionsgate",                 type:"movie",  handler:"tmdb_company", company: "1632" },
+  studio_newline:     { name:"New Line Cinema",           type:"movie",  handler:"tmdb_company", company: "12" },
+  studio_canalplus:   { name:"Canal+",                    type:"movie",  handler:"tmdb_company", company: "104" },
+  network_abc:        { name:"ABC",                       type:"series", handler:"tmdb_network", networkId: 2 },
+  network_cbs:        { name:"CBS",                       type:"series", handler:"tmdb_network", networkId: 16 },
+  network_fox:        { name:"FOX",                       type:"series", handler:"tmdb_network", networkId: 19 },
+  network_nbc:        { name:"NBC",                       type:"series", handler:"tmdb_network", networkId: 6 },
+  starz_series:       { name:"Starz",                     type:"series", handler:"tmdb_network", networkId: 318 },
+  network_nickelodeon:{ name:"Nickelodeon",              type:"series", handler:"tmdb_network", networkId: 13 },
+  network_nickjr:     { name:"Nick Jr",                  type:"series", handler:"tmdb_network", networkId: 35 },
+  startrek_coll:      { name:"Star Trek",                 type:"movie",  handler:"tmdb_multi_collection", collectionIds: [151, 115570, 115575] },
   director_nolan:     { name:"Christopher Nolan",      type:"movie",  handler:"tmdb_director", personId: 525 },
   director_scorsese:  { name:"Martin Scorsese",         type:"movie",  handler:"tmdb_director", personId: 1032 },
   director_spielberg: { name:"Steven Spielberg",        type:"movie",  handler:"tmdb_director", personId: 488 },
@@ -364,7 +381,7 @@ async function fetchTrakt(path) {
   }
 }
 
-async function traktToMetas(arr, type, language, rpdbKey, tpKey) {
+async function traktToMetas(arr, type, language, rpdbKey, tpKey, excludeUnreleased = false) {
   const tmdbResults = [];
   for (const item of arr) {
     const entity = item.movie || item.show || item;
@@ -376,7 +393,7 @@ async function traktToMetas(arr, type, language, rpdbKey, tpKey) {
       tmdbResults.push(tmdbData);
     } catch(e) {}
   }
-  return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey);
+  return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey, excludeUnreleased);
 }
 
 async function getImdbId(tmdbId, type) {
@@ -391,9 +408,17 @@ async function getImdbId(tmdbId, type) {
   } catch { return null; }
 }
 
-async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null) {
+async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, excludeUnreleased = false) {
+  const today = new Date().toISOString().slice(0,10);
   return (await Promise.all(
-    arr.filter(i => i.poster_path).map(async i => {
+    arr.filter(i => {
+      if (!i.poster_path) return false;
+      if (excludeUnreleased) {
+        const d = i.release_date || i.first_air_date || "";
+        if (!d || d > today) return false;
+      }
+      return true;
+    }).map(async i => {
       const imdb = await getImdbId(i.id, type);
       if (!imdb) return null;
       const meta = {
@@ -409,10 +434,17 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
 }
 
 async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null) {
-  const key = mdbKey || MDBLIST_KEY;
-  const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
+  const tryKeys = mdbKey ? [mdbKey] : MDBLIST_KEYS;
+  let data = null;
+  for (const key of tryKeys) {
+    const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
+    try {
+      const resp = await fetchCached(url);
+      if (resp && !resp.error) { data = resp; break; }
+    } catch(e) {}
+  }
+  if (!data) return [];
   try {
-    const data = await fetchCached(url);
     const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
     return (await Promise.all(
       items.map(async item => {
@@ -435,26 +467,28 @@ async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null
   } catch (e) { console.log("mdblist error", listId, e.message); return []; }
 }
 
-async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, traktUser = null) {
+async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, traktUser = null, excludeUnreleased = false, maxRating = null) {
   const skip = extra?.skip || 0;
   const page = Math.floor(skip / 20) + 1;
   const tmdbType = type ==="series" ?"tv" :"movie";
   const tmdbId = extra?.tmdbId;
+  const ratingParam = maxRating ? `&certification_country=US&certification.lte=${encodeURIComponent(maxRating)}` : "";
+  const sortBy = extra?.sort === "chronological" ? "primary_release_date.asc" : (extra?.sort === "release_date_desc" ? "primary_release_date.desc" : (extra?.sort === "top_rated" ? "vote_average.desc&vote_count.gte=200" : "popularity.desc"));
 
   if (catalogId ==="similar_movie" || catalogId ==="similar_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/similar?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
   }
   if (catalogId ==="recommended_movie" || catalogId ==="recommended_series") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/recommendations?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey) };
+    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
   }
   if (catalogId ==="collection_movie") {
     if (!tmdbId) return { metas: [] };
     const data = await fetchCached(`https://api.themoviedb.org/3/collection/${tmdbId}?api_key=${TMDB_KEY}`);
-    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey, tpKey) };
+    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
   }
 
   const def = CATALOG_DEFS[catalogId];
@@ -491,58 +525,67 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
       if (def.lang) url += `&with_original_language=${def.lang}`;
       break;
     case"tmdb_company":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${encodeURIComponent(def.company)}&sort_by=popularity.desc&page=${page}${def.excludeAnimation?"&without_genres=16":""}`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${encodeURIComponent(def.company)}&sort_by=${sortBy}&page=${page}${ratingParam}${def.excludeAnimation?"&without_genres=16":""}`;
+      break;
+    case"tmdb_network":
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_networks=${def.networkId}&sort_by=${sortBy}&page=${page}`;
       break;
     case"tmdb_director":
     case"tmdb_actor":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${def.personId}&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${def.personId}&sort_by=${sortBy}&page=${page}${ratingParam}`;
       break;
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_crew=${def.personId}&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_crew=${def.personId}&sort_by=${sortBy}&page=${page}${ratingParam}`;
       break;
-    case"tmdb_collection":
-      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [], type, filterLang, language, rpdbKey, tpKey) };
+    case"tmdb_collection": {
+      let parts = (await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [];
+      if(extra?.sort === "chronological") parts = parts.slice().sort((a,b) => (a.release_date||"").localeCompare(b.release_date||""));
+      else if(extra?.sort === "release_date_desc") parts = parts.slice().sort((a,b) => (b.release_date||"").localeCompare(a.release_date||""));
+      return { metas: await resultsToMetas(parts, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
+    }
     case"tmdb_multi_collection": {
-      const allParts = [];
+      let allParts = [];
       for(const cid of def.collectionIds) {
         try {
           const d = await fetchCached(`https://api.themoviedb.org/3/collection/${cid}?api_key=${TMDB_KEY}`);
           if(d.parts) allParts.push(...d.parts);
         } catch(e) {}
       }
-      return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey) };
+      if(extra?.sort === "chronological") allParts = allParts.sort((a,b) => (a.release_date||"").localeCompare(b.release_date||""));
+      else if(extra?.sort === "release_date_desc") allParts = allParts.sort((a,b) => (b.release_date||"").localeCompare(a.release_date||""));
+      return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_trending": {
       const path = type === "series" ? "/shows/trending" : "/movies/trending";
       const data = await fetchTrakt(`${path}?limit=50`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_popular": {
       const path = type === "series" ? "/shows/popular" : "/movies/popular";
       const data = await fetchTrakt(`${path}?limit=50&extended=full`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_anticipated": {
       const path = type === "series" ? "/shows/anticipated" : "/movies/anticipated";
       const data = await fetchTrakt(`${path}?limit=50`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_favorites": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
       const data = await fetchTrakt(`/users/${traktUser}/favorites/${t}?limit=50`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_watchlist": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
       const data = await fetchTrakt(`/users/${traktUser}/watchlist/${t}?limit=50`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_collection": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
       const data = await fetchTrakt(`/users/${traktUser}/collection/${t}`);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey) };
+      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"tmdb_anime":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
@@ -572,7 +615,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     )
   );
   const allResults = pages.flatMap(d => d.results || []);
-  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey) };
+  return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
 
 }
 
@@ -656,19 +699,19 @@ app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"c
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser, excludeUnreleased, maxRating } = req.body;
   if (!password || !catalogs || !catalogs.length) return res.status(400).json({ error:"Password and catalogs required" });
   const configs = loadConfigs();
   let token = generateToken();
   while (configs[token]) token = generateToken();
-  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, traktUser: traktUser || null, createdAt: new Date().toISOString() };
+  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, traktUser: traktUser || null, excludeUnreleased: !!excludeUnreleased, maxRating: maxRating || null, createdAt: new Date().toISOString() };
   saveConfigs(configs);
   res.json({ token });
 });
 
 app.post("/c/:token/update", (req, res) => {
   const { token } = req.params;
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, traktUser, excludeUnreleased, maxRating } = req.body;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Config not found" });
   if (configs[token].passwordHash !== hashPassword(password)) return res.status(401).json({ error:"Incorrect password" });
@@ -678,6 +721,8 @@ app.post("/c/:token/update", (req, res) => {
   configs[token].tpKey = tpKey || configs[token].tpKey || null;
   configs[token].mdblistKey = mdblistKey || configs[token].mdblistKey || null;
   configs[token].traktUser = traktUser !== undefined ? traktUser : configs[token].traktUser;
+  configs[token].excludeUnreleased = excludeUnreleased !== undefined ? !!excludeUnreleased : (configs[token].excludeUnreleased || false);
+  configs[token].maxRating = maxRating !== undefined ? maxRating : (configs[token].maxRating || null);
   configs[token].updatedAt = new Date().toISOString();
   saveConfigs(configs);
   res.json({ token });
@@ -687,7 +732,7 @@ app.get("/c/:token/config", (req, res) => {
   const { token } = req.params;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Not found" });
-  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey, traktUser: configs[token].traktUser });
+  res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey, traktUser: configs[token].traktUser, excludeUnreleased: configs[token].excludeUnreleased || false, maxRating: configs[token].maxRating || null });
 });
 
 app.post("/c/:token/collections", (req, res) => {
@@ -813,7 +858,7 @@ app.use((req, res, next) => {
         { type:"series", id:"search_series", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] }
       ]
     };
-    fullManifest.catalogs = (fullManifest.catalogs || []).map(c => ({
+    fullManifest.catalogs = (fullManifest.catalogs || []).filter(c => !c.id.startsWith("mdb_")).map(c => ({
   ...c,
   name: (c.name || "").trim()
 }));
@@ -844,7 +889,7 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
       if (req.query.skip) extra.skip = parseInt(req.query.skip);
       if (req.query.search) extra.search = req.query.search;
       const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
-      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null, config.traktUser || null)
+      handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null, config.traktUser || null, config.excludeUnreleased || false, config.maxRating || null)
         .then(result => res.json(result))
         .catch(() => res.json({ metas: [] }));
       return;
