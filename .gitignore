@@ -1,29 +1,44 @@
-# Node
-node_modules/
-npm-debug.log*
-yarn-error.log*
+cd /home/ubuntu/stremio-catalog-addon
 
-# Environment variables
+cat > .gitignore <<'EOF'
+# Secrets
 .env
 .env.*
 !.env.example
 
-# Logs
-logs/
-*.log
+# Runtime data
+configs.json
 
-# OS junk
+# Node
+node_modules/
+
+# Logs
+*.log
+webhook.log
+
+# Backups
+*.bak*
+*.GOLDEN*
+*.tar.gz
+archive-backups/
+old-dev-backups-*/
+
+# Generated exports
+*.json
+!package.json
+!package-lock.json
+
+# Dev-only files
+index-dev.js
+configure-dev.html
+configure-v2.html
+collections-builder.html
+check-ultramax.sh
+deploy-ultramax.sh
+rollback-ultramax.sh
+
+# OS/editor
 .DS_Store
 Thumbs.db
-
-# Docker
-docker-compose.override.yml
-
-# Build output
-dist/
-build/
-
-# Temp files
-*.tmp
-*.swp
-configs.json
+.vscode/
+EOF

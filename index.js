@@ -402,10 +402,9 @@ async function getImdbId(tmdbId, type) {
   try {
     const t = type ==="series" ?"tv" :"movie";
     const r = await axios.get(`https://api.themoviedb.org/3/${t}/${tmdbId}/external_ids?api_key=${TMDB_KEY}`, { timeout: 5000 });
-    if (!r.data.imdb_id) return null;
-    imdbCache.set(key, r.data.imdb_id);
-    return r.data.imdb_id;
-  } catch { return null; }
+    imdbCache.set(key, r.data.imdb_id || null);
+    return r.data.imdb_id || null;
+  } catch { imdbCache.set(key, null); return null; }
 }
 
 async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, excludeUnreleased = false) {
@@ -689,8 +688,10 @@ const app = express();
 app.use((req, res, next) => { res.setHeader("Access-Control-Allow-Origin", "*"); res.setHeader("Access-Control-Allow-Headers", "*"); res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); if (req.method === "OPTIONS") return res.sendStatus(200); next(); });
 app.use(express.json());
 
-app.get("/configure", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
-app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","no-store"); res.sendFile(path.join(__dirname,"configure.html")); });
+app.get("/health", (req, res) => { res.status(200).json({ ok: true, service: "ultra-max", timestamp: new Date().toISOString() }); });
+
+app.get("/configure", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
+app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.get("/collections-builder", (req, res) => { res.sendFile(path.join(__dirname,"collections-builder.html")); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
@@ -871,7 +872,7 @@ app.use((req, res, next) => {
       let extra = {};
       if (extraStr) { try { extra = JSON.parse(decodeURIComponent(extraStr)); } catch { decodeURIComponent(extraStr).split("&").forEach(p => { const [k,v] = p.split("="); if(k && v) extra[k]=decodeURIComponent(v); }); } }
       handleCatalog(id, type, extra, null)
-        .then(result => res.json(result))
+        .then(result => { res.setHeader("Cache-Control","public, max-age=300"); res.json(result); })
         .catch(() => res.json({ metas: [] }));
       return;
     }
@@ -890,7 +891,7 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
       if (req.query.search) extra.search = req.query.search;
       const hasAnime = config.catalogs.some(c => c.includes("anime") || c.includes("bollywood") || c.includes("crunchyroll") || c.includes("hidive"));
       handleCatalog(id, type, extra, config.mdblistKey || MDBLIST_KEY, !hasAnime, config.language || "en-US", config.rpdbKey || null, config.tpKey || null, config.traktUser || null, config.excludeUnreleased || false, config.maxRating || null)
-        .then(result => res.json(result))
+        .then(result => { res.setHeader("Cache-Control","public, max-age=300"); res.json(result); })
         .catch(() => res.json({ metas: [] }));
       return;
     }

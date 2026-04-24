@@ -171,13 +171,19 @@
         <div class="step-connector" id="conn-1"></div>
         <div class="progress-step">
           <div class="step-circle" id="circle-2">2</div>
-          <span class="step-label" id="label-2">Catalogs</span>
+          <span class="step-label" id="label-2">Home Rows</span>
         </div>
         <div class="step-connector" id="conn-2"></div>
         <div class="progress-step">
           <div class="step-circle" id="circle-3">3</div>
-          <span class="step-label" id="label-3">Install</span>
+          <span class="step-label" id="label-3">Collections</span>
         </div>
+        <div class="step-connector" id="conn-3"></div>
+        <div class="progress-step">
+          <div class="step-circle" id="circle-4">4</div>
+          <span class="step-label" id="label-4">Finalize</span>
+        </div>
+
       </div>
     </div>
 
@@ -237,6 +243,7 @@
           <option value="nl-NL">🇳🇱 Dutch</option>
           <option value="pl-PL">🇵🇱 Polish</option>
           <option value="tr-TR">🇹🇷 Turkish</option>
+          <option value="ar-SA">🇸🇦 Arabic</option>
         </select>
         <div class="input-hint">Titles and descriptions will appear in your chosen language.</div>
       </div>
@@ -284,7 +291,36 @@
         <div class="info-box" style="margin-top:10px;">
           <strong>Connect your Trakt account.</strong><br>
           Adds your Favorites, Watchlist, and Collection as personal catalogs. Make sure your Trakt profile is set to Public.<br><br>
-          <a href="https://trakt.tv/settings/profile" target="_blank" rel="noopener">Trakt Settings &rarr;</a>
+          <a href="https://trakt.tv/users/settings" target="_blank" rel="noopener">Trakt Settings &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Hide Unreleased -->
+      <div class="field-block">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="excludeUnreleased" style="width:18px;height:18px;cursor:pointer;" />
+          <label for="excludeUnreleased" style="cursor:pointer;user-select:none;font-weight:600;">&#128683; Hide unreleased titles</label>
+        </div>
+        <div class="info-box" style="margin-top:10px;">
+          Filters out movies and series that haven't released yet. Excludes "Coming Soon" titles from all catalogs.
+        </div>
+      </div>
+
+      <!-- Age Rating -->
+      <div class="field-block">
+        <div class="field-label">&#128101; Max Age Rating <span class="badge badge-optional">OPTIONAL</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="maxRating" style="flex:1;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #2a2a2a;border-radius:6px;">
+            <option value="">No restriction</option>
+            <option value="G">G - General Audiences</option>
+            <option value="PG">PG - Parental Guidance</option>
+            <option value="PG-13">PG-13 - Parents Strongly Cautioned</option>
+            <option value="R">R - Restricted</option>
+            <option value="NC-17">NC-17 - Adults Only</option>
+          </select>
+        </div>
+        <div class="info-box" style="margin-top:10px;">
+          Hide all movies above this rating. Uses US certifications. Great for kid-safe setups.
         </div>
       </div>
 
@@ -330,8 +366,11 @@
       <div class="divider"></div>
 
       <!-- Search & controls -->
-      <div class="section-title">&#127916; Choose Your Catalogs</div>
-      <p style="font-size:11px;color:#888;margin-bottom:14px;letter-spacing:0.03em;">&#9432; Catalogs appear in Stremio/Nuvio in the order you select them</p>
+      <div class="section-title">&#127916; Choose Your Home Screen Rows</div>
+      <p style="font-size:11px;color:#888;margin-bottom:14px;letter-spacing:0.03em;">Choose what appears on your Stremio/Nuvio home screen. Too many rows can slow browsing, especially on mobile.</p>
+      <div class="info-box" style="margin:0 0 16px 0;">
+        <strong>Tip:</strong> 👁 means the row appears on Home. 🙈 means it is hidden from Home but still available in Ultra MAX.
+      </div>
       <div class="catalog-controls">
         <input type="text" class="search-box" id="searchBox" placeholder="&#128269; Search catalogs..." oninput="filterCatalogs(this.value)" />
         <button class="global-btn" onclick="selectAllGlobal()">Select All</button>
@@ -726,56 +765,341 @@
       </div>
 
     </div>
+      <!-- STEP 3: COLLECTIONS -->
+      <div class="wizard-step" id="step-3">
+        <div class="section-title">&#127917; Collections</div>
+        <div class="info-box" style="margin:0 0 16px 0;">
+          <strong>Move rows into Collections before final generate.</strong><br>
+          Presets below only appear when they match rows you selected. Added collection rows are automatically hidden from Home to keep browsing cleaner.
+        </div>
 
-    <!-- STEP 3: INSTALL -->
-    <div class="wizard-step" id="step-3">
-      <div class="section-title">&#127917; Generate &amp; Install</div>
+        <div id="collectionsPresetBar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+          <button class="global-btn coll-preset-btn" data-coll-preset="streaming" onclick="addCollectionPreset('streaming')">&#128250; Streaming Services</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="genres" onclick="addCollectionPreset('genres')">&#127917; Genres</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="studios" onclick="addCollectionPreset('studios')">&#127909; Studios</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="trakt" onclick="addCollectionPreset('trakt')">&#127908; Trakt</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="collections" onclick="addCollectionPreset('collections')">&#127916; Film Collections</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="decades" onclick="addCollectionPreset('decades')">&#128197; By Decade</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="kids" onclick="addCollectionPreset('kids')">&#128118; Kids &amp; Family</button>
+          <button class="global-btn coll-preset-btn" data-coll-preset="uk" onclick="addCollectionPreset('uk')">&#127468;&#127463; UK</button>
+        </div>
 
-      <div class="loading" id="loading">Generating your addon...</div>
+        <div id="collectionsEmpty" class="info-box" style="margin:0 0 16px 0;">
+          No collections added yet. Pick a preset above to group matching Home rows into Collections.
+        </div>
 
-      <div id="resultBox" style="display:none;">
-        <div class="result-section">
-          <div class="result-label">Your Manifest URL</div>
-          <div class="url-display" id="urlDisplay"></div>
-          <div class="result-btns">
-            <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
-            <a class="rbtn" id="installBtn" href="#">Install in Stremio/Nuvio</a>
-          </div>
-          <div class="result-btns" style="margin-top:8px;">
-            <a class="rbtn" id="collectionsBtn" href="#" style="background:#e67e22;color:#fff;font-weight:700;">&#127917; Build Your Nuvio Collections &rarr;</a>
-          </div>
-          <div class="token-save">
-            Your token: <span id="tokenDisplay"></span>
-            <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#888;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
-            <br>Save your token — you'll need it to edit your config later.<br>
-            Edit at: <span id="editLink"></span>
-          </div>
+        <div id="collectionsStepList"></div>
+
+        <div class="nav-btns">
+          <button class="nav-btn" onclick="setStep(2)">&larr; Back</button>
+          <button class="nav-btn primary" onclick="goToStep4()">Next — Finalize &rarr;</button>
         </div>
       </div>
 
-      <div class="nav-btns">
-        <button class="nav-btn" onclick="setStep(2)">&larr; Back</button>
-        <button class="nav-btn primary" id="genBtn" onclick="generate()">Generate Manifest</button>
+        <!-- STEP 4: FINALIZE -->
+        <div class="wizard-step" id="step-4">
+          <div class="section-title">&#128640; Finalize</div>
+
+          <div class="result-section" id="finalizeSummary" style="margin-bottom:16px;">
+            <div class="result-label">Final Setup Summary</div>
+            <div style="font-size:12px;color:#ccc;line-height:1.8;">
+              <div>Home rows kept: <strong id="finalHomeRows" style="color:#fff;">0</strong></div>
+              <div>Hidden from Home: <strong id="finalHiddenRows" style="color:#fff;">0</strong></div>
+              <div>Collections created: <strong id="finalCollectionCount" style="color:#fff;">0</strong></div>
+              <div>Rows moved into Collections: <strong id="finalCollectionRows" style="color:#fff;">0</strong></div>
+              <div>Performance: <strong id="finalPerf" style="color:#fff;">Excellent for all devices</strong></div>
+            </div>
+            <div id="finalHint" style="margin-top:12px;font-size:11px;color:#aaa;line-height:1.6;">
+              Your setup looks clean and ready to generate.
+            </div>
+          </div>
+
+          <div class="loading" id="loading">Generating your addon...</div>
+
+        <div id="resultBox" style="display:none;">
+          <div class="result-section">
+            <div class="result-label">Your Final Setup URL</div>
+            <div class="url-display" id="urlDisplay"></div>
+            <div class="result-btns">
+              <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
+              <a class="rbtn" id="installBtn" href="#">Install in Stremio/Nuvio</a>
+            </div>
+            <div class="result-btns" style="margin-top:8px;">
+              <a class="rbtn" id="collectionsBtn" href="#" style="background:#e67e22;color:#fff;font-weight:700;">&#127917; Open Collections Builder &rarr;</a>
+              <a class="rbtn" id="csvBtn" href="#" onclick="downloadCsv();return false;" style="background:#2ecc71;color:#fff;font-weight:600;">&#128196; Export as CSV</a>
+            </div>
+            <div class="token-save">
+              Your token: <span id="tokenDisplay"></span>
+              <button onclick="copyToken()" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#888;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
+              <br>Save your token — you'll need it to edit your config later.<br>
+              Edit at: <span id="editLink"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-btns">
+          <button class="nav-btn" onclick="setStep(3)">&larr; Back</button>
+          <button class="nav-btn primary" id="genBtn" onclick="generate()">Generate Final Setup</button>
+        </div>
+        <div style="padding:24px 0 6px;text-align:center;border-top:1px solid #1a1a1a;margin-top:24px;">
+          <div style="color:#888;margin-bottom:14px;font-size:13px;line-height:1.5;">Ultra MAX is a free project. If it's improved your setup, consider supporting development:</div>
+          <a href="https://ko-fi.com/ultramaxaddon" target="_blank" style="display:inline-block;padding:10px 22px;background:#FF5E5B;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:13px;">&#9749; Buy me a coffee</a>
+        </div>
+        <div class="error-msg" id="genError" style="margin-top:12px;"></div>
       </div>
-      <div class="error-msg" id="genError" style="margin-top:12px;"></div>
-    </div>
 
-    <!-- STICKY COUNTER (step 2 only) -->
-    <div class="counter-bar" id="counterBar" style="display:none;">
-      <button class="global-btn" onclick="setStep(1)">&larr; Back</button>
-      <div class="count-display"><span class="count-num" id="countNum">0</span> selected</div>
-      <button class="next-btn" id="nextBtn" onclick="goToStep3()" disabled>Next — Generate &rarr;</button>
+      <!-- STICKY COUNTER (step 2 only) -->
+      <div class="counter-bar" id="counterBar" style="display:none;">
+        <button class="global-btn" onclick="setStep(1)">&larr; Back</button>
+        <div class="count-display">
+          <div><span class="count-num" id="countNum">0</span> Home rows</div>
+          <div id="perfLabel" style="font-size:10px;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;">Excellent</div>
+        </div>
+        <button class="next-btn" id="nextBtn" onclick="goToStep3()" disabled>Next — Collections &rarr;</button>
+      </div>
     </div>
-
   </div>
   <div class="sprocket right" id="s2"></div>
 </div>
+
 
 <script>
 const BASE_URL = window.location.origin;
 let selected = new Set();
 let editToken = null;
 let currentStep = 1;
+
+let collectionDrafts = [];
+
+const COLLECTION_PRESETS = {
+  streaming: { title:'Streaming Services', ids:['netflix_movies','netflix_series','amazon_movies','amazon_series','disney_movies','disney_series','hbo_movies','hbo_series','apple_movies','apple_series','paramount_movies','paramount_series','peacock_movies','peacock_series','hulu_movies','hulu_series','shudder_movies','shudder_series','britbox_movies','britbox_series','itvx_movies','itvx_series','channel4_movies','channel4_series','crunchyroll_movies','crunchyroll_series','hidive_movies','hidive_series'] },
+  genres: { title:'Genres', ids:['action_movies','action_series','comedy_movies','comedy_series','horror_movies','horror_series','scifi_movies','scifi_series','thriller_movies','thriller_series','crime_movies','crime_series','drama_movies','drama_series','romance_movies','romance_series','mystery_movies','mystery_series','fantasy_movies','fantasy_series','family_movies','family_series','animation_movies','animation_series','documentary_movies','documentary_series','anime_movies','anime_series','bollywood_movies','bollywood_series'] },
+  studios: { title:'Studios', ids:['studio_marvel','studio_dc','studio_a24','studio_blumhouse','studio_ghibli','mdb_3918','mdb_3928','studio_wb','studio_universal','studio_sony','studio_paramount','studio_20thcentury','studio_lionsgate','studio_newline','studio_canalplus'] },
+  trakt: { title:'Trakt', ids:['trakt_trending_movies','trakt_trending_series','trakt_popular_movies','trakt_popular_series','trakt_anticipated_movies','trakt_anticipated_series','trakt_fav_movies','trakt_fav_series','trakt_watchlist_movies','trakt_watchlist_series','trakt_collection_movies','trakt_collection_series','mdb_87667','mdb_88434'] },
+  collections: { title:'Film Collections', ids:['hp_collection','lotr_collection','starwars_collection','hobbit_collection','bond_collection','mi_collection','indiana_collection','jurassic_coll','fastfurious_coll','johnwick_coll','matrix_collection','diehard_collection','taken_collection','bourne_collection','oceans_collection','madmax_collection','rambo_collection','expendables_coll','kingsman_coll','avengers_coll','captainamerica_coll','ironman_collection','thor_collection','gotg_collection','doctorstrange_coll','blackpanther_coll','antman_collection','deadpool_coll','xmen_collection','wonderwoman_coll','aquaman_collection','alien_collection','terminator_coll','predator_coll','halloween_coll','nightmare_coll','saw_collection','scream_collection','conjuring_coll','planetapes_coll','transformers_coll','hungergames_coll','pirates_collection','shrek_collection','iceage_collection','httyd_collection','despicableme_coll','kungfupanda_coll','incredibles_coll','toystory_coll','findingnemo_coll','shrek2_collection','dune_collection','godfather_collection','spiderman_collection','avatar_collection','scarymovie_coll','knivesout_coll','mazerunner_coll','superman_collection','batman_collection','justiceleague_coll','backtofuture_coll','sherlock_coll'] },
+  decades: { title:'By Decade', ids:['mdb_92337','mdb_91304','mdb_91303','mdb_91302','mdb_91300','mdb_91301'] },
+  kids: { title:'Kids & Family', ids:['mdb_88307','mdb_88309','mdb_13'] },
+  uk: { title:'UK', ids:['mdb_3087','mdb_3091'] }
+};
+
+function getCollectionMatches(key){
+  const preset = COLLECTION_PRESETS[key];
+  if(!preset) return [];
+  return preset.ids.filter(function(id){ return selected.has(id); });
+}
+
+function refreshCollectionPresetButtons(){
+  document.querySelectorAll('.coll-preset-btn').forEach(function(btn){
+    const key = btn.dataset.collPreset;
+    const matches = getCollectionMatches(key);
+    btn.style.display = matches.length ? 'inline-block' : 'none';
+    btn.disabled = !matches.length;
+    btn.style.opacity = matches.length ? '1' : '0.35';
+  });
+}
+
+function renderCollectionDrafts(){
+  const list = document.getElementById('collectionsStepList');
+  const empty = document.getElementById('collectionsEmpty');
+  if(!list || !empty) return;
+
+  empty.style.display = collectionDrafts.length ? 'none' : 'block';
+
+  const selectedOptions = Array.from(selected).map(function(id){
+    const pill = document.querySelector('.pill[data-id="' + id + '"]');
+    const label = pill ? pill.textContent.replace('👁','').replace('🙈','').trim() : id;
+    return { id: id, label: label };
+  });
+
+  list.innerHTML = collectionDrafts.map(function(coll, idx){
+    const used = new Set(coll.catalogIds || []);
+    const available = selectedOptions.filter(function(opt){ return !used.has(opt.id); });
+
+    return '<div class="result-section" style="margin-bottom:16px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">'
+      +   '<div class="result-label" style="margin:0;">Collection</div>'
+      +   '<button class="global-btn" onclick="removeCollectionDraft(' + idx + ')">Remove Collection</button>'
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:10px;">'
+
+      +   '<div>'
+      +     '<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">Title</div>'
+      +     '<input type="text" value="' + escHtml(coll.title || '') + '" placeholder="Collection title" oninput="collectionDrafts[' + idx + '].title=this.value" style="width:100%;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #2a2a2a;border-radius:6px;" />'
+      +   '</div>'
+
+      +   '<div>'
+      +     '<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">Cover JPG / PNG URL</div>'
+      +     '<input type="text" value="' + escHtml(coll.cover || '') + '" placeholder="https://.../cover.jpg" oninput="collectionDrafts[' + idx + '].cover=this.value" style="width:100%;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #2a2a2a;border-radius:6px;" />'
+      +   '</div>'
+
+      +   '<div>'
+      +     '<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">Focus GIF URL</div>'
+      +     '<input type="text" value="' + escHtml(coll.gif || '') + '" placeholder="https://.../focus.gif" oninput="collectionDrafts[' + idx + '].gif=this.value" style="width:100%;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #2a2a2a;border-radius:6px;" />'
+      +   '</div>'
+
+      +   '<div>'
+      +     '<div style="font-size:11px;color:#888;margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase;">Included Home Rows</div>'
+      +     ((coll.catalogIds || []).length
+              ? '<div style="display:flex;flex-direction:column;gap:8px;">'
+                + coll.catalogIds.map(function(id, rowIdx){
+                    const pill = document.querySelector('.pill[data-id="' + id + '"]');
+                    const label = pill ? pill.textContent.replace("👁","").replace("🙈","").trim() : id;
+                    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;padding:10px 12px;">'
+                      + '<div style="font-size:12px;color:#ddd;">' + escHtml(label) + '</div>'
+                      + '<button class="global-btn" onclick="removeCollectionRow(' + idx + ',' + rowIdx + ')">Remove</button>'
+                      + '</div>';
+                  }).join('')
+                + '</div>'
+              : '<div style="font-size:12px;color:#777;">No rows in this collection yet.</div>')
+      +   '</div>'
+
+      +   '<div>'
+      +     '<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">Add Home Row</div>'
+      +     '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+      +       '<select id="collectionAddSelect-' + idx + '" style="flex:1;min-width:180px;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #2a2a2a;border-radius:6px;">'
+      +         '<option value="">Choose a Home row...</option>'
+      +         + available.map(function(opt){
+                    return '<option value="' + escHtml(opt.id) + '">' + escHtml(opt.label) + '</option>';
+                  }).join('')
+      +       '</select>'
+      +       '<button class="global-btn" onclick="addCollectionRow(' + idx + ')">Add Row</button>'
+      +     '</div>'
+      +   '</div>'
+
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+
+function addCollectionPreset(key){
+  const preset = COLLECTION_PRESETS[key];
+  if(!preset) return;
+
+  if(collectionDrafts.some(function(c){ return c.key === key; })) return;
+
+  const matches = getCollectionMatches(key);
+  if(!matches.length) return;
+
+  collectionDrafts.push({
+    key: key,
+    title: preset.title,
+    cover: '',
+    gif: '',
+    catalogIds: matches.slice()
+  });
+
+  matches.forEach(function(id){
+    hidden.add(id);
+    const pill = document.querySelector('.pill[data-id="' + id + '"]');
+    if(pill){
+      pill.style.fontStyle = 'italic';
+      const eye = pill.querySelector('.pill-eye');
+      if(eye){
+        eye.style.display = 'inline';
+        eye.textContent = '🙈';
+        eye.style.opacity = '1';
+      }
+    }
+  });
+
+  updateCounter();
+  updateCategoryCounts();
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
+}
+
+
+function removeCollectionDraft(idx){
+  const coll = collectionDrafts[idx];
+  if(!coll) return;
+
+  (coll.catalogIds || []).forEach(function(id){
+    const stillUsedElsewhere = collectionDrafts.some(function(other, i){
+      return i !== idx && (other.catalogIds || []).includes(id);
+    });
+    if(!stillUsedElsewhere){
+      hidden.delete(id);
+      const pill = document.querySelector('.pill[data-id="' + id + '"]');
+      if(pill){
+        pill.style.fontStyle = '';
+        const eye = pill.querySelector('.pill-eye');
+        if(eye){
+          eye.textContent = '👁';
+          eye.style.opacity = '0.9';
+          eye.style.display = pill.classList.contains('selected') ? 'inline' : 'none';
+        }
+      }
+    }
+  });
+
+  collectionDrafts.splice(idx, 1);
+  updateCounter();
+  updateCategoryCounts();
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
+}
+
+function addCollectionRow(idx){
+  const sel = document.getElementById('collectionAddSelect-' + idx);
+  if(!sel || !sel.value) return;
+  const id = sel.value;
+  const coll = collectionDrafts[idx];
+  if(!coll) return;
+
+  if(!coll.catalogIds.includes(id)){
+    coll.catalogIds.push(id);
+  }
+
+  hidden.add(id);
+  const pill = document.querySelector('.pill[data-id="' + id + '"]');
+  if(pill){
+    pill.style.fontStyle = 'italic';
+    const eye = pill.querySelector('.pill-eye');
+    if(eye){
+      eye.style.display = 'inline';
+      eye.textContent = '🙈';
+      eye.style.opacity = '1';
+    }
+  }
+
+  updateCounter();
+  updateCategoryCounts();
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
+}
+
+function removeCollectionRow(collIdx, rowIdx){
+  const coll = collectionDrafts[collIdx];
+  if(!coll) return;
+
+  const id = coll.catalogIds[rowIdx];
+  coll.catalogIds.splice(rowIdx, 1);
+
+  const stillUsedElsewhere = collectionDrafts.some(function(other, i){
+    return i !== collIdx && (other.catalogIds || []).includes(id);
+  });
+
+  if(!stillUsedElsewhere){
+    hidden.delete(id);
+    const pill = document.querySelector('.pill[data-id="' + id + '"]');
+    if(pill){
+      pill.style.fontStyle = '';
+      const eye = pill.querySelector('.pill-eye');
+      if(eye){
+        eye.textContent = '👁';
+        eye.style.opacity = '0.9';
+        eye.style.display = pill.classList.contains('selected') ? 'inline' : 'none';
+      }
+    }
+  }
+
+  updateCounter();
+  updateCategoryCounts();
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
+}
+
 
 const PRESETS = {
   casual: ['trending_movies','trending_series','popular_movies','popular_series','top_movies','top_series','now_movies','airing_series','action_movies','action_series','comedy_movies','comedy_series','horror_movies','drama_movies','drama_series','scifi_movies','mdb_87667','mdb_960','mdb_69'],
@@ -793,7 +1117,7 @@ function setStep(n){
 }
 
 function updateProgress(){
-  for(let i=1;i<=3;i++){
+  for(let i=1;i<=4;i++){
     const circle = document.getElementById('circle-'+i);
     const label = document.getElementById('label-'+i);
     circle.className = 'step-circle';
@@ -801,7 +1125,7 @@ function updateProgress(){
     if(i < currentStep){ circle.classList.add('done'); circle.textContent='✓'; label.classList.add('done'); }
     else if(i === currentStep){ circle.classList.add('active'); circle.textContent=i; label.classList.add('active'); }
     else { circle.textContent=i; }
-    if(i < 3){
+    if(i < 4){
       const conn = document.getElementById('conn-'+i);
       conn.className = 'step-connector' + (i < currentStep ? ' done' : '');
     }
@@ -819,7 +1143,58 @@ function goToStep2(){
 function goToStep3(){
   if(selected.size === 0) return;
   setStep(3);
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
 }
+
+function goToStep4(){
+  if(selected.size === 0) return;
+
+  const collectionIds = new Set();
+  collectionDrafts.forEach(function(coll){
+    (coll.catalogIds || []).forEach(function(id){ collectionIds.add(id); });
+  });
+
+  const collectionRowCount = collectionIds.size;
+  const homeRows = Math.max(0, selected.size - collectionRowCount);
+  const hiddenRows = hidden.size;
+
+  let perfText = 'Excellent for all devices';
+  let hintText = 'Your setup looks clean and ready to generate.';
+
+  if(homeRows <= 15){
+    perfText = 'Excellent for all devices';
+    hintText = 'Lean Home layout. Great for mobile, TV and fast browsing.';
+  } else if(homeRows <= 25){
+    perfText = 'Good for TV, solid on mobile';
+    hintText = 'Still balanced. Collections are helping keep Home tidy.';
+  } else if(homeRows <= 40){
+    perfText = 'Getting heavy';
+    hintText = 'Usable, but consider moving a few more rows into Collections.';
+  } else {
+    perfText = 'Heavy Home layout';
+    hintText = 'Too many rows still remain on Home. Move more into Collections for a cleaner experience.';
+  }
+
+  const homeEl = document.getElementById('finalHomeRows');
+  const hiddenEl = document.getElementById('finalHiddenRows');
+  const collEl = document.getElementById('finalCollectionCount');
+  const collRowsEl = document.getElementById('finalCollectionRows');
+  const perfEl = document.getElementById('finalPerf');
+  const hintEl = document.getElementById('finalHint');
+
+  if(homeEl) homeEl.textContent = homeRows;
+  if(hiddenEl) hiddenEl.textContent = hiddenRows;
+  if(collEl) collEl.textContent = collectionDrafts.length;
+  if(collRowsEl) collRowsEl.textContent = collectionRowCount;
+  if(perfEl) perfEl.textContent = perfText;
+  if(hintEl) hintEl.textContent = hintText;
+
+  setStep(4);
+}
+
+
+
 
 function applyPreset(name, evt){
   clearAllGlobal(true);
@@ -836,16 +1211,41 @@ function applyPreset(name, evt){
 }
 
 function selectAllGlobal(){
-  document.querySelectorAll('.pill').forEach(function(p){ p.classList.add('selected'); selected.add(p.dataset.id); });
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.add('selected');
+    selected.add(p.dataset.id);
+
+    const eye = p.querySelector('.pill-eye');
+    if(eye){
+      eye.style.display = 'inline';
+      eye.textContent = hidden.has(p.dataset.id) ? '🙈' : '👁';
+      eye.style.opacity = hidden.has(p.dataset.id) ? '1' : '0.9';
+    }
+
+    if(!hidden.has(p.dataset.id)){
+      p.style.fontStyle = '';
+    }
+  });
   document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
   updateCounter(); updateCategoryCounts();
 }
 
 function clearAllGlobal(silent){
-  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.classList.remove('selected');
+
+    const eye = p.querySelector('.pill-eye');
+    if(eye) eye.style.display = 'none';
+
+    hidden.delete(p.dataset.id);
+    p.style.fontStyle = '';
+  });
   selected.clear();
   if(!silent) document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+  collectionDrafts = [];
   updateCounter(); updateCategoryCounts();
+  refreshCollectionPresetButtons();
+  renderCollectionDrafts();
 }
 
 function filterCatalogs(query){
@@ -867,8 +1267,18 @@ function selectAll(groupId){
   const pills = group.querySelectorAll('.pill:not(.hidden)');
   const allSelected = Array.from(pills).every(function(p){ return p.classList.contains('selected'); });
   pills.forEach(function(p){
-    if(allSelected){ p.classList.remove('selected'); selected.delete(p.dataset.id); }
-    else { p.classList.add('selected'); selected.add(p.dataset.id); }
+    const eye = p.querySelector('.pill-eye');
+    if(allSelected){
+      p.classList.remove('selected');
+      selected.delete(p.dataset.id);
+      hidden.delete(p.dataset.id);
+      p.style.fontStyle = '';
+      if(eye) eye.style.display = 'none';
+    } else {
+      p.classList.add('selected');
+      selected.add(p.dataset.id);
+      if(eye) eye.style.display = 'inline';
+    }
   });
   const btn = document.querySelector('[onclick="selectAll(\''+groupId+'\')"]');
   if(btn) btn.textContent = allSelected ? 'Select All' : 'Clear All';
@@ -892,8 +1302,23 @@ function updateCategoryCounts(){
 }
 
 function updateCounter(){
-  document.getElementById('countNum').textContent = selected.size;
-  document.getElementById('nextBtn').disabled = selected.size === 0;
+  const count = selected.size;
+  const perf = document.getElementById('perfLabel');
+
+  document.getElementById('countNum').textContent = count;
+  document.getElementById('nextBtn').disabled = count === 0;
+
+  if(!perf) return;
+
+  if(count <= 15){
+    perf.textContent = 'Excellent for all devices';
+  } else if(count <= 25){
+    perf.textContent = 'Good for TV, may feel busy on mobile';
+  } else if(count <= 40){
+    perf.textContent = 'Heavy setup - Collections recommended';
+  } else {
+    perf.textContent = 'Very heavy setup - move rows into Collections';
+  }
 }
 
 function toggleReturning(){
@@ -937,8 +1362,19 @@ async function loadConfigByToken(token){
     if(data.rpdbKey) document.getElementById('rpdbKey').value = data.rpdbKey;
     if(data.tpKey) document.getElementById('tpKey').value = data.tpKey;
     if(data.traktUser) document.getElementById('traktUser').value = data.traktUser;
-    if(data.excludeUnreleased) document.getElementById('excludeUnreleased').checked = true;
-    if(data.maxRating) document.getElementById('maxRating').value = data.maxRating;
+    if(data.excludeUnreleased){ const el=document.getElementById('excludeUnreleased'); if(el) el.checked = true; }
+    if(data.maxRating){ const el=document.getElementById('maxRating'); if(el) el.value = data.maxRating; }
+    if(data.hiddenCatalogs && data.hiddenCatalogs.length) {
+      data.hiddenCatalogs.forEach(function(id){
+        hidden.add(id);
+        const p = document.querySelector('.pill[data-id="'+id+'"]');
+        if(p) {
+          p.style.fontStyle = 'italic';
+          const eye = p.querySelector('.pill-eye');
+          if(eye) { eye.style.display = 'inline'; eye.textContent = '🙈'; eye.style.opacity = '1'; }
+        }
+      });
+    }
     updateCounter(); updateCategoryCounts();
     setTimeout(makeSprockets, 200);
   }catch(e){ console.error(e); }
@@ -965,7 +1401,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: document.getElementById('excludeUnreleased').checked, maxRating: document.getElementById('maxRating').value || null })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden) })
     });
     const data = await res.json();
 
@@ -981,6 +1417,20 @@ async function generate(){
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
     document.getElementById('collectionsBtn').href = '/collections-builder?token=' + data.token;
+
+    const collectionsBtn = document.getElementById('collectionsBtn');
+    if(collectionsBtn){
+      if(selected.size <= 15){
+        collectionsBtn.innerHTML = '&#127917; Optional: Create Collections &rarr;';
+      } else if(selected.size <= 25){
+        collectionsBtn.innerHTML = '&#127917; Recommended: Create Collections &rarr;';
+      } else if(selected.size <= 40){
+        collectionsBtn.innerHTML = '&#127917; Recommended: Clean Up Home Screen &rarr;';
+      } else {
+        collectionsBtn.innerHTML = '&#127917; Strongly Recommended: Optimize with Collections &rarr;';
+      }
+    }
+
     document.getElementById('tokenDisplay').textContent = data.token;
     document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#888;">max-streams.gleeze.com/configure/' + data.token + '</a>';
     document.getElementById('resultBox').style.display = 'block';
@@ -1079,11 +1529,45 @@ function initCollapsible(){
 }
 
 // Init
+const hidden = new Set();
 document.querySelectorAll('.pill').forEach(function(pill){
+  // Create eye icon element
+  const eye = document.createElement('span');
+  eye.className = 'pill-eye';
+  eye.textContent = '👁';
+  eye.title = 'Click to hide from Home (still available in Ultra MAX)';
+  eye.style.cssText = 'margin-left:6px;opacity:0.4;font-size:11px;cursor:pointer;display:none;';
+  eye.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(!pill.classList.contains('selected')) return;
+    const id = pill.dataset.id;
+    if(hidden.has(id)) {
+      hidden.delete(id);
+      eye.textContent = '👁';
+      eye.style.opacity = '0.9';
+      pill.style.fontStyle = '';
+    } else {
+      hidden.add(id);
+      eye.textContent = '🙈';
+      eye.style.opacity = '1';
+      pill.style.fontStyle = 'italic';
+    }
+  });
+  pill.appendChild(eye);
+  
   pill.addEventListener('click', function(){
     pill.classList.toggle('selected');
-    if(pill.classList.contains('selected')) selected.add(pill.dataset.id);
-    else selected.delete(pill.dataset.id);
+    if(pill.classList.contains('selected')) {
+      selected.add(pill.dataset.id);
+      eye.style.display = 'inline';
+      eye.textContent = hidden.has(pill.dataset.id) ? '🙈' : '👁';
+      eye.style.opacity = hidden.has(pill.dataset.id) ? '1' : '0.9';
+    } else {
+      selected.delete(pill.dataset.id);
+      hidden.delete(pill.dataset.id);
+      eye.style.display = 'none';
+      pill.style.fontStyle = '';
+    }
     document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
     updateCounter(); updateCategoryCounts();
   });
@@ -1099,7 +1583,13 @@ if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configu
 }
 
 window.addEventListener('resize', makeSprockets);
-window.addEventListener('load', function(){ setTimeout(makeSprockets, 300); updateCategoryCounts(); initCollapsible(); });
+window.addEventListener('load', function(){
+  try { setTimeout(makeSprockets, 300); } catch(e) { console.error('makeSprockets failed', e); }
+  try { updateCategoryCounts(); } catch(e) { console.error('updateCategoryCounts failed', e); }
+  try { initCollapsible(); } catch(e) { console.error('initCollapsible failed', e); }
+  try { refreshCollectionPresetButtons(); } catch(e) { console.error('refreshCollectionPresetButtons failed', e); }
+  try { renderCollectionDrafts(); } catch(e) { console.error('renderCollectionDrafts failed', e); }
+});
 setTimeout(makeSprockets, 100);
 async function verifyKey(type) {
   const ids = { mdblist: "mdblistKey", rpdb: "rpdbKey", tp: "tpKey" };
@@ -1132,10 +1622,36 @@ async function verifyKey(type) {
   btn.textContent = "Check";
   btn.disabled = false;
 }
+
+function downloadCsv(){
+  const catTitles = {};
+  document.querySelectorAll('.category').forEach(function(cat){
+    const titleEl = cat.querySelector('.cat-title');
+    if(!titleEl) return;
+    const title = (titleEl.textContent||'').replace(/\s+\d+$/,'').trim();
+    cat.querySelectorAll('.pill').forEach(function(pill){ catTitles[pill.dataset.id] = title; });
+  });
+  const rows = [['Name','Type','Category','ID','Hidden from Home']];
+  document.querySelectorAll('.pill.selected').forEach(function(pill){
+    const id = pill.dataset.id;
+    const name = pill.textContent.replace('👁','').trim();
+    const cat = catTitles[id] || '';
+    const type = id.includes('series') || id.includes('network_') || id.includes('starz_series') ? 'Series' : 'Movie';
+    const isHidden = typeof hidden !== 'undefined' && hidden.has(id) ? 'Yes' : 'No'; rows.push([name, type, cat, id, isHidden]);
+  });
+  const csv = rows.map(function(r){
+    return r.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ultra-max-catalogs.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 </script>
-<div style="text-align:center;padding:30px 20px;margin-top:40px;border-top:1px solid #222;color:#666;font-size:12px;">
-  <div style="margin-bottom:12px;">Ultra MAX is a free project. If it's improved your setup, consider supporting development:</div>
-  <a href="https://ko-fi.com/ultramaxaddon" target="_blank" style="display:inline-block;padding:10px 20px;background:#FF5E5B;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">&#9749; Buy me a coffee</a>
-</div>
 </body>
 </html>
