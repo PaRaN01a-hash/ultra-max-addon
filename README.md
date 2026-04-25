@@ -1,101 +1,96 @@
-# Ultra MAX
 
-A free, customisable catalog addon for Stremio/Nuvio with 140+ curated catalogs.
+# Ultra MAX v6
 
-Browse trending movies, the latest from every major streaming service, curated genre lists, themed collections, and much more — all without leaving Stremio or Nuvio.
+A free, highly customisable catalog addon for Stremio and Nuvio.
 
----
-
-## Get Started
-
-### Option 1 — Build Your Own (Recommended)
-
-Personalise your experience by choosing exactly which catalogs appear on your home screen and in what order.
-
-**[max-streams.gleeze.com](https://max-streams.gleeze.com)**
-
-1. Grab a free MDBList API key at [mdblist.com](https://mdblist.com/api) — takes 30 seconds
-2. Go to the configure page and pick your catalogs
-3. Generate your manifest and install in Stremio/Nuvio
-
-### Option 2 — Quick Install
-
-| Version | Install |
-|---------|---------|
-| Filtered (no anime/Bollywood) | `https://max-streams.gleeze.com/manifest.json` |
-| All content | `https://max-streams-all.gleeze.com/manifest.json` |
+Build your own streaming universe with trending titles, fresh releases, streaming services, genres, curated collections, studios, decades, UK content, kids rows, Trakt integrations, and more.
 
 ---
 
-## What's Included
+## 🚀 Install Ultra MAX
 
-| Category | Catalogs |
+## Option 1: Build Your Own (Recommended)
+
+Choose exactly what appears on your home screen, in the order you want.
+
+👉 **https://max-streams.gleeze.com**
+
+1. Get a free MDBList API key  
+   https://mdblist.com/api
+
+2. Open the configure page
+
+3. Select rows, presets, collections, language and layout
+
+4. Generate your setup URL
+
+5. Install into Stremio or Nuvio
+
+---
+
+## Option 2: Quick Install
+
+| Version | URL |
+|--------|-----|
+| Ultra MAX Filtered | `https://max-streams.gleeze.com/manifest.json` |
+| Ultra MAX All | `https://max-streams-all.gleeze.com/manifest.json` |
+
+---
+
+## 🧠 What's New in v6
+
+- Fully redesigned configure experience
+- Preset collections with artwork
+- Massive image coverage across rows
+- Cleaner onboarding flow
+- Better organisation for Nuvio users
+- Faster setup experience
+- Improved Trakt sections
+- Expanded studios / collections / UK rows
+- Production polish everywhere
+
+---
+
+## 🎬 Included Categories
+
+| Category | Examples |
 |----------|----------|
-| 🔥 Trending & Popular | Trending, Popular, Top Rated, Trakt charts, IMDb Moviemeter |
-| 🆕 New & Latest | Latest releases, Blu-ray drops, what's new on each streaming service |
-| 📺 Streaming Services | Netflix, Amazon, Disney+, HBO, Apple TV+, Paramount+, Peacock, Hulu, MGM+, Acorn, Shudder, BritBox, ITVX, Channel 4, Crunchyroll, Hidive |
-| 🎭 Genres | Action, Comedy, Horror, Sci-Fi, Thriller, Crime, Drama, Romance, Mystery, Fantasy, Family, Animated, Documentary and more |
-| 🎬 Themed & Curated | Mindfuck, Plot Twists, Outer Space, Time Travel, Horror Classics, Superhero, Heist, Zombie, Road Trip, Dystopia and more |
-| 🎥 Studios | Marvel, DC, A24, Blumhouse, Studio Ghibli, Pixar, DreamWorks |
-| 📅 By Decade | Best of 2025, 2020s, 2010s, 2000s, 1990s, 1980s |
-| 👶 Kids & Family | Trending kids movies and series |
-| 🇬🇧 UK Specific | BBC Shows, UK content |
+| 🔥 Trending | Trending, Popular, Top Rated |
+| 🆕 New & Latest | Digital releases, Blu-ray, service latest drops |
+| 📺 Streaming | Netflix, Prime Video, Disney+, HBO, Apple TV+, Hulu, ITVX, Channel 4 |
+| 🎭 Genres | Horror, Action, Comedy, Sci-Fi, Mystery, Family |
+| 🎬 Curated | Mindfuck, Plot Twists, Heists, Zombies, Time Travel |
+| 🏢 Studios | Marvel, DC, A24, Ghibli, Warner, Universal |
+| 📅 Decades | 2020s, 2010s, 2000s, 1990s, 1980s |
+| 👶 Kids | Family and children rows |
+| 🇬🇧 UK | BBC, ITVX, UK shows |
+| 📈 Trakt | Trending, Popular, Anticipated, Watchlists |
 
 ---
 
-## Configure Page Features
+## ⚙️ Configure Features
 
-- **Quick Start Presets** — Casual Viewer, Binge Watcher, or Everything
-- **Search** — filter catalogs instantly
-- **Select All / Clear All** per category
-- **Custom order** — catalogs appear in Stremio/Nuvio in the order you select them
-- **Save & Edit** — return anytime with your token to update your selection
-- **Multi-language support** — titles and descriptions in your language
-
----
-
-## Supported Languages
-
-🇬🇧 English · 🇪🇸 Spanish · 🇫🇷 French · 🇩🇪 German · 🇮🇹 Italian · 🇧🇷 Portuguese · 🇳🇱 Dutch · 🇵🇱 Polish · 🇹🇷 Turkish
-
-Set your preferred language on the configure page and all movie/series titles and descriptions will be returned in that language.
+- Quick presets
+- Search rows instantly
+- Hide / show home rows
+- Reorder everything
+- Save and return later
+- Language support
+- Token-based config URLs
 
 ---
 
-## Requirements
+## 🌍 Supported Languages
 
-- Stremio or Nuvio installed on your device
-- A free [MDBList API key](https://mdblist.com/api) (required for curated lists)
-
----
-
-## Community
-
-- 💬 **Reddit** — [r/Ultra_Max](https://www.reddit.com/r/Ultra_Max/)
-- 🐛 **Bug reports & feature requests** — open a GitHub Issue
+English, Spanish, French, German, Italian, Portuguese, Dutch, Polish, Turkish
 
 ---
 
-## Self-Hosting
+## 🖥 Self Hosting
 
 ```bash
 git clone https://github.com/PaRaN01a-hash/stremio-catalog-addon
 cd stremio-catalog-addon
 cp .env.example .env
-# Add your TMDB_KEY and MDBLIST_KEY to .env
+# Add keys
 docker compose up -d
-```
-
----
-
-## Version History
-
-- **v5.4** — Multi-language support (9 languages), search fixes, anime filter per config
-- **v5.3** — New architecture, 140+ catalogs, custom configure page, presets, search, logo
-- **v5.1** — Configure page, custom manifests, MDBList integration
-- **v5.0** — Stable release, episode lists, metadata, filtering
-- **v4.0** — Similar/recommended catalogs, collections
-
----
-
-*Free and open source. Not affiliated with any streaming service.*
