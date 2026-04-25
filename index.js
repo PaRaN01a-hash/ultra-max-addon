@@ -340,7 +340,7 @@ const staticIds = getStaticIds();
 
 const builder = new addonBuilder({
   id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-  version:"5.5.0",
+  version:"6.0.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
   name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
   description:"Dev build v5.3",
@@ -412,10 +412,27 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
   return (await Promise.all(
     arr.filter(i => {
       if (!i.poster_path) return false;
-      if (excludeUnreleased) {
-        const d = i.release_date || i.first_air_date || "";
-        if (!d || d > today) return false;
-      }
+
+      const title = i.title || i.name || i.original_title || i.original_name || "";
+      if (!title.trim()) return false;
+
+      const d = i.release_date || i.first_air_date || "";
+
+      // Keep thin/ghost TMDB entries out of public rows.
+      // These often show as clickable posters but fail metadata in Nuvio.
+      if (!d) return false;
+
+      if (excludeUnreleased && d > today) return false;
+
+      // Even when unreleased filtering is off, block far-future placeholders.
+      const futureLimit = new Date();
+      futureLimit.setDate(futureLimit.getDate() + 120);
+      const futureLimitStr = futureLimit.toISOString().slice(0,10);
+      if (d > futureLimitStr) return false;
+
+      // Very low signal entries are often placeholders/sparse records.
+      if ((i.vote_count || 0) < 1 && !i.overview) return false;
+
       return true;
     }).map(async i => {
       const imdb = await getImdbId(i.id, type);
@@ -761,7 +778,7 @@ app.get("/c/:token/manifest.json", (req, res) => {
   if (!config) return res.status(404).json({ error:"Config not found" });
   const manifest = {
     id: `org.kris.ultramax.custom.${token}`,
-    version:"5.5.0",
+    version:"6.0.0",
     name:"Ultra MAX",
     description: `Custom addon with ${config.catalogs.length} catalogs`,
     logo: "https://max-streams.gleeze.com/logo.svg",
@@ -846,7 +863,7 @@ app.use((req, res, next) => {
   if (url.includes("/manifest.json") && !url.startsWith("/c/")) {
     const fullManifest = {
       id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
-      version:"5.5.0",
+      version:"6.0.0",
   logo: "https://max-streams.gleeze.com/logo.svg",
       name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
       description: FILTER_ENABLED ?"Filtered content" :"All content",
@@ -912,7 +929,7 @@ setTimeout(async () => {
 }, 5000);
 
 app.listen(PORT,"0.0.0.0", () => {
-  console.log(`Ultra MAX v5.3 DEV running on port ${PORT}`);
+  console.log(`Ultra MAX v6.0.0 running on port ${PORT}`);
   console.log(`Total catalog defs: ${Object.keys(CATALOG_DEFS).length}`);
   console.log(`Static catalogs: ${staticIds.length}`);
 });
