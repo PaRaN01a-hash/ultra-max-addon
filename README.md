@@ -28,15 +28,6 @@ Choose exactly what appears on your home screen, in the order you want.
 
 ---
 
-## Option 2: Quick Install
-
-| Version | URL |
-|--------|-----|
-| Ultra MAX Filtered | `https://max-streams.gleeze.com/manifest.json` |
-| Ultra MAX All | `https://max-streams-all.gleeze.com/manifest.json` |
-
----
-
 ## 🧠 What's New in v6
 
 - Fully redesigned configure experience
