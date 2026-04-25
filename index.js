@@ -345,7 +345,9 @@ const builder = new addonBuilder({
   name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
   description:"Dev build v5.3",
   types: ["movie","series"],
+  idPrefixes: ["tt", "tmdb"],
   resources: ["catalog","meta","stream"],
+  behaviorHints: { configurable: true, configurationRequired: false, adult: false, p2p: false },
   catalogs: [
     { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
   ]
@@ -783,7 +785,9 @@ app.get("/c/:token/manifest.json", (req, res) => {
     description: `Custom addon with ${config.catalogs.length} catalogs`,
     logo: "https://max-streams.gleeze.com/logo.svg",
     types: ["movie","series"],
+    idPrefixes: ["tt", "tmdb"],
     resources: ["catalog","meta","stream"],
+    behaviorHints: { configurable: true, configurationRequired: false, adult: false, p2p: false },
     catalogs: [
       ...buildCatalogsFromIds(config.catalogs),
       { type:"movie", id:"search_movies", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }] },
@@ -868,7 +872,9 @@ app.use((req, res, next) => {
       name: FILTER_ENABLED ?"Ultra MAX" :"Ultra MAX All",
       description: FILTER_ENABLED ?"Filtered content" :"All content",
       types: ["movie","series"],
+      idPrefixes: ["tt", "tmdb"],
       resources: ["catalog","meta","stream"],
+      behaviorHints: { configurable: true, configurationRequired: false, adult: false, p2p: false },
       catalogs: [
         ...buildManifestCatalogs(staticIds),
         ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] })),
