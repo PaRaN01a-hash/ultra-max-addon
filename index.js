@@ -12,6 +12,7 @@ const { DYNAMIC_CATALOGS } = require("./catalogs/dynamic-catalogs");
 const { loadConfigs, saveConfigs } = require("./utils/config-store");
 const { hashPassword, generateToken } = require("./utils/auth");
 const { rateLimit } = require("./utils/rate-limit");
+const { fetchCached, fetchTrakt } = require("./services/api-helpers");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -22,7 +23,6 @@ const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
-const cache = new Map();
 const imdbCache = new Map();
 
 function getStaticIds() {
@@ -55,36 +55,6 @@ const builder = new addonBuilder({
     { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
   ]
 });
-
-async function fetchCached(url) {
-  if (cache.has(url)) return cache.get(url);
-  const res = await axios.get(url, { timeout: 5000 });
-  cache.set(url, res.data);
-  setTimeout(() => cache.delete(url), 300000);
-  return res.data;
-}
-
-async function fetchTrakt(path) {
-  if (!TRAKT_CLIENT_ID) return [];
-  const url = `https://api.trakt.tv${path}`;
-  if (cache.has(url)) return cache.get(url);
-  try {
-    const res = await axios.get(url, {
-      timeout: 5000,
-      headers: {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": TRAKT_CLIENT_ID
-      }
-    });
-    cache.set(url, res.data);
-    setTimeout(() => cache.delete(url), 300000);
-    return res.data;
-  } catch(e) {
-    console.error("Trakt fetch error:", e.message);
-    return [];
-  }
-}
 
 async function traktToMetas(arr, type, language, rpdbKey, tpKey, excludeUnreleased = false) {
   const tmdbType = type === "series" ? "tv" : "movie";
@@ -709,35 +679,53 @@ if (genreCatalogs[genreKey]) {
     }
     case"trakt_trending": {
       const path = type === "series" ? "/shows/trending" : "/movies/trending";
-      const data = await fetchTrakt(`${path}?limit=50`);
+const data = await fetchTrakt(
+  `${path}?limit=50`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_popular": {
       const path = type === "series" ? "/shows/popular" : "/movies/popular";
-      const data = await fetchTrakt(`${path}?limit=50&extended=full`);
+      const data = await fetchTrakt(
+  `${path}?limit=50&extended=full`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_anticipated": {
       const path = type === "series" ? "/shows/anticipated" : "/movies/anticipated";
-      const data = await fetchTrakt(`${path}?limit=50`);
+      const data = await fetchTrakt(
+  `${path}?limit=50`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_favorites": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(`/users/${traktUser}/favorites/${t}?limit=50`);
+      const data = await fetchTrakt(
+  `/users/${traktUser}/favorites/${t}?limit=50`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_watchlist": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(`/users/${traktUser}/watchlist/${t}?limit=50`);
+      const data = await fetchTrakt(
+  `/users/${traktUser}/watchlist/${t}?limit=50`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"trakt_user_collection": {
       if (!traktUser) return { metas: [] };
       const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(`/users/${traktUser}/collection/${t}`);
+      const data = await fetchTrakt(
+  `/users/${traktUser}/collection/${t}`,
+  TRAKT_CLIENT_ID
+);
       return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
     }
     case"tmdb_anime":
