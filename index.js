@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const express = require("express");
 const { CATALOG_DEFS } = require("./catalogs/catalog-defs");
 const { QUICK_PICK_CATALOGS } = require("./catalogs/quick-picks");
+const { DYNAMIC_CATALOGS } = require("./catalogs/dynamic-catalogs");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -71,14 +72,6 @@ function hashPassword(p) { return crypto.createHash("sha256").update(p +"ultrama
 function generateToken() { return crypto.randomBytes(4).toString("hex").toUpperCase(); }
 const cache = new Map();
 const imdbCache = new Map();
-
-const DYNAMIC_CATALOGS = [
-  { type:"movie",  id:"similar_movie",      name:"More Like This" },
-  { type:"series", id:"similar_series",     name:"More Like This" },
-  { type:"movie",  id:"recommended_movie",  name:"Recommended"    },
-  { type:"series", id:"recommended_series", name:"Recommended"    },
-  { type:"movie",  id:"collection_movie",   name:"Collection"     }
-];
 
 function getStaticIds() {
   // MDB catalogs not in static manifest - only via custom configs
