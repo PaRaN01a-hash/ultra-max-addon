@@ -9,6 +9,8 @@ const express = require("express");
 const { CATALOG_DEFS } = require("./catalogs/catalog-defs");
 const { QUICK_PICK_CATALOGS } = require("./catalogs/quick-picks");
 const { DYNAMIC_CATALOGS } = require("./catalogs/dynamic-catalogs");
+const { loadConfigs, saveConfigs } = require("./utils/config-store");
+
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -16,7 +18,6 @@ const MDBLIST_KEYS = (process.env.MDBLIST_KEYS || process.env.MDBLIST_KEY || "5w
 const MDBLIST_KEY = MDBLIST_KEYS[0];
 const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
 const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
-const CONFIGS_FILE = path.join(__dirname,"configs.json");
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
@@ -35,38 +36,6 @@ function rateLimit(ip, max = 5, windowMs = 60000) {
   record.count++;
   rateLimits.set(ip, record);
   return record.count > max;
-}
-let CONFIG_CACHE = null;
-let CONFIG_CACHE_MTIME = 0;
-
-function loadConfigs() {
-  try {
-    const stat = fs.statSync(CONFIGS_FILE);
-    const mtime = stat.mtimeMs;
-
-    if (CONFIG_CACHE && CONFIG_CACHE_MTIME === mtime) {
-      return CONFIG_CACHE;
-    }
-
-    CONFIG_CACHE = JSON.parse(fs.readFileSync(CONFIGS_FILE, "utf8"));
-    CONFIG_CACHE_MTIME = mtime;
-    return CONFIG_CACHE;
-  } catch (e) {
-    return {};
-  }
-}
-
-// Write queue — prevents concurrent saves from corrupting configs.json
-let configWriteQueue = Promise.resolve();
-function saveConfigs(c) {
-  configWriteQueue = configWriteQueue.then(() => {
-    try {
-      fs.writeFileSync(CONFIGS_FILE, JSON.stringify(c, null, 2));
-      const stat = fs.statSync(CONFIGS_FILE);
-      CONFIG_CACHE = c;
-      CONFIG_CACHE_MTIME = stat.mtimeMs;
-    } catch(e) { console.error("saveConfigs error:", e.message); }
-  });
 }
 function hashPassword(p) { return crypto.createHash("sha256").update(p +"ultramax_salt").digest("hex"); }
 function generateToken() { return crypto.randomBytes(4).toString("hex").toUpperCase(); }
