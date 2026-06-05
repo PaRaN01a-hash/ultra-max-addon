@@ -7,6 +7,7 @@ const path = require("path");
 const crypto = require("crypto");
 const express = require("express");
 const { CATALOG_DEFS } = require("./catalogs/catalog-defs");
+const { QUICK_PICK_CATALOGS } = require("./catalogs/quick-picks");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -70,23 +71,6 @@ function hashPassword(p) { return crypto.createHash("sha256").update(p +"ultrama
 function generateToken() { return crypto.randomBytes(4).toString("hex").toUpperCase(); }
 const cache = new Map();
 const imdbCache = new Map();
-
-const QUICK_PICK_CATALOGS = [
-  { id: "quick_trending_movies", type: "movie", name: "🔥 Top Movies This Week" },
-  { id: "quick_trending_series", type: "series", name: "🔥 Top Series This Week" },
-
-  { id: "quick_netflix_movies", type: "movie", name: "Netflix Popular" },
-  { id: "quick_netflix_series", type: "series", name: "Netflix Popular" },
-
-  { id: "quick_prime_movies", type: "movie", name: "Prime Video Popular" },
-  { id: "quick_prime_series", type: "series", name: "Prime Video Popular" },
-
-  { id: "quick_disney_movies", type: "movie", name: "Disney+ Popular" },
-  { id: "quick_disney_series", type: "series", name: "Disney+ Popular" },
-
-  { id: "quick_apple_movies", type: "movie", name: "Apple TV+ Popular" },
-  { id: "quick_apple_series", type: "series", name: "Apple TV+ Popular" }
-];
 
 const DYNAMIC_CATALOGS = [
   { type:"movie",  id:"similar_movie",      name:"More Like This" },
