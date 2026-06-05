@@ -14,7 +14,17 @@ const { hashPassword, generateToken } = require("./utils/auth");
 const { rateLimit } = require("./utils/rate-limit");
 const { fetchCached, fetchTrakt } = require("./services/api-helpers");
 const { streamBridgeResponse } = require("./services/stream-bridge");
-const { getImdbId, getMovieCertification, filterByMaxRating, imdbToTmdbMovieId, filterMetasByMaxRating, getBestPoster, traktToMetas, resultsToMetas, mdblistToMetas } = require("./services/metadata-service");
+const {
+  getImdbId,
+  getMovieCertification,
+  filterByMaxRating,
+  imdbToTmdbMovieId,
+  filterMetasByMaxRating,
+  getBestPoster,
+  traktToMetas,
+  resultsToMetas,
+  mdblistToMetas
+} = require("./services/metadata-service");
 const { geminiAiRecommendations, tmdbResolveAiItems } = require("./services/ai-service");
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -23,7 +33,6 @@ const MDBLIST_KEY = MDBLIST_KEYS[0];
 const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
 const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
 const { handleTraktCatalog } = require("./services/trakt-service");
-const { handleSearch } = require("./services/search-service");
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
@@ -68,6 +77,8 @@ console.log(
   maxRating
 
 );
+  // FORCE SEARCH NO CACHE: only dedicated search catalogs should answer search requests.
+  // Without this guard, Nuvio repeats the same search results under every catalog row.
 if (extra && extra.search) {
 const searchableCatalogs = new Set([
   "search_movies",
@@ -83,11 +94,83 @@ const searchableCatalogs = new Set([
     return { metas: [] };
   }
 
-if (extra && extra.search) {
-  return await handleSearch({
-    catalogId,
-    type,
-    extra,
+  if (extra && extra.search) {
+    const q = String(extra.search).replace(/\.json$/, '').trim();
+    const tmdbType = type === "series" ? "tv" : "movie";
+    const language = arguments[5] || "en-US";
+    const rpdbKey = arguments[6] || null;
+    const tpKey = arguments[7] || null;
+
+console.log("FORCED SEARCH NO CACHE:", catalogId, type, q);
+
+// ACTOR SEARCH
+
+if (q.includes(" ")) {
+  try {
+    const personData = await fetchCached(
+      `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`
+    );
+
+    const person = personData?.results?.[0];
+console.log(
+  "PERSON SEARCH:",
+  q,
+  person?.name,
+  person?.known_for_department,
+  person?.popularity
+);
+    if (
+      person &&
+      person.known_for_department === "Acting"
+    ) {
+      console.log("ACTOR SEARCH:", person.name, person.id);
+
+      const actorData = await fetchCached(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${person.id}&sort_by=popularity.desc&page=1`
+      );
+
+      return {
+        metas: await resultsToMetas(
+          actorData.results || [],
+          "movie",
+          false,
+          language,
+          rpdbKey,
+          tpKey
+        )
+      };
+    }
+  } catch (e) {
+    console.log("ACTOR SEARCH FAILED:", e.message);
+  }
+}
+
+
+const genreCatalogs = {
+  action: "action_movies",
+  comedy: "comedy_movies",
+  horror: "horror_movies",
+  thriller: "thriller_movies",
+  crime: "crime_movies",
+  scifi: "scifi_movies",
+  documentary: "documentary_movies",
+  animation: "animation_movies",
+  fantasy: "fantasy_movies",
+  drama: "drama_movies",
+  mystery: "mystery_movies",
+  zombie: "theme_zombie",
+  superhero: "theme_superhero"
+};
+
+const genreKey = q.toLowerCase().trim();
+
+if (genreCatalogs[genreKey]) {
+  console.log("GENRE SEARCH:", genreKey);
+
+  return await handleCatalog(
+    genreCatalogs[genreKey],
+    "movie",
+    {},
     mdbKey,
     filterLang,
     language,
@@ -99,12 +182,61 @@ if (extra && extra.search) {
     customCatalogs,
     googleAiKey,
     fanartKey,
-    omdbKey,
-    TMDB_KEY,
-    resultsToMetas,
-    handleCatalog
-  });
+    omdbKey
+  );
 }
+ 
+   if (q) {
+      const url = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&page=1&language=${language}`;
+              const r = await fetch(url);
+        const data = await r.json();
+
+        let results = data.results || [];
+
+        results.sort((a, b) => {
+          const at = String(a.title || a.name || "").toLowerCase();
+          const bt = String(b.title || b.name || "").toLowerCase();
+          const ql = q.toLowerCase();
+
+          let ascore = Number(a.popularity || 0);
+          let bscore = Number(b.popularity || 0);
+
+          if (at === ql) ascore += 100000;
+          if (bt === ql) bscore += 100000;
+
+          if (at.startsWith(ql)) ascore += 50000;
+          if (bt.startsWith(ql)) bscore += 50000;
+
+          if (at.includes(ql)) ascore += 10000;
+          if (bt.includes(ql)) bscore += 10000;
+
+          return bscore - ascore;
+        });
+
+        console.log(
+          results.slice(0,5).map(x => x.title || x.name)
+        );
+
+        console.log(
+          "FORCED SEARCH RESULTS:",
+          catalogId,
+          "count=",
+          results.length
+        );
+
+        return {
+          metas: await resultsToMetas(
+            results,
+            type,
+            false,
+            language,
+            rpdbKey,
+            tpKey
+          )
+        };
+    }
+  }
+
 
   const skip = extra?.skip || 0;
   const page = Math.floor(skip / 20) + 1;
@@ -596,7 +728,8 @@ app.get("/health", (req, res) => { res.status(200).json({ ok: true, service: "ul
 
 app.get("/assets", (req, res) => {
   const fs = require("fs");
-  const dir = process.env.IMAGES_DIR || "/home/ubuntu/images";
+  const dir = "/app/images";
+
   let files = [];
   try {
     files = fs.readdirSync(dir)
