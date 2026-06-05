@@ -12,7 +12,7 @@ const PREWARM_CATALOGS = [
   'apple_movies', 'apple_series',
   'action_movies', 'comedy_movies', 'horror_movies', 'thriller_movies', 'scifi_movies',
   'action_series', 'comedy_series', 'drama_series',
-  'studio_marvel', 'studio_dc', 'studio_pixar',
+  'studio_marvel', 'studio_dc',
   'trakt_trending_movies', 'trakt_trending_series',
   'trakt_popular_movies', 'trakt_popular_series'
 ];

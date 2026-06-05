@@ -1,9 +1,12 @@
+require('dotenv').config();
+
 const { addonBuilder } = require("stremio-addon-sdk");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const express = require("express");
+const { CATALOG_DEFS } = require("./catalogs/catalog-defs");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -16,6 +19,13 @@ const CONFIGS_FILE = path.join(__dirname,"configs.json");
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
 const rateLimits = new Map();
+// Clean up expired rate limit entries every 5 minutes to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of rateLimits.entries()) {
+    if (now > record.resetAt) rateLimits.delete(ip);
+  }
+}, 5 * 60 * 1000);
 function rateLimit(ip, max = 5, windowMs = 60000) {
   const now = Date.now();
   const record = rateLimits.get(ip) || { count: 0, resetAt: now + windowMs };
@@ -44,300 +54,22 @@ function loadConfigs() {
   }
 }
 
+// Write queue — prevents concurrent saves from corrupting configs.json
+let configWriteQueue = Promise.resolve();
 function saveConfigs(c) {
-  try {
-    fs.writeFileSync(CONFIGS_FILE, JSON.stringify(c, null, 2));
-    const stat = fs.statSync(CONFIGS_FILE);
-    CONFIG_CACHE = c;
-    CONFIG_CACHE_MTIME = stat.mtimeMs;
-  } catch (e) {}
+  configWriteQueue = configWriteQueue.then(() => {
+    try {
+      fs.writeFileSync(CONFIGS_FILE, JSON.stringify(c, null, 2));
+      const stat = fs.statSync(CONFIGS_FILE);
+      CONFIG_CACHE = c;
+      CONFIG_CACHE_MTIME = stat.mtimeMs;
+    } catch(e) { console.error("saveConfigs error:", e.message); }
+  });
 }
 function hashPassword(p) { return crypto.createHash("sha256").update(p +"ultramax_salt").digest("hex"); }
 function generateToken() { return crypto.randomBytes(4).toString("hex").toUpperCase(); }
 const cache = new Map();
 const imdbCache = new Map();
-
-const CATALOG_DEFS = {
-  ai_recommended_movies: { name:"🤖 AI Recommended Movies", type:"movie", handler:"gemini_ai_recommended" },
-  ai_recommended_series: { name:"🤖 AI Recommended Series", type:"series", handler:"gemini_ai_recommended" },
-  trending_movies:    { name:"Trending",        type:"movie",  handler:"tmdb_trending" },
-  trending_series:    { name:"Trending",        type:"series", handler:"tmdb_trending" },
-  popular_movies:     { name:"Popular",         type:"movie",  handler:"tmdb_source", source:"popular" },
-  popular_series:     { name:"Popular",         type:"series", handler:"tmdb_source", source:"popular" },
-  top_movies:         { name:"Top Rated",       type:"movie",  handler:"tmdb_source", source:"top_rated" },
-  top_series:         { name:"Top Rated",       type:"series", handler:"tmdb_source", source:"top_rated" },
-  now_movies:         { name:"Now Playing",            type:"movie",  handler:"tmdb_source", source:"now_playing" },
-  airing_series:      { name:"Airing Today",           type:"series", handler:"tmdb_source", source:"airing_today" },
-  ontheair_series:    { name:"On The Air",             type:"series", handler:"tmdb_source", source:"on_the_air" },
-  anime_movies:       { name:"Anime",           type:"movie",  handler:"tmdb_anime" },
-  anime_series:       { name:"Anime",           type:"series", handler:"tmdb_anime" },
-  bollywood_movies:   { name:"Bollywood",       type:"movie",  handler:"tmdb_bollywood" },
-  bollywood_series:   { name:"Bollywood",       type:"series", handler:"tmdb_bollywood" },
-  paramount_movies:   { name:"Paramount",       type:"movie",  handler:"tmdb_paramount" },
-  paramount_series:   { name:"Paramount",       type:"series", handler:"tmdb_paramount" },
-  netflix_movies:     { name:"Netflix",         type:"movie",  handler:"tmdb_provider", provider: 8 },
-  netflix_series:     { name:"Netflix",         type:"series", handler:"tmdb_provider", provider: 8 },
-  amazon_movies:      { name:"Amazon",          type:"movie",  handler:"tmdb_provider", provider: 9 },
-  amazon_series:      { name:"Amazon",          type:"series", handler:"tmdb_provider", provider: 9 },
-  disney_movies:      { name:"Disney+",         type:"movie",  handler:"tmdb_provider", provider: 337 },
-  disney_series:      { name:"Disney+",         type:"series", handler:"tmdb_provider", provider: 337 },
-  hbo_movies:         { name:"HBO",             type:"movie",  handler:"tmdb_provider", provider: 1899 },
-  hbo_series:         { name:"HBO",             type:"series", handler:"tmdb_provider", provider: 1899 },
-  apple_movies:       { name:"Apple TV+",       type:"movie",  handler:"tmdb_provider", provider: 350 },
-  apple_series:       { name:"Apple TV+",       type:"series", handler:"tmdb_provider", provider: 350 },
-  peacock_movies:     { name:"Peacock",         type:"movie",  handler:"tmdb_provider", provider: 386 },
-  peacock_series:     { name:"Peacock",         type:"series", handler:"tmdb_provider", provider: 386 },
-  mgm_movies:         { name:"MGM+",            type:"movie",  handler:"tmdb_provider", provider: 268 },
-  acorn_movies:       { name:"Acorn",           type:"movie",  handler:"tmdb_provider", provider: 87 },
-  acorn_series:       { name:"Acorn",           type:"series", handler:"tmdb_provider", provider: 87 },
-  shudder_movies:     { name:"Shudder",         type:"movie",  handler:"tmdb_provider", provider: 99 },
-  shudder_series:     { name:"Shudder",         type:"series", handler:"tmdb_provider", provider: 99 },
-  britbox_movies:     { name:"BritBox",         type:"movie",  handler:"tmdb_provider", provider: 151 },
-  britbox_series:     { name:"BritBox",         type:"series", handler:"tmdb_provider", provider: 151 },
-  itvx_movies:        { name:"ITVX",            type:"movie",  handler:"tmdb_provider", provider: 584 },
-  itvx_series:        { name:"ITVX",            type:"series", handler:"tmdb_provider", provider: 584 },
-  channel4_movies:    { name:"Channel 4",       type:"movie",  handler:"tmdb_provider", provider: 583 },
-  channel4_series:    { name:"Channel 4",       type:"series", handler:"tmdb_provider", provider: 583 },
-  crunchyroll_movies: { name:"Crunchyroll",     type:"movie",  handler:"tmdb_provider", provider: 283 },
-  crunchyroll_series: { name:"Crunchyroll",     type:"series", handler:"tmdb_provider", provider: 283 },
-  hidive_movies:      { name:"Hidive",          type:"movie",  handler:"tmdb_provider", provider: 430 },
-  hidive_series:      { name:"Hidive",          type:"series", handler:"tmdb_provider", provider: 430 },
-  hulu_movies:        { name:"Hulu",            type:"movie",  handler:"tmdb_provider", provider: 15 },
-  hulu_series:        { name:"Hulu",            type:"series", handler:"tmdb_provider", provider: 15 },
-  discovery_movies:   { name:"Discovery+",      type:"movie",  handler:"tmdb_provider", provider: 520 },
-  discovery_series:   { name:"Discovery+",      type:"series", handler:"tmdb_provider", provider: 520 },
-  natgeo_movies:      { name:"National Geographic", type:"movie",  handler:"tmdb_provider", provider: 1964 },
-  natgeo_series:      { name:"National Geographic", type:"series", handler:"tmdb_provider", provider: 1964 },
-  ae_series:          { name:"A&E",             type:"series", handler:"tmdb_provider", provider: 156 },
-  animalplanet_series:{ name:"Animal Planet",   type:"series", handler:"tmdb_provider", provider: 399 },
-  action_movies:      { name:"Action",          type:"movie",  handler:"tmdb_genre", genre: 28 },
-  action_series:      { name:"Action",          type:"series", handler:"tmdb_genre", genre: 28 },
-  comedy_movies:      { name:"Comedy",          type:"movie",  handler:"tmdb_genre", genre: 35 },
-  comedy_series:      { name:"Comedy",          type:"series", handler:"tmdb_genre", genre: 35 },
-  horror_movies:      { name:"Horror",          type:"movie",  handler:"tmdb_genre", genre: 27 },
-  horror_series:      { name:"Horror",          type:"series", handler:"tmdb_genre", genre: 27 },
-  scifi_movies:       { name:"Sci-Fi",          type:"movie",  handler:"tmdb_genre", genre: 878 },
-  scifi_series:       { name:"Sci-Fi",          type:"series", handler:"tmdb_genre", genre: 878 },
-  documentary_movies: { name:"Documentary",     type:"movie",  handler:"tmdb_genre", genre: 99 },
-  documentary_series: { name:"Documentary",     type:"series", handler:"tmdb_genre", genre: 99 },
-  romance_movies:     { name:"Romance",         type:"movie",  handler:"tmdb_genre", genre: 10749 },
-  romance_series:     { name:"Romance",         type:"series", handler:"tmdb_genre", genre: 10749 },
-  thriller_movies:    { name:"Thriller",        type:"movie",  handler:"tmdb_genre", genre: 53 },
-  thriller_series:    { name:"Thriller",        type:"series", handler:"tmdb_genre", genre: 53 },
-  crime_movies:       { name:"Crime",           type:"movie",  handler:"tmdb_genre", genre: 80 },
-  crime_series:       { name:"Crime",           type:"series", handler:"tmdb_genre", genre: 80 },
-  animation_movies:   { name:"Animated",        type:"movie",  handler:"tmdb_genre", genre: 16 },
-  animation_series:   { name:"Animated",        type:"series", handler:"tmdb_genre", genre: 16 },
-  family_movies:      { name:"Family",          type:"movie",  handler:"tmdb_genre", genre: 10751 },
-  family_series:      { name:"Family",          type:"series", handler:"tmdb_genre", genre: 10751 },
-  fantasy_movies:     { name:"Fantasy",         type:"movie",  handler:"tmdb_genre", genre: 14 },
-  fantasy_series:     { name:"Fantasy",         type:"series", handler:"tmdb_genre", genre: 14 },
-  mystery_movies:     { name:"Mystery",         type:"movie",  handler:"tmdb_genre", genre: 9648 },
-  mystery_series:     { name:"Mystery",         type:"series", handler:"tmdb_genre", genre: 9648 },
-  drama_movies:       { name:"Drama",           type:"movie",  handler:"tmdb_genre", genre: 18 },
-  drama_series:       { name:"Drama",           type:"series", handler:"tmdb_genre", genre: 18 },
-  theme_superhero:    { name:"Superhero",              type:"movie",  handler:"tmdb_keyword", keyword: 9715,  lang:"en" },
-  theme_heist:        { name:"Heist",                  type:"movie",  handler:"tmdb_keyword", keyword: 10051, lang:"en" },
-  theme_serialkiller: { name:"Serial Killer",          type:"movie",  handler:"tmdb_keyword", keyword: 10714, lang:"en" },
-  theme_timeloop:     { name:"Time Loop",              type:"movie",  handler:"tmdb_keyword", keyword: 10854, lang:"en" },
-  theme_zombie:       { name:"Zombie",                 type:"movie",  handler:"tmdb_keyword", keyword: 12377, lang:"en" },
-  studio_marvel:      { name:"Marvel",                 type:"movie",  handler:"tmdb_company", company: 420 },
-  studio_dc:          { name:"DC Films",               type:"movie",  handler:"tmdb_company", company: "429|128064|9993", excludeAnimation: true },
-  studio_a24:         { name:"A24",                    type:"movie",  handler:"tmdb_company", company: 41077 },
-  studio_blumhouse:   { name:"Blumhouse",              type:"movie",  handler:"tmdb_company", company: 3172 },
-  studio_ghibli:      { name:"Studio Ghibli",          type:"movie",  handler:"tmdb_company", company: 10342 },
-  studio_wb:          { name:"Warner Bros",              type:"movie",  handler:"tmdb_company", company: "174" },
-  studio_universal:   { name:"Universal Pictures",        type:"movie",  handler:"tmdb_company", company: "33" },
-  studio_sony:        { name:"Sony Pictures",             type:"movie",  handler:"tmdb_company", company: "34|5" },
-  studio_paramount:   { name:"Paramount Pictures",        type:"movie",  handler:"tmdb_company", company: "4" },
-  studio_20thcentury: { name:"20th Century",              type:"movie",  handler:"tmdb_company", company: "25" },
-  studio_lionsgate:   { name:"Lionsgate",                 type:"movie",  handler:"tmdb_company", company: "1632" },
-  studio_newline:     { name:"New Line Cinema",           type:"movie",  handler:"tmdb_company", company: "12" },
-  studio_canalplus:   { name:"Canal+",                    type:"movie",  handler:"tmdb_company", company: "104" },
-  network_abc:        { name:"ABC",                       type:"series", handler:"tmdb_network", networkId: 2 },
-  network_cbs:        { name:"CBS",                       type:"series", handler:"tmdb_network", networkId: 16 },
-  network_fox:        { name:"FOX",                       type:"series", handler:"tmdb_network", networkId: 19 },
-  network_nbc:        { name:"NBC",                       type:"series", handler:"tmdb_network", networkId: 6 },
-  starz_series:       { name:"Starz",                     type:"series", handler:"tmdb_network", networkId: 318 },
-  network_nickelodeon:{ name:"Nickelodeon",              type:"series", handler:"tmdb_network", networkId: 13 },
-  network_nickjr:     { name:"Nick Jr",                  type:"series", handler:"tmdb_network", networkId: 35 },
-  startrek_coll:      { name:"Star Trek",                 type:"movie",  handler:"tmdb_multi_collection", collectionIds: [151, 115570, 115575] },
-  director_nolan:     { name:"Christopher Nolan",      type:"movie",  handler:"tmdb_director", personId: 525 },
-  director_scorsese:  { name:"Martin Scorsese",         type:"movie",  handler:"tmdb_director", personId: 1032 },
-  director_spielberg: { name:"Steven Spielberg",        type:"movie",  handler:"tmdb_director", personId: 488 },
-  director_villeneuve:{ name:"Denis Villeneuve",        type:"movie",  handler:"tmdb_director", personId: 137427 },
-  director_fincher:   { name:"David Fincher",           type:"movie",  handler:"tmdb_director", personId: 7467 },
-  director_kubrick:   { name:"Stanley Kubrick",         type:"movie",  handler:"tmdb_director", personId: 240 },
-  director_hitchcock: { name:"Alfred Hitchcock",        type:"movie",  handler:"tmdb_director", personId: 2636 },
-  director_anderson:  { name:"Wes Anderson",            type:"movie",  handler:"tmdb_director", personId: 5655 },
-  director_burton:    { name:"Tim Burton",              type:"movie",  handler:"tmdb_director", personId: 510 },
-  director_tarantino: { name:"Quentin Tarantino",       type:"movie",  handler:"tmdb_director", personId: 138 },
-  director_hughes:    { name:"John Hughes",              type:"movie",  handler:"tmdb_director", personId: 11505 },
-  actor_sandler:         { name:"Adam Sandler",               type:"movie",  handler:"tmdb_actor", personId: 19292 },
-  actor_jolie:         { name:"Angelina Jolie",               type:"movie",  handler:"tmdb_actor", personId: 11701 },
-  actor_pitt:         { name:"Brad Pitt",               type:"movie",  handler:"tmdb_actor", personId: 287 },
-  actor_bale:         { name:"Christian Bale",               type:"movie",  handler:"tmdb_actor", personId: 3894 },
-  actor_eastwood:         { name:"Clint Eastwood",               type:"movie",  handler:"tmdb_actor", personId: 190 },
-  actor_denzel:         { name:"Denzel Washington",               type:"movie",  handler:"tmdb_actor", personId: 5292 },
-  actor_carrey:         { name:"Jim Carrey",               type:"movie",  handler:"tmdb_actor", personId: 206 },
-  actor_depp:         { name:"Johnny Depp",               type:"movie",  handler:"tmdb_actor", personId: 85 },
-  actor_dicaprio:         { name:"Leonardo DiCaprio",               type:"movie",  handler:"tmdb_actor", personId: 6193 },
-  actor_robbie:         { name:"Margot Robbie",               type:"movie",  handler:"tmdb_actor", personId: 234352 },
-  actor_damon:         { name:"Matt Damon",               type:"movie",  handler:"tmdb_actor", personId: 1892 },
-  actor_freeman:         { name:"Morgan Freeman",               type:"movie",  handler:"tmdb_actor", personId: 192 },
-  actor_deniro:         { name:"Robert De Niro",               type:"movie",  handler:"tmdb_actor", personId: 380 },
-  actor_rdj:         { name:"Robert Downey Jr",               type:"movie",  handler:"tmdb_actor", personId: 3223 },
-  actor_gosling:         { name:"Ryan Gosling",               type:"movie",  handler:"tmdb_actor", personId: 30614 },
-  actor_reynolds:         { name:"Ryan Reynolds",               type:"movie",  handler:"tmdb_actor", personId: 10859 },
-  actor_rogen:         { name:"Seth Rogen",               type:"movie",  handler:"tmdb_actor", personId: 19274 },
-  actor_cruise:         { name:"Tom Cruise",               type:"movie",  handler:"tmdb_actor", personId: 500 },
-  actor_hanks:         { name:"Tom Hanks",               type:"movie",  handler:"tmdb_actor", personId: 31 },
-  actor_ferrell:         { name:"Will Ferrell",               type:"movie",  handler:"tmdb_actor", personId: 23659 },
-  actor_smith:         { name:"Will Smith",               type:"movie",  handler:"tmdb_actor", personId: 2888 },
-  hp_collection:      { name:"Harry Potter",          type:"movie",  handler:"tmdb_collection", collectionId: 1241 },
-  lotr_collection:    { name:"Lord of the Rings",       type:"movie",  handler:"tmdb_collection", collectionId: 119 },
-  starwars_collection:{ name:"Star Wars",               type:"movie",  handler:"tmdb_collection", collectionId: 10 },
-  bond_collection:    { name:"James Bond",              type:"movie",  handler:"tmdb_collection", collectionId: 645 },
-  fastfurious_coll:   { name:"Fast & Furious",         type:"movie",  handler:"tmdb_collection", collectionId: 9485 },
-  johnwick_coll:      { name:"John Wick",               type:"movie",  handler:"tmdb_collection", collectionId: 404609 },
-  mi_collection:      { name:"Mission Impossible",      type:"movie",  handler:"tmdb_collection", collectionId: 87359 },
-  indiana_collection: { name:"Indiana Jones",           type:"movie",  handler:"tmdb_collection", collectionId: 84 },
-  jurassic_coll:      { name:"Jurassic Park",           type:"movie",  handler:"tmdb_collection", collectionId: 328 },
-  hobbit_collection:  { name:"The Hobbit",              type:"movie",  handler:"tmdb_collection", collectionId: 121938 },
-  avengers_coll:      { name:"The Avengers",            type:"movie",  handler:"tmdb_collection", collectionId: 86311 },
-  xmen_collection:    { name:"X-Men",                   type:"movie",  handler:"tmdb_collection", collectionId: 748 },
-  hungergames_coll:   { name:"Hunger Games",            type:"movie",  handler:"tmdb_collection", collectionId: 131635 },
-  pirates_collection: { name:"Pirates of Caribbean",   type:"movie",  handler:"tmdb_collection", collectionId: 295 },
-  shrek_collection:   { name:"Shrek",                  type:"movie",  handler:"tmdb_collection", collectionId: 2150 },
-  iceage_collection:  { name:"Ice Age",                type:"movie",  handler:"tmdb_collection", collectionId: 8354 },
-  httyd_collection:   { name:"How To Train Your Dragon",type:"movie",  handler:"tmdb_collection", collectionId: 89137 },
-  madmax_collection:  { name:"Mad Max",                type:"movie",  handler:"tmdb_collection", collectionId: 8945 },
-  bourne_collection:  { name:"The Bourne",             type:"movie",  handler:"tmdb_collection", collectionId: 31562 },
-  oceans_collection:  { name:"Ocean's",              type:"movie",  handler:"tmdb_collection", collectionId: 304 },
-  transformers_coll:  { name:"Transformers",           type:"movie",  handler:"tmdb_collection", collectionId: 8650 },
-  captainamerica_coll:{ name:"Captain America",        type:"movie",  handler:"tmdb_collection", collectionId: 131295 },
-  ironman_collection: { name:"Iron Man",               type:"movie",  handler:"tmdb_collection", collectionId: 131292 },
-  gotg_collection:    { name:"Guardians of the Galaxy",type:"movie",  handler:"tmdb_collection", collectionId: 284433 },
-  doctorstrange_coll: { name:"Doctor Strange",         type:"movie",  handler:"tmdb_collection", collectionId: 618529 },
-  blackpanther_coll:  { name:"Black Panther",          type:"movie",  handler:"tmdb_collection", collectionId: 529892 },
-  antman_collection:  { name:"Ant-Man",                type:"movie",  handler:"tmdb_collection", collectionId: 422834 },
-  wonderwoman_coll:   { name:"Wonder Woman",           type:"movie",  handler:"tmdb_collection", collectionId: 468552 },
-  aquaman_collection: { name:"Aquaman",                type:"movie",  handler:"tmdb_collection", collectionId: 573693 },
-  planetapes_coll:    { name:"Planet of the Apes",     type:"movie",  handler:"tmdb_collection", collectionId: 1709 },
-  kingsman_coll:      { name:"Kingsman",               type:"movie",  handler:"tmdb_collection", collectionId: 391860 },
-  taken_collection:   { name:"Taken",                 type:"movie",  handler:"tmdb_collection", collectionId: 135483 },
-  alien_collection:   { name:"Alien",                 type:"movie",  handler:"tmdb_collection", collectionId: 8091 },
-  terminator_coll:    { name:"Terminator",            type:"movie",  handler:"tmdb_collection", collectionId: 528 },
-  predator_coll:      { name:"Predator",              type:"movie",  handler:"tmdb_collection", collectionId: 399 },
-  thor_collection:    { name:"Thor",                  type:"movie",  handler:"tmdb_collection", collectionId: 131296 },
-  halloween_coll:     { name:"Halloween",             type:"movie",  handler:"tmdb_collection", collectionId: 91361 },
-  nightmare_coll:     { name:"Nightmare on Elm Street",type:"movie", handler:"tmdb_collection", collectionId: 8581 },
-  saw_collection:     { name:"Saw",                   type:"movie",  handler:"tmdb_collection", collectionId: 656 },
-  scream_collection:  { name:"Scream",                type:"movie",  handler:"tmdb_collection", collectionId: 2602 },
-  conjuring_coll:     { name:"The Conjuring",         type:"movie",  handler:"tmdb_collection", collectionId: 313086 },
-  despicableme_coll:  { name:"Despicable Me",         type:"movie",  handler:"tmdb_collection", collectionId: 86066 },
-  kungfupanda_coll:   { name:"Kung Fu Panda",         type:"movie",  handler:"tmdb_collection", collectionId: 77816 },
-  incredibles_coll:   { name:"The Incredibles",       type:"movie",  handler:"tmdb_collection", collectionId: 468222 },
-  deadpool_coll:      { name:"Deadpool",              type:"movie",  handler:"tmdb_collection", collectionId: 448150 },
-  sherlock_coll:      { name:"Sherlock Holmes",       type:"movie",  handler:"tmdb_collection", collectionId: 102322 },
-  findingnemo_coll:   { name:"Finding Nemo",          type:"movie",  handler:"tmdb_collection", collectionId: 137697 },
-  toystory_coll:      { name:"Toy Story",             type:"movie",  handler:"tmdb_collection", collectionId: 10194 },
-  backtofuture_coll:  { name:"Back to the Future",    type:"movie",  handler:"tmdb_collection", collectionId: 264 },
-  matrix_collection:  { name:"The Matrix",            type:"movie",  handler:"tmdb_collection", collectionId: 2344 },
-  diehard_collection: { name:"Die Hard",              type:"movie",  handler:"tmdb_collection", collectionId: 1570 },
-  rambo_collection:   { name:"Rambo",                 type:"movie",  handler:"tmdb_collection", collectionId: 5039 },
-  expendables_coll:   { name:"The Expendables",       type:"movie",  handler:"tmdb_collection", collectionId: 126125 },
-  shrek2_collection:  { name:"Minions",               type:"movie",  handler:"tmdb_collection", collectionId: 544669 },
-  dune_collection:    { name:"Dune",                   type:"movie",  handler:"tmdb_collection", collectionId: 726871 },
-  godfather_collection:{ name:"The Godfather",         type:"movie",  handler:"tmdb_collection", collectionId: 230 },
-  spiderman_collection:{ name:"Spider-Man",              type:"movie",  handler:"tmdb_multi_collection", collectionIds: [556, 531241, 573436] },
-  avatar_collection:  { name:"Avatar",                   type:"movie",  handler:"tmdb_collection", collectionId: 87096 },
-  scarymovie_coll:    { name:"Scary Movie",              type:"movie",  handler:"tmdb_collection", collectionId: 4246 },
-  knivesout_coll:     { name:"Knives Out",               type:"movie",  handler:"tmdb_collection", collectionId: 722971 },
-  mazerunner_coll:    { name:"Maze Runner",              type:"movie",  handler:"tmdb_collection", collectionId: 295130 },
-  superman_collection:{ name:"Superman",               type:"movie",  handler:"tmdb_multi_collection", collectionIds: [8537, 209131, 1540907, 593251] },
-  batman_collection:  { name:"Batman",                type:"movie",  handler:"tmdb_multi_collection", collectionIds: [120794, 263, 948485] },
-  mdb_87667:  { name:"Trakt Trending",          type:"movie",  handler:"mdb" },
-  mdb_88434:  { name:"Trakt Trending",          type:"series", handler:"mdb" },
-  trakt_trending_movies:   { name:"Trakt Trending",    type:"movie",  handler:"trakt_trending" },
-  trakt_trending_series:   { name:"Trakt Trending",    type:"series", handler:"trakt_trending" },
-  trakt_popular_movies:    { name:"Trakt Popular",     type:"movie",  handler:"trakt_popular" },
-  trakt_popular_series:    { name:"Trakt Popular",     type:"series", handler:"trakt_popular" },
-  trakt_anticipated_movies:{ name:"Trakt Anticipated", type:"movie",  handler:"trakt_anticipated" },
-  trakt_anticipated_series:{ name:"Trakt Anticipated", type:"series", handler:"trakt_anticipated" },
-  trakt_fav_movies:        { name:"My Trakt Favorites",type:"movie",  handler:"trakt_user_favorites" },
-  trakt_fav_series:        { name:"My Trakt Favorites",type:"series", handler:"trakt_user_favorites" },
-  trakt_watchlist_movies:  { name:"My Trakt Watchlist",type:"movie",  handler:"trakt_user_watchlist" },
-  trakt_watchlist_series:  { name:"My Trakt Watchlist",type:"series", handler:"trakt_user_watchlist" },
-  trakt_collection_movies: { name:"My Trakt Collection",type:"movie", handler:"trakt_user_collection" },
-  trakt_collection_series: { name:"My Trakt Collection",type:"series",handler:"trakt_user_collection" },
-  mdb_2236:   { name:"Top Movies This Week",           type:"movie",  handler:"mdb" },
-  mdb_1198:   { name:"Most Popular (Top 20)",          type:"movie",  handler:"mdb" },
-  mdb_69:     { name:"IMDb Moviemeter Top 100",        type:"movie",  handler:"mdb" },
-  mdb_86934:  { name:"Latest Digital Release",         type:"movie",  handler:"mdb" },
-  mdb_960:    { name:"Latest Releases",                type:"movie",  handler:"mdb" },
-  mdb_2202:   { name:"Latest Blu-ray Releases",        type:"movie",  handler:"mdb" },
-  mdb_1176:   { name:"Latest Certified Fresh",         type:"movie",  handler:"mdb" },
-  mdb_86710:  { name:"Latest Airing Shows",            type:"series", handler:"mdb" },
-  mdb_88307:  { name:"Trending Kids",           type:"movie",  handler:"mdb" },
-  mdb_88309:  { name:"Trending Kids",           type:"series", handler:"mdb" },
-  mdb_13:     { name:"Top Kids Movies This Week",      type:"movie",  handler:"mdb" },
-  mdb_88328:  { name:"Netflix Latest",          type:"movie",  handler:"mdb" },
-  mdb_86751:  { name:"Netflix Latest",          type:"series", handler:"mdb" },
-  mdb_86755:  { name:"Amazon Latest",           type:"movie",  handler:"mdb" },
-  mdb_86753:  { name:"Amazon Latest",           type:"series", handler:"mdb" },
-  mdb_88317:  { name:"Apple TV Plus Latest",    type:"movie",  handler:"mdb" },
-  mdb_88319:  { name:"Apple TV Plus Latest",    type:"series", handler:"mdb" },
-  mdb_86759:  { name:"Disney Plus Latest",      type:"movie",  handler:"mdb" },
-  mdb_86758:  { name:"Disney Plus Latest",      type:"series", handler:"mdb" },
-  mdb_89647:  { name:"HBO Latest",              type:"movie",  handler:"mdb" },
-  mdb_89649:  { name:"HBO Latest",              type:"series", handler:"mdb" },
-  mdb_86762:  { name:"Paramount Plus Latest",   type:"movie",  handler:"mdb" },
-  mdb_86761:  { name:"Paramount Plus Latest",   type:"series", handler:"mdb" },
-  mdb_88326:  { name:"Hulu Latest",             type:"movie",  handler:"mdb" },
-  mdb_88327:  { name:"Hulu Latest",             type:"series", handler:"mdb" },
-  mdb_84677:  { name:"Top Documentaries",              type:"movie",  handler:"mdb" },
-  mdb_84403:  { name:"Documentary",         type:"series", handler:"mdb" },
-  mdb_8043:   { name:"History & War",                type:"movie",  handler:"mdb" },
-  mdb_84487:  { name:"Nature",                     type:"series", handler:"mdb" },
-  mdb_84401:  { name:"Reality TV",                 type:"series", handler:"mdb" },
-  mdb_83497:  { name:"Standup Comedy",             type:"movie",  handler:"mdb" },
-  mdb_3892:   { name:"Must-See Mindfuck",              type:"movie",  handler:"mdb" },
-  mdb_3923:   { name:"Crazy Plot Twists",              type:"movie",  handler:"mdb" },
-  mdb_3920:   { name:"Outer Space",                    type:"movie",  handler:"mdb" },
-  mdb_2909:   { name:"Time Travel",                    type:"movie",  handler:"mdb" },
-  mdb_102554: { name:"Must-See Modern Horror",         type:"movie",  handler:"mdb" },
-  mdb_2410:   { name:"Horror Classics",                type:"movie",  handler:"mdb" },
-  mdb_3885:   { name:"100pct Rotten Tomatoes",         type:"movie",  handler:"mdb" },
-  mdb_4081:   { name:"Top 50 Parody Movies",           type:"movie",  handler:"mdb" },
-  mdb_4390:   { name:"True Crime Documentaries",       type:"movie",  handler:"mdb" },
-  mdb_2858:   { name:"Thrilling Movies",               type:"movie",  handler:"mdb" },
-  mdb_136620: { name:"Seasonal",                       type:"movie",  handler:"mdb" },
-  mdb_3918:   { name:"Pixar Collection",               type:"movie",  handler:"mdb" },
-  mdb_3928:   { name:"DreamWorks Collection",          type:"movie",  handler:"mdb" },
-  mdb_3087:   { name:"BBC Shows",                      type:"series", handler:"mdb" },
-  mdb_3091:   { name:"UK Shows",                       type:"series", handler:"mdb" },
-  mdb_92337:  { name:"Best of 2025",                   type:"movie",  handler:"mdb" },
-  mdb_91304:  { name:"Best of 2020s",                  type:"movie",  handler:"mdb" },
-  mdb_91303:  { name:"Best of 2010s",                  type:"movie",  handler:"mdb" },
-  mdb_91302:  { name:"Best of 2000s",                  type:"movie",  handler:"mdb" },
-  mdb_91300:  { name:"Best of 1990s",                  type:"movie",  handler:"mdb" },
-  mdb_91301:  { name:"Best of 1980s",                  type:"movie",  handler:"mdb" },
-  search_movies: { name:"Ultra MAX", type:"movie",  handler:"search" },
-  search_series: { name:"Ultra MAX", type:"series", handler:"search" },
-
-    // TV Collections / Universes
-    got_tv_collection: { name:"Game of Thrones Universe", type:"series", handler:"tmdb_ids", ids:[1399, 94997] },
-    sopranos_tv_collection:     { name:"The Sopranos",             type:"series", handler:"tmdb_search", query:"The Sopranos" },
-    outlander_tv_collection:    { name:"Outlander",                type:"series", handler:"tmdb_search", query:"Outlander" },
-    theboys_tv_collection: { name:"The Boys Universe", type:"series", handler:"tmdb_ids", ids:[76479, 205715] },
-    breakingbad_tv_collection:  { name:"Breaking Bad Universe",    type:"series", handler:"tmdb_ids", ids:[1396, 60059] },
-    yellowstone_tv_collection: { name:"Yellowstone Universe", type:"series", handler:"tmdb_ids", ids:[73586, 118357, 157744] },
-    walkingdead_tv_collection: { name:"Walking Dead Universe", type:"series", handler:"tmdb_ids", ids:[1402, 62286, 211684, 194583, 206586] },
-    dexter_tv_collection: { name:"Dexter Universe", type:"series", handler:"tmdb_ids", ids:[1405, 131927, 219937] },
-    power_tv_collection: { name:"Power Universe", type:"series", handler:"tmdb_ids", ids:[54650, 97890, 124394, 119845] },
-
-};
 
 const QUICK_PICK_CATALOGS = [
   { id: "quick_trending_movies", type: "movie", name: "🔥 Top Movies This Week" },
@@ -376,7 +108,7 @@ function buildManifestCatalogs(ids) {
   return ids.map(id => {
     const def = CATALOG_DEFS[id];
     if (!def) return null;
-    return { type: def.type, id, name: def.name, extra: [{ name:"search", isRequired: false }, { name:"skip", isRequired: false }] };
+    return { type: def.type, id, name: def.name, extra: [{ name:"skip", isRequired: false }] };
   }).filter(Boolean);
 }
 
@@ -391,7 +123,7 @@ const builder = new addonBuilder({
   types: ["movie","series"],
   resources: ["catalog","meta","stream"],
   catalogs: [
-    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"search", isRequired: false }, { name:"skip", isRequired: false }] }
+    { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
   ]
 });
 
@@ -426,23 +158,28 @@ async function fetchTrakt(path) {
 }
 
 async function traktToMetas(arr, type, language, rpdbKey, tpKey, excludeUnreleased = false) {
-  const tmdbResults = [];
-  for (const item of arr) {
-    const entity = item.movie || item.show || item;
-    const tmdbId = entity?.ids?.tmdb;
-    if (!tmdbId) continue;
-    try {
-      const tmdbType = type === "series" ? "tv" : "movie";
-      const tmdbData = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
-      tmdbResults.push(tmdbData);
-    } catch(e) {}
-  }
+  const tmdbType = type === "series" ? "tv" : "movie";
+  const tmdbResults = (await Promise.all(
+    (arr || []).map(async item => {
+      const entity = item.movie || item.show || item;
+      const tmdbId = entity?.ids?.tmdb;
+      if (!tmdbId) return null;
+      try {
+        return await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
+      } catch(e) { return null; }
+    })
+  )).filter(Boolean);
   return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey, excludeUnreleased);
 }
 
 async function getImdbId(tmdbId, type) {
   const key = `${type}-${tmdbId}`;
   if (imdbCache.has(key)) return imdbCache.get(key);
+  // Cap at 15k entries — evict oldest 20% when full
+  if (imdbCache.size > 15000) {
+    const evict = [...imdbCache.keys()].slice(0, 3000);
+    evict.forEach(k => imdbCache.delete(k));
+  }
   try {
     const t = type ==="series" ?"tv" :"movie";
     const r = await axios.get(`https://api.themoviedb.org/3/${t}/${tmdbId}/external_ids?api_key=${TMDB_KEY}`, { timeout: 5000 });
@@ -458,13 +195,14 @@ const CERT_TTL = 7 * 24 * 60 * 60 * 1000;
 
 function ratingAllowed(cert, maxRating) {
   if (!maxRating) return true;
-  if (!cert) return true;
+  if (!cert) return false;
 
   const order = ["G", "PG", "PG-13", "R", "NC-17"];
   const certRank = order.indexOf(cert);
   const maxRank = order.indexOf(maxRating);
 
-  if (certRank === -1 || maxRank === -1) return true;
+  if (certRank === -1) return false;
+  if (maxRank === -1) return true;
   return certRank <= maxRank;
 }
 
@@ -495,7 +233,7 @@ async function filterByMaxRating(results, maxRating) {
   const limited = results.slice(0, 40);
 
   const checked = await Promise.all(limited.map(async item => {
-    const cert = await getMovieCertification(item.id);
+const cert = await getMovieCertification(item.id);
     return ratingAllowed(cert, maxRating) ? item : null;
   }));
 
@@ -577,11 +315,7 @@ async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language =
   const today = new Date().toISOString().slice(0,10);
   return (await Promise.all(
     arr.filter(i => {
-      // For normal catalog rows, drop posterless entries.
-
-      // For search rows, allow posterless entries because RPDB/TP/getBestPoster can still build a poster from IMDb.
-
-      if (!i.poster_path && filterLang !== false) return false;
+      if (!i.poster_path) return false;
 
       const title = i.title || i.name || i.original_title || i.original_name || "";
       if (!title.trim()) return false;
@@ -674,7 +408,7 @@ JSON shape:
 No markdown. No explanation.
 `;
 
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
   const r = await fetch(url, {
     method: "POST",
@@ -740,27 +474,30 @@ async function tmdbResolveAiItems(items, type, language, rpdbKey, tpKey, exclude
 }
 
 async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, traktUser = null, excludeUnreleased = false, maxRating = null, customCatalogs = [], googleAiKey = null, fanartKey = null, omdbKey = null) {
+console.log(
+  "HANDLECATALOG:",
+  catalogId,
+  "extra=",
+  JSON.stringify(extra),
+   "maxRating=",
+  maxRating
+
+);
   // FORCE SEARCH NO CACHE: only dedicated search catalogs should answer search requests.
-  // Prevent duplicate search results across every catalog row in Nuvio.
-  if (extra && extra.search) {
-    const searchableCatalogs = new Set([
-      "search_movies",
-      "search_series",
-
-      // Nuvio visibly renders normal catalog rows in search results.
-      // Let only the first visible movie/series rows answer search to avoid duplicate spam.
-      "trending_movies",
-      "trending_series",
-
-      // Useful focused rows for documentary/reality searches.
-      "animalplanet_series",
-      "discovery_series",
-      "documentary_series"
-    ]);
-
-    if (!searchableCatalogs.has(catalogId)) {
-      return { metas: [] };
-    }
+  // Without this guard, Nuvio repeats the same search results under every catalog row.
+if (extra && extra.search) {
+const searchableCatalogs = new Set([
+  "search_movies",
+  "search_series",
+  "popular_movies",
+  "popular_series"
+]);
+  if (!searchableCatalogs.has(catalogId)) {
+    return { metas: [] };
+  }
+}
+  if (false && extra && extra.search && catalogId !== "search_movie" && catalogId !== "search_movies" && catalogId !== "search_series") {
+    return { metas: [] };
   }
 
   if (extra && extra.search) {
@@ -770,16 +507,139 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     const rpdbKey = arguments[6] || null;
     const tpKey = arguments[7] || null;
 
-    console.log("FORCED SEARCH NO CACHE:", catalogId, type, q);
+console.log("FORCED SEARCH NO CACHE:", catalogId, type, q);
 
-    if (q) {
-      const url = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&page=1&language=${language}`;
-      const r = await fetch(url);
-      const data = await r.json();
+// ACTOR SEARCH
+
+if (q.includes(" ")) {
+  try {
+    const personData = await fetchCached(
+      `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`
+    );
+
+    const person = personData?.results?.[0];
+console.log(
+  "PERSON SEARCH:",
+  q,
+  person?.name,
+  person?.known_for_department,
+  person?.popularity
+);
+    if (
+      person &&
+      person.known_for_department === "Acting"
+    ) {
+      console.log("ACTOR SEARCH:", person.name, person.id);
+
+      const actorData = await fetchCached(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${person.id}&sort_by=popularity.desc&page=1`
+      );
 
       return {
-        metas: await resultsToMetas(data.results || [], type, false, language, rpdbKey, tpKey)
+        metas: await resultsToMetas(
+          actorData.results || [],
+          "movie",
+          false,
+          language,
+          rpdbKey,
+          tpKey
+        )
       };
+    }
+  } catch (e) {
+    console.log("ACTOR SEARCH FAILED:", e.message);
+  }
+}
+
+
+const genreCatalogs = {
+  action: "action_movies",
+  comedy: "comedy_movies",
+  horror: "horror_movies",
+  thriller: "thriller_movies",
+  crime: "crime_movies",
+  scifi: "scifi_movies",
+  documentary: "documentary_movies",
+  animation: "animation_movies",
+  fantasy: "fantasy_movies",
+  drama: "drama_movies",
+  mystery: "mystery_movies",
+  zombie: "theme_zombie",
+  superhero: "theme_superhero"
+};
+
+const genreKey = q.toLowerCase().trim();
+
+if (genreCatalogs[genreKey]) {
+  console.log("GENRE SEARCH:", genreKey);
+
+  return await handleCatalog(
+    genreCatalogs[genreKey],
+    "movie",
+    {},
+    mdbKey,
+    filterLang,
+    language,
+    rpdbKey,
+    tpKey,
+    traktUser,
+    excludeUnreleased,
+    maxRating,
+    customCatalogs,
+    googleAiKey,
+    fanartKey,
+    omdbKey
+  );
+}
+ 
+   if (q) {
+      const url = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&page=1&language=${language}`;
+              const r = await fetch(url);
+        const data = await r.json();
+
+        let results = data.results || [];
+
+        results.sort((a, b) => {
+          const at = String(a.title || a.name || "").toLowerCase();
+          const bt = String(b.title || b.name || "").toLowerCase();
+          const ql = q.toLowerCase();
+
+          let ascore = Number(a.popularity || 0);
+          let bscore = Number(b.popularity || 0);
+
+          if (at === ql) ascore += 100000;
+          if (bt === ql) bscore += 100000;
+
+          if (at.startsWith(ql)) ascore += 50000;
+          if (bt.startsWith(ql)) bscore += 50000;
+
+          if (at.includes(ql)) ascore += 10000;
+          if (bt.includes(ql)) bscore += 10000;
+
+          return bscore - ascore;
+        });
+
+        console.log(
+          results.slice(0,5).map(x => x.title || x.name)
+        );
+
+        console.log(
+          "FORCED SEARCH RESULTS:",
+          catalogId,
+          "count=",
+          results.length
+        );
+
+        return {
+          metas: await resultsToMetas(
+            results,
+            type,
+            false,
+            language,
+            rpdbKey,
+            tpKey
+          )
+        };
     }
   }
 
@@ -987,9 +847,74 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
     case"search":
       console.log("SEARCH CASE HIT:", catalogId, extra?.search);
       if (!extra?.search) return { metas: [] };
-      return { metas: await resultsToMetas((await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(extra.search)}&page=1`)).results || [], type, false, language, rpdbKey, tpKey) };
+
+      const rawSearch = String(extra.search || "").replace(/\.json$/, "").trim();
+
+      const norm = (v) => String(v || "")
+        .toLowerCase()
+        .replace(/^the\s+/i, "")
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+
+      const wanted = norm(rawSearch);
+
+      const scoreResult = (r) => {
+        const title = r.title || r.name || r.original_title || r.original_name || "";
+        const original = r.original_title || r.original_name || "";
+        const titleNorm = norm(title);
+        const originalNorm = norm(original);
+
+        let score = 0;
+
+        if (titleNorm === wanted) score += 100000;
+        if (originalNorm === wanted) score += 75000;
+        if (titleNorm.startsWith(wanted)) score += 30000;
+        if (titleNorm.includes(wanted)) score += 15000;
+
+        score += Number(r.popularity || 0) * 100;
+        score += Number(r.vote_count || 0) * 2;
+        score += Number(r.vote_average || 0) * 10;
+
+        const date = r.first_air_date || r.release_date || "";
+        const year = Number(String(date).slice(0, 4));
+        if (year >= 2020) score += 500;
+        else if (year >= 2010) score += 250;
+
+        return score;
+      };
+
+      const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(rawSearch)}&page=1&include_adult=false`;
+      const searchData = await fetchCached(searchUrl);
+      let results = Array.isArray(searchData?.results) ? searchData.results : [];
+
+      if ((!results || results.length === 0) && type === "movie") {
+        const collectionUrl = `https://api.themoviedb.org/3/search/collection?api_key=${TMDB_KEY}&query=${encodeURIComponent(rawSearch)}&page=1&include_adult=false`;
+        const collectionData = await fetchCached(collectionUrl);
+        const collections = Array.isArray(collectionData?.results) ? collectionData.results : [];
+
+        for (const c of collections.slice(0, 3)) {
+          if (!c?.id) continue;
+
+          try {
+            const col = await fetchCached(`https://api.themoviedb.org/3/collection/${c.id}?api_key=${TMDB_KEY}`);
+            if (Array.isArray(col?.parts)) results.push(...col.parts);
+          } catch(e) {
+            console.log("SEARCH COLLECTION FALLBACK ERROR:", c.id, e.message);
+          }
+        }
+      }
+
+      results = results
+        .filter(r => r && !r.adult && (r.title || r.name || r.original_title || r.original_name))
+        .map(r => ({ ...r, __ultraSearchScore: scoreResult(r) }))
+        .sort((a, b) => (b.__ultraSearchScore || 0) - (a.__ultraSearchScore || 0))
+        .slice(0, 20);
+
+      return {
+        metas: await resultsToMetas(results, type, false, language, rpdbKey, tpKey)
+      };
     default:
-      return { metas: [] };
       return { metas: [] };
   }
 
@@ -1004,7 +929,7 @@ async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER
   );
   let allResults = pages.flatMap(d => d.results || []);
   if (type === "movie" && maxRating) {
-    allResults = await filterByMaxRating(allResults, maxRating);
+      allResults = await filterByMaxRating(allResults, maxRating);
   }
   return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
 
@@ -1021,7 +946,7 @@ function buildCatalogsFromIds(selectedIds, hiddenIds = []) {
         type: quick.type,
         id: quick.id,
         name: quick.name,
-        extra: [{ name:"search", isRequired: false }, { name:"skip", isRequired: false }]
+        extra: [{ name:"skip", isRequired: false }]
       };
     }
 
@@ -1032,7 +957,7 @@ function buildCatalogsFromIds(selectedIds, hiddenIds = []) {
       id,
       name: def.name,
       showInHome: !hiddenSet.has(id),
-      extra: [{ name:"search", isRequired: false }, { name:"skip", isRequired: false }]
+      extra: [{ name:"skip", isRequired: false }]
     };
   }).filter(Boolean);
 }
@@ -1277,6 +1202,8 @@ builder.defineMetaHandler(async ({ type, id }) => {
     const result = findRes[`${tmdbType}_results`]?.[0];
     if (!result) return { meta: { id, type } };
     const tmdbId = result.id;
+    const d = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits`);
+    if (!d) return { meta: { id, type } };
     const cast = (d.credits?.cast || []).slice(0, 5).map(c => c.name);
     const meta = {
       id, type,
@@ -1295,22 +1222,28 @@ builder.defineMetaHandler(async ({ type, id }) => {
     }
     if (type ==="series") {
       const seasons = (d.seasons || []).filter(s => s.season_number > 0);
+      const seasonData = await Promise.all(
+        seasons.map(async season => {
+          try {
+            return await fetchCached(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${season.season_number}?api_key=${TMDB_KEY}`);
+          } catch { return null; }
+        })
+      );
       const videos = [];
-      for (const season of seasons) {
-        try {
-          const sr = await fetchCached(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${season.season_number}?api_key=${TMDB_KEY}`);
-          (sr.episodes || []).forEach(ep => {
-            videos.push({
-              id: `${id}:${season.season_number}:${ep.episode_number}`,
-              title: ep.name || `Episode ${ep.episode_number}`,
-              season: season.season_number, episode: ep.episode_number,
-              overview: ep.overview ||"",
-              thumbnail: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : null,
-              released: ep.air_date ? new Date(ep.air_date).toISOString() : null
-            });
+      seasonData.forEach((sr, i) => {
+        if (!sr) return;
+        const season = seasons[i];
+        (sr.episodes || []).forEach(ep => {
+          videos.push({
+            id: `${id}:${season.season_number}:${ep.episode_number}`,
+            title: ep.name || `Episode ${ep.episode_number}`,
+            season: season.season_number, episode: ep.episode_number,
+            overview: ep.overview || "",
+            thumbnail: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : null,
+            released: ep.air_date ? new Date(ep.air_date).toISOString() : null
           });
-        } catch { }
-      }
+        });
+      });
       videos.sort((a, b) => a.season !== b.season ? a.season - b.season : a.episode - b.episode);
       meta.videos = videos;
     }
@@ -1498,15 +1431,16 @@ document.querySelectorAll("button[data-url]").forEach(function(btn){
 
 app.get("/configure", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
+app.get("/c/:token/configure", (req, res) => { res.redirect(`/configure/${req.params.token}`); });
 app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.get("/collections-builder", (req, res) => { res.sendFile(path.join(__dirname,"collections-builder.html")); });
-app.get("/logo.svg", (req, res) => { res.sendFile(path.join(__dirname,"logo.svg")); });
 app.use("/images", express.static(path.join(__dirname,"images"), { maxAge: '7d', etag: true }));
 app.get("/collections.json", (req, res) => { res.sendFile(path.join(__dirname,"collections.json")); });
 
 app.post("/api/ai/custom-row", async (req, res) => {
   try {
-    const { prompt, count = 1, googleAiKey, traktUser = null } = req.body || {};
+    const { prompt, count = 1, googleAiKey, traktUser = null, language: rowLanguage = "en-US" } = req.body || {};
+    const watchRegion = (rowLanguage.split("-")[1] || "US").toUpperCase();
     const key = googleAiKey || process.env.GOOGLE_AI_KEY || process.env.GEMINI_KEY || null;
 
     if (!prompt || !String(prompt).trim()) {
@@ -1576,7 +1510,9 @@ app.post("/api/ai/custom-row", async (req, res) => {
           withGenres: genre,
           voteAverageGte: rating,
           yearFrom,
-          yearTo
+          yearTo,
+          watchRegion,
+          language: rowLanguage
         }]
       });
     }
@@ -1611,8 +1547,8 @@ Each object must use this exact shape:
   "withCompanies": "",
   "withNetworks": "",
   "withWatchProviders": "",
-  "watchRegion": "GB",
-  "language": "en-US"
+  "watchRegion": "${watchRegion}",
+  "language": "${rowLanguage}"
 }
 
 Rules:
@@ -1626,7 +1562,7 @@ Rules:
 - Return an array only.
 `;
 
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent", {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1664,19 +1600,19 @@ Rules:
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, fanartKey, omdbKey, traktUser, excludeUnreleased, maxRating, streamAddons, customCatalogs, googleAiKey, enableAiRecommended } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, fanartKey, omdbKey, traktUser, excludeUnreleased, maxRating, streamAddons, customCatalogs, googleAiKey, enableAiRecommended, hiddenCatalogs } = req.body;
   if (!password || !catalogs || !catalogs.length) return res.status(400).json({ error:"Password and catalogs required" });
   const configs = loadConfigs();
   let token = generateToken();
   while (configs[token]) token = generateToken();
-  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, fanartKey: fanartKey || null, omdbKey: omdbKey || null, traktUser: traktUser || null, excludeUnreleased: !!excludeUnreleased, maxRating: maxRating || null, streamAddons: Array.isArray(streamAddons) ? streamAddons.filter(Boolean) : [], customCatalogs: Array.isArray(customCatalogs) ? customCatalogs.filter(Boolean) : [], googleAiKey: googleAiKey || null, enableAiRecommended: !!enableAiRecommended, createdAt: new Date().toISOString() };
+  configs[token] = { passwordHash: hashPassword(password), catalogs, mdblistKey: mdblistKey || null, language: language || "en-US", rpdbKey: rpdbKey || null, tpKey: tpKey || null, fanartKey: fanartKey || null, omdbKey: omdbKey || null, traktUser: traktUser || null, excludeUnreleased: !!excludeUnreleased, maxRating: maxRating || null, streamAddons: Array.isArray(streamAddons) ? streamAddons.filter(Boolean) : [], customCatalogs: Array.isArray(customCatalogs) ? customCatalogs.filter(Boolean) : [], googleAiKey: googleAiKey || null, enableAiRecommended: !!enableAiRecommended, hiddenCatalogs: Array.isArray(hiddenCatalogs) ? hiddenCatalogs : [], createdAt: new Date().toISOString() };
   saveConfigs(configs);
   res.json({ token });
 });
 
 app.post("/c/:token/update", (req, res) => {
   const { token } = req.params;
-  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, fanartKey, omdbKey, traktUser, excludeUnreleased, maxRating, streamAddons, customCatalogs, googleAiKey, enableAiRecommended } = req.body;
+  const { password, catalogs, mdblistKey, language, rpdbKey, tpKey, fanartKey, omdbKey, traktUser, excludeUnreleased, maxRating, streamAddons, customCatalogs, googleAiKey, enableAiRecommended, hiddenCatalogs } = req.body;
   const configs = loadConfigs();
   if (!configs[token]) return res.status(404).json({ error:"Config not found" });
   if (configs[token].passwordHash !== hashPassword(password)) return res.status(401).json({ error:"Incorrect password" });
@@ -1694,6 +1630,7 @@ app.post("/c/:token/update", (req, res) => {
   configs[token].customCatalogs = Array.isArray(customCatalogs) ? customCatalogs.filter(Boolean) : (configs[token].customCatalogs || []);
 configs[token].googleAiKey = googleAiKey || configs[token].googleAiKey || null;
 configs[token].enableAiRecommended = enableAiRecommended !== undefined ? !!enableAiRecommended : !!configs[token].enableAiRecommended;
+  configs[token].hiddenCatalogs = Array.isArray(hiddenCatalogs) ? hiddenCatalogs : (configs[token].hiddenCatalogs || []);
   configs[token].updatedAt = new Date().toISOString();
   saveConfigs(configs);
   res.json({ token });
@@ -1847,7 +1784,11 @@ app.get("/n/:token/manifest.json", (req, res) => {
   const configs = loadConfigs();
   const config = configs[token];
   if (!config) return res.status(404).json({ error:"Config not found" });
-
+  // Track last access for expiry cleanup
+  if (!config.lastAccessed || Date.now() - new Date(config.lastAccessed).getTime() > 24 * 60 * 60 * 1000) {
+    configs[token].lastAccessed = new Date().toISOString();
+    saveConfigs(configs);
+  }
   const catalogs = buildCatalogsFromIds(
   config.enableAiRecommended
     ? Array.from(new Set([...(config.catalogs || []), "ai_recommended_movies", "ai_recommended_series"]))
@@ -1858,7 +1799,7 @@ app.get("/n/:token/manifest.json", (req, res) => {
       type: c.type,
       id: c.id,
       name: c.name,
-      extra: [{ name:"search", isRequired:false }, { name:"skip", isRequired:false }]
+      extra: [{ name:"skip", isRequired:false }]
     }));
 
   res.json({
@@ -1916,6 +1857,11 @@ app.get("/c/:token/manifest.json", (req, res) => {
   const configs = loadConfigs();
   const config = configs[token];
   if (!config) return res.status(404).json({ error:"Config not found" });
+  // Track last access for expiry cleanup
+  if (!config.lastAccessed || Date.now() - new Date(config.lastAccessed).getTime() > 24 * 60 * 60 * 1000) {
+    configs[token].lastAccessed = new Date().toISOString();
+    saveConfigs(configs);
+  }
   const manifest = {
     id: "com.ultramax",
     version:"7.0.0-beta",
@@ -1937,13 +1883,29 @@ app.get("/c/:token/manifest.json", (req, res) => {
     : (config.catalogs || []),
   config.hiddenCatalogs || []
 )
-      .map(c => ({
-        type: c.type,
-        id: c.id,
-        name: c.name,
-        extra: [{ name:"search", isRequired:false }, { name:"skip", isRequired:false }],
-        extraSupported: ["search","skip"]
-      })),
+       .map(c => ({
+          type: c.type,
+          id: c.id,
+          name: c.name,
+          extra: [{ name:"skip", isRequired:false }],
+          extraSupported: ["skip"]
+        }))
+        .concat([
+          {
+            type: "movie",
+            id: "search_movies",
+            name: "Ultra MAX Search",
+            extra: [{ name: "search", isRequired: true }],
+            extraSupported: ["search"]
+          },
+          {
+            type: "series",
+            id: "search_series",
+            name: "Ultra MAX Search",
+            extra: [{ name: "search", isRequired: true }],
+            extraSupported: ["search"]
+          }
+        ]),
   };
   res.json(manifest);
 });
@@ -1987,22 +1949,28 @@ app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
     };
     if (type ==="series") {
       const seasons = (d.seasons || []).filter(s => s.season_number > 0);
+      const seasonData = await Promise.all(
+        seasons.map(async season => {
+          try {
+            return await fetchCached(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${season.season_number}?api_key=${TMDB_KEY}`);
+          } catch { return null; }
+        })
+      );
       const videos = [];
-      for (const season of seasons) {
-        try {
-          const sr = await fetchCached(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${season.season_number}?api_key=${TMDB_KEY}`);
-          (sr.episodes || []).forEach(ep => {
-            videos.push({
-              id: `${id}:${season.season_number}:${ep.episode_number}`,
-              title: ep.name || `Episode ${ep.episode_number}`,
-              season: season.season_number, episode: ep.episode_number,
-              overview: ep.overview ||"",
-              thumbnail: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : null,
-              released: ep.air_date ? new Date(ep.air_date).toISOString() : null
-            });
+      seasonData.forEach((sr, i) => {
+        if (!sr) return;
+        const season = seasons[i];
+        (sr.episodes || []).forEach(ep => {
+          videos.push({
+            id: `${id}:${season.season_number}:${ep.episode_number}`,
+            title: ep.name || `Episode ${ep.episode_number}`,
+            season: season.season_number, episode: ep.episode_number,
+            overview: ep.overview || "",
+            thumbnail: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : null,
+            released: ep.air_date ? new Date(ep.air_date).toISOString() : null
           });
-        } catch { }
-      }
+        });
+      });
       videos.sort((a, b) => a.season !== b.season ? a.season - b.season : a.episode - b.episode);
       meta.videos = videos;
     }
@@ -2019,6 +1987,8 @@ app.get("/meta/:type/:id.json", async (req, res) => {
     const result = findRes[`${tmdbType}_results`]?.[0];
     if (!result) return res.json({ meta: { id, type } });
     const tmdbId = result.id;
+    const d = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&append_to_response=credits`);
+    if (!d) return res.json({ meta: { id, type } });
     const cast = (d.credits?.cast || []).slice(0, 5).map(c => c.name);
     const meta = { id, type, name: d.title || d.name, description: d.overview, poster: d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : null, background: d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : null, releaseInfo: d.release_date ? d.release_date.split("-")[0] : d.first_air_date ? d.first_air_date.split("-")[0] : null, imdbRating: d.vote_average ? d.vote_average.toFixed(1) : null, genres: (d.genres || []).map(g => g.name), cast };
     res.json({ meta });
@@ -2215,8 +2185,8 @@ app.use((req, res, next) => {
         ...QUICK_PICK_CATALOGS,
         ...buildManifestCatalogs(staticIds),
         ...DYNAMIC_CATALOGS.map(c => ({ type: c.type, id: c.id, name: c.name, extra: [{ name:"tmdbId", isRequired: true }] })),
-        { type:"movie", id:"search_movies", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }], extraSupported:["search"] },
-        { type:"series", id:"search_series", name:"Ultra MAX", extra:[{ name:"search", isRequired:true }], extraSupported:["search"] }
+        { type:"movie", id:"search_movies", name:"Ultra MAX Search", extra:[{ name:"search", isRequired:true }], extraSupported:["search"] },
+        { type:"series", id:"search_series", name:"Ultra MAX Search", extra:[{ name:"search", isRequired:true }], extraSupported:["search"] }
       ]
     };
     fullManifest.catalogs = (fullManifest.catalogs || [])
@@ -2243,8 +2213,17 @@ app.use((req, res, next) => {
 if (url.includes("/catalog/") && url.includes("/c/")) {
     const match = url.match(/\/c\/([^/]+)\/catalog\/([^/]+)\/([^/]+)(?:\/(.+))?\.json/);
     if (match) {
-      const [, token, type, id, extraStr] = match;
-console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
+      let [, token, type, id, extraStr] = match;
+console.log(
+  "CUSTOM CATALOG:",
+  token,
+  id,
+  "extraStr:",
+  extraStr,
+  "query:",
+  req.query
+);
+      if (id === "search_movie") id = "search_movies";
       const configs = loadConfigs();
       const config = configs[token];
       if (!config) return res.json({ metas: [] });
@@ -2277,6 +2256,30 @@ console.log("CUSTOM CATALOG:", token, id, "extraStr:", extraStr);
   }
   next();
 });
+
+// On startup: remove configs not accessed in 180 days
+(function cleanupStaleConfigs() {
+  try {
+    const configs = loadConfigs();
+    const now = Date.now();
+    const EXPIRY_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
+    let removed = 0;
+    for (const [token, config] of Object.entries(configs)) {
+      const lastSeen = config.lastAccessed || config.updatedAt || config.createdAt;
+      if (!lastSeen) continue;
+      if (now - new Date(lastSeen).getTime() > EXPIRY_MS) {
+        delete configs[token];
+        removed++;
+      }
+    }
+    if (removed > 0) {
+      saveConfigs(configs);
+      console.log(`Startup cleanup: removed ${removed} stale config(s) (180+ days inactive)`);
+    }
+  } catch(e) {
+    console.error("Startup config cleanup failed:", e.message);
+  }
+})();
 
 const PREWARM_LISTS = ['92337','91304','91303','91302','91300','91301','86710','88307','88309','3087','3091'];
 setTimeout(async () => {

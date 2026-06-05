@@ -121,6 +121,17 @@
   .pill.selected{background:#fff;border-color:#fff;color:#000;font-weight:700;}
   .pill.hidden{display:none;}
 
+  /* SUB-CATEGORIES */
+  .sub-category{margin:4px 0 10px 0;border-left:2px solid #222;padding-left:12px;}
+  .sub-cat-header{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;user-select:none;}
+  .sub-cat-header:hover .sub-cat-title{color:#fff;}
+  .sub-cat-chevron{font-size:9px;color:#555;transition:transform 0.2s;flex-shrink:0;}
+  .sub-cat-chevron.open{transform:rotate(180deg);}
+  .sub-cat-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#888;flex:1;}
+  .sub-select-all{font-size:9px;color:#666;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;margin-left:auto;}
+  .sub-select-all:hover{color:#fff;}
+  .sub-pills{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 4px 0;}
+
   /* COUNTER BAR */
   .counter-bar{position:sticky;bottom:0;background:#111;border-top:1px solid #2a2a2a;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
   .count-display{font-size:11px;color:#bbb;letter-spacing:0.1em;}
@@ -2207,7 +2218,7 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
-      <!-- QUICK PICKS -->
+      <!-- 1. QUICK PICKS -->
       <div class="category">
         <div class="cat-header">
           <div class="cat-title"><span class="cat-icon">⚡</span> Quick Picks <span class="cat-count" id="count-quickpicks"></span></div>
@@ -2227,8 +2238,10 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
-<div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128293;</span> Trending &amp; Popular <span class="cat-count" id="count-trending"></span></div>
+      <!-- 2. TRENDING, POPULAR & NEW (merged) -->
+      <div class="category">
+        <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">🔥</span> Trending, Popular &amp; New <span class="cat-count" id="count-trending"></span></div>
           <span class="select-all" onclick="selectAll('trending')">Select All</span>
         </div>
         <div class="pills" id="trending">
@@ -2241,6 +2254,9 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="now_movies">Now Playing</div>
           <div class="pill" data-id="airing_series">Airing Today</div>
           <div class="pill" data-id="ontheair_series">On The Air</div>
+          <div class="pill" data-id="mdb_2236">🔥 Top Watched This Week</div>
+          <div class="pill" data-id="mdb_1198">Most Popular (Top 20)</div>
+          <div class="pill" data-id="mdb_69">IMDb Top 100</div>
           <div class="pill" data-id="mdb_87667">Trakt Trending Movies</div>
           <div class="pill" data-id="mdb_88434">Trakt Trending Series</div>
           <div class="pill" data-id="trakt_trending_movies">Trakt Trending (Native) Movies</div>
@@ -2255,18 +2271,6 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="trakt_watchlist_series">My Trakt Watchlist (Series)</div>
           <div class="pill" data-id="trakt_collection_movies">My Trakt Collection (Movies)</div>
           <div class="pill" data-id="trakt_collection_series">My Trakt Collection (Series)</div>
-          <div class="pill" data-id="mdb_2236">🔥 Top Watched This Week</div>
-          <div class="pill" data-id="mdb_1198">Most Popular (Top 20)</div>
-          <div class="pill" data-id="mdb_69">IMDb Top 100</div>
-        </div>
-      </div>
-
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127381;</span> New &amp; Latest <span class="cat-count" id="count-latest"></span></div>
-          <span class="select-all" onclick="selectAll('latest')">Select All</span>
-        </div>
-        <div class="pills" id="latest">
           <div class="pill" data-id="mdb_86934">Latest Digital Release</div>
           <div class="pill" data-id="mdb_960">Latest Releases</div>
           <div class="pill" data-id="mdb_2202">Latest Blu-ray</div>
@@ -2289,9 +2293,10 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 3. STREAMING SERVICES (BritBox moved here; Channel 4 & ITVX moved to Regional > UK) -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128250;</span> Streaming Services <span class="cat-count" id="count-providers"></span></div>
+          <div class="cat-title"><span class="cat-icon">📺</span> Streaming Services <span class="cat-count" id="count-providers"></span></div>
           <span class="select-all" onclick="selectAll('providers')">Select All</span>
         </div>
         <div class="pills" id="providers">
@@ -2311,6 +2316,7 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="peacock_series">Peacock Series</div>
           <div class="pill" data-id="hulu_movies">Hulu Movies</div>
           <div class="pill" data-id="hulu_series">Hulu Series</div>
+          <div class="pill" data-id="starz_series">Starz</div>
           <div class="pill" data-id="discovery_movies">Discovery+ Movies</div>
           <div class="pill" data-id="discovery_series">Discovery+ Series</div>
           <div class="pill" data-id="natgeo_movies">National Geographic Movies</div>
@@ -2318,16 +2324,12 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="ae_series">A&amp;E Series</div>
           <div class="pill" data-id="animalplanet_series">Animal Planet Series</div>
           <div class="pill" data-id="mgm_movies">MGM+ Movies</div>
+          <div class="pill" data-id="britbox_movies">BritBox Movies</div>
+          <div class="pill" data-id="britbox_series">BritBox Series</div>
           <div class="pill" data-id="acorn_movies">Acorn Movies</div>
           <div class="pill" data-id="acorn_series">Acorn Series</div>
           <div class="pill" data-id="shudder_movies">Shudder Movies</div>
           <div class="pill" data-id="shudder_series">Shudder Series</div>
-          <div class="pill" data-id="britbox_movies">BritBox Movies</div>
-          <div class="pill" data-id="britbox_series">BritBox Series</div>
-          <div class="pill" data-id="itvx_movies">ITVX Movies</div>
-          <div class="pill" data-id="itvx_series">ITVX Series</div>
-          <div class="pill" data-id="channel4_movies">Channel 4 Movies</div>
-          <div class="pill" data-id="channel4_series">Channel 4 Series</div>
           <div class="pill" data-id="crunchyroll_movies">Crunchyroll Movies</div>
           <div class="pill" data-id="crunchyroll_series">Crunchyroll Series</div>
           <div class="pill" data-id="hidive_movies">Hidive Movies</div>
@@ -2335,9 +2337,10 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 4. GENRES -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127917;</span> Genres <span class="cat-count" id="count-genres"></span></div>
+          <div class="cat-title"><span class="cat-icon">🎭</span> Genres <span class="cat-count" id="count-genres"></span></div>
           <span class="select-all" onclick="selectAll('genres')">Select All</span>
         </div>
         <div class="pills" id="genres">
@@ -2345,6 +2348,8 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="action_series">Action Series</div>
           <div class="pill" data-id="comedy_movies">Comedy Movies</div>
           <div class="pill" data-id="comedy_series">Comedy Series</div>
+          <div class="pill" data-id="drama_movies">Drama Movies</div>
+          <div class="pill" data-id="drama_series">Drama Series</div>
           <div class="pill" data-id="horror_movies">Horror Movies</div>
           <div class="pill" data-id="horror_series">Horror Series</div>
           <div class="pill" data-id="scifi_movies">Sci-Fi Movies</div>
@@ -2353,8 +2358,6 @@ Improve posters, personal rows, language and filtering.
           <div class="pill" data-id="thriller_series">Thriller Series</div>
           <div class="pill" data-id="crime_movies">Crime Movies</div>
           <div class="pill" data-id="crime_series">Crime Series</div>
-          <div class="pill" data-id="drama_movies">Drama Movies</div>
-          <div class="pill" data-id="drama_series">Drama Series</div>
           <div class="pill" data-id="romance_movies">Romance Movies</div>
           <div class="pill" data-id="romance_series">Romance Series</div>
           <div class="pill" data-id="mystery_movies">Mystery Movies</div>
@@ -2380,34 +2383,84 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127916;</span> Themed &amp; Curated <span class="cat-count" id="count-themed"></span></div>
-          <span class="select-all" onclick="selectAll('themed')">Select All</span>
+      <!-- 5. THEMED COLLECTIONS (with collapsible sub-sections) -->
+      <div class="category" id="cat-themed">
+        <div class="cat-header" onclick="toggleParentCategory('themed', event)">
+          <div class="cat-title"><span class="cat-icon">🎪</span> Themed Collections <span class="cat-count" id="count-themed"></span></div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <span class="select-all" onclick="selectAllParent('themed', event)">Select All</span>
+            <span class="cat-chevron" id="chev-themed">&#9660;</span>
+          </div>
         </div>
-        <div class="pills" id="themed">
-          <div class="pill" data-id="mdb_3892">Must-See Mindfuck</div>
-          <div class="pill" data-id="mdb_3923">Crazy Plot Twists</div>
-          <div class="pill" data-id="mdb_3920">Outer Space</div>
-          <div class="pill" data-id="mdb_2909">Time Travel</div>
-          <div class="pill" data-id="mdb_102554">Must-See Modern Horror</div>
-          <div class="pill" data-id="mdb_2410">Horror Classics</div>
-          <div class="pill" data-id="mdb_3885">100% Rotten Tomatoes</div>
-          <div class="pill" data-id="mdb_4081">Top 50 Parody Movies</div>
-          <div class="pill" data-id="mdb_4390">True Crime Docs</div>
-          <div class="pill" data-id="mdb_2858">Thrilling Movies</div>
-          <div class="pill" data-id="mdb_136620">Seasonal</div>
-          <div class="pill" data-id="theme_superhero">Superhero</div>
-          <div class="pill" data-id="theme_heist">Heist</div>
-          <div class="pill" data-id="theme_serialkiller">Serial Killer</div>
-          <div class="pill" data-id="theme_timeloop">Time Loop</div>
-          <div class="pill" data-id="theme_zombie">Zombie</div>
+        <div class="pills-wrap" id="wrap-themed">
+
+          <!-- General themed pills -->
+          <div class="pills" id="themed" style="margin-bottom:12px;">
+            <div class="pill" data-id="theme_superhero">Superhero</div>
+            <div class="pill" data-id="theme_timeloop">Time Loop</div>
+            <div class="pill" data-id="mdb_3892">Must-See Mindfuck</div>
+            <div class="pill" data-id="mdb_3923">Crazy Plot Twists</div>
+            <div class="pill" data-id="mdb_3920">Outer Space</div>
+            <div class="pill" data-id="mdb_2909">Time Travel</div>
+            <div class="pill" data-id="mdb_3885">100% Rotten Tomatoes</div>
+            <div class="pill" data-id="mdb_4081">Top 50 Parody Movies</div>
+            <div class="pill" data-id="mdb_2858">Thrilling Movies</div>
+            <div class="pill" data-id="mdb_136620">Seasonal</div>
+          </div>
+
+          <!-- Crime & True Crime sub-category -->
+          <div class="sub-category">
+            <div class="sub-cat-header" onclick="toggleSubSection('themed-crime', this)">
+              <span class="sub-cat-chevron">&#9660;</span>
+              <span class="sub-cat-title">🔪 Crime &amp; True Crime</span>
+              <span class="cat-count" id="count-themed-crime"></span>
+              <span class="sub-select-all" onclick="selectAll('themed-crime');event.stopPropagation();">Select All</span>
+            </div>
+            <div class="pills sub-pills" id="themed-crime">
+              <div class="pill" data-id="theme_serialkiller">Serial Killer</div>
+              <div class="pill" data-id="theme_heist">Heist</div>
+              <div class="pill" data-id="theme_homeinvasion">Home Invasion</div>
+              <div class="pill" data-id="mdb_4390">True Crime Docs</div>
+            </div>
+          </div>
+
+          <!-- Horror sub-category -->
+          <div class="sub-category">
+            <div class="sub-cat-header" onclick="toggleSubSection('themed-horror', this)">
+              <span class="sub-cat-chevron">&#9660;</span>
+              <span class="sub-cat-title">🎃 Horror</span>
+              <span class="cat-count" id="count-themed-horror"></span>
+              <span class="sub-select-all" onclick="selectAll('themed-horror');event.stopPropagation();">Select All</span>
+            </div>
+            <div class="pills sub-pills" id="themed-horror">
+              <div class="pill" data-id="mdb_102554">Must-See Modern Horror</div>
+              <div class="pill" data-id="mdb_2410">Horror Classics</div>
+              <div class="pill" data-id="theme_slasher">Slasher</div>
+              <div class="pill" data-id="theme_zombie">Zombie</div>
+              <div class="pill" data-id="theme_paranormal">Paranormal</div>
+              <div class="pill" data-id="theme_possession">Possession</div>
+              <div class="pill" data-id="theme_foundfootage">Found Footage</div>
+              <div class="pill" data-id="theme_creaturefeature">Creature Feature</div>
+              <div class="pill" data-id="theme_psychological">Psychological Horror</div>
+              <div class="pill" data-id="theme_horrorcomedy">Horror Comedy</div>
+              <div class="pill" data-id="theme_folkhorror">Folk Horror</div>
+              <div class="pill" data-id="theme_gothichorror">Gothic Horror</div>
+              <div class="pill" data-id="theme_bodyhorror">Body Horror</div>
+              <div class="pill" data-id="theme_cosmichorror">Cosmic Horror</div>
+              <div class="pill" data-id="theme_lovecraftian">Lovecraftian Horror</div>
+              <div class="pill" data-id="theme_animalattack">Animal Attack</div>
+              <div class="pill" data-id="theme_werewolf">Werewolf</div>
+              <div class="pill" data-id="theme_vampire">Vampire</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
+      <!-- 6. STUDIOS & COLLECTIONS -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127909;</span> Studios &amp; Collections <span class="cat-count" id="count-studios"></span></div>
+          <div class="cat-title"><span class="cat-icon">🎬</span> Studios &amp; Collections <span class="cat-count" id="count-studios"></span></div>
           <span class="select-all" onclick="selectAll('studios')">Select All</span>
         </div>
         <div class="pills" id="studios">
@@ -2429,80 +2482,14 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 7. FILM COLLECTIONS -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128250;</span> TV Networks <span class="cat-count" id="count-networks"></span></div>
-          <span class="select-all" onclick="selectAll('networks')">Select All</span>
-        </div>
-        <div class="pills" id="networks">
-          <div class="pill" data-id="network_abc">ABC</div>
-          <div class="pill" data-id="network_cbs">CBS</div>
-          <div class="pill" data-id="network_fox">FOX</div>
-          <div class="pill" data-id="network_nbc">NBC</div>
-          <div class="pill" data-id="starz_series">Starz</div>
-          <div class="pill" data-id="network_nickelodeon">Nickelodeon</div>
-          <div class="pill" data-id="network_nickjr">Nick Jr</div>
-          
-        </div>
-      </div>
-
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127908;</span> Directors <span class="cat-count" id="count-directors"></span></div>
-          <span class="select-all" onclick="selectAll('directors')">Select All</span>
-        </div>
-        <div class="pills" id="directors">
-          <div class="pill" data-id="director_nolan">Christopher Nolan</div>
-          <div class="pill" data-id="director_scorsese">Martin Scorsese</div>
-          <div class="pill" data-id="director_spielberg">Steven Spielberg</div>
-          <div class="pill" data-id="director_villeneuve">Denis Villeneuve</div>
-          <div class="pill" data-id="director_fincher">David Fincher</div>
-          <div class="pill" data-id="director_kubrick">Stanley Kubrick</div>
-          <div class="pill" data-id="director_hitchcock">Alfred Hitchcock</div>
-          <div class="pill" data-id="director_anderson">Wes Anderson</div>
-          <div class="pill" data-id="director_burton">Tim Burton</div>
-          <div class="pill" data-id="director_tarantino">Quentin Tarantino</div>
-          <div class="pill" data-id="director_hughes">John Hughes</div>
-        </div>
-      </div>
-
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127911;</span> Actors <span class="cat-count" id="count-actors"></span></div>
-          <span class="select-all" onclick="selectAll('actors')">Select All</span>
-        </div>
-        <div class="pills" id="actors">
-          <div class="pill" data-id="actor_sandler">Adam Sandler</div>
-          <div class="pill" data-id="actor_jolie">Angelina Jolie</div>
-          <div class="pill" data-id="actor_pitt">Brad Pitt</div>
-          <div class="pill" data-id="actor_bale">Christian Bale</div>
-          <div class="pill" data-id="actor_eastwood">Clint Eastwood</div>
-          <div class="pill" data-id="actor_denzel">Denzel Washington</div>
-          <div class="pill" data-id="actor_carrey">Jim Carrey</div>
-          <div class="pill" data-id="actor_depp">Johnny Depp</div>
-          <div class="pill" data-id="actor_dicaprio">Leonardo DiCaprio</div>
-          <div class="pill" data-id="actor_robbie">Margot Robbie</div>
-          <div class="pill" data-id="actor_damon">Matt Damon</div>
-          <div class="pill" data-id="actor_freeman">Morgan Freeman</div>
-          <div class="pill" data-id="actor_deniro">Robert De Niro</div>
-          <div class="pill" data-id="actor_rdj">Robert Downey Jr</div>
-          <div class="pill" data-id="actor_gosling">Ryan Gosling</div>
-          <div class="pill" data-id="actor_reynolds">Ryan Reynolds</div>
-          <div class="pill" data-id="actor_rogen">Seth Rogen</div>
-          <div class="pill" data-id="actor_cruise">Tom Cruise</div>
-          <div class="pill" data-id="actor_hanks">Tom Hanks</div>
-          <div class="pill" data-id="actor_ferrell">Will Ferrell</div>
-          <div class="pill" data-id="actor_smith">Will Smith</div>
-        </div>
-      </div>
-
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127916;</span> Film Collections <span class="cat-count" id="count-collections"></span></div>
+          <div class="cat-title"><span class="cat-icon">🎞️</span> Film Collections <span class="cat-count" id="count-collections"></span></div>
           <span class="select-all" onclick="selectAll('collections')">Select All</span>
         </div>
         <div class="pills" id="collections">
-            <div class="pill" data-id="startrek_coll">Star Trek</div>
+          <div class="pill" data-id="startrek_coll">Star Trek</div>
           <div class="pill" data-id="hp_collection">Harry Potter</div>
           <div class="pill" data-id="lotr_collection">Lord of the Rings</div>
           <div class="pill" data-id="starwars_collection">Star Wars</div>
@@ -2569,9 +2556,10 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 8. TV COLLECTIONS -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128250;</span> TV Collections <span class="cat-count" id="count-tvcollections"></span></div>
+          <div class="cat-title"><span class="cat-icon">📡</span> TV Collections <span class="cat-count" id="count-tvcollections"></span></div>
           <span class="select-all" onclick="selectAll('tvcollections')">Select All</span>
         </div>
         <div class="pills" id="tvcollections">
@@ -2587,9 +2575,62 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 9. DIRECTORS -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128197;</span> By Decade <span class="cat-count" id="count-decades"></span></div>
+          <div class="cat-title"><span class="cat-icon">🎬</span> Directors <span class="cat-count" id="count-directors"></span></div>
+          <span class="select-all" onclick="selectAll('directors')">Select All</span>
+        </div>
+        <div class="pills" id="directors">
+          <div class="pill" data-id="director_nolan">Christopher Nolan</div>
+          <div class="pill" data-id="director_scorsese">Martin Scorsese</div>
+          <div class="pill" data-id="director_spielberg">Steven Spielberg</div>
+          <div class="pill" data-id="director_villeneuve">Denis Villeneuve</div>
+          <div class="pill" data-id="director_fincher">David Fincher</div>
+          <div class="pill" data-id="director_kubrick">Stanley Kubrick</div>
+          <div class="pill" data-id="director_hitchcock">Alfred Hitchcock</div>
+          <div class="pill" data-id="director_anderson">Wes Anderson</div>
+          <div class="pill" data-id="director_burton">Tim Burton</div>
+          <div class="pill" data-id="director_tarantino">Quentin Tarantino</div>
+          <div class="pill" data-id="director_hughes">John Hughes</div>
+        </div>
+      </div>
+
+      <!-- 10. ACTORS -->
+      <div class="category">
+        <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">🎭</span> Actors <span class="cat-count" id="count-actors"></span></div>
+          <span class="select-all" onclick="selectAll('actors')">Select All</span>
+        </div>
+        <div class="pills" id="actors">
+          <div class="pill" data-id="actor_sandler">Adam Sandler</div>
+          <div class="pill" data-id="actor_jolie">Angelina Jolie</div>
+          <div class="pill" data-id="actor_pitt">Brad Pitt</div>
+          <div class="pill" data-id="actor_bale">Christian Bale</div>
+          <div class="pill" data-id="actor_eastwood">Clint Eastwood</div>
+          <div class="pill" data-id="actor_denzel">Denzel Washington</div>
+          <div class="pill" data-id="actor_carrey">Jim Carrey</div>
+          <div class="pill" data-id="actor_depp">Johnny Depp</div>
+          <div class="pill" data-id="actor_dicaprio">Leonardo DiCaprio</div>
+          <div class="pill" data-id="actor_robbie">Margot Robbie</div>
+          <div class="pill" data-id="actor_damon">Matt Damon</div>
+          <div class="pill" data-id="actor_freeman">Morgan Freeman</div>
+          <div class="pill" data-id="actor_deniro">Robert De Niro</div>
+          <div class="pill" data-id="actor_rdj">Robert Downey Jr</div>
+          <div class="pill" data-id="actor_gosling">Ryan Gosling</div>
+          <div class="pill" data-id="actor_reynolds">Ryan Reynolds</div>
+          <div class="pill" data-id="actor_rogen">Seth Rogen</div>
+          <div class="pill" data-id="actor_cruise">Tom Cruise</div>
+          <div class="pill" data-id="actor_hanks">Tom Hanks</div>
+          <div class="pill" data-id="actor_ferrell">Will Ferrell</div>
+          <div class="pill" data-id="actor_smith">Will Smith</div>
+        </div>
+      </div>
+
+      <!-- 11. BY DECADE -->
+      <div class="category">
+        <div class="cat-header">
+          <div class="cat-title"><span class="cat-icon">📅</span> By Decade <span class="cat-count" id="count-decades"></span></div>
           <span class="select-all" onclick="selectAll('decades')">Select All</span>
         </div>
         <div class="pills" id="decades">
@@ -2602,9 +2643,10 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
+      <!-- 12. KIDS & FAMILY -->
       <div class="category">
         <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#128118;</span> Kids &amp; Family <span class="cat-count" id="count-kids"></span></div>
+          <div class="cat-title"><span class="cat-icon">👨‍👩‍👧</span> Kids &amp; Family <span class="cat-count" id="count-kids"></span></div>
           <span class="select-all" onclick="selectAll('kids')">Select All</span>
         </div>
         <div class="pills" id="kids">
@@ -2614,14 +2656,66 @@ Improve posters, personal rows, language and filtering.
         </div>
       </div>
 
-      <div class="category">
-        <div class="cat-header">
-          <div class="cat-title"><span class="cat-icon">&#127468;&#127463;</span> UK Specific <span class="cat-count" id="count-uk"></span></div>
-          <span class="select-all" onclick="selectAll('uk')">Select All</span>
+      <!-- 13. REGIONAL & GLOBAL (with collapsible sub-sections) -->
+      <div class="category" id="cat-regional">
+        <div class="cat-header" onclick="toggleParentCategory('regional', event)">
+          <div class="cat-title"><span class="cat-icon">🌍</span> Regional &amp; Global <span class="cat-count" id="count-regional"></span></div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <span class="select-all" onclick="selectAllParent('regional', event)">Select All</span>
+            <span class="cat-chevron" id="chev-regional">&#9660;</span>
+          </div>
         </div>
-        <div class="pills" id="uk">
-          <div class="pill" data-id="mdb_3087">BBC Shows</div>
-          <div class="pill" data-id="mdb_3091">UK Shows</div>
+        <div class="pills-wrap" id="wrap-regional">
+
+          <!-- UK -->
+          <div class="sub-category">
+            <div class="sub-cat-header" onclick="toggleSubSection('regional-uk', this)">
+              <span class="sub-cat-chevron">&#9660;</span>
+              <span class="sub-cat-title">🇬🇧 UK</span>
+              <span class="cat-count" id="count-regional-uk"></span>
+              <span class="sub-select-all" onclick="selectAll('regional-uk');event.stopPropagation();">Select All</span>
+            </div>
+            <div class="pills sub-pills" id="regional-uk">
+              <div class="pill" data-id="mdb_3087">BBC Shows</div>
+              <div class="pill" data-id="mdb_3091">UK Shows</div>
+              <div class="pill" data-id="channel4_movies">Channel 4 Movies</div>
+              <div class="pill" data-id="channel4_series">Channel 4 Series</div>
+              <div class="pill" data-id="itvx_movies">ITVX Movies</div>
+              <div class="pill" data-id="itvx_series">ITVX Series</div>
+            </div>
+          </div>
+
+          <!-- USA -->
+          <div class="sub-category">
+            <div class="sub-cat-header" onclick="toggleSubSection('regional-usa', this)">
+              <span class="sub-cat-chevron">&#9660;</span>
+              <span class="sub-cat-title">🇺🇸 USA</span>
+              <span class="cat-count" id="count-regional-usa"></span>
+              <span class="sub-select-all" onclick="selectAll('regional-usa');event.stopPropagation();">Select All</span>
+            </div>
+            <div class="pills sub-pills" id="regional-usa" style="display:none;">
+              <div class="pill" data-id="network_abc">ABC</div>
+              <div class="pill" data-id="network_cbs">CBS</div>
+              <div class="pill" data-id="network_fox">FOX</div>
+              <div class="pill" data-id="network_nbc">NBC</div>
+              <div class="pill" data-id="network_nickelodeon">Nickelodeon</div>
+              <div class="pill" data-id="network_nickjr">Nick Jr</div>
+            </div>
+          </div>
+
+          <!-- Australia -->
+          <div class="sub-category">
+            <div class="sub-cat-header" onclick="toggleSubSection('regional-australia', this)">
+              <span class="sub-cat-chevron">&#9660;</span>
+              <span class="sub-cat-title">🇦🇺 Australia</span>
+              <span class="cat-count" id="count-regional-australia"></span>
+              <span class="sub-select-all" onclick="selectAll('regional-australia');event.stopPropagation();">Select All</span>
+            </div>
+            <div class="pills sub-pills" id="regional-australia" style="display:none;">
+              <div style="font-size:11px;color:#555;padding:10px 0;font-style:italic;">Coming soon — Australian catalogs will appear here</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -4043,7 +4137,23 @@ if(key === 'genres'){
       { title:'Heist', rows:['theme_heist'] },
       { title:'Serial Killer', rows:['theme_serialkiller'] },
       { title:'Time Loop', rows:['theme_timeloop'] },
-      { title:'Zombie', rows:['theme_zombie'] }
+      { title:'Zombie', rows:['theme_zombie'] },
+      { title:'Slasher', rows:['theme_slasher'] },
+{ title:'Paranormal', rows:['theme_paranormal'] },
+{ title:'Possession', rows:['theme_possession'] },
+{ title:'Found Footage', rows:['theme_foundfootage'] },
+{ title:'Home Invasion', rows:['theme_homeinvasion'] },
+{ title:'Creature Feature', rows:['theme_creaturefeature'] },
+{ title:'Psychological Horror', rows:['theme_psychological'] },
+{ title:'Horror Comedy', rows:['theme_horrorcomedy'] },
+{ title:'Folk Horror', rows:['theme_folkhorror'] },
+{ title:'Gothic Horror', rows:['theme_gothichorror'] },
+{ title:'Body Horror', rows:['theme_bodyhorror'] },
+{ title:'Cosmic Horror', rows:['theme_cosmichorror'] },
+{ title:'Lovecraftian Horror', rows:['theme_lovecraftian'] },
+{ title:'Animal Attack', rows:['theme_animalattack'] },
+{ title:'Werewolf', rows:['theme_werewolf'] },
+{ title:'Vampire', rows:['theme_vampire'] },
     ];
 
     const folders = map.map(function(group){
@@ -4698,14 +4808,35 @@ function refreshHomeRowUi(){
 
 function showAllRows(){
   hidden.clear();
+
+  document.querySelectorAll('.pill.selected').forEach(function(pill){
+    const eye = pill.querySelector('.pill-eye');
+    if(eye){
+      eye.style.display = 'inline';
+      eye.textContent = '👁';
+      eye.style.opacity = '0.9';
+    }
+    pill.style.fontStyle = '';
+  });
+
   refreshHomeRowUi();
 }
 
 function hideAllRows(){
   selected.forEach(function(id){ hidden.add(id); });
+
+  document.querySelectorAll('.pill.selected').forEach(function(pill){
+    const eye = pill.querySelector('.pill-eye');
+    if(eye){
+      eye.style.display = 'inline';
+      eye.textContent = '🙈';
+      eye.style.opacity = '1';
+    }
+    pill.style.fontStyle = 'italic';
+  });
+
   refreshHomeRowUi();
 }
-
 function removeAllRows(){
   if(!confirm('Remove all selected rows from this setup?')) return;
   selected.clear();
@@ -4751,8 +4882,34 @@ function selectAll(groupId){
 }
 
 function updateCategoryCounts(){
-  const groups = ['trending','latest','providers','genres','themed','studios','collections','tvcollections','decades','kids','uk'];
+  // Standard groups
+  const groups = ['quickpicks','trending','providers','genres','studios','collections','tvcollections','directors','actors','decades','kids'];
   groups.forEach(function(g){
+    const el = document.getElementById('count-'+g);
+    const group = document.getElementById(g);
+    if(!el || !group) return;
+    const total = group.querySelectorAll('.pill').length;
+    const sel = group.querySelectorAll('.pill.selected').length;
+    const visible = group.querySelectorAll('.pill:not(.hidden)').length;
+    const visibleSel = group.querySelectorAll('.pill.selected:not(.hidden)').length;
+    el.textContent = sel > 0 ? sel+'/'+total : total;
+    const btn = document.querySelector('[onclick="selectAll(\''+g+'\')"]');
+    if(btn) btn.textContent = (visible > 0 && visibleSel === visible) ? 'Clear All' : 'Select All';
+  });
+
+  // Parent groups with sub-categories (count all pills inside the wrap)
+  ['themed','regional'].forEach(function(g){
+    const el = document.getElementById('count-'+g);
+    const wrap = document.getElementById('wrap-'+g);
+    if(!el || !wrap) return;
+    const total = wrap.querySelectorAll('.pill').length;
+    const sel = wrap.querySelectorAll('.pill.selected').length;
+    el.textContent = sel > 0 ? sel+'/'+total : total;
+  });
+
+  // Sub-category groups
+  const subGroups = ['themed-crime','themed-horror','regional-uk','regional-usa','regional-australia'];
+  subGroups.forEach(function(g){
     const el = document.getElementById('count-'+g);
     const group = document.getElementById(g);
     if(!el || !group) return;
@@ -4836,6 +4993,23 @@ async function loadConfigByToken(token){
     if(data.excludeUnreleased){ const el=document.getElementById('excludeUnreleased'); if(el) el.checked = true; }
     if(data.maxRating){ const el=document.getElementById('maxRating'); if(el) el.value = data.maxRating; }
     customCatalogs = Array.isArray(data.customCatalogs) ? data.customCatalogs : [];
+
+      // ULTRA_STREAM_RELOAD_PATCH
+      const savedStreamAddons = Array.isArray(data.streamAddons) ? data.streamAddons : [];
+
+      if (typeof setStoredStreamAddons === "function") {
+        setStoredStreamAddons(savedStreamAddons);
+      } else {
+        const streamBox = document.getElementById("streamAddons") || document.getElementById("quickStreamAddons");
+        if (streamBox) streamBox.value = savedStreamAddons.join("\n");
+      }
+
+      // Some builder panels render later, so repaint the stream cards a few times.
+      if (typeof renderStreamAddonCards === "function") {
+        renderStreamAddonCards();
+        setTimeout(renderStreamAddonCards, 250);
+        setTimeout(renderStreamAddonCards, 1000);
+      }
 
     if(data.googleAiKey && document.getElementById('googleAiKey')) document.getElementById('googleAiKey').value = data.googleAiKey;
     if(document.getElementById('enableAiRecommended')) document.getElementById('enableAiRecommended').checked = !!data.enableAiRecommended;
@@ -5407,12 +5581,6 @@ function setBuilderMode(mode){
   }
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  const saved = localStorage.getItem('ultramaxBuilderMode') || 'lite';
-  setBuilderMode(saved);
-});
-
-
 const QUICK_SETUP_V3 = {
   balanced: ["quick_trending_movies","quick_trending_series","popular_movies","popular_series"],
   movies: ["quick_trending_movies","popular_movies","top_movies"],
@@ -5834,10 +6002,59 @@ function makeSprockets(){
   });
 }
 
+// Toggle parent categories (Themed, Regional) that contain sub-sections
+function toggleParentCategory(groupId, e){
+  if(e && (e.target.classList.contains('select-all') || e.target.classList.contains('sub-cat-chevron') || e.target.classList.contains('sub-select-all'))) return;
+  const wrap = document.getElementById('wrap-'+groupId);
+  const chev = document.getElementById('chev-'+groupId);
+  if(!wrap) return;
+  wrap.classList.toggle('open');
+  if(chev) chev.classList.toggle('open');
+  setTimeout(makeSprockets, 200);
+}
+
+// Select All for parent categories — selects every pill inside including all sub-sections
+function selectAllParent(groupId, e){
+  if(e) e.stopPropagation();
+  const wrap = document.getElementById('wrap-'+groupId);
+  if(!wrap) return;
+  const pills = wrap.querySelectorAll('.pill:not(.hidden)');
+  const allSelected = Array.from(pills).every(function(p){ return p.classList.contains('selected'); });
+  pills.forEach(function(p){
+    const eye = p.querySelector('.pill-eye');
+    if(allSelected){
+      p.classList.remove('selected');
+      selected.delete(p.dataset.id);
+      hidden.delete(p.dataset.id);
+      p.style.fontStyle = '';
+      if(eye) eye.style.display = 'none';
+    } else {
+      p.classList.add('selected');
+      selected.add(p.dataset.id);
+      if(eye) eye.style.display = 'inline';
+    }
+  });
+  const btn = document.querySelector('[onclick="selectAllParent(\''+groupId+'\', event)"]');
+  if(btn) btn.textContent = allSelected ? 'Select All' : 'Clear All';
+  updateCounter(); updateCategoryCounts();
+}
+
+// Toggle individual sub-sections (Crime, Horror, UK, USA, etc.)
+function toggleSubSection(pillsId, headerEl){
+  const pills = document.getElementById(pillsId);
+  if(!pills) return;
+  const chevron = headerEl.querySelector('.sub-cat-chevron');
+  const isHidden = pills.style.display === 'none' || pills.style.display === '';
+  pills.style.display = isHidden ? 'flex' : 'none';
+  if(chevron) chevron.classList.toggle('open', isHidden);
+  setTimeout(makeSprockets, 200);
+}
+
 // Collapsible categories
 function initCollapsible(){
-  const groups = ["quickpicks","trending","latest","providers","genres","themed","studios","networks","directors","actors","collections","tvcollections","decades","kids","uk"];
-  groups.forEach(function(g, idx){
+  // Standard categories (not parent/sub hierarchy)
+  const groups = ["quickpicks","trending","providers","genres","studios","collections","tvcollections","directors","actors","decades","kids"];
+  groups.forEach(function(g){
     const header = document.querySelector(`[onclick="selectAll('${g}')"]`).closest(".cat-header");
     const pills = document.getElementById(g);
     if(!header || !pills) return;
@@ -5863,6 +6080,14 @@ function initCollapsible(){
       c.classList.toggle("open");
       setTimeout(makeSprockets, 200);
     });
+  });
+
+  // Open themed and regional wraps by default
+  ["themed","regional"].forEach(function(g){
+    const wrap = document.getElementById("wrap-"+g);
+    const chev = document.getElementById("chev-"+g);
+    if(wrap) wrap.classList.add("open");
+    if(chev) chev.classList.add("open");
   });
 }
 
@@ -6522,7 +6747,7 @@ function wrapCatalogSections(){
 
   parent.insertBefore(wrapper, current);
 
-  while(current && !current.classList?.contains('nav-btns')){
+  while(current && !current.classList?.contains('nav-btns') && !current.classList?.contains('wizard-step')){
     const next = current.nextElementSibling;
     wrapper.appendChild(current);
     current = next;
@@ -6531,6 +6756,19 @@ function wrapCatalogSections(){
 
 document.addEventListener('DOMContentLoaded', function(){
   setTimeout(wrapCatalogSections, 200);
+  // Post-wrap rescue: runs after wrapCatalogSections to move any trapped wizard-steps back out of step-2
+  setTimeout(function(){
+    var step2 = document.getElementById('step-2');
+    if(!step2 || !step2.parentNode) return;
+    var trapped = Array.from(step2.querySelectorAll('.wizard-step'));
+    if(!trapped.length) return;
+    var ref = step2.nextSibling;
+    for(var i=0; i<trapped.length; i++){
+      step2.parentNode.insertBefore(trapped[i], ref);
+      ref = trapped[i].nextSibling;
+    }
+    console.log('Post-wrap rescue: moved', trapped.length, 'wizard-step(s) out of step-2');
+  }, 300);
 });
 
 
