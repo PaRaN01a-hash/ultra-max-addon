@@ -15,14 +15,14 @@ const { rateLimit } = require("./utils/rate-limit");
 const { fetchCached, fetchTrakt } = require("./services/api-helpers");
 const { streamBridgeResponse } = require("./services/stream-bridge");
 const { getImdbId, getMovieCertification, filterByMaxRating, imdbToTmdbMovieId, filterMetasByMaxRating, getBestPoster } = require("./services/metadata-service");
-const { geminiAiRecommendations } = require("./services/ai-service");
-
+const { geminiAiRecommendations, tmdbResolveAiItems } = require("./services/ai-service");
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
 const MDBLIST_KEYS = (process.env.MDBLIST_KEYS || process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960").split(",").map(k => k.trim()).filter(Boolean);
 const MDBLIST_KEY = MDBLIST_KEYS[0];
 const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
 const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
+const { handleTraktCatalog } = require("./services/trakt-service");
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
@@ -56,122 +56,6 @@ const builder = new addonBuilder({
     { type:"movie",  id:"ultramax_placeholder", name:"Ultra MAX", extra: [{ name:"skip", isRequired: false }] }
   ]
 });
-
-async function traktToMetas(arr, type, language, rpdbKey, tpKey, excludeUnreleased = false) {
-  const tmdbType = type === "series" ? "tv" : "movie";
-  const tmdbResults = (await Promise.all(
-    (arr || []).map(async item => {
-      const entity = item.movie || item.show || item;
-      const tmdbId = entity?.ids?.tmdb;
-      if (!tmdbId) return null;
-      try {
-        return await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
-      } catch(e) { return null; }
-    })
-  )).filter(Boolean);
-  return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey, excludeUnreleased);
-}
-
-
-async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, excludeUnreleased = false, fanartKey = null, omdbKey = null) {
-  const today = new Date().toISOString().slice(0,10);
-  return (await Promise.all(
-    arr.filter(i => {
-      if (!i.poster_path) return false;
-
-      const title = i.title || i.name || i.original_title || i.original_name || "";
-      if (!title.trim()) return false;
-
-      const d = i.release_date || i.first_air_date || "";
-
-      // Keep thin/ghost TMDB entries out of public rows.
-      // These often show as clickable posters but fail metadata in Nuvio.
-      if (!d) return false;
-
-      if (excludeUnreleased && d > today) return false;
-
-      // Even when unreleased filtering is off, block far-future placeholders.
-      const futureLimit = new Date();
-      futureLimit.setDate(futureLimit.getDate() + 120);
-      const futureLimitStr = futureLimit.toISOString().slice(0,10);
-      if (d > futureLimitStr) return false;
-
-      // Very low signal entries are often placeholders/sparse records.
-      if ((i.vote_count || 0) < 1 && !i.overview) return false;
-
-      return true;
-    }).map(async i => {
-      const imdb = await getImdbId(i.id, type);
-      if (!imdb) return null;
-      const meta = {
-        id: imdb, type,
-        name: i.title || i.name || i.original_title,
-        poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdb}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : await getBestPoster({ type, tmdbId: i.id, imdbId: imdb, tmdbPosterPath: i.poster_path, fanartKey, omdbKey }),
-        background: i.backdrop_path ? `https://image.tmdb.org/t/p/original${i.backdrop_path}` : null
-      };
-      if (language && language !== "en-US" && i.overview) meta.description = i.overview;
-      return meta;
-    })
-  )).filter(Boolean);
-}
-
-async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null, maxRating = null, fanartKey = null, omdbKey = null) {
-  const tryKeys = mdbKey ? [mdbKey] : MDBLIST_KEYS;
-  let data = null;
-  for (const key of tryKeys) {
-    const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
-    try {
-      const resp = await fetchCached(url);
-      if (resp && !resp.error) { data = resp; break; }
-    } catch(e) {}
-  }
-  if (!data) return [];
-  try {
-    const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
-    let metas = (await Promise.all(
-      items.map(async item => {
-        const imdbId = item.imdb_id || item.imdbid;
-        if (!imdbId) return null;
-        const tmdbType = type ==="series" ?"tv" :"movie";
-        try {
-          const find = await fetchCached(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${TMDB_KEY}&external_source=imdb_id`);
-          const result = find[`${tmdbType}_results`]?.[0];
-          if (!result) return { id: imdbId, type, name: item.title };
-          return {
-            id: imdbId, type,
-            name: item.title || result.title || result.name,
-            poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdbId}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : await getBestPoster({ type, tmdbId: result.id, imdbId: imdbId, tmdbPosterPath: result.poster_path, fanartKey, omdbKey }),
-            background: result.backdrop_path ? `https://image.tmdb.org/t/p/original${result.backdrop_path}` : null
-          };
-        } catch { return { id: imdbId, type, name: item.title }; }
-      })
-    )).filter(Boolean);
-
-      if (type === "movie" && maxRating) {
-        metas = await filterMetasByMaxRating(metas, maxRating);
-      }
-
-      return metas;
-  } catch (e) { console.log("mdblist error", listId, e.message); return []; }
-}
-
-async function tmdbResolveAiItems(items, type, language, rpdbKey, tpKey, excludeUnreleased, fanartKey = null, omdbKey = null) {
-  const tmdbType = type === "series" ? "tv" : "movie";
-  const found = [];
-
-  for (const item of items || []) {
-    const title = encodeURIComponent(item.title || "");
-    if (!title) continue;
-
-    try {
-      const data = await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${title}&include_adult=false&page=1`);
-      const result = (data.results || [])[0];
-      if (result) found.push(result);
-    } catch(e) {}
-  }
-
-  return resultsToMetas(found, type, FILTER_ENABLED, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey);
-}
 
 async function handleCatalog(catalogId, type, extra, mdbKey, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, traktUser = null, excludeUnreleased = false, maxRating = null, customCatalogs = [], googleAiKey = null, fanartKey = null, omdbKey = null) {
 console.log(
@@ -478,57 +362,23 @@ if (genreCatalogs[genreKey]) {
       else if(extra?.sort === "release_date_desc") allParts = allParts.sort((a,b) => (b.release_date||"").localeCompare(a.release_date||""));
       return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
     }
-    case"trakt_trending": {
-      const path = type === "series" ? "/shows/trending" : "/movies/trending";
-const data = await fetchTrakt(
-  `${path}?limit=50`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
-    case"trakt_popular": {
-      const path = type === "series" ? "/shows/popular" : "/movies/popular";
-      const data = await fetchTrakt(
-  `${path}?limit=50&extended=full`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
-    case"trakt_anticipated": {
-      const path = type === "series" ? "/shows/anticipated" : "/movies/anticipated";
-      const data = await fetchTrakt(
-  `${path}?limit=50`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
-    case"trakt_user_favorites": {
-      if (!traktUser) return { metas: [] };
-      const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(
-  `/users/${traktUser}/favorites/${t}?limit=50`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
-    case"trakt_user_watchlist": {
-      if (!traktUser) return { metas: [] };
-      const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(
-  `/users/${traktUser}/watchlist/${t}?limit=50`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
-    case"trakt_user_collection": {
-      if (!traktUser) return { metas: [] };
-      const t = type === "series" ? "shows" : "movies";
-      const data = await fetchTrakt(
-  `/users/${traktUser}/collection/${t}`,
-  TRAKT_CLIENT_ID
-);
-      return { metas: await traktToMetas(data, type, language, rpdbKey, tpKey, excludeUnreleased) };
-    }
+
+    case "trakt_trending":
+    case "trakt_popular":
+    case "trakt_anticipated":
+    case "trakt_user_favorites":
+    case "trakt_user_watchlist":
+    case "trakt_user_collection":
+       return await handleTraktCatalog(
+         def.handler,
+         type,
+         traktUser,
+         language,
+         rpdbKey,
+         tpKey,
+         excludeUnreleased,
+           TRAKT_CLIENT_ID
+  );
     case"tmdb_anime":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}${type==="movie"?ratingParam:""}`;
       break;

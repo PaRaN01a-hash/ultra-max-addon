@@ -1,3 +1,9 @@
+const { fetchCached } = require("./api-helpers");
+const { resultsToMetas } = require("./metadata-service");
+
+const TMDB_KEY = process.env.TMDB_KEY;
+const FILTER_ENABLED = process.env.FILTER_MODE !== "off";
+
 async function geminiAiRecommendations({
   type,
   googleAiKey,
@@ -64,6 +70,35 @@ No markdown. No explanation.
   }
 }
 
+async function tmdbResolveAiItems(items, type, language, rpdbKey, tpKey, excludeUnreleased, fanartKey = null, omdbKey = null) {
+  const tmdbType = type === "series" ? "tv" : "movie";
+  const found = [];
+
+  for (const item of items || []) {
+    const title = encodeURIComponent(item.title || "");
+    if (!title) continue;
+
+    try {
+      const data = await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${title}&include_adult=false&page=1`);
+      const result = (data.results || [])[0];
+      if (result) found.push(result);
+    } catch(e) {}
+  }
+
+  return resultsToMetas(
+    found,
+    type,
+    FILTER_ENABLED,
+    language,
+    rpdbKey,
+    tpKey,
+    excludeUnreleased,
+    fanartKey,
+    omdbKey
+  );
+}
+
 module.exports = {
-  geminiAiRecommendations
+  geminiAiRecommendations,
+  tmdbResolveAiItems
 };

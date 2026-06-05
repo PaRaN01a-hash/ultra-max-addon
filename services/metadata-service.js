@@ -1,14 +1,12 @@
 const axios = require("axios");
 const { fetchCached } = require("./api-helpers");
-
 const TMDB_KEY = process.env.TMDB_KEY;
-
 const imdbCache = new Map();
-
 const certCache = new Map();
 const CERT_TTL = 7 * 24 * 60 * 60 * 1000;
-
 const imdbTmdbCache = new Map();
+const FILTER_ENABLED = process.env.FILTER_MODE !== "off";
+const MDBLIST_KEYS = ( process.env.MDBLIST_KEYS || process.env.MDBLIST_KEY || "5woimia0xf19uqr4rd7wl1960" ).split(",").map(k => k.trim()).filter(Boolean);
 
 async function filterMetasByMaxRating(metas, maxRating) {
   if (!maxRating || !Array.isArray(metas)) return metas;
@@ -27,8 +25,6 @@ async function filterMetasByMaxRating(metas, maxRating) {
 
   return checked.filter(Boolean);
 }
-
-
 
 async function getBestPoster({ type, tmdbId, imdbId, tmdbPosterPath, fanartKey = null, omdbKey = null }) {
   const tmdbPoster = tmdbPosterPath ? `https://image.tmdb.org/t/p/w500${tmdbPosterPath}` : null;
@@ -60,6 +56,103 @@ async function getBestPoster({ type, tmdbId, imdbId, tmdbPosterPath, fanartKey =
   return tmdbPoster;
 }
 
+async function traktToMetas(arr, type, language, rpdbKey, tpKey, excludeUnreleased = false) {
+  const tmdbType = type === "series" ? "tv" : "movie";
+  const tmdbResults = (await Promise.all(
+    (arr || []).map(async item => {
+      const entity = item.movie || item.show || item;
+      const tmdbId = entity?.ids?.tmdb;
+      if (!tmdbId) return null;
+      try {
+        return await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
+      } catch(e) { return null; }
+    })
+  )).filter(Boolean);
+  return await resultsToMetas(tmdbResults, type, FILTER_ENABLED, language, rpdbKey, tpKey, excludeUnreleased);
+}
+
+
+async function resultsToMetas(arr, type, filterLang = FILTER_ENABLED, language = "en-US", rpdbKey = null, tpKey = null, excludeUnreleased = false, fanartKey = null, omdbKey = null) {
+  const today = new Date().toISOString().slice(0,10);
+  return (await Promise.all(
+    arr.filter(i => {
+      if (!i.poster_path) return false;
+
+      const title = i.title || i.name || i.original_title || i.original_name || "";
+      if (!title.trim()) return false;
+
+      const d = i.release_date || i.first_air_date || "";
+
+      // Keep thin/ghost TMDB entries out of public rows.
+      // These often show as clickable posters but fail metadata in Nuvio.
+      if (!d) return false;
+
+      if (excludeUnreleased && d > today) return false;
+
+      // Even when unreleased filtering is off, block far-future placeholders.
+      const futureLimit = new Date();
+      futureLimit.setDate(futureLimit.getDate() + 120);
+      const futureLimitStr = futureLimit.toISOString().slice(0,10);
+      if (d > futureLimitStr) return false;
+
+      // Very low signal entries are often placeholders/sparse records.
+      if ((i.vote_count || 0) < 1 && !i.overview) return false;
+
+      return true;
+    }).map(async i => {
+      const imdb = await getImdbId(i.id, type);
+      if (!imdb) return null;
+      const meta = {
+        id: imdb, type,
+        name: i.title || i.name || i.original_title,
+        poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdb}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdb}.jpg` : await getBestPoster({ type, tmdbId: i.id, imdbId: imdb, tmdbPosterPath: i.poster_path, fanartKey, omdbKey }),
+        background: i.backdrop_path ? `https://image.tmdb.org/t/p/original${i.backdrop_path}` : null
+      };
+      if (language && language !== "en-US" && i.overview) meta.description = i.overview;
+      return meta;
+    })
+  )).filter(Boolean);
+}
+
+async function mdblistToMetas(listId, type, mdbKey, rpdbKey = null, tpKey = null, maxRating = null, fanartKey = null, omdbKey = null) {
+  const tryKeys = mdbKey ? [mdbKey] : MDBLIST_KEYS;
+  let data = null;
+  for (const key of tryKeys) {
+    const url = `https://mdblist.com/api/lists/${listId}/items/?apikey=${key}&limit=100&type=${type ==="series" ?"show" :"movie"}`;
+    try {
+      const resp = await fetchCached(url);
+      if (resp && !resp.error) { data = resp; break; }
+    } catch(e) {}
+  }
+  if (!data) return [];
+  try {
+    const items = Array.isArray(data) ? data : (data.movies || data.shows || data.items || []);
+    let metas = (await Promise.all(
+      items.map(async item => {
+        const imdbId = item.imdb_id || item.imdbid;
+        if (!imdbId) return null;
+        const tmdbType = type ==="series" ?"tv" :"movie";
+        try {
+          const find = await fetchCached(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${TMDB_KEY}&external_source=imdb_id`);
+          const result = find[`${tmdbType}_results`]?.[0];
+          if (!result) return { id: imdbId, type, name: item.title };
+          return {
+            id: imdbId, type,
+            name: item.title || result.title || result.name,
+            poster: tpKey ? `https://api.top-streaming.stream/${tpKey}/imdb/poster-default/${imdbId}.jpg` : rpdbKey ? `https://api.ratingposterdb.com/${rpdbKey}/imdb/poster-default/${imdbId}.jpg` : await getBestPoster({ type, tmdbId: result.id, imdbId: imdbId, tmdbPosterPath: result.poster_path, fanartKey, omdbKey }),
+            background: result.backdrop_path ? `https://image.tmdb.org/t/p/original${result.backdrop_path}` : null
+          };
+        } catch { return { id: imdbId, type, name: item.title }; }
+      })
+    )).filter(Boolean);
+
+      if (type === "movie" && maxRating) {
+        metas = await filterMetasByMaxRating(metas, maxRating);
+      }
+
+      return metas;
+  } catch (e) { console.log("mdblist error", listId, e.message); return []; }
+}
 
 module.exports = {
   getImdbId,
@@ -67,5 +160,8 @@ module.exports = {
   filterByMaxRating,
   imdbToTmdbMovieId,
   filterMetasByMaxRating,
-  getBestPoster
+  getBestPoster,
+  traktToMetas,
+  resultsToMetas,
+  mdblistToMetas
 };
