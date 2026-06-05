@@ -10,7 +10,7 @@ const { CATALOG_DEFS } = require("./catalogs/catalog-defs");
 const { QUICK_PICK_CATALOGS } = require("./catalogs/quick-picks");
 const { DYNAMIC_CATALOGS } = require("./catalogs/dynamic-catalogs");
 const { loadConfigs, saveConfigs } = require("./utils/config-store");
-
+const { hashPassword, generateToken } = require("./utils/auth");
 
 const PORT = process.env.PORT || 7000;
 const TMDB_KEY = process.env.TMDB_KEY;
@@ -37,8 +37,6 @@ function rateLimit(ip, max = 5, windowMs = 60000) {
   rateLimits.set(ip, record);
   return record.count > max;
 }
-function hashPassword(p) { return crypto.createHash("sha256").update(p +"ultramax_salt").digest("hex"); }
-function generateToken() { return crypto.randomBytes(4).toString("hex").toUpperCase(); }
 const cache = new Map();
 const imdbCache = new Map();
 
