@@ -25,6 +25,9 @@ const FILTER_ENABLED = process.env.FILTER_MODE !=="off";
 const { handleTraktCatalog } = require("./services/trakt-service");
 const { handleQuickPicks } = require("./services/quick-picks-service");
 const { handleSearch } = require("./services/search-service");
+const { buildTmdbCatalogUrl } = require("./services/tmdb-catalog-service");
+const { handleRelatedContent } = require("./services/related-content-service");
+
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
@@ -142,22 +145,28 @@ if (catalogId.startsWith("quick_")) {
   const allowedRatings = maxRating ? RATING_ORDER.slice(0, RATING_ORDER.indexOf(maxRating) + 1) : [];
   const ratingParam = allowedRatings.length ? `&certification_country=US&certification=${allowedRatings.map(encodeURIComponent).join("%7C")}` : "";
   const sortBy = extra?.sort === "chronological" ? "primary_release_date.asc" : (extra?.sort === "release_date_desc" ? "primary_release_date.desc" : (extra?.sort === "top_rated" ? "vote_average.desc&vote_count.gte=200" : "popularity.desc"));
+  
+  const relatedResult = await handleRelatedContent({
+  catalogId,
+  tmdbId,
+  tmdbType,
+  page,
+  type,
+  filterLang,
+  language,
+  rpdbKey,
+  tpKey,
+  excludeUnreleased,
+  fanartKey,
+  omdbKey,
+  TMDB_KEY,
+  fetchCached,
+  resultsToMetas
+});
 
-  if (catalogId ==="similar_movie" || catalogId ==="similar_series") {
-    if (!tmdbId) return { metas: [] };
-    const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/similar?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
-  }
-  if (catalogId ==="recommended_movie" || catalogId ==="recommended_series") {
-    if (!tmdbId) return { metas: [] };
-    const data = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/recommendations?api_key=${TMDB_KEY}&page=${page}`);
-    return { metas: await resultsToMetas(data.results || [], type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
-  }
-  if (catalogId ==="collection_movie") {
-    if (!tmdbId) return { metas: [] };
-    const data = await fetchCached(`https://api.themoviedb.org/3/collection/${tmdbId}?api_key=${TMDB_KEY}`);
-    return { metas: await resultsToMetas(data.parts || [], "movie", filterLang, language, rpdbKey, tpKey, excludeUnreleased) };
-  }
+if (relatedResult) {
+  return relatedResult;
+}
 
   const def = CATALOG_DEFS[catalogId];
   if (!def) return { metas: [] };
@@ -167,43 +176,18 @@ if (catalogId.startsWith("quick_")) {
     return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey, tpKey, maxRating, fanartKey, omdbKey) };
   }
 
-  let url;
-  switch(def.handler) {
-    case"tmdb_trending":
-      url = `https://api.themoviedb.org/3/trending/${tmdbType}/week?api_key=${TMDB_KEY}&page=${page}`;
-      break;
-    case"tmdb_source":
-      url = `https://api.themoviedb.org/3/${tmdbType}/${def.source}?api_key=${TMDB_KEY}&page=${page}`;
-      break;
-    case"tmdb_provider":
-      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=${def.provider}&watch_region=US&sort_by=popularity.desc&page=${page}${type==="movie"?ratingParam:""}`;
-      break;
-    case"tmdb_genre": {
-      let genre = def.genre;
-      if (type ==="series") {
-        if (genre === 28) genre = 10759;
-        if ([878, 27, 14].includes(genre)) genre = 10765;
-        if (genre === 53) genre = 9648;
-      }
-      url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc&page=${page}${type==="movie"?ratingParam:""}`;
-      break;
-    }
-    case"tmdb_keyword":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_keywords=${def.keyword}&sort_by=popularity.desc&page=${page}${ratingParam}`;
-      if (def.lang) url += `&with_original_language=${def.lang}`;
-      break;
-    case"tmdb_company":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_companies=${encodeURIComponent(def.company)}&sort_by=${sortBy}&page=${page}${ratingParam}${def.excludeAnimation?"&without_genres=16":""}`;
-      break;
-    case"tmdb_network":
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_networks=${def.networkId}&sort_by=${sortBy}&page=${page}`;
-      break;
-    case"tmdb_actor":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_cast=${def.personId}&sort_by=${sortBy}&page=${page}${ratingParam}`;
-      break;
-    case"tmdb_director":
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_crew=${def.personId}&sort_by=${sortBy}&page=${page}${ratingParam}`;
-      break;
+  let url = buildTmdbCatalogUrl({
+  def,
+  type,
+  tmdbType,
+  page,
+  sortBy,
+  ratingParam,
+  TMDB_KEY
+});
+
+switch(def.handler) {
+
     case"tmdb_collection": {
       let parts = (await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [];
       if(extra?.sort === "chronological") parts = parts.slice().sort((a,b) => (a.release_date||"").localeCompare(b.release_date||""));
