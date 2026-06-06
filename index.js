@@ -27,7 +27,7 @@ const { handleQuickPicks } = require("./services/quick-picks-service");
 const { handleSearch } = require("./services/search-service");
 const { buildTmdbCatalogUrl } = require("./services/tmdb-catalog-service");
 const { handleRelatedContent } = require("./services/related-content-service");
-
+const { handleCatalogSearch } = require("./services/catalog-search-service");
 
 if (!TMDB_KEY) { console.error("TMDB_KEY missing - exiting"); process.exit(1); }
 
@@ -48,7 +48,6 @@ function buildManifestCatalogs(ids) {
 }
 
 const staticIds = getStaticIds();
-
 const builder = new addonBuilder({
   id: FILTER_ENABLED ?"org.kris.ultra.max.v5" :"org.kris.ultra.max.all.v5",
   version:"7.0.0-beta",
@@ -70,9 +69,9 @@ console.log(
   JSON.stringify(extra),
    "maxRating=",
   maxRating
-
 );
 if (extra && extra.search) {
+
 const searchableCatalogs = new Set([
   "search_movies",
   "search_series",
@@ -86,7 +85,6 @@ const searchableCatalogs = new Set([
   if (false && extra && extra.search && catalogId !== "search_movie" && catalogId !== "search_movies" && catalogId !== "search_series") {
     return { metas: [] };
   }
-
 if (extra && extra.search) {
   return await handleSearch({
     catalogId,
@@ -116,13 +114,14 @@ if (extra && extra.search) {
   const tmdbId = extra?.tmdbId;
   // 🔥 QUICK PICKS ENGINE
   if (catalogId === "ai_recommended_movies" || catalogId === "ai_recommended_series") {
-    const items = await geminiAiRecommendations({ type, googleAiKey, traktUser, language });
-    const metas = await tmdbResolveAiItems(items, type, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey);
+
+  const items = await geminiAiRecommendations({ type, googleAiKey, traktUser, language });
+  const metas = await tmdbResolveAiItems(items, type, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey);
+
     return { metas };
   }
-
-if (catalogId.startsWith("quick_")) {
-  return await handleQuickPicks({
+  if (catalogId.startsWith("quick_")) {
+    return await handleQuickPicks({
     catalogId,
     type,
     page,
@@ -163,19 +162,16 @@ if (catalogId.startsWith("quick_")) {
   fetchCached,
   resultsToMetas
 });
-
 if (relatedResult) {
   return relatedResult;
 }
 
   const def = CATALOG_DEFS[catalogId];
   if (!def) return { metas: [] };
-
   if (def.handler ==="mdb") {
     const listId = catalogId.replace("mdb_","");
     return { metas: await mdblistToMetas(listId, type, mdbKey, rpdbKey, tpKey, maxRating, fanartKey, omdbKey) };
   }
-
   let url = buildTmdbCatalogUrl({
   def,
   type,
@@ -185,9 +181,7 @@ if (relatedResult) {
   ratingParam,
   TMDB_KEY
 });
-
 switch(def.handler) {
-
     case"tmdb_collection": {
       let parts = (await fetchCached(`https://api.themoviedb.org/3/collection/${def.collectionId}?api_key=${TMDB_KEY}`)).parts || [];
       if(extra?.sort === "chronological") parts = parts.slice().sort((a,b) => (a.release_date||"").localeCompare(b.release_date||""));
@@ -206,7 +200,6 @@ switch(def.handler) {
       else if(extra?.sort === "release_date_desc") allParts = allParts.sort((a,b) => (b.release_date||"").localeCompare(a.release_date||""));
       return { metas: await resultsToMetas(allParts, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
     }
-
     case "trakt_trending":
     case "trakt_popular":
     case "trakt_anticipated":
@@ -232,105 +225,44 @@ switch(def.handler) {
     case"tmdb_paramount":
       url = `https://api.themoviedb.org/3/discover/${tmdbType}?api_key=${TMDB_KEY}&with_watch_providers=2616%7C2303&watch_region=US&sort_by=popularity.desc&page=${page}${type==="movie"?ratingParam:""}`;
       break;
-
-
     case "tmdb_ids": {
       const ids = Array.isArray(def.ids) ? def.ids : [];
       const results = [];
 
       for (const tmdbId of ids) {
         try {
-          const item = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
+     
+       const item = await fetchCached(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_KEY}&language=${language}`);
           if(item && item.id) results.push(item);
         } catch(e) {
           console.log("tmdb_ids error", catalogId, tmdbId, e.message);
         }
       }
-
       return { metas: await resultsToMetas(results, type, false, language, rpdbKey, tpKey) };
     }
-
     case "tmdb_search": {
+      
       const q = def.query || def.name;
       const data = await fetchCached(`https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&page=1&language=${language}`);
       return { metas: await resultsToMetas(data.results || [], type, false, language, rpdbKey, tpKey) };
     }
+   case "search":
+  return await handleCatalogSearch({
+    catalogId,
+    extra,
+    tmdbType,
+    type,
+    language,
+    rpdbKey,
+    tpKey,
+    TMDB_KEY,
+    fetchCached,
+    resultsToMetas
+  });
 
-    case"search":
-      console.log("SEARCH CASE HIT:", catalogId, extra?.search);
-      if (!extra?.search) return { metas: [] };
-
-      const rawSearch = String(extra.search || "").replace(/\.json$/, "").trim();
-
-      const norm = (v) => String(v || "")
-        .toLowerCase()
-        .replace(/^the\s+/i, "")
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, " ")
-        .trim();
-
-      const wanted = norm(rawSearch);
-
-      const scoreResult = (r) => {
-        const title = r.title || r.name || r.original_title || r.original_name || "";
-        const original = r.original_title || r.original_name || "";
-        const titleNorm = norm(title);
-        const originalNorm = norm(original);
-
-        let score = 0;
-
-        if (titleNorm === wanted) score += 100000;
-        if (originalNorm === wanted) score += 75000;
-        if (titleNorm.startsWith(wanted)) score += 30000;
-        if (titleNorm.includes(wanted)) score += 15000;
-
-        score += Number(r.popularity || 0) * 100;
-        score += Number(r.vote_count || 0) * 2;
-        score += Number(r.vote_average || 0) * 10;
-
-        const date = r.first_air_date || r.release_date || "";
-        const year = Number(String(date).slice(0, 4));
-        if (year >= 2020) score += 500;
-        else if (year >= 2010) score += 250;
-
-        return score;
-      };
-
-      const searchUrl = `https://api.themoviedb.org/3/search/${tmdbType}?api_key=${TMDB_KEY}&query=${encodeURIComponent(rawSearch)}&page=1&include_adult=false`;
-      const searchData = await fetchCached(searchUrl);
-      let results = Array.isArray(searchData?.results) ? searchData.results : [];
-
-      if ((!results || results.length === 0) && type === "movie") {
-        const collectionUrl = `https://api.themoviedb.org/3/search/collection?api_key=${TMDB_KEY}&query=${encodeURIComponent(rawSearch)}&page=1&include_adult=false`;
-        const collectionData = await fetchCached(collectionUrl);
-        const collections = Array.isArray(collectionData?.results) ? collectionData.results : [];
-
-        for (const c of collections.slice(0, 3)) {
-          if (!c?.id) continue;
-
-          try {
-            const col = await fetchCached(`https://api.themoviedb.org/3/collection/${c.id}?api_key=${TMDB_KEY}`);
-            if (Array.isArray(col?.parts)) results.push(...col.parts);
-          } catch(e) {
-            console.log("SEARCH COLLECTION FALLBACK ERROR:", c.id, e.message);
-          }
-        }
-      }
-
-      results = results
-        .filter(r => r && !r.adult && (r.title || r.name || r.original_title || r.original_name))
-        .map(r => ({ ...r, __ultraSearchScore: scoreResult(r) }))
-        .sort((a, b) => (b.__ultraSearchScore || 0) - (a.__ultraSearchScore || 0))
-        .slice(0, 20);
-
-      return {
-        metas: await resultsToMetas(results, type, false, language, rpdbKey, tpKey)
-      };
-    default:
+default:
       return { metas: [] };
   }
-
-
   if (language && language !== "en-US") url += `&language=${language}`;
   const startPage = Math.floor((extra?.skip || 0) / 100) * 5 + 1;
   const pages = await Promise.all(
@@ -344,7 +276,6 @@ switch(def.handler) {
       allResults = await filterByMaxRating(allResults, maxRating);
   }
   return { metas: await resultsToMetas(allResults, type, filterLang, language, rpdbKey, tpKey, excludeUnreleased, fanartKey, omdbKey) };
-
 }
 
 function buildCatalogsFromIds(selectedIds, hiddenIds = []) {
@@ -379,7 +310,6 @@ builder.defineCatalogHandler(async ({ type, id, extra }) => {
   try { return await handleCatalog(id, type, extra, null); }
   catch (e) { console.log("catalog error", id, e.message); return { metas: [] }; }
 });
-
 
 builder.defineStreamHandler(async () => ({ streams: [] }));
 
@@ -555,10 +485,7 @@ app.post('/api/stream-wizard/check', async (req, res) => {
   }
 });
 
-
 app.get("/health", (req, res) => { res.status(200).json({ ok: true, service: "ultra-max", timestamp: new Date().toISOString() }); });
-
-
 
 app.get("/assets", (req, res) => {
   const fs = require("fs");
@@ -614,8 +541,6 @@ document.querySelectorAll("button[data-url]").forEach(function(btn){
 </html>`);
 });
 
-
-
 app.get("/configure", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/configure/:token", (req, res) => { res.setHeader("Cache-Control","public, max-age=300"); res.sendFile(path.join(__dirname,"configure.html")); });
 app.get("/c/:token/configure", (req, res) => { res.redirect(`/configure/${req.params.token}`); });
@@ -633,7 +558,6 @@ app.post("/api/ai/custom-row", async (req, res) => {
     if (!prompt || !String(prompt).trim()) {
       return res.status(400).json({ error: "Missing prompt" });
     }
-
     
     if (!key) {
       // 🔁 Fallback: simple parser (no AI key needed)
@@ -703,8 +627,6 @@ app.post("/api/ai/custom-row", async (req, res) => {
         }]
       });
     }
-
-
     const wanted = Math.max(1, Math.min(Number(count) || 1, 5));
 
     const aiPrompt = `
@@ -783,7 +705,6 @@ Rules:
   }
 });
 
-
 app.post("/c/create", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   if (rateLimit(ip, 5, 60000)) return res.status(429).json({ error:"Too many requests." });
@@ -829,7 +750,6 @@ app.get("/c/:token/config", (req, res) => {
   if (!configs[token]) return res.status(404).json({ error:"Not found" });
   res.json({ catalogs: configs[token].catalogs, mdblistKey: configs[token].mdblistKey, language: configs[token].language, rpdbKey: configs[token].rpdbKey, tpKey: configs[token].tpKey, fanartKey: configs[token].fanartKey || null, omdbKey: configs[token].omdbKey || null, traktUser: configs[token].traktUser, excludeUnreleased: configs[token].excludeUnreleased || false, maxRating: configs[token].maxRating || null, streamAddons: configs[token].streamAddons || [], customCatalogs: configs[token].customCatalogs || [], googleAiKey: configs[token].googleAiKey || null, enableAiRecommended: !!configs[token].enableAiRecommended });
 });
-
 
 // DEV ONLY: safe config inspector. Redacts secrets but shows saved shape.
 app.get("/debug/config/:token", (req, res) => {
@@ -965,7 +885,6 @@ app.get("/c/:token/collections.json", (req, res) => {
   res.json(configs[token].collections || []);
 });
 
-
 app.get("/n/:token/manifest.json", (req, res) => {
   const { token } = req.params;
   const configs = loadConfigs();
@@ -1007,7 +926,6 @@ app.get("/n/:token/manifest.json", (req, res) => {
     catalogs
   });
 });
-
 
 app.get("/cinemeta-clone/manifest.json", (req, res) => {
   console.log("CINEMETA CLONE HIT", new Date().toISOString(), req.headers["user-agent"]);
@@ -1096,7 +1014,6 @@ app.get("/c/:token/manifest.json", (req, res) => {
   };
   res.json(manifest);
 });
-
 
 app.get("/c/:token/meta/:type/:id.json", async (req, res) => {
   const { token, type, id } = req.params;
@@ -1197,8 +1114,6 @@ app.get("/c/:token/stream/:type/:id.json", async (req, res) => {
   const result = await streamBridgeResponse(config.streamAddons || [], type, id);
   res.json(result);
 });
-
-
 
 // ==========================
 // TMDB PREVIEW ENDPOINT
@@ -1479,9 +1394,6 @@ setTimeout(async () => {
   }
   console.log('Cache pre-warm complete');
 }, 5000);
-
-
-
 
 app.listen(PORT,"0.0.0.0", () => {
   console.log(`Ultra MAX v7.0.0-beta running on port ${PORT}`);
