@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX · Stream Badges</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --bg2: #0d0d1a; --card: #12121f;
+      --border: #1e1e36; --violet: #7B2FFF; --violet2: #9B5FFF;
+      --coral: #FF3D5A; --teal: #00D2BE; --gold: #F5C518;
+      --text: #e8e8f0; --muted: #8888aa; --faint: #44445a; --ok: #34d399;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+    nav { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(8,8,16,.92); backdrop-filter:blur(12px); z-index:20; }
+    .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.08em; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--violet2); }
+    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; }
+    .nav-back:hover { color:var(--text); }
+    main { max-width:900px; margin:0 auto; padding:48px 24px 80px; }
+    .eyebrow { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--coral); margin-bottom:10px; }
+    h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,6vw,52px); letter-spacing:.04em; margin-bottom:8px; }
+    .sub { color:var(--muted); font-size:14px; line-height:1.7; margin-bottom:8px; max-width:600px; }
+    .howto { font-size:12px; color:var(--faint); margin-bottom:36px; line-height:1.8; }
+    .howto strong { color:var(--muted); }
+    .section-label { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin:32px 0 14px; display:flex; align-items:center; gap:10px; }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+    .set-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:12px; transition:border-color .15s; }
+    .set-card:hover { border-color:#2a2a50; }
+    .set-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .set-name { font-size:15px; font-weight:600; margin-bottom:3px; }
+    .set-meta { font-size:11px; color:var(--faint); line-height:1.6; }
+    .set-meta a { color:var(--violet2); text-decoration:none; }
+    .set-meta a:hover { text-decoration:underline; }
+    .set-preview { display:flex; gap:6px; align-items:center; margin-bottom:12px; min-height:34px; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; scrollbar-width:thin; scrollbar-color:#2a2a50 transparent; flex-wrap:nowrap; }
+    .set-preview::-webkit-scrollbar { height:3px; }
+    .set-preview::-webkit-scrollbar-track { background:transparent; }
+    .set-preview::-webkit-scrollbar-thumb { background:#2a2a50; border-radius:2px; }
+    .set-preview .loading { font-size:11px; color:var(--faint); }
+    .badge-img { height:26px; border-radius:3px; object-fit:contain; display:block; }
+    .badge-text { font-size:10px; font-weight:700; padding:3px 7px; border-radius:5px; white-space:nowrap; display:inline-block; }
+    .copy-btn { background:var(--violet); color:#fff; border:none; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; padding:8px 16px; border-radius:8px; cursor:pointer; transition:opacity .15s; white-space:nowrap; flex-shrink:0; }
+    .copy-btn:hover { opacity:.85; }
+    .copy-btn.ok { background:var(--ok); color:#000; }
+    .set-url { font-size:10px; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .install-box { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-top:32px; }
+    .install-box h3 { font-size:13px; font-weight:600; margin-bottom:12px; }
+    .install-steps { font-size:13px; color:var(--muted); line-height:2.2; }
+    .install-steps strong { color:var(--text); }
+    #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ok); color:#000; font-size:12px; font-weight:600; padding:8px 20px; border-radius:20px; opacity:0; transition:all .2s; pointer-events:none; z-index:99; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    @media(max-width:600px){ main{padding:24px 16px 60px;} }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
+  <a class="nav-back" href="/">← Back to home</a>
+</nav>
+<main>
+  <div class="eyebrow">Nuvio Badges</div>
+  <h1>Stream Badges</h1>
+  <p class="sub">Pick a badge set and paste the URL into Nuvio. You can import up to 3 badge URLs at once — mix and match.</p>
+  <p class="howto"><strong>How to add:</strong> Nuvio → Settings → Streams → Fusion badges URL → paste URL → Import</p>
+
+  <div class="section-label">Xperience Signature</div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/445d2e69-6fcf-405f-bd8f-38fd7d219a92.json">
+    <div class="set-top"><div><div class="set-name">Aurora</div><div class="set-meta">by Xperience · Frosted glass · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/445d2e69-6fcf-405f-bd8f-38fd7d219a92.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/445d2e69....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/9135da78-f236-4a13-9fee-8b3271616a36.json">
+    <div class="set-top"><div><div class="set-name">Pulse</div><div class="set-meta">by Xperience · Neon outline · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/9135da78-f236-4a13-9fee-8b3271616a36.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/9135da78....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/fa1d626e-bb37-4809-919e-184f3111eaa2.json">
+    <div class="set-top"><div><div class="set-name">Prism</div><div class="set-meta">by Xperience · Gradient · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/fa1d626e-bb37-4809-919e-184f3111eaa2.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/fa1d626e....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/cebaae08-d675-4ffa-81b8-a9f8fa9a35c9.json">
+    <div class="set-top"><div><div class="set-name">Spectrum</div><div class="set-meta">by Xperience · Solid colour · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/cebaae08-d675-4ffa-81b8-a9f8fa9a35c9.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/cebaae08....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/1e39102e-06e0-4121-9487-2f1aebd59402.json">
+    <div class="set-top"><div><div class="set-name">Onyx</div><div class="set-meta">by Xperience · Dark mono · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/1e39102e-06e0-4121-9487-2f1aebd59402.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/1e39102e....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/3b000399-8d1c-4ed3-9fb3-cd2735bb9e4e.json">
+    <div class="set-top"><div><div class="set-name">Wire</div><div class="set-meta">by Xperience · Outline · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/3b000399-8d1c-4ed3-9fb3-cd2735bb9e4e.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/3b000399....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/f8a5653c-3dd8-4f0d-a3a5-83f673287987.json">
+    <div class="set-top"><div><div class="set-name">Ghost</div><div class="set-meta">by Xperience · Logo only · 38 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/f8a5653c-3dd8-4f0d-a3a5-83f673287987.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/f8a5653c....json</div>
+  </div>
+
+  <div class="section-label">Community — via Xperience</div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/572087f0-c294-4fd2-a51d-d7e3e4c4160e.json">
+    <div class="set-top"><div><div class="set-name">Studio Starter</div><div class="set-meta">by voldxo · Mono logos + text · 46 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/572087f0-c294-4fd2-a51d-d7e3e4c4160e.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/572087f0....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/leonevz/Elite-Badges/main/badges.json">
+    <div class="set-top"><div><div class="set-name">Mono Logos</div><div class="set-meta">by leonevz · Image logos · 28 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/leonevz/Elite-Badges/main/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/leonevz/Elite-Badges/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/0d845348-3319-4613-a40b-b27c50425b56.json">
+    <div class="set-top"><div><div class="set-name">Dark Logos v2</div><div class="set-meta">by ngreyx1 · Updated dark logo pack · 36 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/0d845348-3319-4613-a40b-b27c50425b56.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/0d845348....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/ngreyx1/badges/main/monochrome-badge.json">
+    <div class="set-top"><div><div class="set-name">Monochrome</div><div class="set-meta">by ngreyx1 · Monochrome badge pack</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/ngreyx1/badges/main/monochrome-badge.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/ngreyx1/badges/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/ngreyx1/badges/main/bordered-badge.json">
+    <div class="set-top"><div><div class="set-name">Bordered</div><div class="set-meta">by ngreyx1 · Bordered badge style</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/ngreyx1/badges/main/bordered-badge.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/ngreyx1/badges/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://gist.githubusercontent.com/nosvasedis/7abd79424bb8981b511838524c52f097/raw/solid-nosvasedis-badges-nuvio">
+    <div class="set-top"><div><div class="set-name">Solid Color</div><div class="set-meta">by nosvasedis · Solid fill text badges · 97 badges</div></div><button class="copy-btn" onclick="cp('https://gist.githubusercontent.com/nosvasedis/7abd79424bb8981b511838524c52f097/raw/solid-nosvasedis-badges-nuvio',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">gist.githubusercontent.com/nosvasedis/.../solid</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://gist.githubusercontent.com/nosvasedis/1858e332fef11d136f76c697ea6c7439/raw/mono-nosvasedis-badges-nuvio">
+    <div class="set-top"><div><div class="set-name">Mono</div><div class="set-meta">by nosvasedis · Mono logo text badges · 97 badges</div></div><button class="copy-btn" onclick="cp('https://gist.githubusercontent.com/nosvasedis/1858e332fef11d136f76c697ea6c7439/raw/mono-nosvasedis-badges-nuvio',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">gist.githubusercontent.com/nosvasedis/.../mono</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://gist.githubusercontent.com/nosvasedis/7abd79424bb8981b511838524c52f097/raw/76c519d05f6518f0ed186ba802847c625ba730fa/nosvasedis-badges-nuvio">
+    <div class="set-top"><div><div class="set-name">Transparent</div><div class="set-meta">by nosvasedis · Transparent background · 97 badges</div></div><button class="copy-btn" onclick="cp('https://gist.githubusercontent.com/nosvasedis/7abd79424bb8981b511838524c52f097/raw/76c519d05f6518f0ed186ba802847c625ba730fa/nosvasedis-badges-nuvio',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">gist.githubusercontent.com/nosvasedis/.../transparent</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/04c3555e-f221-448f-887b-d53688a02f4c.json">
+    <div class="set-top"><div><div class="set-name">3D</div><div class="set-meta">by nosvasedis · 3D effect badges · 81 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/04c3555e-f221-448f-887b-d53688a02f4c.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/04c3555e....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/69b756a3-a23b-4314-8fcf-5094f27bc2bc.json">
+    <div class="set-top"><div><div class="set-name">Colored Combo</div><div class="set-meta">by 9mousaa · Coloured logo combo · 43 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/69b756a3-a23b-4314-8fcf-5094f27bc2bc.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/69b756a3....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/29d63019-7926-4d4f-ad6a-70317b56c135.json">
+    <div class="set-top"><div><div class="set-name">Mono Combo</div><div class="set-meta">by 9mousaa · Mono logo combo · 43 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/29d63019-7926-4d4f-ad6a-70317b56c135.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/29d63019....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/8c0edec2-d88a-4337-bbbe-4b774325fc54.json">
+    <div class="set-top"><div><div class="set-name">Logo Pack</div><div class="set-meta">by Elbyx · Image logo badges · 31 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/8c0edec2-d88a-4337-bbbe-4b774325fc54.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/8c0edec2....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/danielsdian/ColorfulAndConcise/refs/heads/main/Sterzeck_badge.json">
+    <div class="set-top"><div><div class="set-name">Colorful &amp; Concise</div><div class="set-meta">by starzeck · Clean colourful image logos · 35 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/danielsdian/ColorfulAndConcise/refs/heads/main/Sterzeck_badge.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/danielsdian/ColorfulAndConcise/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/8648b463-4f4b-4694-9b39-43c89f40da89.json">
+    <div class="set-top"><div><div class="set-name">Minimalist V2</div><div class="set-meta">by starkles · Minimal text badges · 32 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/8648b463-4f4b-4694-9b39-43c89f40da89.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/8648b463....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/f7e77eea-8daf-4bb9-891f-c590bbdcb00f.json">
+    <div class="set-top"><div><div class="set-name">Golden &amp; Animated</div><div class="set-meta">by Haz · Animated gold logo badges · 79 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/f7e77eea-8daf-4bb9-891f-c590bbdcb00f.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/f7e77eea....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume.json">
+    <div class="set-top"><div><div class="set-name">UME Standard</div><div class="set-meta">by nobnobz · UME tier tags · 40 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/nobnobz/.../fusion-tags-ume.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-colored.json">
+    <div class="set-top"><div><div class="set-name">UME Colored</div><div class="set-meta">by nobnobz · Coloured UME tier tags · 40 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-colored.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/nobnobz/.../fusion-tags-ume-colored.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-minimalistic.json">
+    <div class="set-top"><div><div class="set-name">UME Minimal</div><div class="set-meta">by nobnobz · Minimal UME tier tags · 40 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-minimalistic.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/nobnobz/.../fusion-tags-ume-minimalistic.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/k45sle/NUVIO_BADGES/refs/heads/main/GOLD-NONAMES.json">
+    <div class="set-top"><div><div class="set-name">Gold</div><div class="set-meta">by k45sle · Gold theme logo badges · 25 badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/k45sle/NUVIO_BADGES/refs/heads/main/GOLD-NONAMES.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/k45sle/NUVIO_BADGES/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://gist.githubusercontent.com/BringerOfRainX1/91203014c5d32c1ca7d5b51870a19786/raw/Badges%2520json">
+    <div class="set-top"><div><div class="set-name">Black &amp; White</div><div class="set-meta">by BringerOfRainX1 · B&amp;W image badges · 21 badges</div></div><button class="copy-btn" onclick="cp('https://gist.githubusercontent.com/BringerOfRainX1/91203014c5d32c1ca7d5b51870a19786/raw/Badges%2520json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">gist.githubusercontent.com/BringerOfRainX1/...</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://xperience-app.com/badges/8d932473-b06a-4174-b6db-1f5b6997cf85.json">
+    <div class="set-top"><div><div class="set-name">Tinted</div><div class="set-meta">by voldxo · Tinted logo badges · 36 badges</div></div><button class="copy-btn" onclick="cp('https://xperience-app.com/badges/8d932473-b06a-4174-b6db-1f5b6997cf85.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">xperience-app.com/badges/8d932473....json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/sweatycab/nuvio-minimalist-badges/main/badges-mixed.json">
+    <div class="set-top"><div><div class="set-name">Minimalist · Mixed</div><div class="set-meta">by sweatycab · Clean minimal badges · mixed style</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/sweatycab/nuvio-minimalist-badges/main/badges-mixed.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/sweatycab/.../badges-mixed.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/sweatycab/nuvio-minimalist-badges/main/badges-white.json">
+    <div class="set-top"><div><div class="set-name">Minimalist · White</div><div class="set-meta">by sweatycab · Clean minimal white badges</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/sweatycab/nuvio-minimalist-badges/main/badges-white.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/sweatycab/.../badges-white.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/djgenesis/badges/refs/heads/main/gold_badges_complete.json">
+    <div class="set-top"><div><div class="set-name">Gold Complete</div><div class="set-meta">by djgenesis · Full gold badge set</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/djgenesis/badges/refs/heads/main/gold_badges_complete.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/djgenesis/badges/...</div>
+  </div>
+
+  <div class="section-label">Ultra MAX Original</div>
+
+  <div class="set-card" data-badge-url="https://ultramax.vip/badges/ultramax.json">
+    <div class="set-top"><div><div class="set-name">Ultra MAX · Text Badges</div><div class="set-meta">by Ultra MAX · 36 badges · Text only, no icons · works on all devices</div></div><button class="copy-btn" onclick="cp('https://ultramax.vip/badges/ultramax.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">ultramax.vip/badges/ultramax.json</div>
+  </div>
+
+  <div class="section-label">Ultra MAX Visual</div>
+
+  <div class="set-card" data-badge-url="https://ultramax.vip/badges/ultramax-visual.json">
+    <div class="set-top"><div><div class="set-name">Ultra MAX · Visual Badges</div><div class="set-meta">by Ultra MAX · Image badges · 4K, 1080p, HDR, DV, Atmos, TrueHD, DTS:X, DTS-HD MA, HEVC, IMAX Enhanced, 5.1, 7.1</div></div><button class="copy-btn" onclick="cp('https://ultramax.vip/badges/ultramax-visual.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">ultramax.vip/badges/ultramax-visual.json</div>
+  </div>
+
+  <div class="section-label">Community — by 9mousaa (BetterFormatter)</div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/9mousaa/BetterFormatter/main/presets/colored-bgb-combo-nodv.json">
+    <div class="set-top"><div><div class="set-name">Colored Combo · No DV</div><div class="set-meta">by <a href="https://github.com/9mousaa/BetterFormatter" target="_blank">9mousaa</a> · Coloured logo badges · quality tier, resolution, HDR, audio, language</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/9mousaa/BetterFormatter/main/presets/colored-bgb-combo-nodv.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/9mousaa/BetterFormatter/.../colored-bgb-combo-nodv.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/9mousaa/BetterFormatter/main/presets/mono-bgb-combo-nodv.json">
+    <div class="set-top"><div><div class="set-name">Mono Combo · No DV</div><div class="set-meta">by <a href="https://github.com/9mousaa/BetterFormatter" target="_blank">9mousaa</a> · Monochrome logo badges · same coverage as Colored Combo</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/9mousaa/BetterFormatter/main/presets/mono-bgb-combo-nodv.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/9mousaa/BetterFormatter/.../mono-bgb-combo-nodv.json</div>
+  </div>
+
+  <div class="section-label">Community — by dwivedisankalp97 (SVG Packs)</div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v12/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Minimalist</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Clean minimal SVG icons</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v12/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v12/badges.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v13/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Light Color</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Light coloured SVG icons</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v13/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v13/badges.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v14/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Filled Color · Original Palette</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Filled SVG with original colour palette</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v14/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v14/badges.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v15/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Filled Color</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Filled SVG · updated palette</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v15/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v15/badges.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v16/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Larger Filled</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Bigger SVG badges · bold, prominent look</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v16/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v16/badges.json</div>
+  </div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v17/badges.json">
+    <div class="set-top"><div><div class="set-name">SVG Latest · v17</div><div class="set-meta">by <a href="https://github.com/dwivedisankalp97" target="_blank">dwivedisankalp97</a> · Most up-to-date SVG pack · latest patterns and icons</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dwivedisankalp97/nuvio-svg-badges/refs/heads/main/dist/v17/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dwivedisankalp97/.../v17/badges.json</div>
+  </div>
+
+  <div class="section-label">Community — by dustincos</div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/dustincos/nuvio-badges/main/badges.json">
+    <div class="set-top"><div><div class="set-name">Glassmorphic Premium</div><div class="set-meta">by <a href="https://github.com/dustincos/nuvio-badges" target="_blank">dustincos</a> · High-fidelity glow badges · resolution, HDR, audio + 12 scraper provider tags</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/dustincos/nuvio-badges/main/badges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/dustincos/nuvio-badges/main/badges.json</div>
+  </div>
+
+  <div class="section-label">Community — by vowl313 (NardBadges)</div>
+
+  <div class="set-card" data-badge-url="https://raw.githubusercontent.com/vowl313/NardBadges/refs/heads/main/NardBadges.json">
+    <div class="set-top"><div><div class="set-name">NardBadges — Full Pack</div><div class="set-meta">by <a href="https://github.com/vowl313/NardBadges" target="_blank">vowl313</a> · Comprehensive image badges · resolution, HDR, audio, streaming services, quality tiers, editions &amp; more</div></div><button class="copy-btn" onclick="cp('https://raw.githubusercontent.com/vowl313/NardBadges/refs/heads/main/NardBadges.json',this)">Copy URL</button></div>
+    <div class="set-preview"><span class="loading">Loading…</span></div>
+    <div class="set-url">raw.githubusercontent.com/vowl313/NardBadges/.../NardBadges.json</div>
+  </div>
+
+  <div class="install-box">
+    <h3>How to add badges in Nuvio</h3>
+    <div class="install-steps">
+      1. Tap <strong>Copy URL</strong> on any set above<br>
+      2. Open <strong>Nuvio</strong> → <strong>Settings</strong> → <strong>Streams</strong><br>
+      3. Scroll to <strong>Fusion badges URL</strong><br>
+      4. Tap the URL field, paste, then tap <strong>Import</strong><br>
+      5. You'll see <strong>"1/3 URLs imported"</strong> — it worked!<br>
+      💡 Nuvio supports up to <strong>3 badge sets at once</strong> — combine sets for the best coverage
+    </div>
+  </div>
+
+</main>
+<div id="toast">Copied ✓</div>
+
+<script>
+// ── Badge renderer ──────────────────────────────────────────────
+function hexFull(h) {
+  // Normalise #AARRGGBB or #RRGGBB to rgba()
+  if (!h || h === 'transparent') return 'transparent';
+  h = h.replace('#','');
+  if (h.length === 8) {
+    var a = parseInt(h.slice(0,2),16)/255;
+    var r = parseInt(h.slice(2,4),16);
+    var g = parseInt(h.slice(4,6),16);
+    var b = parseInt(h.slice(6,8),16);
+    return 'rgba('+r+','+g+','+b+','+a.toFixed(2)+')';
+  }
+  if (h.length === 6) return '#'+h;
+  return '#'+h;
+}
+
+function renderBadge(f) {
+  var el = document.createElement('div');
+  el.title = f.name || '';
+  el.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;border-radius:4px;overflow:hidden;flex-shrink:0;';
+
+  if (f.imageURL) {
+    var img = document.createElement('img');
+    img.src = f.imageURL;
+    img.alt = f.name || '';
+    img.style.cssText = 'height:26px;max-width:80px;border-radius:3px;object-fit:contain;display:block;';
+    img.onerror = function(){ el.remove(); };
+    el.appendChild(img);
+  } else if (f.name) {
+    var bg   = hexFull(f.tagColor   || '#333333');
+    var bd   = hexFull(f.borderColor|| 'transparent');
+    var tc   = hexFull(f.textColor  || '#ffffff');
+    el.style.cssText += 'padding:2px 7px;font-size:10px;font-weight:700;font-family:Inter,sans-serif;letter-spacing:.02em;white-space:nowrap;';
+    el.style.background   = bg;
+    el.style.border       = '1px solid '+bd;
+    el.style.color        = tc;
+    el.textContent = f.name;
+  } else {
+    return null;
+  }
+  return el;
+}
+
+function loadPreview(card) {
+  var url = card.dataset.badgeUrl;
+  var preview = card.querySelector('.set-preview');
+  if (!url || !preview) return;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var filters = (data.filters || []).filter(function(f){
+        return f.isEnabled !== false && (f.imageURL || f.name);
+      });
+
+      if (!filters.length) {
+        preview.innerHTML = '<span style="font-size:11px;color:#444;">Text only</span>';
+        return;
+      }
+
+      preview.innerHTML = '';
+      var shown = 0;
+      for (var j = 0; j < filters.length; j++) {
+        var el = renderBadge(filters[j]);
+        if (el) { preview.appendChild(el); shown++; }
+      }
+      if (!shown) preview.innerHTML = '<span style="font-size:11px;color:#444;">Text only</span>';
+    })
+    .catch(function(){
+      preview.innerHTML = '<span style="font-size:11px;color:#444;">Preview unavailable</span>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.set-card[data-badge-url]').forEach(loadPreview);
+});
+
+// ── Copy handler ────────────────────────────────────────────────
+var _t;
+function cp(url, btn) {
+  navigator.clipboard.writeText(url).catch(function(){
+    var x = document.createElement('textarea');
+    x.value = url; x.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(x); x.select();
+    document.execCommand('copy'); document.body.removeChild(x);
+  });
+  document.querySelectorAll('.copy-btn.ok').forEach(function(b){
+    b.textContent = 'Copy URL'; b.classList.remove('ok');
+  });
+  btn.textContent = 'Copied ✓'; btn.classList.add('ok');
+  setTimeout(function(){ btn.textContent = 'Copy URL'; btn.classList.remove('ok'); }, 2500);
+  var toast = document.getElementById('toast');
+  toast.classList.add('show'); clearTimeout(_t);
+  _t = setTimeout(function(){ toast.classList.remove('show'); }, 2000);
+}
+</script>
+</body>
+</html>

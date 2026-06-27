@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="maxGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="115" fill="#090514"/>
+  <text x="50%" y="235" text-anchor="middle" fill="#ffffff" font-family="Impact, 'Arial Black', sans-serif" font-size="190" font-weight="900" letter-spacing="2">U</text>
+  <text x="50%" y="415" text-anchor="middle" fill="url(#maxGradient)" font-family="Impact, 'Arial Black', sans-serif" font-size="190" font-weight="900" letter-spacing="2">M</text>
+</svg>

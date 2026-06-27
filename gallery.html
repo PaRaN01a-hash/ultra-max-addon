@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra MAX Community Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#060610;color:#e8e8f0;font-family:'Inter',sans-serif;min-height:100vh;}
+.header{background:rgba(6,6,16,.96);border-bottom:1px solid #1a1a2e;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;}
+.logo span{color:#ff4db8;}
+.hbtns{display:flex;gap:8px;}
+.btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;}
+.btn-p{background:#7B2FFF;color:#fff;}
+.btn-o{background:transparent;border:1px solid #2a2a45;color:#888;}
+.btn:hover{opacity:.8;}
+.hero{padding:28px 16px 16px;text-align:center;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.06em;margin-bottom:4px;}
+.hero h1 span{color:#7B2FFF;}
+.hero p{color:#444;font-size:13px;}
+
+.feed{padding:0 0 100px;}
+.card{margin-bottom:2px;background:#0a0a18;border-bottom:1px solid #1a1a2e;overflow:hidden;cursor:pointer;}
+.card:active{background:#0d0d20;}
+.card-hero{position:relative;width:100%;height:220px;overflow:hidden;background:#111;}
+.card-hero img{width:100%;height:100%;object-fit:cover;object-position:center 40%;}
+.card-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,16,.98) 0%,rgba(6,6,16,.4) 50%,rgba(6,6,16,.05) 100%);}
+.card-title{position:absolute;bottom:14px;left:16px;right:80px;}
+.card-badge{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7B2FFF;background:rgba(123,47,255,.15);border:1px solid rgba(123,47,255,.3);border-radius:4px;padding:2px 6px;display:inline-block;margin-bottom:5px;}
+.card-title h2{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.9);}
+.card-ibtn{position:absolute;bottom:14px;right:16px;background:#7B2FFF;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;}
+.card-hero-empty{height:220px;background:linear-gradient(135deg,#0d0d20,#060610);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:16px;position:relative;}
+.card-strip{padding:10px 16px;overflow-x:auto;display:flex;gap:8px;scrollbar-width:none;background:#0d0d1e;border-bottom:1px solid #1a1a2e;}
+.card-strip::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;position:relative;border-radius:8px;overflow:hidden;width:120px;height:68px;background:#1a1a2e;border:1px solid #2a2a45;}
+.chip img{width:100%;height:100%;object-fit:cover;display:block;}
+.chip-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(to top,rgba(0,0,0,.95),transparent);font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-meta{padding:10px 16px 14px;display:flex;align-items:center;justify-content:space-between;background:#0d0d1e;}
+.card-author{font-size:12px;color:#555;}
+.card-stats{font-size:11px;color:#333;}
+.setup-hero{height:auto;background:linear-gradient(135deg,#100820,#060610);padding:16px;position:relative;}
+.setup-stats{display:flex;gap:16px;margin-bottom:10px;}
+.sstat-n{font-size:28px;font-weight:800;color:#a890ff;font-family:'Bebas Neue',sans-serif;}
+.sstat-l{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:.08em;}
+.sdiv{width:1px;height:40px;background:#1e1e35;align-self:center;}
+.cnames{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.cname{background:#1a1a35;border:1px solid #2a2a45;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:600;color:#a890ff;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;}
+.modal{background:#0d0d1e;border:1px solid #2a2a45;border-radius:16px;padding:22px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
+.modal-badge{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7B2FFF;margin-bottom:6px;}
+.modal-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
+.modal-meta{font-size:12px;color:#555;margin-bottom:14px;}
+.modal-coll{margin-bottom:14px;}
+.modal-coll-name{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.modal-strip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.modal-strip::-webkit-scrollbar{display:none;}
+.modal-strip img{width:100px;height:56px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid #1e1e35;}
+.modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+.modal-actions .btn{justify-content:center;padding:11px;}
+.modal-row{display:flex;gap:8px;}
+.modal-row .btn{flex:1;justify-content:center;}
+.empty{text-align:center;padding:80px 20px;color:#1e1e35;}
+.empty h3{font-size:16px;font-weight:700;color:#2a2a45;margin-bottom:6px;}
+.loading{text-align:center;padding:60px;color:#222;font-size:13px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#7B2FFF;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">ULTRA <span>MAX</span></div>
+  <div class="hbtns">
+    <a href="/" class="btn btn-o">← Home</a>
+    <a href="/setup.html" class="btn btn-p">Builder</a>
+  </div>
+</div>
+<div class="hero">
+  <h1>Community <span>Gallery</span></h1>
+  <p>Browse and import setups shared by the Ultra MAX community</p>
+</div>
+
+<div id="feed" class="feed"><div class="loading">Loading...</div></div>
+
+<div class="overlay" id="iOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-badge" id="iType"></div>
+    <div class="modal-title" id="iName"></div>
+    <div class="modal-meta" id="iMeta"></div>
+    <div id="iContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-p" onclick="doImport('both')" id="iBtnBoth">Import Everything</button>
+      <div class="modal-row">
+        <button class="btn btn-o" onclick="doImport('collections')">Collections only</button>
+        <button class="btn btn-o" onclick="doImport('setup')">Setup only</button>
+      </div>
+      <button class="btn btn-o" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _shares=[], _tab='all', _iid=null;
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ago(iso){var s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+
+
+function render(){
+  var el=document.getElementById('feed');
+  var list=_shares;
+  if(!list.length){el.innerHTML='<div class="empty"><h3>No shares yet</h3><p>Be the first to share from the builder!</p></div>';return;}
+  el.innerHTML=list.map(function(s){
+    try{return renderCard(s);}catch(e){return '';}
+  }).join('');
+}
+
+function renderCard(s){
+  var p=s.preview||{};
+  var heroHtml='', stripHtml='';
+
+  if(s.type==='collections'&&p.length){
+    // collections preview is array
+    var firstCover='';
+    for(var i=0;i<p.length;i++){if(p[i].covers&&p[i].covers[0]){firstCover=p[i].covers[0];break;}}
+    if(firstCover){
+      heroHtml='<div class="card-hero"><img src="'+esc(firstCover)+'" onerror="this.style.display=\'none\'"><div class="card-grad"></div><div class="card-title"><div class="card-badge">Collections</div><h2>'+esc(s.name)+'</h2></div><button class="card-ibtn" onclick="event.stopPropagation();openModal(\''+s.id+'\')">Import</button></div>';
+    } else {
+      heroHtml='<div class="card-hero-empty"><div class="card-grad"></div><div class="card-badge">Collections</div><h2 style="font-size:24px;font-weight:800;color:#fff;margin-top:4px;">'+esc(s.name)+'</h2><button class="card-ibtn" onclick="event.stopPropagation();openModal(\''+s.id+'\')">Import</button></div>';
+    }
+    var chips='';
+    p.forEach(function(c){
+      var img=c.covers&&c.covers[0]?'<img src="'+esc(c.covers[0])+'" onerror="this.style.display=\'none\'">':'';
+      chips+='<div class="chip">'+img+'<div class="chip-lbl">'+esc(c.name||'')+'</div></div>';
+    });
+    stripHtml='<div class="card-strip">'+chips+'</div>';
+
+  } else {
+    // full or setup type
+    var colls=p.collections||0;
+    var cats=p.catalogs||0;
+    var lang=p.language||'';
+    var names=p.collectionNames||[];
+    var covers=p.covers||[];
+    heroHtml='<div class="setup-hero"><div class="card-badge" style="position:static;display:inline-block;margin-bottom:8px;">Full Setup</div><h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:12px;">'+esc(s.name)+'</h2>'
+      +'<div class="setup-stats">'
+      +'<div><div class="sstat-n">'+cats+'</div><div class="sstat-l">Home Rows</div></div>'
+      +'<div class="sdiv"></div>'
+      +'<div><div class="sstat-n">'+colls+'</div><div class="sstat-l">Collections</div></div>'
+      +(lang?'<div class="sdiv"></div><div><div class="sstat-n" style="font-size:16px;">'+esc(lang)+'</div><div class="sstat-l">Language</div></div>':'')
+      +'</div>'
+      +(names.length?'<div class="cnames">'+names.map(function(n){return '<div class="cname">'+esc(n)+'</div>';}).join('')+'</div>':'')
+      +'<button class="card-ibtn" style="position:static;margin-top:12px;display:inline-block;" onclick="event.stopPropagation();openModal(\''+s.id+'\')">Import</button>'
+      +'</div>';
+    if(covers.length){
+      var chips2='';
+      covers.forEach(function(c){
+        var img=c.covers&&c.covers[0]?'<img src="'+esc(c.covers[0])+'" onerror="this.style.display=\'none\'">':'';
+        chips2+='<div class="chip">'+img+'<div class="chip-lbl">'+esc(c.name||'')+'</div></div>';
+      });
+      stripHtml='<div class="card-strip">'+chips2+'</div>';
+    }
+  }
+
+  return '<div class="card" onclick="openModal(\''+s.id+'\')">'
+    +heroHtml+stripHtml
+    +'<div class="card-meta"><div><div class="card-author">by '+esc(s.author)+'</div><div class="card-stats">'+(s.imports||0)+' imports &middot; '+ago(s.created)+'</div></div></div>'
+    +'</div>';
+}
+
+function openModal(id){
+  var s=_shares.find(function(x){return x.id===id;});
+  if(!s) return;
+  _iid=id;
+  var p=s.preview||{};
+  document.getElementById('iType').textContent=s.type==='collections'?'Collections':'Full Setup';
+  document.getElementById('iName').textContent=s.name;
+  document.getElementById('iMeta').textContent='By '+s.author+' \u00b7 '+(s.imports||0)+' imports \u00b7 '+ago(s.created);
+  var content=document.getElementById('iContent');
+  content.innerHTML='';
+  var rows=s.type==='collections'&&p.length?p:(p.covers||[]);
+  rows.forEach(function(c){
+    var div=document.createElement('div');
+    div.className='modal-coll';
+    var nm=document.createElement('div');
+    nm.className='modal-coll-name';
+    nm.textContent=(c.name||'Collection')+((c.folders)?' \u00b7 '+c.folders+' folders':'');
+    div.appendChild(nm);
+    var strip=document.createElement('div');
+    strip.className='modal-strip';
+    (c.covers||[]).forEach(function(url){
+      var img=document.createElement('img');
+      img.src=url; img.onerror=function(){this.style.display='none';};
+      strip.appendChild(img);
+    });
+    div.appendChild(strip);
+    content.appendChild(div);
+  });
+  // Show/hide import buttons based on type
+  document.getElementById('iBtnBoth').style.display=s.type==='full'?'flex':'none';
+  document.getElementById('iOverlay').classList.add('open');
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('iOverlay')) return;
+  document.getElementById('iOverlay').classList.remove('open');
+}
+
+function doImport(type){
+  if(!_iid) return;
+  var btns=document.querySelectorAll('.modal-actions .btn');
+  btns.forEach(function(b){b.disabled=true;b.style.opacity='.5';});
+  fetch('/api/share/'+_iid)
+    .then(function(r){return r.json();})
+    .then(function(share){
+      var d=share.data||{};
+      if(type==='both'||type==='collections'){
+        var colls=d.collections||(share.type==='collections'?d:[]);
+        sessionStorage.setItem('um_import_collections',JSON.stringify(colls));
+      }
+      if(type==='both'||type==='setup'){
+        var setup=d.setup||{catalogs:d.catalogs||[],collections:d.collections||[],language:d.language||'',displayStyle:d.displayStyle||''};
+        sessionStorage.setItem('um_import_setup',JSON.stringify(setup));
+      }
+      sessionStorage.setItem('um_import_type',type);
+      showToast('Redirecting to builder...');
+      setTimeout(function(){window.location.href='/setup.html?import=gallery';},1000);
+    })
+    .catch(function(){
+      showToast('Import failed');
+      btns.forEach(function(b){b.disabled=false;b.style.opacity='1';});
+    });
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+function loadShares(){
+  fetch('/api/shares')
+    .then(function(r){return r.json();})
+    .then(function(data){_shares=data;render();})
+    .catch(function(){document.getElementById('feed').innerHTML='<div class="loading">Could not load &mdash; try refreshing</div>';});
+}
+
+loadShares();
+</script>
+</body>
+</html>

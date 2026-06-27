@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxMusic Videos — Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
+    --teal:#00d2a0; --teal2:#00f0b8; --violet:#7B2FFF; --violet2:#9B5FFF;
+    --text:#e0e0f0; --muted:#7070a0; --green:#00E676; --red:#FF4444;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+  .logo span{color:var(--teal);}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-back:hover{color:var(--text);}
+
+  .hero{text-align:center;padding:60px 24px 48px;max-width:700px;margin:0 auto;}
+  .hero-badge{display:inline-block;background:rgba(0,210,160,0.1);border:1px solid rgba(0,210,160,0.25);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);letter-spacing:.04em;line-height:1;margin-bottom:16px;background:linear-gradient(135deg,#fff 40%,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin:0 auto;}
+
+  .main{max-width:640px;margin:0 auto;padding:40px 24px 80px;}
+
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* Steps */
+  .steps{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;}
+
+  .step{background:var(--card);border:1px solid var(--border2);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+  .step.active{border-color:rgba(0,210,160,0.4);}
+  .step.done{border-color:rgba(0,230,118,0.3);}
+
+  .step-header{padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;}
+  .step-num{width:34px;height:34px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;flex-shrink:0;transition:background .2s;}
+  .step.active .step-num{background:rgba(0,210,160,0.2);color:var(--teal);border:1px solid rgba(0,210,160,0.4);}
+  .step.done .step-num{background:rgba(0,230,118,0.15);color:var(--green);}
+
+  .step-info{flex:1;}
+  .step-title{font-weight:600;font-size:15px;margin-bottom:2px;}
+  .step-subtitle{font-size:12px;color:var(--muted);}
+  .step-tick{font-size:18px;display:none;}
+  .step.done .step-tick{display:block;}
+
+  .step-body{padding:0 20px 20px;display:none;flex-direction:column;gap:14px;}
+  .step.active .step-body{display:flex;}
+
+  .guide{background:rgba(0,210,160,0.04);border:1px solid rgba(0,210,160,0.12);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.8;}
+  .guide strong{color:var(--text);}
+  .guide a{color:var(--teal);text-decoration:none;}
+  .guide ol{padding-left:18px;margin-top:8px;}
+  .guide li{margin-bottom:4px;}
+
+  .guide-link{display:inline-flex;align-items:center;gap:6px;background:rgba(0,210,160,0.12);color:var(--teal);border:1px solid rgba(0,210,160,0.25);text-decoration:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-top:10px;transition:all .2s;}
+  .guide-link:hover{background:rgba(0,210,160,0.2);}
+
+  label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px;}
+
+  input[type="text"]{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+  input[type="text"]:focus{border-color:var(--teal);}
+
+  textarea{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:monospace;font-size:11px;outline:none;resize:vertical;min-height:110px;transition:border-color .2s;line-height:1.5;}
+  textarea:focus{border-color:var(--teal);}
+
+  .verify-row{display:flex;gap:10px;}
+  .verify-row input{flex:1;}
+
+  .btn{padding:11px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;transition:all .2s;white-space:nowrap;}
+  .btn-teal{background:rgba(0,210,160,0.15);color:var(--teal);border:1px solid rgba(0,210,160,0.3);}
+  .btn-teal:hover{background:rgba(0,210,160,0.25);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+
+  .verify-result{font-size:12px;padding:8px 12px;border-radius:8px;display:none;}
+  .verify-result.ok{background:rgba(0,230,118,0.08);color:var(--green);border:1px solid rgba(0,230,118,0.2);display:block;}
+  .verify-result.err{background:rgba(255,68,68,0.08);color:var(--red);border:1px solid rgba(255,68,68,0.2);display:block;}
+
+  .file-drop{border:2px dashed var(--border2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);}
+  .file-drop:hover,.file-drop.dragover{border-color:var(--teal);background:rgba(0,210,160,0.04);}
+  .file-drop .icon{font-size:2rem;margin-bottom:8px;}
+  .file-drop strong{color:var(--text);}
+  #cookieFile{display:none;}
+
+  .or-divider{text-align:center;color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;position:relative;margin:4px 0;}
+  .or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border);}
+  .or-divider::before{left:0;}
+  .or-divider::after{right:0;}
+
+  /* Generate */
+  .generate-box{background:linear-gradient(135deg,rgba(0,210,160,0.08),rgba(123,47,255,0.06));border:1px solid rgba(0,210,160,0.2);border-radius:18px;padding:28px;text-align:center;margin-bottom:20px;}
+  .generate-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;color:#fff;margin-bottom:6px;}
+  .generate-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+  .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;padding:14px 40px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(0,210,160,0.2);font-weight:700;width:100%;}
+  .btn-primary:hover{background:var(--teal2);transform:translateY(-2px);box-shadow:0 0 36px rgba(0,210,160,0.35);}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  .error-msg{color:var(--red);font-size:13px;padding:12px 16px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:10px;display:none;margin-bottom:16px;}
+  .error-msg.visible{display:block;}
+
+  /* Result */
+  .result-box{background:var(--card);border:1px solid rgba(0,230,118,0.3);border-radius:16px;padding:24px;display:none;flex-direction:column;gap:16px;margin-bottom:24px;}
+  .result-box.visible{display:flex;}
+  .result-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green);letter-spacing:.06em;}
+  .manifest-url{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;font-family:monospace;font-size:12px;color:var(--teal);word-break:break-all;cursor:pointer;transition:border-color .2s;}
+  .manifest-url:hover{border-color:var(--teal);}
+  .install-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#000;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700;font-size:14px;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;transition:all .2s;}
+  .install-btn:hover{background:var(--teal2);}
+
+  .note{background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.15);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--muted);line-height:1.7;}
+  .note strong{color:var(--text);}
+  .note a{color:var(--violet2);text-decoration:none;}
+
+  nav{padding:18px 24px;}
+  @media(max-width:600px){
+    .hero{padding:40px 16px 32px;}
+    .main{padding:28px 16px 60px;}
+  }
+</style>
+<script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+</head>
+<body>
+
+<nav>
+  <a href="https://ultramax.vip/music" class="logo">MAX<span>MUSIC</span> VIDEOS</a>
+  <a href="https://ultramax.vip" class="nav-back">← Home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🎬 Setup</div>
+  <h1>Set up<br>your account</h1>
+  <p>Two quick steps. Bring your own YouTube credentials — your quota, your streams, your privacy.</p>
+</div>
+
+<div class="main">
+
+  <div class="section-label">Two steps to get started</div>
+
+  <div class="steps">
+
+    <!-- Step 1 -->
+    <div class="step active" id="step1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-title">YouTube API Key</div>
+          <div class="step-subtitle">Free · 10,000 requests/day from Google</div>
+        </div>
+        <div class="step-tick">✅</div>
+      </div>
+      <div class="step-body">
+        <div class="guide">
+          <strong>Get your free API key in 5 minutes:</strong>
+          <ol>
+            <li>Go to <a href="https://console.cloud.google.com/projectcreate" target="_blank">Google Cloud Console</a> and create a new project</li>
+            <li>Go to <strong>APIs &amp; Services → Library</strong></li>
+            <li>Search for <strong>YouTube Data API v3</strong> and enable it</li>
+            <li>Go to <strong>APIs &amp; Services → Credentials</strong></li>
+            <li>Click <strong>Create Credentials → API Key</strong> and copy it</li>
+          </ol>
+          <a href="https://console.cloud.google.com/projectcreate" target="_blank" class="guide-link">🔑 Open Google Cloud Console</a>
+        </div>
+        <div>
+          <label>Your YouTube API Key</label>
+          <div class="verify-row">
+            <input type="text" id="apiKey" placeholder="AIzaSy..." autocomplete="off" oninput="onApiKeyInput()">
+            <button class="btn btn-teal" onclick="verifyApiKey()" id="verifyApiBtn" disabled>Verify</button>
+          </div>
+          <div class="verify-result" id="apiKeyResult"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-title">YouTube Cookies</div>
+          <div class="step-subtitle">Required for video playback</div>
+        </div>
+        <div class="step-tick">✅</div>
+      </div>
+      <div class="step-body">
+        <div class="guide">
+          <strong>Why do I need cookies?</strong> YouTube requires you to be logged in to stream videos. Your cookies prove you're a real account — they're stored securely on your personal manifest and only used for playback.
+          <br><br>
+          <strong>How to export cookies from your browser:</strong>
+          <ol>
+            <li>Install <a href="https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc" target="_blank"><strong>Get cookies.txt LOCALLY</strong></a> in Chrome or Brave</li>
+            <li>Go to <a href="https://youtube.com" target="_blank">youtube.com</a> and make sure you're <strong>logged in to your Google account</strong></li>
+            <li>Click the extension icon in your toolbar</li>
+            <li>Click <strong>Export</strong> for youtube.com</li>
+            <li>Upload the file below</li>
+          </ol>
+          <a href="https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc" target="_blank" class="guide-link">🍪 Get the Extension</a>
+        </div>
+
+        <div>
+          <label>Upload cookies.txt</label>
+          <div class="file-drop" id="fileDrop" onclick="document.getElementById('cookieFile').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="icon">📄</div>
+            <div><strong id="fileLabel">Click to upload or drag &amp; drop</strong></div>
+            <div style="font-size:11px;margin-top:4px;color:var(--muted);">Your cookies.txt file exported from the browser extension</div>
+          </div>
+          <input type="file" id="cookieFile" accept=".txt" onchange="onFileSelect(event)">
+        </div>
+
+        <div class="or-divider">or paste the contents</div>
+
+        <div>
+          <label>Paste cookies.txt content</label>
+          <textarea id="cookiePaste" placeholder="# Netscape HTTP Cookie File&#10;# https://curl.se/docs/http-cookies.html&#10;.youtube.com	TRUE	/	FALSE	..."></textarea>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-title">🎵 You're all set!</div>
+    <div style="font-size:13px;color:var(--muted);">Your personal MaxMusic Videos manifest — tap to copy:</div>
+    <div class="manifest-url" id="manifestUrl" onclick="copyManifest()">—</div>
+    <a id="installBtn" href="#" class="install-btn">▶ Install in Nuvio / Stremio</a>
+    <div class="note">
+      <strong>Keep this URL safe</strong> — it contains your personal credentials. Cookies expire after 30 days; come back here to re-upload if videos stop playing. Don't share your manifest URL with others.
+    </div>
+  </div>
+
+  <div class="generate-box">
+    <div class="generate-title">Ready to Go</div>
+    <div class="generate-sub">Complete both steps above then generate your personal manifest URL.</div>
+    <button class="btn-primary" onclick="generate()" id="generateBtn">Generate My Manifest</button>
+  </div>
+
+  <div class="note">
+    Part of <a href="https://ultramax.vip">ultramax.vip</a> · 
+    Your API key and cookies are stored on our server tied to your personal token only. 
+    <a href="https://ko-fi.com/ultramaxaddon">☕ Support the project</a>
+  </div>
+
+</div>
+
+<script>
+const BASE = 'https://musicvideos.maxstreams.opik.net';
+let apiKeyVerified = false;
+let cookieContent = '';
+
+function toggleStep(n) {
+  document.getElementById('step' + n).classList.add('active');
+}
+
+function onApiKeyInput() {
+  const val = document.getElementById('apiKey').value.trim();
+  document.getElementById('verifyApiBtn').disabled = !val;
+  apiKeyVerified = false;
+  document.getElementById('apiKeyResult').className = 'verify-result';
+}
+
+async function verifyApiKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  const result = document.getElementById('apiKeyResult');
+  const btn = document.getElementById('verifyApiBtn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${key}&part=snippet&q=test&type=video&maxResults=1`);
+    const data = await res.json();
+    if (data.items) {
+      result.className = 'verify-result ok';
+      result.textContent = '✅ API key works!';
+      apiKeyVerified = true;
+      document.getElementById('step1').classList.add('done');
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+    } else {
+      result.className = 'verify-result err';
+      result.textContent = '❌ ' + (data.error?.message || 'Invalid API key');
+    }
+  } catch(e) {
+    result.className = 'verify-result err';
+    result.textContent = '❌ Could not reach Google — check your connection';
+  }
+  btn.textContent = 'Verify';
+  btn.disabled = false;
+}
+
+function onFileSelect(e) { readFile(e.target.files[0]); }
+
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('fileDrop').classList.add('dragover');
+}
+function onDragLeave() { document.getElementById('fileDrop').classList.remove('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('fileDrop').classList.remove('dragover');
+  readFile(e.dataTransfer.files[0]);
+}
+
+function readFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    cookieContent = e.target.result;
+    document.getElementById('cookiePaste').value = cookieContent;
+    document.getElementById('fileLabel').textContent = '✅ ' + file.name + ' loaded';
+    document.getElementById('fileDrop').style.borderColor = 'var(--green)';
+    document.getElementById('step2').classList.add('done');
+  };
+  reader.readAsText(file);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cookiePaste').addEventListener('input', function() {
+    cookieContent = this.value.trim();
+    if (cookieContent) document.getElementById('step2').classList.add('done');
+  });
+});
+
+async function generate() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const cookies = document.getElementById('cookiePaste').value.trim() || cookieContent;
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.classList.remove('visible');
+
+  if (!apiKey) { errorMsg.textContent = 'Please enter your YouTube API key in Step 1'; errorMsg.classList.add('visible'); return; }
+  if (!cookies) { errorMsg.textContent = 'Please upload or paste your cookies.txt in Step 2'; errorMsg.classList.add('visible'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  btn.textContent = 'Setting up...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${BASE}/setup/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, cookies })
+    });
+    const data = await res.json();
+    if (!data.token) throw new Error(data.error || 'Setup failed');
+
+    const manifestUrl = `${BASE}/c/${data.token}/manifest.json`;
+    document.getElementById('manifestUrl').textContent = manifestUrl;
+    document.getElementById('installBtn').href = `stremio://${BASE.replace('https://','')}/c/${data.token}/manifest.json`;
+    document.getElementById('resultBox').classList.add('visible');
+    document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) {
+    errorMsg.textContent = '❌ ' + e.message;
+    errorMsg.classList.add('visible');
+  }
+
+  btn.textContent = 'Generate My Manifest';
+  btn.disabled = false;
+}
+
+function copyManifest() {
+  const url = document.getElementById('manifestUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const el = document.getElementById('manifestUrl');
+    const orig = el.textContent;
+    el.textContent = '✅ Copied to clipboard!';
+    setTimeout(() => el.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>

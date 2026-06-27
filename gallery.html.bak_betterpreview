@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra MAX — Community Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0a0a18;color:#e8e8f0;font-family:'Inter',sans-serif;min-height:100vh;}
+
+.header{background:#0d0d1e;border-bottom:1px solid #1e1e35;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;color:#fff;}
+.logo span{color:#ff4db8;}
+.header-btns{display:flex;gap:8px;}
+.btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:5px;letter-spacing:.03em;}
+.btn-primary{background:#7B2FFF;color:#fff;}
+.btn-outline{background:transparent;border:1px solid #2a2a45;color:#888;}
+.btn:hover{opacity:.85;}
+
+.hero{padding:32px 20px 20px;text-align:center;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.06em;margin-bottom:6px;}
+.hero h1 span{color:#7B2FFF;}
+.hero p{color:#555;font-size:13px;}
+
+.tabs{display:flex;gap:6px;padding:0 20px 20px;justify-content:center;}
+.tab{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #2a2a45;color:#555;background:transparent;transition:all .2s;letter-spacing:.03em;}
+.tab.active{background:#7B2FFF;border-color:#7B2FFF;color:#fff;}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 100px;}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr);}}
+
+.card{background:#14142a;border:1px solid #2a2a45;border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;}
+.card:active{transform:scale(.97);}
+.card:hover{border-color:#7B2FFF;}
+
+/* Cover grid - 4 images in a 2x2 */
+.card-covers{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:100px;gap:2px;background:#0a0a18;overflow:hidden;}
+.card-cover-img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-cover-empty{width:100%;height:100%;background:#1a1a35;display:flex;align-items:center;justify-content:center;font-size:20px;}
+
+/* Setup card preview */
+.card-setup{height:100px;background:linear-gradient(135deg,#14142a 0%,#0a0a18 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.card-setup-stat{font-size:12px;color:#555;}
+.card-setup-stat span{color:#a890ff;font-weight:700;font-size:14px;}
+
+.card-body{padding:10px 12px 12px;}
+.card-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7B2FFF;margin-bottom:5px;}
+.card-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;}
+.card-author{font-size:11px;color:#444;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%;}
+.card-imports{font-size:10px;color:#333;white-space:nowrap;}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:flex-end;justify-content:center;padding:0;}
+.overlay.open{display:flex;}
+@media(min-width:600px){.overlay{align-items:center;padding:20px;}}
+
+.modal{background:#14142a;border:1px solid #2a2a45;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
+@media(min-width:600px){.modal{border-radius:20px;}}
+
+.modal-handle{width:40px;height:4px;background:#2a2a45;border-radius:4px;margin:0 auto 20px;}
+@media(min-width:600px){.modal-handle{display:none;}}
+
+.modal-badge{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7B2FFF;margin-bottom:6px;}
+.modal-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
+.modal-meta{font-size:12px;color:#555;margin-bottom:16px;}
+.modal-covers{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:20px;}
+.modal-covers::-webkit-scrollbar{display:none;}
+.modal-cover-img{width:100px;height:57px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid #2a2a45;}
+.modal-cover-empty{width:100px;height:57px;border-radius:8px;background:#1a1a35;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions .btn{flex:1;justify-content:center;padding:12px;font-size:13px;}
+
+/* Share modal */
+.share-modal{background:#14142a;border:1px solid #2a2a45;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;}
+@media(min-width:600px){.share-modal{border-radius:20px;}}
+.share-modal h2{font-size:18px;font-weight:800;margin-bottom:16px;}
+.field-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.field-input{width:100%;padding:10px 12px;background:#0d0d1a;border:1px solid #2a2a45;border-radius:8px;color:#e8e8f0;font-size:13px;margin-bottom:14px;outline:none;}
+.field-input:focus{border-color:#7B2FFF;}
+.share-link-box{display:flex;gap:8px;margin-bottom:14px;}
+.share-link-box input{flex:1;padding:10px 12px;background:#0d0d1a;border:1px solid #2a2a45;border-radius:8px;color:#a890ff;font-size:12px;}
+.share-link-box .btn{flex-shrink:0;}
+.share-success{background:#0d1a10;border:1px solid #1a3a20;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#4caf50;display:none;}
+
+.empty{text-align:center;padding:60px 20px;color:#333;}
+.empty h3{font-size:16px;font-weight:700;color:#333;margin-bottom:6px;}
+.empty p{font-size:13px;}
+.loading{text-align:center;padding:60px;color:#333;font-size:13px;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#7B2FFF;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* Share FAB */
+.share-fab{position:fixed;bottom:20px;right:20px;background:#7B2FFF;color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(123,47,255,.5);z-index:50;display:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ULTRA <span>MAX</span></div>
+  <div class="header-btns">
+    <a href="/" class="btn btn-outline">← Home</a>
+    <a href="/setup" class="btn btn-primary">🚀 Builder</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Community <span>Gallery</span></h1>
+  <p>Browse & import collections shared by the Ultra MAX community</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="setTab('all')">All</button>
+  <button class="tab" onclick="setTab('collections')">📁 Collections</button>
+  <button class="tab" onclick="setTab('setup')">⚙️ Setups</button>
+</div>
+
+<div id="grid" class="grid">
+  <div class="loading">Loading...</div>
+</div>
+
+<!-- Import modal -->
+<div class="overlay" id="importOverlay" onclick="closeImport(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-badge" id="iType"></div>
+    <div class="modal-title" id="iName"></div>
+    <div class="modal-meta" id="iMeta"></div>
+    <div class="modal-covers" id="iCovers"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeImport()">Cancel</button>
+      <button class="btn btn-primary" id="iBtn" onclick="doImport()">⬇️ Import to Builder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share modal -->
+<div class="overlay" id="shareOverlay" onclick="closeShare(event)">
+  <div class="share-modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h2>🔗 Share to Gallery</h2>
+    <div class="field-label">What are you sharing?</div>
+    <select id="shareType" class="field-input">
+      <option value="collections">📁 My Collections</option>
+      <option value="setup">⚙️ My Full Setup</option>
+    </select>
+    <div class="field-label">Name your share</div>
+    <input type="text" id="shareName" class="field-input" placeholder="e.g. Horror Night Collection">
+    <div class="field-label">Your name (optional)</div>
+    <input type="text" id="shareAuthor" class="field-input" placeholder="Anonymous">
+    <div class="share-success" id="shareSuccess">
+      ✅ Shared successfully! Copy your link:
+    </div>
+    <div class="share-link-box" id="shareLinkBox" style="display:none;">
+      <input type="text" id="shareLinkInput" readonly onclick="this.select()">
+      <button class="btn btn-primary" onclick="copyShareLink()">Copy</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeShare()">Close</button>
+      <button class="btn btn-primary" id="shareBtn" onclick="doShare()">🚀 Share</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _shares = [];
+var _tab = 'all';
+var _importId = null;
+
+function setTab(t){
+  _tab = t;
+  document.querySelectorAll('.tab').forEach(function(el,i){
+    el.classList.toggle('active',['all','collections','setup'][i]===t);
+  });
+  renderGrid();
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function timeAgo(iso){
+  var s = Math.floor((Date.now()-new Date(iso))/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+function renderGrid(){
+  var el = document.getElementById('grid');
+  var list = _tab==='all'?_shares:_shares.filter(function(s){return s.type===_tab;});
+  if(!list.length){
+    el.innerHTML='<div class="empty"><h3>No shares yet</h3><p>Be the first to share from the builder!</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(s){
+    var top = '';
+    if(s.type==='collections'&&s.preview){
+      var covers=[];
+      s.preview.forEach(function(c){covers=covers.concat(c.covers||[]);});
+      var cells='';
+      for(var i=0;i<4;i++){
+        if(covers[i]) cells+='<img class="card-cover-img" src="'+escHtml(covers[i])+'" onerror="this.parentNode.innerHTML=\'<div class=card-cover-empty>📁</div>\'">';
+        else cells+='<div class="card-cover-empty">'+(i===0?'📁':i===1?'🎬':i===2?'⭐':'🎭')+'</div>';
+      }
+      top='<div class="card-covers">'+cells+'</div>';
+    } else {
+      top='<div class="card-setup"><div class="card-setup-stat"><span>'+(s.preview&&s.preview.catalogs||0)+'</span> home rows</div><div class="card-setup-stat"><span>'+(s.preview&&s.preview.collections||0)+'</span> collections</div></div>';
+    }
+    return '<div class="card" onclick="openImport(\''+s.id+'\')">'+top
+      +'<div class="card-body">'
+      +'<div class="card-badge">'+(s.type==='collections'?'📁 Collections':'⚙️ Setup')+'</div>'
+      +'<div class="card-name">'+escHtml(s.name)+'</div>'
+      +'<div class="card-footer"><span class="card-author">'+escHtml(s.author)+'</span><span class="card-imports">'+s.imports+' imports · '+timeAgo(s.created)+'</span></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function openImport(id){
+  var s=_shares.find(function(x){return x.id===id;});
+  if(!s) return;
+  _importId=id;
+  document.getElementById('iType').textContent=s.type==='collections'?'📁 Collections':'⚙️ Setup';
+  document.getElementById('iName').textContent=s.name;
+  document.getElementById('iMeta').textContent='By '+s.author+' · '+(s.imports||0)+' imports · '+timeAgo(s.created);
+  var covers=document.getElementById('iCovers');
+  covers.innerHTML='';
+  if(s.type==='collections'&&s.preview){
+    var all=[];
+    s.preview.forEach(function(c){all=all.concat(c.covers||[]);});
+    all.slice(0,6).forEach(function(url){
+      var img=document.createElement('img');
+      img.src=url; img.className='modal-cover-img';
+      img.onerror=function(){this.style.display='none';};
+      covers.appendChild(img);
+    });
+    if(!all.length) covers.innerHTML='<div class="modal-cover-empty">📁</div>';
+  }
+  document.getElementById('iBtn').textContent='⬇️ Import to Builder';
+  document.getElementById('iBtn').disabled=false;
+  document.getElementById('importOverlay').classList.add('open');
+}
+
+function closeImport(e){
+  if(e&&e.target!==document.getElementById('importOverlay')) return;
+  document.getElementById('importOverlay').classList.remove('open');
+  _importId=null;
+}
+
+function doImport(){
+  if(!_importId) return;
+  var btn=document.getElementById('iBtn');
+  btn.textContent='Importing...'; btn.disabled=true;
+  fetch('/api/share/'+_importId)
+    .then(function(r){return r.json();})
+    .then(function(share){
+      if(share.type==='collections'){
+        sessionStorage.setItem('um_import_collections',JSON.stringify(share.data));
+        sessionStorage.setItem('um_import_type','collections');
+      } else {
+        sessionStorage.setItem('um_import_setup',JSON.stringify(share.data));
+        sessionStorage.setItem('um_import_type','setup');
+      }
+      showToast('Redirecting to builder...');
+      setTimeout(function(){window.location.href='/setup?import=gallery';},1000);
+    })
+    .catch(function(){showToast('Import failed');btn.textContent='⬇️ Import to Builder';btn.disabled=false;});
+}
+
+function openShare(){
+  document.getElementById('shareSuccess').style.display='none';
+  document.getElementById('shareLinkBox').style.display='none';
+  document.getElementById('shareBtn').textContent='🚀 Share';
+  document.getElementById('shareBtn').disabled=false;
+  document.getElementById('shareOverlay').classList.add('open');
+}
+
+function closeShare(e){
+  if(e&&e.target!==document.getElementById('shareOverlay')) return;
+  document.getElementById('shareOverlay').classList.remove('open');
+}
+
+function doShare(){
+  var type=document.getElementById('shareType').value;
+  var name=document.getElementById('shareName').value.trim();
+  var author=document.getElementById('shareAuthor').value.trim()||'Anonymous';
+  if(!name){showToast('Please enter a name');return;}
+  var raw=sessionStorage.getItem(type==='collections'?'um_share_collections':'um_share_setup');
+  if(!raw){showToast('Open the builder first to load your data');return;}
+  var data;
+  try{data=JSON.parse(raw);}catch(e){showToast('Invalid data');return;}
+  var btn=document.getElementById('shareBtn');
+  btn.textContent='Sharing...'; btn.disabled=true;
+  fetch('/api/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,name,author,data})})
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.error){showToast('Error: '+res.error);btn.textContent='🚀 Share';btn.disabled=false;return;}
+      document.getElementById('shareLinkInput').value=res.url;
+      document.getElementById('shareSuccess').style.display='block';
+      document.getElementById('shareLinkBox').style.display='flex';
+      btn.textContent='✅ Shared!';
+      loadShares();
+    })
+    .catch(function(){showToast('Share failed');btn.textContent='🚀 Share';btn.disabled=false;});
+}
+
+function copyShareLink(){
+  var inp=document.getElementById('shareLinkInput');
+  inp.select();
+  document.execCommand('copy');
+  showToast('Link copied!');
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+function loadShares(){
+  fetch('/api/shares')
+    .then(function(r){return r.json();})
+    .then(function(data){_shares=data;renderGrid();})
+    .catch(function(){document.getElementById('grid').innerHTML='<div class="loading">Could not load — try refreshing</div>';});
+}
+
+// URL params
+var params=new URLSearchParams(window.location.search);
+var importId=params.get('import');
+var shareMode=params.get('share');
+
+if(shareMode==='1'){
+  var defType=sessionStorage.getItem('um_share_default_type')||'collections';
+  window.addEventListener('load',function(){
+    document.getElementById('shareType').value=defType;
+    setTimeout(openShare,300);
+  });
+}
+
+if(importId){
+  fetch('/api/share/'+importId)
+    .then(function(r){return r.json();})
+    .then(function(share){
+      _shares=[{
+        id:share.id,type:share.type,name:share.name,author:share.author,
+        created:share.created,imports:share.imports,
+        preview:share.type==='collections'
+          ?(share.data||[]).slice(0,3).map(function(c){return{name:c.name,covers:(c.folders||[]).slice(0,4).map(function(f){return f.coverImageUrl;}).filter(Boolean)};})
+          :{catalogs:Array.isArray(share.data&&share.data.catalogs)?share.data.catalogs.length:0,collections:Array.isArray(share.data&&share.data.collections)?share.data.collections.length:0}
+      }];
+      _importId=importId;
+      openImport(importId);
+    });
+}
+
+loadShares();
+</script>
+</body>
+</html>

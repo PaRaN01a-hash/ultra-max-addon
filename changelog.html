@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog — Ultra MAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
+    --violet:#7B2FFF; --violet2:#9B5FFF; --coral:#FF3D5A; --amber:#ffb800;
+    --green:#00d2a0; --teal:#00d2a0;
+    --text:#e0e0f0; --muted:#7070a0;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+  .logo span{color:var(--violet2);}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-back:hover{color:var(--text);}
+
+  .hero{text-align:center;padding:52px 24px 36px;max-width:680px;margin:0 auto;}
+  .hero-badge{display:inline-block;background:rgba(123,47,255,.1);border:1px solid rgba(123,47,255,.25);color:var(--violet2);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:18px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,4.5rem);letter-spacing:.04em;line-height:1;margin-bottom:12px;background:linear-gradient(135deg,#fff 40%,var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:15px;color:var(--muted);line-height:1.7;}
+
+  .main{max-width:780px;margin:0 auto;padding:36px 24px 80px;}
+
+  /* Timeline */
+  .timeline{display:flex;flex-direction:column;gap:0;}
+
+  .version-block{display:flex;gap:0;position:relative;}
+  .version-block::before{content:'';position:absolute;left:119px;top:32px;bottom:-1px;width:1px;background:var(--border2);z-index:0;}
+  .version-block:last-child::before{display:none;}
+
+  .version-left{width:120px;flex-shrink:0;padding:24px 20px 24px 0;text-align:right;}
+  .version-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:var(--violet2);}
+  .version-date{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  .version-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:28px;position:relative;z-index:1;}
+  .dot-major{background:var(--violet2);box-shadow:0 0 12px rgba(155,95,255,.5);}
+  .dot-minor{background:var(--border2);border:2px solid var(--muted);}
+  .dot-latest{background:var(--green);box-shadow:0 0 12px rgba(0,210,160,.5);}
+
+  .version-content{flex:1;padding:16px 0 32px 20px;}
+  .version-title{font-weight:700;font-size:16px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .version-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+
+  .badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:100px;}
+  .badge-latest{background:rgba(0,210,160,.15);color:var(--green);border:1px solid rgba(0,210,160,.3);}
+  .badge-major{background:rgba(123,47,255,.15);color:var(--violet2);border:1px solid rgba(123,47,255,.3);}
+  .badge-minor{background:rgba(112,112,160,.1);color:var(--muted);border:1px solid var(--border2);}
+
+  .changes{display:flex;flex-direction:column;gap:6px;}
+  .change{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);line-height:1.6;}
+  .change-icon{flex-shrink:0;font-size:13px;margin-top:1px;}
+  .change strong{color:var(--text);}
+
+  .section-divider{height:1px;background:var(--border);margin:8px 0 16px;}
+
+  @media(max-width:600px){
+    nav{padding:14px 16px;}
+    .hero{padding:36px 16px 24px;}
+    .main{padding:24px 14px 60px;}
+    .version-left{width:80px;}
+    .version-block::before{left:79px;}
+    .version-num{font-size:.95rem;}
+  }
+</style>
+<script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">ULTRA <span>MAX</span></a>
+  <a href="/" class="nav-back">← Back to home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📋 Changelog</div>
+  <h1>What's New</h1>
+  <p>Every update, improvement and new feature — tracked from the beginning.</p>
+</div>
+
+<div class="main">
+  <div class="timeline">
+
+    <!-- v7.1.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v7.1.0</div>
+        <div class="version-date">Jun 2026</div>
+      </div>
+      <div class="version-dot dot-latest"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Posters, Badges, Avatars &amp; Recovery
+          <span class="badge badge-latest">Latest</span>
+        </div>
+        <div class="version-sub">BetterPosters built in natively, full badge gallery, avatar vault and token recovery.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🎨</span><span><strong>BetterPosters</strong> — Add smart overlays to every poster natively through Ultra MAX. Trend tags, genre labels, quality badges, star ratings and age rating. No extra addons needed.</span></div>
+          <div class="change"><span class="change-icon">🏷️</span><span><strong>Badge Gallery</strong> — ultramax.vip/badges.html — 10+ community badge sets with copy URL buttons and correct Nuvio install instructions.</span></div>
+          <div class="change"><span class="change-icon">🎭</span><span><strong>Avatar Vault</strong> — ultramax.vip/avatars.html — 226 character avatars (Disney, Marvel, Pixar, Star Wars, Bluey, Muppets, Simpsons, NatGeo). Tap to copy URL for Nuvio profiles.</span></div>
+          <div class="change"><span class="change-icon">📧</span><span><strong>Token Recovery</strong> — Register your email on the finalize step and recover your token any time at ultramax.vip/recover. Rate limited, privacy-respecting.</span></div>
+          <div class="change"><span class="change-icon">✅</span><span><strong>API Key Verify</strong> — Check buttons on all 7 API key fields (TMDB, MDBList, RPDB, Top Posters, Fanart.tv, OMDb, Gemini) — instant server-side validation.</span></div>
+          <div class="change"><span class="change-icon">🔧</span><span><strong>Routing fixes</strong> — Manifest, catalogs, images and asset library all re-routed correctly after nginx config rebuild. Zero downtime for existing installs.</span></div>
+          <div class="change"><span class="change-icon">💡</span><span><strong>UI improvements</strong> — Brighter text and box borders across setup.html for better readability on mobile in bright conditions.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v7.0.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v7.0.0</div>
+        <div class="version-date">Jun 2026</div>
+      </div>
+      <div class="version-dot dot-major"></div>
+      <div class="version-content">
+        <div class="version-title">
+          ultramax.vip Launch
+          </div>
+        <div class="version-sub">The biggest update since launch — new home, new setup, new everything.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🌐</span><span><strong>New domain</strong> — Ultra MAX moves to ultramax.vip. Old gleeze URLs still work for existing users.</span></div>
+          <div class="change"><span class="change-icon">⚡</span><span><strong>Quick Install</strong> — 30 second Nuvio setup at ultramax.vip/quick. Pick collections, download JSON, import. No keys needed.</span></div>
+          <div class="change"><span class="change-icon">🎨</span><span><strong>Setup wizard rebuilt</strong> — Clean sidebar navigation, auto-save, integrated asset library with 1,300+ self-hosted images.</span></div>
+          <div class="change"><span class="change-icon">🖼</span><span><strong>Self-hosted images</strong> — All 839 collection image fields now served from ultramax.vip. Zero external dependencies.</span></div>
+          <div class="change"><span class="change-icon">🇳🇿</span><span><strong>New Zealand TV</strong> — TVNZ 1, TVNZ 2, Maori TV, Te Reo and more added to the TV addon. Now 10 countries.</span></div>
+          <div class="change"><span class="change-icon">📺</span><span><strong>TV page</strong> — ultramax.vip/tv with proper install flow and geo-block disclaimer.</span></div>
+          <div class="change"><span class="change-icon">🎵</span><span><strong>Music page</strong> — MaxMusic at ultramax.vip/music with install guide.</span></div>
+          <div class="change"><span class="change-icon">📋</span><span><strong>heroBackdropUrl support</strong> — Collections builder now supports hero backdrop images for Nuvio collection pages.</span></div>
+          <div class="change"><span class="change-icon">🔍</span><span><strong>Asset library search</strong> — Search and filter images by name, category or type directly in the browser.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.5.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v5.5.0</div>
+        <div class="version-date">Apr 2026</div>
+      </div>
+      <div class="version-dot dot-major"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Trakt, Directors & Actors
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="version-sub">Deep Trakt integration and people-based catalogs.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">📊</span><span><strong>Trakt integration</strong> — Native Trakt catalogs plus user favourites, watchlist and collection via traktUser field.</span></div>
+          <div class="change"><span class="change-icon">🎥</span><span><strong>8 Director catalogs</strong> — Browse by filmmaker including Nolan, Tarantino, Spielberg and more.</span></div>
+          <div class="change"><span class="change-icon">⭐</span><span><strong>21 Actor catalogs</strong> — Browse by actor including DiCaprio, Cruise, Robbie and more.</span></div>
+          <div class="change"><span class="change-icon">📡</span><span><strong>New streaming services</strong> — Discovery+, NatGeo, A&E, Animal Planet added.</span></div>
+          <div class="change"><span class="change-icon">🎬</span><span><strong>Major film collections</strong> — Dune, Godfather, Spider-Man, Avatar, Scary Movie, Knives Out, Maze Runner added.</span></div>
+          <div class="change"><span class="change-icon">🏢</span><span><strong>8 Studio catalogs</strong> — Browse by production company.</span></div>
+          <div class="change"><span class="change-icon">📅</span><span><strong>Chronological sort</strong> — Sort collections by release date ascending.</span></div>
+          <div class="change"><span class="change-icon">🔞</span><span><strong>maxRating filter</strong> — Hide content above a rating. Great for family setups.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.4.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v5.4.0</div>
+        <div class="version-date">Mar 2026</div>
+      </div>
+      <div class="version-dot dot-major"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Collections Builder v2
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="version-sub">Full Nuvio collections builder built into the configure page.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🗂</span><span><strong>Collections builder</strong> — Build, edit and export Nuvio collections JSON directly from the setup page.</span></div>
+          <div class="change"><span class="change-icon">🖼</span><span><strong>Image asset library</strong> — Browse and pick cover images and GIFs for collection folders.</span></div>
+          <div class="change"><span class="change-icon">📥</span><span><strong>JSON import</strong> — Import existing collections JSON and edit it in the builder.</span></div>
+          <div class="change"><span class="change-icon">🔁</span><span><strong>Duplicate collections</strong> — Clone collections and folders with one click.</span></div>
+          <div class="change"><span class="change-icon">👁</span><span><strong>Hidden catalogs</strong> — Move catalogs into collections to hide them from the home screen rows.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.3.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v5.3.0</div>
+        <div class="version-date">Feb 2026</div>
+      </div>
+      <div class="version-dot dot-major"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Architecture Overhaul
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="version-sub">Single CATALOG_DEFS source of truth, multi-language and performance overhaul.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🏗</span><span><strong>Single CATALOG_DEFS</strong> — All catalog definitions in one place. Simpler to maintain and extend.</span></div>
+          <div class="change"><span class="change-icon">🌍</span><span><strong>Multi-language support</strong> — 10 languages including EN, ES, FR, DE, IT, PT, NL, PL, TR.</span></div>
+          <div class="change"><span class="change-icon">⚡</span><span><strong>Performance</strong> — Promise.all parallelisation, configs.json write queue, imdbCache size cap.</span></div>
+          <div class="change"><span class="change-icon">🔒</span><span><strong>Volume-mounted configs</strong> — User configs persist across container rebuilds.</span></div>
+          <div class="change"><span class="change-icon">🔍</span><span><strong>Search catalogs</strong> — search_movies and search_series catalogs added.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.0.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v5.0.0</div>
+        <div class="version-date">Jan 2026</div>
+      </div>
+      <div class="version-dot dot-major"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Nuvio Collections & Configure v2
+          <span class="badge badge-major">Major</span>
+        </div>
+        <div class="version-sub">Major configure page redesign and Nuvio collections support.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🎨</span><span><strong>Configure page redesign</strong> — Collapsible categories, SELECT ALL buttons, 3-step wizard.</span></div>
+          <div class="change"><span class="change-icon">📦</span><span><strong>Nuvio Collections JSON</strong> — Export your setup as a Nuvio collections file.</span></div>
+          <div class="change"><span class="change-icon">🔑</span><span><strong>RPDB integration</strong> — Rated poster images via RPDB API key.</span></div>
+          <div class="change"><span class="change-icon">📊</span><span><strong>MDBList integration</strong> — Enhanced metadata via MDBList API key.</span></div>
+          <div class="change"><span class="change-icon">🌊</span><span><strong>Stream Bridge</strong> — Connect your debrid stream addon to Ultra MAX.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v4.0.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v4.0.0</div>
+        <div class="version-date">Nov 2025</div>
+      </div>
+      <div class="version-dot dot-minor"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Live TV Addon
+          <span class="badge badge-minor">Feature</span>
+        </div>
+        <div class="version-sub">Ultra MAX TV launched as a companion addon.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">📺</span><span><strong>Ultra MAX TV</strong> — Live TV addon with UK, US, AU, IE channels. Free, no subscription.</span></div>
+          <div class="change"><span class="change-icon">📡</span><span><strong>IPTV-org sourced</strong> — Community-maintained channel lists, regularly refreshed.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v3.0.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v3.0.0</div>
+        <div class="version-date">Sep 2025</div>
+      </div>
+      <div class="version-dot dot-minor"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Film Collections & Genres
+          <span class="badge badge-minor">Feature</span>
+        </div>
+        <div class="version-sub">Expanded catalog library with film collections and genre rows.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🎬</span><span><strong>Film collections</strong> — Harry Potter, LOTR, Star Wars, James Bond and 50+ more franchise collections.</span></div>
+          <div class="change"><span class="change-icon">🎭</span><span><strong>Genre catalogs</strong> — Action, Horror, Comedy, Drama, Sci-Fi and more.</span></div>
+          <div class="change"><span class="change-icon">📅</span><span><strong>Decade catalogs</strong> — Browse by era from the 50s through to the 2020s.</span></div>
+          <div class="change"><span class="change-icon">🏢</span><span><strong>Network catalogs</strong> — HBO, Netflix, BBC, AMC and 25+ more networks.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v1.0.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v1.0.0</div>
+        <div class="version-date">Aug 2025</div>
+      </div>
+      <div class="version-dot dot-minor"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Initial Launch
+          <span class="badge badge-minor">Launch</span>
+        </div>
+        <div class="version-sub">Ultra MAX launches as a free community catalog addon for Stremio.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🚀</span><span><strong>Ultra MAX launches</strong> — Free, self-hosted catalog addon for Stremio and Nuvio.</span></div>
+          <div class="change"><span class="change-icon">📡</span><span><strong>Streaming services</strong> — Netflix, Prime, Disney+, HBO and more as catalog rows.</span></div>
+          <div class="change"><span class="change-icon">🔥</span><span><strong>Trending & New</strong> — Trending movies and series, new releases.</span></div>
+          <div class="change"><span class="change-icon">⚙️</span><span><strong>Configure page</strong> — Pick exactly what appears on your home screen.</span></div>
+          <div class="change"><span class="change-icon">☕</span><span><strong>Ko-fi launched</strong> — Community support page at ko-fi.com/ultramaxaddon.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX · Recover Token</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --card: #12121f; --border: #1e1e36;
+      --violet: #7B2FFF; --violet2: #9B5FFF;
+      --text: #e8e8f0; --muted: #8888aa; --faint: #44445a; --ok: #34d399; --err: #f87171;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; }
+    nav { display:flex; align-items:center; justify-content:space-between;
+      padding:16px 24px; border-bottom:1px solid var(--border);
+      background:rgba(8,8,16,.92); backdrop-filter:blur(12px); }
+    .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:22px;
+      letter-spacing:.08em; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--violet2); }
+    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; }
+    .nav-back:hover { color:var(--text); }
+    main { max-width:480px; margin:80px auto; padding:0 24px 80px; }
+    .eyebrow { font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--violet2); margin-bottom:10px; }
+    h1 { font-family:'Bebas Neue',sans-serif; font-size:42px;
+      letter-spacing:.04em; margin-bottom:8px; }
+    .sub { color:var(--muted); font-size:14px; line-height:1.7; margin-bottom:32px; }
+    .card { background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:24px; }
+    label { display:block; font-size:12px; font-weight:600; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+    input[type=email] { width:100%; background:#0a0a18; border:1px solid var(--border);
+      color:var(--text); font-family:'Inter',sans-serif; font-size:15px;
+      padding:12px 14px; border-radius:8px; outline:none; transition:border-color .15s;
+      margin-bottom:12px; }
+    input[type=email]:focus { border-color:var(--violet); }
+    input[type=email]::placeholder { color:var(--faint); }
+    button { width:100%; background:var(--violet); color:#fff; border:none;
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+      padding:13px; border-radius:8px; cursor:pointer; transition:opacity .15s; }
+    button:hover { opacity:.85; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .result { margin-top:14px; font-size:13px; line-height:1.6;
+      min-height:20px; text-align:center; }
+    .result.ok  { color:var(--ok); }
+    .result.err { color:var(--err); }
+    .divider { border:none; border-top:1px solid var(--border); margin:28px 0; }
+    .note { font-size:12px; color:var(--faint); line-height:1.7; text-align:center; }
+    .note a { color:var(--violet2); text-decoration:none; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
+  <a class="nav-back" href="/">← Back to home</a>
+</nav>
+<main>
+  <div class="eyebrow">Token Recovery</div>
+  <h1>Lost Your Token?</h1>
+  <p class="sub">Enter the email address you registered when setting up Ultra MAX and we'll send your token straight to your inbox.</p>
+
+  <div class="card">
+    <label for="emailInput">Your email address</label>
+    <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"
+      onkeydown="if(event.key==='Enter') recover()">
+    <button id="recoverBtn" onclick="recover()">Send My Token</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <hr class="divider">
+  <p class="note">
+    Don't have an email registered? You'll need to go through<br>
+    <a href="/setup.html">setup again</a> — it only takes a minute.<br><br>
+    Your token can also be found in your Nuvio addon settings<br>
+    under the Ultra MAX manifest URL.
+  </p>
+</main>
+
+<script>
+async function recover() {
+  const email  = document.getElementById('emailInput').value.trim();
+  const btn    = document.getElementById('recoverBtn');
+  const result = document.getElementById('result');
+
+  if (!email) {
+    result.className = 'result err';
+    result.textContent = 'Please enter your email address';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  result.className = 'result';
+  result.textContent = '';
+
+  try {
+    const r = await fetch('/api/recover-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await r.json();
+    if (r.status === 429) {
+      result.className = 'result err';
+      result.textContent = '✗ Too many attempts. Try again in an hour.';
+      btn.disabled = false;
+      btn.textContent = 'Send My Token';
+      return;
+    }
+    // Always show success message (prevents email enumeration)
+    result.className = 'result ok';
+    result.textContent = '✓ If that email is registered, your token is on its way.';
+    btn.textContent = 'Sent ✓';
+  } catch(e) {
+    result.className = 'result err';
+    result.textContent = '✗ Network error — please try again';
+    btn.disabled = false;
+    btn.textContent = 'Send My Token';
+  }
+}
+</script>
+</body>
+</html>

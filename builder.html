@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog Builder — Ultra MAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050f;--bg2:#0a0a1e;--bg3:#0f0f2a;
+  --border:#1a2a4a;--border2:#1e1e3a;
+  --text:#e2e8f0;--muted:#475569;--muted2:#94a3b8;
+  --accent:#a78bfa;--accent2:#60a5fa;
+  --green:#4ade80;--red:#f87171;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding-bottom:80px;}
+
+/* HEADER */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.top-bar a{color:var(--muted);font-size:12px;text-decoration:none;}
+.top-bar a:hover{color:var(--muted2);}
+.top-logo{font-size:15px;font-weight:900;letter-spacing:.05em;}
+.top-logo span{color:var(--accent);}
+
+/* HERO */
+.hero{text-align:center;padding:40px 20px 32px;}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:.05em;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+.hero p{color:var(--muted2);font-size:14px;max-width:420px;margin:0 auto;}
+
+
+
+/* MAIN */
+.main{max-width:720px;margin:0 auto;padding:0 16px;}
+
+/* STEP CARD */
+.step-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+.step-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+
+/* TYPE SELECTOR */
+.type-btns{display:flex;gap:8px;}
+.type-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--muted2);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.type-btn.active{border-color:var(--accent2);background:#0a1a2e;color:var(--accent2);}
+
+/* SOURCE GRID */
+.source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.source-btn{padding:10px 8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.source-btn.active{border-color:var(--accent);background:#1a0a3a;color:var(--accent);}
+
+/* FILTER ROW */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;}
+.filter-group{flex:1;min-width:120px;}
+.filter-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+select,input[type=text],input[type=number]{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;}
+select:focus,input:focus{border-color:var(--accent);}
+
+/* PREVIEW */
+.preview-area{margin-top:16px;}
+.preview-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.poster-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.poster-item{border-radius:8px;overflow:hidden;aspect-ratio:2/3;background:var(--bg3);position:relative;}
+.poster-item img{width:100%;height:100%;object-fit:cover;}
+.poster-title{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:16px 6px 6px;font-size:10px;color:#fff;line-height:1.3;}
+.preview-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px;grid-column:1/-1;}
+.preview-loading{text-align:center;padding:32px;color:var(--muted);font-size:13px;grid-column:1/-1;}
+
+/* ROW NAME */
+.row-name-wrap{display:flex;gap:10px;align-items:center;margin-top:16px;}
+.row-name-wrap input{flex:1;}
+.add-btn{padding:10px 20px;background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+.add-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* BASKET */
+.basket{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+.basket-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.basket-empty{color:var(--muted);font-size:13px;text-align:center;padding:16px 0;}
+.basket-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border2);font-size:13px;}
+.basket-item:last-child{border-bottom:none;}
+.basket-item-name{font-weight:600;}
+.basket-item-meta{color:var(--muted);font-size:11px;margin-top:2px;}
+.basket-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:2px 8px;}
+
+/* EXPORT */
+.export-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+.export-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.export-options{display:flex;flex-direction:column;gap:10px;}
+.export-row{display:flex;gap:10px;align-items:center;}
+.export-row input{flex:1;font-family:monospace;text-transform:uppercase;}
+.export-btn{padding:11px 20px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border);color:var(--text);}
+.export-divider{text-align:center;color:var(--muted);font-size:12px;margin:4px 0;}
+
+/* RESULT MSG */
+.result-msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px;display:none;}
+.result-msg.success{background:#052e16;color:var(--green);display:block;}
+.result-msg.error{background:#2d0a0a;color:var(--red);display:block;}
+
+@media(max-width:480px){
+  .source-grid{grid-template-columns:repeat(2,1fr);}
+  .poster-grid{grid-template-columns:repeat(3,1fr);}
+  .hero h1{font-size:36px;}
+  .export-row{flex-direction:column;}
+  .export-btn{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="/">← ultramax.vip</a>
+  <div class="top-logo">ULTRA <span>MAX</span></div>
+  <a href="/setup.html">Get Setup →</a>
+</div>
+
+<div class="hero">
+  <h1>Catalog Builder</h1>
+  <p>Build custom catalog rows visually. Preview real results, then add them to your Ultra MAX setup.</p>
+</div>
+
+
+
+<div class="main">
+
+  <!-- ROW BUILDER -->
+  <div id="rowBuilder">
+
+    <!-- AI Row Helper -->
+    <div class="step-card" style="background:linear-gradient(135deg,#0a0a2e,#1a0a3a);border-color:#3b1a7a;margin-bottom:16px;">
+      <div class="step-label" style="color:#a78bfa;">✨ AI Row Builder <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;">— describe what you want</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <input type="text" id="aiPromptInput" placeholder="e.g. 90s action movies, Netflix horror series, movies starring Tom Hanks…" style="flex:1;min-width:200px;">
+        <button class="add-btn" onclick="runAiRow()" id="aiRunBtn">✨ Build Row</button>
+      </div>
+      <div id="aiResult" style="font-size:12px;color:var(--muted);"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">Works without a key. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">Get a free Gemini key</a> for smarter results — paste it below.</div>
+      <input type="password" id="aiKeyInput" placeholder="Optional: Gemini API key for smarter AI" style="width:100%;margin-top:8px;font-size:12px;padding:8px;">
+    </div>
+
+    <!-- Step 1: Type -->
+    <div class="step-card">
+      <div class="step-label">Step 1 — Content Type</div>
+      <div class="type-btns">
+        <button class="type-btn active" onclick="setType('movie')" id="typeMovie">🎬 Movies</button>
+        <button class="type-btn" onclick="setType('series')" id="typeSeries">📺 Series</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Source -->
+    <div class="step-card">
+      <div class="step-label">Step 2 — Source</div>
+      <div class="source-grid">
+        <button class="source-btn active" onclick="setSource('genre')" id="srcGenre">🎭 Genre</button>
+        <button class="source-btn" onclick="setSource('streaming')" id="srcStreaming">📡 Streaming</button>
+        <button class="source-btn" onclick="setSource('keyword')" id="srcKeyword">🔑 Keyword</button>
+        <button class="source-btn" onclick="setSource('decade')" id="srcDecade">📅 Decade</button>
+        <button class="source-btn" onclick="setSource('person')" id="srcPerson">🎭 Person</button>
+        <button class="source-btn" onclick="setSource('collection')" id="srcCollection">🗂️ Collection</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Configure -->
+    <div class="step-card" id="configCard">
+      <div class="step-label">Step 3 — Configure</div>
+      <div id="configFields"></div>
+
+      <!-- Filters -->
+      <div style="margin-top:14px;">
+        <div class="filter-row">
+          <div class="filter-group">
+            <div class="filter-label">Min Rating</div>
+            <select id="minRating" onchange="debouncedPreview()">
+              <option value="">Any</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="7.5">7.5+</option>
+              <option value="8">8+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">From Year</div>
+            <input type="number" id="yearFrom" placeholder="e.g. 2000" min="1900" max="2025" onchange="debouncedPreview()">
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">To Year</div>
+            <input type="number" id="yearTo" placeholder="e.g. 2024" min="1900" max="2025" onchange="debouncedPreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-area">
+        <div class="preview-label">
+          <span>Preview</span>
+          <span id="previewCount" style="color:var(--muted2);font-size:12px;"></span>
+        </div>
+        <div class="poster-grid" id="posterGrid">
+          <div class="preview-empty">Configure your row above to see a preview</div>
+        </div>
+      </div>
+
+      <!-- Row Name + Add -->
+      <div class="row-name-wrap">
+        <input type="text" id="rowName" placeholder="Name this row e.g. 'Sci-Fi Classics'" />
+        <button class="add-btn" onclick="addToBasket()" id="addBtn" disabled>+ Add Row</button>
+      </div>
+    </div>
+
+    <!-- Basket -->
+    <div class="basket">
+      <div class="basket-title">
+        <span>Your Rows <span id="basketCount" style="color:var(--accent);">0</span></span>
+        <button onclick="clearBasket()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;">Clear all</button>
+      </div>
+      <div id="basketList"><div class="basket-empty">No rows added yet — build one above!</div></div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-card" id="exportCard" style="display:none;">
+      <div class="export-title">Add to Setup</div>
+      <div class="export-options">
+        <div>
+          <div class="filter-label" style="margin-bottom:8px;">Add to existing setup</div>
+          <div class="export-row">
+            <input type="text" id="exportToken" placeholder="Enter your token (e.g. A1B2C3D4)" maxlength="8">
+            <button class="export-btn btn-primary" onclick="addToExistingSetup()">Add to Setup</button>
+          </div>
+        </div>
+        <div class="export-divider">— or —</div>
+        <button class="export-btn btn-primary" onclick="startNewSetup()" style="width:100%;">🚀 Start New Setup With These Rows</button>
+        <button class="export-btn btn-secondary" onclick="downloadRows()" style="width:100%;">💾 Download as Import File</button>
+      </div>
+      <div class="result-msg" id="exportResult"></div>
+    </div>
+
+  </div><!-- end rowBuilder -->
+
+
+</div><!-- end main -->
+
+<script>
+// --- STATE ---
+let currentType = 'movie';
+let currentSource = 'genre';
+let basket = [];
+let previewTimer = null;
+let lastPreviewResults = [];
+
+// --- GENRE DATA ---
+const MOVIE_GENRES = [
+  {id:28,name:'Action'},{id:12,name:'Adventure'},{id:16,name:'Animation'},
+  {id:35,name:'Comedy'},{id:80,name:'Crime'},{id:99,name:'Documentary'},
+  {id:18,name:'Drama'},{id:10751,name:'Family'},{id:14,name:'Fantasy'},
+  {id:36,name:'History'},{id:27,name:'Horror'},{id:10402,name:'Music'},
+  {id:9648,name:'Mystery'},{id:10749,name:'Romance'},{id:878,name:'Sci-Fi'},
+  {id:53,name:'Thriller'},{id:10752,name:'War'},{id:37,name:'Western'}
+];
+const TV_GENRES = [
+  {id:10759,name:'Action & Adventure'},{id:16,name:'Animation'},{id:35,name:'Comedy'},
+  {id:80,name:'Crime'},{id:99,name:'Documentary'},{id:18,name:'Drama'},
+  {id:10751,name:'Family'},{id:10762,name:'Kids'},{id:9648,name:'Mystery'},
+  {id:10763,name:'News'},{id:10764,name:'Reality'},{id:10765,name:'Sci-Fi & Fantasy'},
+  {id:10766,name:'Soap'},{id:10767,name:'Talk'},{id:10768,name:'War & Politics'},{id:37,name:'Western'}
+];
+
+const STREAMING_SERVICES = [
+  {id:8,name:'Netflix',region:'US'},
+  {id:9,name:'Amazon Prime',region:'US'},
+  {id:337,name:'Disney+',region:'US'},
+  {id:15,name:'Hulu',region:'US'},
+  {id:1899,name:'HBO Max',region:'US'},
+  {id:2,name:'Apple TV+',region:'US'},
+  {id:531,name:'Paramount+',region:'US'},
+  {id:386,name:'Peacock',region:'US'},
+  {id:283,name:'Crunchyroll',region:'US'},
+  {id:38,name:'BBC iPlayer',region:'GB'},
+  {id:103,name:'Channel 4',region:'GB'},
+  {id:41,name:'ITVX',region:'GB'},
+  {id:11,name:'MUBI',region:'GB'}
+];
+
+const DECADES = [
+  {value:'1950',label:'1950s',from:1950,to:1959},
+  {value:'1960',label:'1960s',from:1960,to:1969},
+  {value:'1970',label:'1970s',from:1970,to:1979},
+  {value:'1980',label:'1980s',from:1980,to:1989},
+  {value:'1990',label:'1990s',from:1990,to:1999},
+  {value:'2000',label:'2000s',from:2000,to:2009},
+  {value:'2010',label:'2010s',from:2010,to:2019},
+  {value:'2020',label:'2020s',from:2020,to:2029},
+];
+
+
+
+// --- TYPE ---
+function setType(type){
+  currentType = type;
+  document.getElementById('typeMovie').classList.toggle('active', type==='movie');
+  document.getElementById('typeSeries').classList.toggle('active', type==='series');
+  renderConfigFields();
+  debouncedPreview();
+}
+
+// --- SOURCE ---
+function setSource(src){
+  currentSource = src;
+  document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('src'+src.charAt(0).toUpperCase()+src.slice(1)).classList.add('active');
+  renderConfigFields();
+  // Hide year filters for collection source
+  const yearFilters = document.querySelectorAll('#yearFrom, #yearTo, #yearFrom, #yearTo');
+  const hideYears = src === 'collection';
+  document.querySelectorAll('.filter-group').forEach(g => {
+    const label = g.querySelector('.filter-label');
+    if(label && (label.textContent.includes('Year'))) g.style.display = hideYears ? 'none' : '';
+  });
+  debouncedPreview();
+}
+
+// --- CONFIG FIELDS ---
+function renderConfigFields(){
+  const el = document.getElementById('configFields');
+  const genres = currentType === 'movie' ? MOVIE_GENRES : TV_GENRES;
+  let html = '';
+
+  if(currentSource === 'genre'){
+    html = '<div class="filter-group"><div class="filter-label">Genre</div><select id="srcValue" onchange="debouncedPreview()"><option value="">Select genre…</option>' +
+      genres.map(g=>'<option value="'+g.id+'">'+g.name+'</option>').join('') +
+      '</select></div>';
+  } else if(currentSource === 'streaming'){
+    html = '<div class="filter-group"><div class="filter-label">Streaming Service</div><select id="srcValue" onchange="debouncedPreview()"><option value="">Select service…</option>' +
+      STREAMING_SERVICES.map(s=>'<option value="'+s.id+'" data-region="'+(s.region||'US')+'">'+s.name+'</option>').join('') +
+      '</select></div>';
+  } else if(currentSource === 'keyword'){
+    html = '<div class="filter-group"><div class="filter-label">Keyword</div>' +
+      '<input type="text" id="srcValue" placeholder="e.g. superhero, heist, survival…" oninput="debouncedPreview()">' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:6px;">Best for specific themes. For studios use Collection.</div></div>';
+  } else if(currentSource === 'decade'){
+    html = '<div class="filter-group"><div class="filter-label">Decade</div><select id="srcValue" onchange="debouncedPreview()"><option value="">Select decade…</option>' +
+      DECADES.map(d=>'<option value="'+d.value+'">'+d.label+'</option>').join('') +
+      '</select></div>';
+  } else if(currentSource === 'person'){
+    html = '<div class="filter-group"><div class="filter-label">Actor / Director</div>' +
+      '<input type="text" id="srcValue" placeholder="e.g. Christopher Nolan, Tom Hanks…" oninput="debouncedPreview()">' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:4px;">We will resolve this to their TMDB person ID automatically.</div></div>';
+  } else if(currentSource === 'collection'){
+    html = '<div class="filter-group"><div class="filter-label">Collection Name</div>' +
+      '<input type="text" id="srcValue" placeholder="e.g. The Avengers, Fast &amp; Furious, John Wick…" oninput="debouncedPreview()">' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:6px;">Best for specific film series. For studios use Keyword.</div></div>';
+  }
+  el.innerHTML = html;
+  document.getElementById('addBtn').disabled = true;
+}
+function debouncedPreview(){
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(runPreview, 600);
+  document.getElementById('addBtn').disabled = true;
+}
+
+async function runPreview(){
+  const grid = document.getElementById('posterGrid');
+  const srcEl = document.getElementById('srcValue');
+  const srcVal = srcEl ? srcEl.value.trim() : '';
+
+  if(!srcVal){
+    grid.innerHTML = '<div class="preview-empty">Configure your row above to see a preview<\/div>';
+    document.getElementById('previewCount').textContent = '';
+    return;
+  }
+
+  grid.innerHTML = '<div class="preview-loading">⏳ Loading preview…<\/div>';
+
+  const params = new URLSearchParams({ type: currentType });
+  const minRating = document.getElementById('minRating').value;
+  const yearFrom = document.getElementById('yearFrom').value;
+  const yearTo = document.getElementById('yearTo').value;
+  if(minRating) params.append('minRating', minRating);
+  if(yearFrom) params.append('yearFrom', yearFrom);
+  if(yearTo) params.append('yearTo', yearTo);
+
+  if(currentSource === 'genre') params.append('genre', srcVal);
+  else if(currentSource === 'streaming') params.append('network', srcVal);
+  // keyword handled below
+  else if(currentSource === 'decade'){
+    const d = DECADES.find(x=>x.value===srcVal);
+    if(d){ params.append('yearFrom', d.from); params.append('yearTo', d.to); }
+  }
+  else if(currentSource === 'person') params.append('person', srcVal);
+  else if(currentSource === 'keyword') { params.append('query', srcVal); params.append('sourceType', 'keyword'); }
+  else if(currentSource === 'collection') { params.append('query', srcVal); params.append('sourceType', 'collection'); }
+
+  try {
+    const r = await fetch('/preview/tmdb?' + params.toString());
+    const data = await r.json();
+    lastPreviewResults = data.results || [];
+
+    if(!lastPreviewResults.length){
+      grid.innerHTML = '<div class="preview-empty">No results found — try different filters<\/div>';
+      document.getElementById('previewCount').textContent = '';
+      document.getElementById('addBtn').disabled = true;
+      return;
+    }
+
+    grid.innerHTML = lastPreviewResults.map(item => `
+      <div class="poster-item">
+        ${item.poster ? `<img src="${item.poster}" loading="lazy" alt="${item.title}">` : ''}
+        <div class="poster-title">${item.title}<\/div>
+      <\/div>
+    `).join('');
+
+    document.getElementById('previewCount').textContent = lastPreviewResults.length + ' results';
+    document.getElementById('addBtn').disabled = false;
+
+    // Auto-suggest row name
+    const nameEl = document.getElementById('rowName');
+    if(!nameEl.value) nameEl.value = suggestName();
+
+  } catch(e){
+    grid.innerHTML = '<div class="preview-empty">Preview failed — please try again<\/div>';
+  }
+}
+
+function suggestName(){
+  const srcEl = document.getElementById('srcValue');
+  const srcVal = srcEl ? srcEl.value : '';
+  const type = currentType === 'movie' ? 'Movies' : 'Series';
+
+  if(currentSource === 'genre'){
+    const genres = currentType === 'movie' ? MOVIE_GENRES : TV_GENRES;
+    const g = genres.find(x=>x.id==srcVal);
+    return g ? `${g.name} ${type}` : type;
+  }
+  if(currentSource === 'streaming'){
+    const s = STREAMING_SERVICES.find(x=>x.id==srcVal);
+    return s ? `${s.name} ${type}` : type;
+  }
+  if(currentSource === 'decade'){
+    const d = DECADES.find(x=>x.value===srcVal);
+    return d ? `${d.label} ${type}` : type;
+  }
+  if(currentSource === 'person' || currentSource === 'keyword' || currentSource === 'collection'){
+    return srcVal ? `${srcVal} ${type}` : type;
+  }
+  return type;
+}
+
+// --- BASKET ---
+function addToBasket(){
+  const name = document.getElementById('rowName').value.trim();
+  if(!name){ alert('Please name your row first'); return; }
+  if(!lastPreviewResults.length){ alert('No preview results to add'); return; }
+
+  const srcEl = document.getElementById('srcValue');
+  const srcVal = srcEl ? srcEl.value.trim() : '';
+
+  const row = {
+    id: 'custom_' + Date.now(),
+    name,
+    type: currentType,
+    source: currentSource,
+    sourceValue: srcVal,
+    minRating: document.getElementById('minRating').value,
+    yearFrom: document.getElementById('yearFrom').value,
+    yearTo: document.getElementById('yearTo').value,
+    preview: lastPreviewResults.slice(0,3)
+  };
+
+  basket.push(row);
+  renderBasket();
+  document.getElementById('rowName').value = '';
+  document.getElementById('addBtn').disabled = true;
+
+  // Flash confirmation
+  const btn = document.getElementById('addBtn');
+  btn.textContent = '✅ Added!';
+  setTimeout(() => { btn.textContent = '+ Add Row'; }, 1500);
+}
+
+function removeFromBasket(id){
+  basket = basket.filter(r => r.id !== id);
+  renderBasket();
+}
+
+function clearBasket(){
+  basket = [];
+  renderBasket();
+}
+
+function renderBasket(){
+  const list = document.getElementById('basketList');
+  const count = document.getElementById('basketCount');
+  const exportCard = document.getElementById('exportCard');
+  count.textContent = basket.length;
+  exportCard.style.display = basket.length ? 'block' : 'none';
+
+  if(!basket.length){
+    list.innerHTML = '<div class="basket-empty">No rows added yet — build one above!<\/div>';
+    return;
+  }
+
+  list.innerHTML = basket.map(r => `
+    <div class="basket-item">
+      <div>
+        <div class="basket-item-name">${r.name}<\/div>
+        <div class="basket-item-meta">${r.type === 'movie' ? '🎬' : '📺'} ${r.type} · ${r.source}${r.minRating ? ' · '+r.minRating+'+ rating' : ''}${r.yearFrom ? ' · from '+r.yearFrom : ''}${r.yearTo ? ' · to '+r.yearTo : ''}<\/div>
+      <\/div>
+      <button class="basket-remove" onclick="removeFromBasket('${r.id}')">Remove<\/button>
+    <\/div>
+  `).join('');
+}
+
+// --- EXPORT ---
+function getCustomCatalogs(){
+  return basket.map(r => {
+    const base = { id: r.id, name: r.name, type: r.type, source: r.source, sourceValue: r.sourceValue };
+    if(r.minRating) base.minRating = r.minRating;
+    if(r.yearFrom) base.yearFrom = r.yearFrom;
+    if(r.yearTo) base.yearTo = r.yearTo;
+    return base;
+  });
+}
+
+async function addToExistingSetup(){
+  const token = document.getElementById('exportToken').value.trim().toUpperCase();
+  const msg = document.getElementById('exportResult');
+  if(!token || token.length !== 8){ showMsg('error','Please enter a valid 8-character token'); return; }
+  if(!basket.length){ showMsg('error','No rows in your basket'); return; }
+
+  showMsg('', 'Adding rows…');
+
+  try {
+    // First verify token exists
+    const check = await fetch(`/c/${token}/inspect`);
+    if(!check.ok){ showMsg('error','Token not found — check your token and try again'); return; }
+
+    showMsg('success', `✅ ${basket.length} row${basket.length>1?'s':''} ready! Redirecting to your setup…`);
+    // Store rows in sessionStorage and redirect to configure
+    sessionStorage.setItem('builderRows', JSON.stringify(getCustomCatalogs()));
+    sessionStorage.setItem('builderToken', token);
+    setTimeout(() => { window.location.href = `/configure/${token}`; }, 1200);
+  } catch(e){
+    showMsg('error','Something went wrong — please try again');
+  }
+}
+
+function startNewSetup(){
+  if(!basket.length){ return; }
+  sessionStorage.setItem('builderRows', JSON.stringify(getCustomCatalogs()));
+  window.location.href = '/setup.html';
+}
+
+function downloadRows(){
+  if(!basket.length) return;
+  const data = JSON.stringify(getCustomCatalogs(), null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ultramax-rows.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function showMsg(type, text){
+  const el = document.getElementById('exportResult');
+  el.className = 'result-msg' + (type ? ' '+type : '');
+  el.textContent = text;
+  el.style.display = text ? 'block' : 'none';
+}
+
+// --- AI ROW BUILDER ---
+async function runAiRow(){
+  var prompt = document.getElementById('aiPromptInput').value.trim();
+  var key = document.getElementById('aiKeyInput').value.trim();
+  var result = document.getElementById('aiResult');
+  if(!prompt){ result.style.color='#f87171'; result.textContent='Please describe your row first'; return; }
+  result.style.color='#94a3b8'; result.textContent='Building your row...';
+  document.getElementById('aiRunBtn').disabled = true;
+  try {
+    var res = await fetch('/api/ai/custom-row', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt: prompt, count: 1, googleAiKey: key })
+    });
+    var data = await res.json();
+    var row = data.rows && data.rows[0];
+    if(!row) throw new Error('No row returned');
+    var type = row.type === 'series' ? 'series' : 'movie';
+    setType(type);
+
+    // Determine and set source
+    var srcValue = '';
+    if(row.personName && row.personName.trim()) {
+      setSource('person');
+      srcValue = row.personName;
+    } else if(row.withWatchProviders) {
+      setSource('streaming');
+      srcValue = String(row.withWatchProviders);
+    } else if(row.keyword) {
+      setSource('keyword');
+      srcValue = row.keyword;
+    } else if(row.withGenres) {
+      setSource('genre');
+      srcValue = String(row.withGenres);
+    }
+
+    // After setSource renders fields, populate them
+    setTimeout(function(){
+      var el = document.getElementById('srcValue');
+      if(el && srcValue) {
+        el.value = srcValue;
+        document.getElementById('addBtn').disabled = false;
+      }
+      if(row.voteAverageGte) { var r = document.getElementById('minRating'); if(r) r.value = row.voteAverageGte; }
+      if(row.yearFrom) { var yf = document.getElementById('yearFrom'); if(yf) yf.value = row.yearFrom; }
+      if(row.yearTo) { var yt = document.getElementById('yearTo'); if(yt) yt.value = row.yearTo; }
+      var nameEl = document.getElementById('rowName');
+      if(nameEl && !nameEl.value) nameEl.value = row.name || prompt;
+      result.style.color='#4ade80'; result.textContent='Row configured - previewing results...';
+      debouncedPreview();
+    }, 100);
+  } catch(e) {
+    result.style.color='#f87171'; result.textContent='Failed: '+e.message;
+  }
+  document.getElementById('aiRunBtn').disabled = false;
+}
+// --- INIT ---
+renderConfigFields();
+</script>
+</body>
+</html>

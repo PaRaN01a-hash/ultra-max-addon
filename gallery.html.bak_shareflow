@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra MAX — Community Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0a0a18;color:#e8e8f0;font-family:'Inter',sans-serif;min-height:100vh;}
+
+/* Header */
+.header{background:#0d0d1e;border-bottom:1px solid #1e1e35;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em;}
+.header-logo span{color:#ff4db8;}
+.header-actions{display:flex;gap:8px;}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#7B2FFF;color:#fff;}
+.btn-outline{background:transparent;border:1px solid #2a2a45;color:#a0a0c0;}
+.btn:hover{opacity:.85;}
+
+/* Hero */
+.hero{padding:40px 20px 24px;text-align:center;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:.05em;margin-bottom:8px;}
+.hero h1 span{color:#7B2FFF;}
+.hero p{color:#666;font-size:14px;max-width:400px;margin:0 auto;}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:0 20px 16px;justify-content:center;}
+.tab{padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #2a2a45;color:#666;background:transparent;transition:all .2s;}
+.tab.active{background:#7B2FFF;border-color:#7B2FFF;color:#fff;}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 100px;}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr);}}
+
+/* Card */
+.card{background:#14142a;border:1px solid #2a2a45;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;}
+.card:hover{border-color:#7B2FFF;transform:translateY(-2px);}
+.card-covers{display:grid;grid-template-columns:1fr 1fr;gap:2px;height:90px;background:#0a0a18;}
+.card-cover{object-fit:cover;width:100%;height:100%;}
+.card-cover-empty{background:#1a1a35;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.card-body{padding:10px;}
+.card-type{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7B2FFF;margin-bottom:4px;}
+.card-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-meta{font-size:10px;color:#444;display:flex;justify-content:space-between;}
+.card-setup-preview{height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;background:#0a0a18;}
+.card-setup-stat{font-size:11px;color:#666;}
+.card-setup-stat span{color:#a890ff;font-weight:700;}
+
+/* Import modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#14142a;border:1px solid #2a2a45;border-radius:16px;padding:24px;max-width:440px;width:100%;}
+.modal h2{font-size:18px;font-weight:800;margin-bottom:6px;}
+.modal p{font-size:13px;color:#888;margin-bottom:16px;}
+.modal-covers{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;}
+.modal-cover{width:80px;height:46px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+.modal-cover-empty{width:80px;height:46px;border-radius:6px;background:#1a1a35;flex-shrink:0;}
+.modal-actions{display:flex;gap:8px;}
+.modal-actions .btn{flex:1;justify-content:center;}
+
+/* Share modal */
+.share-modal{background:#14142a;border:1px solid #2a2a45;border-radius:16px;padding:24px;max-width:440px;width:100%;}
+.share-modal h2{font-size:18px;font-weight:800;margin-bottom:16px;}
+.share-input{width:100%;padding:10px 12px;background:#0d0d1a;border:1px solid #2a2a45;border-radius:8px;color:#e8e8f0;font-size:13px;margin-bottom:10px;}
+.share-label{font-size:11px;color:#666;margin-bottom:4px;}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:#333;}
+.empty h3{font-size:18px;font-weight:700;color:#444;margin-bottom:8px;}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#7B2FFF;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* Loading */
+.loading{text-align:center;padding:60px;color:#333;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">ULTRA <span>MAX</span></div>
+  <div class="header-actions">
+    <a href="/" class="btn btn-outline">← Home</a>
+    <a href="/setup" class="btn btn-primary">🚀 Setup</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Community <span>Gallery</span></h1>
+  <p>Browse and import collections & setups shared by the Ultra MAX community</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="setTab('all')">All</button>
+  <button class="tab" onclick="setTab('collections')">📁 Collections</button>
+  <button class="tab" onclick="setTab('setup')">⚙️ Setups</button>
+</div>
+
+<div id="grid" class="grid">
+  <div class="loading">Loading community shares...</div>
+</div>
+
+<!-- Import modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div id="importModalType" class="card-type"></div>
+    <h2 id="importModalName"></h2>
+    <p id="importModalMeta"></p>
+    <div id="importModalCovers" class="modal-covers"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+      <button class="btn btn-primary" id="importModalBtn" onclick="doImport()">⬇️ Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="share-modal">
+    <h2>Share to Gallery</h2>
+    <div class="share-label">What are you sharing?</div>
+    <select id="shareType" class="share-input">
+      <option value="collections">📁 My Collections</option>
+      <option value="setup">⚙️ My Full Setup</option>
+    </select>
+    <div class="share-label">Display name for your share</div>
+    <input type="text" id="shareName" class="share-input" placeholder="e.g. Horror Movie Night Setup">
+    <div class="share-label">Your name (optional)</div>
+    <input type="text" id="shareAuthor" class="share-input" placeholder="Anonymous">
+    <div id="shareResult" style="display:none;margin-bottom:12px;">
+      <div class="share-label">Your share link</div>
+      <input type="text" id="shareLinkInput" class="share-input" readonly onclick="this.select()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeShareModal()">Close</button>
+      <button class="btn btn-primary" id="shareBtn" onclick="doShare()">🚀 Share</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _shares = [];
+var _activeTab = 'all';
+var _importTarget = null;
+
+function setTab(tab){
+  _activeTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active', ['all','collections','setup'][i] === tab);
+  });
+  renderGrid();
+}
+
+function renderGrid(){
+  var el = document.getElementById('grid');
+  var filtered = _activeTab === 'all' ? _shares : _shares.filter(function(s){ return s.type === _activeTab; });
+  if(!filtered.length){
+    el.innerHTML = '<div class="empty"><h3>No shares yet</h3><p>Be the first to share!</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(s){
+    var coversHtml = '';
+    if(s.type === 'collections' && s.preview){
+      var allCovers = [];
+      s.preview.forEach(function(c){ allCovers = allCovers.concat(c.covers||[]); });
+      for(var i=0;i<4;i++){
+        if(allCovers[i]) coversHtml += '<img class="card-cover" src="'+allCovers[i]+'" onerror="this.style.display=\'none\'">';
+        else coversHtml += '<div class="card-cover-empty">📁</div>';
+      }
+      coversHtml = '<div class="card-covers">'+coversHtml+'</div>';
+    } else if(s.type === 'setup' && s.preview){
+      coversHtml = '<div class="card-setup-preview">'
+        +'<div class="card-setup-stat">🏠 <span>'+s.preview.catalogs+'</span> home rows</div>'
+        +'<div class="card-setup-stat">📁 <span>'+s.preview.collections+'</span> collections</div>'
+        +'</div>';
+    }
+    var ago = timeAgo(s.created);
+    return '<div class="card" onclick="openImportModal(\''+s.id+'\')">'
+      +coversHtml
+      +'<div class="card-body">'
+      +'<div class="card-type">'+(s.type==='collections'?'📁 Collections':'⚙️ Setup')+'</div>'
+      +'<div class="card-name">'+escHtml(s.name)+'</div>'
+      +'<div class="card-meta"><span>'+escHtml(s.author)+'</span><span>'+s.imports+' imports · '+ago+'</span></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function timeAgo(iso){
+  var d = new Date(iso);
+  var diff = Math.floor((Date.now() - d)/1000);
+  if(diff < 60) return 'just now';
+  if(diff < 3600) return Math.floor(diff/60)+'m ago';
+  if(diff < 86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openImportModal(id){
+  var share = _shares.find(function(s){ return s.id === id; });
+  if(!share) return;
+  _importTarget = id;
+  document.getElementById('importModalType').textContent = share.type === 'collections' ? '📁 Collections' : '⚙️ Setup';
+  document.getElementById('importModalName').textContent = share.name;
+  document.getElementById('importModalMeta').textContent = 'By '+share.author+' · '+share.imports+' imports';
+  var coversEl = document.getElementById('importModalCovers');
+  coversEl.innerHTML = '';
+  if(share.type === 'collections' && share.preview){
+    var allCovers = [];
+    share.preview.forEach(function(c){ allCovers = allCovers.concat(c.covers||[]); });
+    allCovers.slice(0,6).forEach(function(url){
+      var img = document.createElement('img');
+      img.src = url; img.className = 'modal-cover';
+      coversEl.appendChild(img);
+    });
+  }
+  document.getElementById('importModal').classList.add('open');
+}
+
+function closeImportModal(){ document.getElementById('importModal').classList.remove('open'); _importTarget = null; }
+
+function doImport(){
+  if(!_importTarget) return;
+  var btn = document.getElementById('importModalBtn');
+  btn.textContent = 'Importing...';
+  btn.disabled = true;
+  fetch('/api/share/'+_importTarget)
+    .then(function(r){ return r.json(); })
+    .then(function(share){
+      // Store in sessionStorage for setup.html to pick up
+      if(share.type === 'collections'){
+        sessionStorage.setItem('um_import_collections', JSON.stringify(share.data));
+        sessionStorage.setItem('um_import_type', 'collections');
+      } else {
+        sessionStorage.setItem('um_import_setup', JSON.stringify(share.data));
+        sessionStorage.setItem('um_import_type', 'setup');
+      }
+      showToast('Imported! Redirecting to builder...');
+      setTimeout(function(){ window.location.href = '/setup?import=gallery'; }, 1200);
+    })
+    .catch(function(){ showToast('Import failed — try again'); btn.textContent = '⬇️ Import'; btn.disabled = false; });
+}
+
+function openShareModal(){ document.getElementById('shareModal').classList.add('open'); document.getElementById('shareResult').style.display='none'; }
+function closeShareModal(){ document.getElementById('shareModal').classList.remove('open'); }
+
+function doShare(){
+  var type = document.getElementById('shareType').value;
+  var name = document.getElementById('shareName').value.trim();
+  var author = document.getElementById('shareAuthor').value.trim()||'Anonymous';
+  if(!name){ showToast('Please enter a name'); return; }
+
+  // Get data from sessionStorage (set by setup.html)
+  var data;
+  if(type === 'collections'){
+    var raw = sessionStorage.getItem('um_share_collections');
+    if(!raw){ showToast('Open the builder first to load your collections'); return; }
+    data = JSON.parse(raw);
+  } else {
+    var raw = sessionStorage.getItem('um_share_setup');
+    if(!raw){ showToast('Open the builder first to load your setup'); return; }
+    data = JSON.parse(raw);
+  }
+
+  var btn = document.getElementById('shareBtn');
+  btn.textContent = 'Sharing...'; btn.disabled = true;
+
+  fetch('/api/share', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ type, name, author, data })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.error){ showToast('Error: '+res.error); btn.textContent='🚀 Share'; btn.disabled=false; return; }
+    document.getElementById('shareLinkInput').value = res.url;
+    document.getElementById('shareResult').style.display = 'block';
+    btn.textContent = '✅ Shared!';
+    loadShares();
+  })
+  .catch(function(){ showToast('Share failed'); btn.textContent='🚀 Share'; btn.disabled=false; });
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+function loadShares(){
+  fetch('/api/shares')
+    .then(function(r){ return r.json(); })
+    .then(function(data){ _shares = data; renderGrid(); })
+    .catch(function(){ document.getElementById('grid').innerHTML = '<div class="loading">Could not load shares</div>'; });
+}
+
+// Check for import param in URL
+var urlParams = new URLSearchParams(window.location.search);
+var importId = urlParams.get('import');
+if(importId){
+  fetch('/api/share/'+importId)
+    .then(function(r){ return r.json(); })
+    .then(function(share){
+      _importTarget = importId;
+      openImportModal(importId);
+      // Also load the share into _shares for the modal
+      _shares = [share];
+    });
+}
+
+loadShares();
+</script>
+</body>
+</html>
