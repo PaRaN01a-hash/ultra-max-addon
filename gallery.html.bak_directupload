@@ -80,33 +80,6 @@ body{background:#060610;color:#e8e8f0;font-family:'Inter',sans-serif;min-height:
 <div class="hero">
   <h1>Community <span>Gallery</span></h1>
   <p>Browse and import setups shared by the Ultra MAX community</p>
-  <button class="btn btn-p" style="margin-top:12px;" onclick="openSubmitModal()">+ Submit Collection</button>
-</div>
-
-<div class="overlay" id="submitOverlay" onclick="closeSubmitModal(event)" style="display:none;">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-badge">Submit to Gallery</div>
-    <div class="modal-title">Share Your Collection</div>
-    <div class="modal-meta">Export your collection from Nuvio, then paste or upload the JSON here.</div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:6px;">Collection Name</div>
-    <input type="text" id="submitName" style="width:100%;padding:10px 12px;background:#060610;border:1px solid #2a2a45;border-radius:8px;color:#e8e8f0;font-size:13px;margin-bottom:12px;outline:none;box-sizing:border-box;" placeholder="e.g. Fresh Horror Collections">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:6px;">Your Name (optional)</div>
-    <input type="text" id="submitAuthor" style="width:100%;padding:10px 12px;background:#060610;border:1px solid #2a2a45;border-radius:8px;color:#e8e8f0;font-size:13px;margin-bottom:12px;outline:none;box-sizing:border-box;" placeholder="Anonymous">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:6px;">Nuvio Collections JSON</div>
-    <textarea id="submitJson" style="width:100%;height:120px;padding:10px 12px;background:#060610;border:1px solid #2a2a45;border-radius:8px;color:#e8e8f0;font-size:11px;margin-bottom:8px;outline:none;box-sizing:border-box;resize:vertical;font-family:monospace;" placeholder="Paste your Nuvio collections JSON here..."></textarea>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:12px;color:#666;cursor:pointer;">
-        <input type="file" id="submitFile" accept=".json" style="display:none;" onchange="handleSubmitFile(event)">
-        <span style="color:#7B2FFF;text-decoration:underline;">or upload a .json file</span>
-      </label>
-    </div>
-    <div id="submitError" style="display:none;color:#f87171;font-size:12px;margin-bottom:10px;"></div>
-    <div id="submitSuccess" style="display:none;background:rgba(123,47,255,.1);border:1px solid rgba(123,47,255,.3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:#a890ff;"></div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="closeSubmitModal()" style="flex:1;padding:12px;background:transparent;border:1px solid #2a2a45;border-radius:8px;color:#888;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
-      <button onclick="doSubmitCollection()" style="flex:1;padding:12px;background:#7B2FFF;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🚀 Submit</button>
-    </div>
-  </div>
 </div>
 
 <div id="feed" class="feed"><div class="loading">Loading...</div></div>
@@ -131,70 +104,6 @@ body{background:#060610;color:#e8e8f0;font-family:'Inter',sans-serif;min-height:
 <div class="toast" id="toast"></div>
 
 <script>
-
-function openSubmitModal(){
-  document.getElementById('submitOverlay').style.display='flex';
-  document.getElementById('submitName').value='';
-  document.getElementById('submitAuthor').value='';
-  document.getElementById('submitJson').value='';
-  document.getElementById('submitError').style.display='none';
-  document.getElementById('submitSuccess').style.display='none';
-}
-
-function closeSubmitModal(e){
-  if(!e || e.target===document.getElementById('submitOverlay'))
-    document.getElementById('submitOverlay').style.display='none';
-}
-
-function handleSubmitFile(e){
-  var file = e.target.files[0];
-  if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev){
-    document.getElementById('submitJson').value = ev.target.result;
-  };
-  reader.readAsText(file);
-}
-
-async function doSubmitCollection(){
-  var name = document.getElementById('submitName').value.trim();
-  var author = document.getElementById('submitAuthor').value.trim() || 'Anonymous';
-  var jsonStr = document.getElementById('submitJson').value.trim();
-  var errEl = document.getElementById('submitError');
-  var sucEl = document.getElementById('submitSuccess');
-  errEl.style.display='none';
-  sucEl.style.display='none';
-
-  if(!name){ errEl.textContent='Please enter a collection name.'; errEl.style.display='block'; return; }
-  if(!jsonStr){ errEl.textContent='Please paste or upload your Nuvio JSON.'; errEl.style.display='block'; return; }
-
-  var data;
-  try{ data = JSON.parse(jsonStr); }
-  catch(e){ errEl.textContent='Invalid JSON — please check your file.'; errEl.style.display='block'; return; }
-
-  if(!Array.isArray(data)){ errEl.textContent='JSON must be a Nuvio collections array.'; errEl.style.display='block'; return; }
-
-  try{
-    var res = await fetch('/api/share', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ type:'collections', name, author, data })
-    });
-    var result = await res.json();
-    if(result.ok){
-      sucEl.textContent='✅ Submitted! Your collection is now live in the gallery.';
-      sucEl.style.display='block';
-      setTimeout(function(){ closeSubmitModal(); loadShares(); }, 2000);
-    } else {
-      errEl.textContent = result.error || 'Submission failed.';
-      errEl.style.display='block';
-    }
-  } catch(e){
-    errEl.textContent='Network error — please try again.';
-    errEl.style.display='block';
-  }
-}
-
 var _shares=[], _tab='all', _iid=null;
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

@@ -7071,7 +7071,7 @@ async function loadConfigByToken(token){
       try {
         data = raw ? JSON.parse(raw) : {};
       } catch(parseErr) {
-        throw new Error('Bad response from /c/' + token + '/config: ' + raw.slice(0, 180));
+        throw new Error('Bad response from ' + endpoint + ': ' + raw.slice(0, 180));
       }
     selected.clear();
     document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('selected'); });
@@ -7125,10 +7125,7 @@ async function loadConfigByToken(token){
     }
     updateCounter(); updateCategoryCounts();
     setTimeout(makeSprockets, 200);
-  }catch(e){ 
-    console.error('loadConfigByToken error:', e); 
-    showToast('Failed to load config: ' + e.message);
-  }
+  }catch(e){ console.error(e); }
 }
 
 function getGeneratedAddonId(){
@@ -7179,19 +7176,21 @@ function buildCollectionsExport(){
           focusGifUrl: folder.focusGifUrl || '',
           coverImageUrl: folder.coverImageUrl || '',
           heroBackdropUrl: folder.heroBackdropUrl || '',
-          sources: (folder.nativeSources || []),
           catalogSources: (folder.rows || []).map(function(id){
-          const sourceType = getCatalogSourceType(id);
-          return {
-            id: safeNuvioId('source', id, id),
-            addonId: getGeneratedAddonId(),
-            addonName: 'Ultra MAX',
-            manifestUrl: 'https://ultramax.vip/public-manifest.json',
-            catalogId: id,
-            type: sourceType,
-            showInHome: false
-          };
-        }),
+            const sourceType = getCatalogSourceType(id);
+            return {
+              id: safeNuvioId('source', id, id),
+              addonId: getGeneratedAddonId(),
+
+              addonName: 'Ultra MAX',
+
+              manifestUrl: DISPLAY_URL + '/c/' + editToken + '/manifest.json',
+              catalogId: id,
+              type: sourceType,
+              showInHome: false
+            };
+          }),
+          focusGifEnabled: !!folder.focusGifEnabled
         };
       }),
       pinToTop: true,
@@ -7413,14 +7412,11 @@ function normalizeImportedCollections(collections){
       title: coll.title || 'Collection',
       collapsed: !!coll.collapsed,
       folders: (coll.folders || []).map(function(folder){
-        var nativeSources = (folder.sources || []).filter(function(s){ return s.provider === 'tmdb' || s.provider === 'trakt'; });
-        var addonRows = Array.isArray(folder.rows)
-          ? (folder.rows || []).filter(function(id){ return !/^(tmdb|tvdb|simkl)\.discover\./.test(id); })
-          : (folder.catalogSources || []).filter(function(src){ return src.catalogId && !/^(tmdb|tvdb|simkl)\.discover\./.test(src.catalogId); }).map(function(src){ return src.catalogId; });
         return {
           title: folder.title || 'Folder',
-          rows: addonRows,
-          nativeSources: nativeSources,
+          rows: Array.isArray(folder.rows)
+            ? folder.rows
+            : (folder.catalogSources || []).map(function(src){ return src.catalogId; }),
           coverImageUrl: folder.coverImageUrl || '',
           focusGifUrl: folder.focusGifUrl || '',
           heroBackdropUrl: folder.heroBackdropUrl || '',
@@ -10778,7 +10774,7 @@ function cancelEmailReg() {
         var btn = document.getElementById('summaryBtn');
         if(btn) btn.style.display = (n>=2)?'block':'none';
         var sbtn = document.getElementById('shareGalleryBtn');
-           if(sbtn) sbtn.style.display = 'none';
+        if(sbtn) sbtn.style.display = (n>=3)?'block':'none';
       };
     }
   }

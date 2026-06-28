@@ -970,7 +970,7 @@
 
 <script>
 fetch('/api/shares').then(r=>r.json()).then(d=>{
-  var total = d.reduce(function(s,x){return s+(x.imports||0);},0);
+  var total = d.length;
   var el = document.getElementById('galleryImports');
   if(el) el.textContent = total.toLocaleString();
 }).catch(function(){});
