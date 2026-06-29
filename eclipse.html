@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclipse Music · Deezer Addon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #080810;
+    --surface:   #0e0e1c;
+    --border:    #1e1e38;
+    --indigo:    #6366f1;
+    --violet:    #a78bfa;
+    --glow:      #7c3aed;
+    --white:     #f0f0ff;
+    --muted:     #6b6b8a;
+    --success:   #34d399;
+    --error:     #f87171;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* ── Starfield ── */
+  #stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--op, 0.6); }
+  }
+
+  /* ── Layout ── */
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    padding: 0 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Logo ring ── */
+  .logo-wrap {
+    margin-top: 72px;
+    margin-bottom: 40px;
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    background: conic-gradient(from 0deg, var(--indigo), var(--violet), var(--indigo)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: spin 6s linear infinite;
+  }
+  .ring-2 {
+    inset: 8px;
+    animation: spin 10s linear infinite reverse;
+    border-color: transparent;
+    background: conic-gradient(from 180deg, var(--glow) 0%, transparent 40%, var(--violet) 70%, transparent 100%) border-box;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .logo-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 32px rgba(99,102,241,0.4);
+    transition: box-shadow 0.4s ease;
+  }
+  .logo-icon svg {
+    width: 32px;
+    height: 32px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .logo-wrap.active .logo-icon {
+    box-shadow: 0 0 64px rgba(167,139,250,0.7), 0 0 120px rgba(99,102,241,0.3);
+  }
+  .logo-wrap.active .ring {
+    animation-duration: 2s;
+  }
+  .logo-wrap.active .ring-2 {
+    animation-duration: 3s;
+  }
+
+  /* ── Heading ── */
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 8vw, 52px);
+    font-weight: 800;
+    line-height: 1.0;
+    text-align: center;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--white) 0%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 400px;
+    margin-bottom: 48px;
+  }
+  .subtitle strong {
+    color: #9090b0;
+    font-weight: 400;
+  }
+
+  /* ── Card ── */
+  .card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--indigo), var(--violet), transparent);
+    opacity: 0.6;
+  }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .arl-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 48px 14px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .arl-input::placeholder { color: var(--muted); }
+  .arl-input:focus {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .arl-input.valid {
+    border-color: var(--success);
+    box-shadow: 0 0 0 3px rgba(52,211,153,0.12);
+  }
+  .arl-input.invalid {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(248,113,113,0.12);
+  }
+
+  .toggle-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .toggle-btn:hover { color: var(--violet); }
+  .toggle-btn svg { width: 18px; height: 18px; }
+
+  .hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .hint a {
+    color: var(--violet);
+    text-decoration: none;
+  }
+  .hint a:hover { text-decoration: underline; }
+
+  .generate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--indigo), var(--glow));
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(99,102,241,0.3);
+  }
+  .generate-btn:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 36px rgba(99,102,241,0.5);
+  }
+  .generate-btn:active { transform: scale(0.99); }
+  .generate-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ── Result ── */
+  .result {
+    margin-top: 24px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .result.visible { display: flex; }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .url-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: #9090b8;
+    word-break: break-all;
+    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .action-btn {
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+  }
+  .action-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .btn-copy {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--white);
+  }
+  .btn-copy:hover { border-color: var(--violet); color: var(--violet); }
+  .btn-copy.copied { border-color: var(--success); color: var(--success); }
+
+  .btn-install {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid var(--indigo);
+    color: var(--violet);
+  }
+  .btn-install:hover {
+    background: linear-gradient(135deg, var(--indigo), var(--glow));
+    color: white;
+    border-color: transparent;
+  }
+
+  /* ── How to get ARL ── */
+  .howto {
+    margin-top: 40px;
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+  }
+
+  .howto-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--violet);
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .step-text code {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    color: var(--violet);
+    font-family: monospace;
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    padding: 32px 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  footer a { color: var(--violet); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Validation msg ── */
+  .val-msg {
+    font-size: 11px;
+    margin-top: 6px;
+    min-height: 16px;
+    transition: color 0.2s;
+  }
+  .val-msg.ok { color: var(--success); }
+  .val-msg.err { color: var(--error); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ring, .ring-2 { animation: none; }
+    .star { animation: none; opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<main>
+  <div class="logo-wrap" id="logoWrap">
+    <div class="ring"></div>
+    <div class="ring ring-2"></div>
+    <div class="logo-icon">
+      <!-- music note / waveform icon -->
+      <svg viewBox="0 0 24 24">
+        <path d="M9 18V5l12-2v13"/>
+        <circle cx="6" cy="18" r="3"/>
+        <circle cx="18" cy="16" r="3"/>
+      </svg>
+    </div>
+  </div>
+
+  <p class="eyebrow">Eclipse Music · Deezer Addon</p>
+  <h1>Your music.<br>Your server.</h1>
+  <p class="subtitle">Full-quality Deezer streaming through Eclipse Music. Paste your ARL below to generate a private install link — <strong>no account needed, no data stored.</strong></p>
+
+  <div class="card">
+    <label class="field-label" for="arlInput">Your Deezer ARL</label>
+    <div class="input-wrap">
+      <input
+        class="arl-input"
+        id="arlInput"
+        type="password"
+        placeholder="Paste your ARL cookie here…"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="toggle-btn" id="toggleBtn" aria-label="Show/hide ARL" title="Toggle visibility">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+    <p class="val-msg" id="valMsg"></p>
+    <p class="hint" style="margin-top:10px;">
+      Your ARL never leaves your browser — the install URL is generated locally.<br>
+      <a href="#howto">How do I find my ARL? ↓</a>
+    </p>
+
+    <button class="generate-btn" id="generateBtn" disabled>Generate Install Link</button>
+
+    <div class="result" id="result">
+      <span class="result-label">Your install URL</span>
+      <div class="url-box" id="urlBox"></div>
+      <div class="actions">
+        <button class="action-btn btn-copy" id="copyBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy URL
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- How to get ARL -->
+  <div class="howto" id="howto">
+    <p class="howto-title">How to find your ARL</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <p class="step-text">Log in to <a href="https://www.deezer.com" target="_blank" style="color:var(--violet)">deezer.com</a> in your browser.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p class="step-text">Open DevTools with <code>F12</code> and go to the <code>Application</code> tab (Chrome) or <code>Storage</code> tab (Firefox).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p class="step-text">Navigate to <code>Cookies → deezer.com</code> and find the cookie named <code>arl</code>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p class="step-text">Copy the full value — it's a long string of letters and numbers. Paste it above.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Built for the <a href="https://ultramax.vip" target="_blank">Ultra MAX</a> community ·
+  <a href="https://ko-fi.com/ultramaxaddon" target="_blank">Support on Ko-fi</a>
+</footer>
+
+<script>
+  // ── Starfield ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2+Math.random()*4}s;
+      --delay:${-Math.random()*6}s;
+      --op:${0.2+Math.random()*0.7};
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ── ARL validation ──
+  const input      = document.getElementById('arlInput');
+  const toggleBtn  = document.getElementById('toggleBtn');
+  const eyeIcon    = document.getElementById('eyeIcon');
+  const generateBtn= document.getElementById('generateBtn');
+  const result     = document.getElementById('result');
+  const urlBox     = document.getElementById('urlBox');
+  const copyBtn    = document.getElementById('copyBtn');
+
+  const valMsg     = document.getElementById('valMsg');
+  const logoWrap   = document.getElementById('logoWrap');
+
+  const BASE = 'https://eclipse.ultramax.vip';
+
+  // ARL is typically 192 hex chars but can vary — just check it's hex and long enough
+  function validateArl(v) {
+    const trimmed = v.trim();
+    if (!trimmed) return { ok: false, msg: '' };
+    if (trimmed.length < 100) return { ok: false, msg: 'ARL looks too short — check you copied the full value.' };
+    if (!/^[a-f0-9]+$/i.test(trimmed)) return { ok: false, msg: 'ARL should only contain letters a–f and numbers.' };
+    return { ok: true, msg: '✓ Looks good' };
+  }
+
+  input.addEventListener('input', () => {
+    const val = input.value.trim();
+    const { ok, msg } = validateArl(val);
+
+    input.classList.toggle('valid', ok);
+    input.classList.toggle('invalid', !!val && !ok);
+    valMsg.textContent = msg;
+    valMsg.className = 'val-msg' + (ok ? ' ok' : (val ? ' err' : ''));
+    generateBtn.disabled = !ok;
+    logoWrap.classList.toggle('active', ok);
+
+    if (!ok) {
+      result.classList.remove('visible');
+    }
+  });
+
+  // ── Eye toggle ──
+  const eyeOpen = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+  let shown = false;
+  toggleBtn.addEventListener('click', () => {
+    shown = !shown;
+    input.type = shown ? 'text' : 'password';
+    eyeIcon.innerHTML = shown ? eyeClosed : eyeOpen;
+  });
+
+  // ── Generate ──
+  generateBtn.addEventListener('click', () => {
+    const arl = input.value.trim();
+    const url = `${BASE}/${arl}/manifest.json`;
+    urlBox.textContent = url;
+    result.classList.add('visible');
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  // ── Copy ──
+  copyBtn.addEventListener('click', async () => {
+    const url = urlBox.textContent;
+    try {
+      await navigator.clipboard.writeText(url);
+      copyBtn.classList.add('copied');
+      copyBtn.querySelector('svg').style.display = 'none';
+      copyBtn.childNodes[copyBtn.childNodes.length - 1].textContent = ' Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.querySelector('svg').style.display = '';
+        copyBtn.childNodes[copyBtn.childNodes.length - 1].textContent = ' Copy URL';
+      }, 2000);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  });
+</script>
+</body>
+</html>

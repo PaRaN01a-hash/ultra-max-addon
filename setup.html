@@ -3906,7 +3906,20 @@ body {
                   <div style="background:var(--bg2,#1a1a2e);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-top:4px;">
                     <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">Generated poster URL pattern:</div>
                     <div id="bpUrlPreview" style="font-size:11px;color:var(--accent,#7B2FFF);word-break:break-all;line-height:1.4;font-family:monospace;">—</div>
+                    <button type="button" onclick="testBpUrl()" style="margin-top:8px;padding:6px 12px;background:var(--accent,#7B2FFF);color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">🧪 Test URL</button>
+                    <div id="bpTestResult" style="margin-top:8px;display:none;">
+                      <img id="bpTestImg" style="height:80px;border-radius:6px;border:1px solid var(--border2);" />
+                      <div id="bpTestStatus" style="font-size:11px;margin-top:4px;"></div>
+                    </div>
                   </div>
+                </div>
+
+                <!-- Manual URL override -->
+                <div style="border-top:1px solid var(--border2);margin-top:14px;padding-top:14px;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">🔗 Or paste your own URL from <a href="https://btttr.cc" target="_blank" style="color:var(--accent)">btttr.cc</a></div>
+                  <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">If the auto-generated URL doesn't work, visit btttr.cc, configure your style and paste the URL pattern here.</div>
+                  <input type="text" id="bpManualUrl" placeholder="https://btttr.cc/poster-.../imdb/poster-default/{imdb_id}.jpg" oninput="onBpManualInput()" style="width:100%;padding:9px;background:var(--bg2,#1a1a2e);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-size:11px;font-family:monospace;">
+                  <div style="font-size:10px;color:var(--text2);margin-top:4px;">Leave blank to use the auto-generated URL above.</div>
                 </div>
 
                 <!-- Hidden field that stores the final value -->
@@ -3918,21 +3931,21 @@ body {
             (function(){
               function buildBPStyle() {
                 if (!document.getElementById('bpEnabled').checked) return '';
-                const rating = document.getElementById('betterPostersStyle').value;
+                const rating  = document.getElementById('betterPostersStyle').value;
                 const trend   = document.getElementById('bpTrend').checked;
                 const quality = document.getElementById('bpQuality').checked;
                 const genre   = document.getElementById('bpGenre').checked;
                 const age     = document.getElementById('bpAge').checked;
-                // Build the style string: base + optional modifiers
-                // btttr.cc URL: https://btttr.cc/poster-{style}/imdb/poster-default/{id}.jpg
-                // Style encodes all options
-                let parts = [];
-                if (quality) parts.push('qa');
-                if (rating && rating !== 'none') parts.push(rating);
-                if (trend) parts.push('trend');
-                if (genre) parts.push('genre');
-                if (age) parts.push('age');
-                return parts.length ? parts.join('-') : 'average';
+                const hasRating = rating && rating !== 'none';
+                let flags = hasRating ? 'r' : genre ? 'g' : 'n';
+                if (quality) flags += 'q';
+                if (age) flags += 'a';
+                const ratingMap = {imdb:'IM',tmdb:'TM',rt:'RT',metacritic:'MC',trakt:'TR',letterboxd:'LB',rogerebert:'RE'};
+                let params = [];
+                if (!trend) params.push('tag=none');
+                if (hasRating && ratingMap[rating]) params.push('rs=' + ratingMap[rating]);
+                const query = params.length ? '?' + params.join('&') : '';
+                return 'https://btttr.cc/poster-' + flags + '/imdb/poster-default/{imdb_id}.jpg' + query;
               }
               window.updateBPStyle = function() {
                 const enabled = document.getElementById('bpEnabled').checked;
@@ -3946,10 +3959,35 @@ body {
                 document.getElementById('betterPostersStyleHidden').value = style;
                 const preview = document.getElementById('bpUrlPreview');
                 if (style) {
-                  preview.textContent = 'https://btttr.cc/poster-' + style + '/imdb/poster-default/{imdb_id}.jpg';
+                  preview.textContent = style;
                 } else {
                   preview.textContent = '— disabled';
                 }
+              };
+              window.onBpManualInput = function(){
+                var manual = document.getElementById('bpManualUrl').value.trim();
+                if(manual){
+                  document.getElementById('betterPostersStyleHidden').value = manual;
+                  document.getElementById('bpUrlPreview').textContent = manual;
+                } else {
+                  // Fall back to auto-generated
+                  updateBPStyle();
+                }
+              };
+              window.testBpUrl = function(){
+                var url = document.getElementById('bpUrlPreview').textContent;
+                if(!url || url === '—' || url === '— disabled') return;
+                var testUrl = url.replace('{imdb_id}', 'tt0111161');
+                var img = document.getElementById('bpTestImg');
+                var status = document.getElementById('bpTestStatus');
+                var result = document.getElementById('bpTestResult');
+                result.style.display = 'block';
+                status.textContent = 'Testing...';
+                status.style.color = 'var(--text2)';
+                img.style.display = 'none';
+                img.onload = function(){ img.style.display='block'; status.textContent = '✅ Working! Poster loaded successfully.'; status.style.color = '#22c55e'; };
+                img.onerror = function(){ img.style.display='none'; status.textContent = '❌ Failed to load — check your URL or try btttr.cc manually.'; status.style.color = '#ef4444'; };
+                img.src = testUrl;
               };
               // Init on load
               
@@ -7413,12 +7451,18 @@ function normalizeImportedCollections(collections){
       title: coll.title || 'Collection',
       collapsed: !!coll.collapsed,
       folders: (coll.folders || []).map(function(folder){
-        var nativeSources = (folder.sources || []).filter(function(s){ return s.provider === 'tmdb' || s.provider === 'trakt'; });
+        var allSources = (folder.sources || []);
+        var nativeSources = allSources.filter(function(s){
+          return !(s.provider === "addon" && s.addonId === "com.ultramax");
+        });
         var addonRows = Array.isArray(folder.rows)
           ? (folder.rows || []).filter(function(id){ return !/^(tmdb|tvdb|simkl)\.discover\./.test(id); })
-          : (folder.catalogSources || []).filter(function(src){ return src.catalogId && !/^(tmdb|tvdb|simkl)\.discover\./.test(src.catalogId); }).map(function(src){ return src.catalogId; });
-        return {
-          title: folder.title || 'Folder',
+          : allSources.filter(function(s){ return s.provider === "addon" && s.addonId === "com.ultramax"; }).map(function(s){ return s.catalogId; })
+            .concat((folder.catalogSources || []).filter(function(src){
+              return src.catalogId && !/^(tmdb|tvdb|simkl)\.discover\./.test(src.catalogId) && (!src.addonId || src.addonId === "com.ultramax");
+            }).map(function(src){ return src.catalogId; }));
+        addonRows = addonRows.filter(function(id, i, a){ return a.indexOf(id) === i; });
+          return {
           rows: addonRows,
           nativeSources: nativeSources,
           coverImageUrl: folder.coverImageUrl || '',
@@ -8075,7 +8119,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyle")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked })
     });
     const data = await res.json();
 
