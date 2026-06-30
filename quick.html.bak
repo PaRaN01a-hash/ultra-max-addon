@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Install — Ultra MAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --card2:#1a1a2e;
+    --border:#1e1e36; --border2:#2a2a45;
+    --violet:#7B2FFF; --violet2:#9B5FFF;
+    --amber:#ffb800; --amber2:#ffd060;
+    --text:#e0e0f0; --muted:#7070a0; --green:#00d2a0;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+  /* NAV */
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+  .logo span{color:var(--amber);}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-back:hover{color:var(--text);}
+
+  /* HERO */
+  .hero{text-align:center;padding:52px 24px 36px;max-width:680px;margin:0 auto;}
+  .hero-badge{display:inline-block;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.25);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:18px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,4.8rem);letter-spacing:.04em;line-height:1;margin-bottom:14px;background:linear-gradient(135deg,#fff 40%,var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:14px;}
+  .hero-warning{display:flex;align-items:flex-start;gap:8px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--muted);line-height:1.6;text-align:left;margin-top:8px;}
+  .hero-warning a{color:var(--amber);text-decoration:none;}
+  .hero-warning a:hover{text-decoration:underline;}
+
+  /* MAIN LAYOUT */
+  .main{max-width:920px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:28px;}
+
+  /* STEP BLOCK */
+  .step-block{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;}
+  .step-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+  .step-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:var(--amber);opacity:.7;width:26px;flex-shrink:0;}
+  .step-title{font-weight:700;font-size:16px;color:var(--text);}
+  .step-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .step-body{padding:18px 22px;}
+
+  /* COLLECTION CARDS */
+  .coll-grid{display:flex;flex-direction:column;gap:10px;}
+
+  .coll-card{border:1px solid var(--border2);border-radius:12px;background:var(--bg2);overflow:hidden;transition:border-color .15s;}
+  .coll-card.selected{border-color:var(--amber);}
+  .coll-card.selected .coll-header{background:rgba(255,184,0,.04);}
+
+  .coll-header{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s;}
+  .coll-header:hover{background:rgba(255,255,255,.03);}
+
+  .coll-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;color:#000;}
+  .coll-card.selected .coll-check{background:var(--amber);border-color:var(--amber);}
+
+  .coll-icon{font-size:1.3rem;flex-shrink:0;}
+  .coll-info{flex:1;min-width:0;}
+  .coll-name{font-weight:700;font-size:14px;color:var(--text);}
+  .coll-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .coll-expand{font-size:11px;color:var(--muted);flex-shrink:0;transition:transform .2s;padding:4px;}
+  .coll-card.open .coll-expand{transform:rotate(180deg);}
+
+  .coll-folders{display:none;padding:0 16px 14px 52px;flex-wrap:wrap;gap:6px;}
+  .coll-card.open .coll-folders{display:flex;}
+
+  .folder-pill{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);}
+
+  /* SELECT ALL ROW */
+  .select-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .select-count{font-size:13px;color:var(--muted);}
+  .select-count strong{color:var(--amber);}
+  .select-btns{display:flex;gap:8px;}
+  .sel-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;}
+  .sel-btn:hover{border-color:var(--amber);color:var(--amber);}
+
+  /* VIEW MODE */
+  .view-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .view-card{border:2px solid var(--border2);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .15s;text-align:center;background:var(--bg2);}
+  .view-card:hover{border-color:var(--amber);}
+  .view-card.selected{border-color:var(--amber);background:rgba(255,184,0,.07);}
+  .view-icon{font-size:1.4rem;margin-bottom:6px;display:block;}
+  .view-name{font-weight:700;font-size:13px;color:var(--text);}
+  .view-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+  .view-rec{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,184,0,.15);color:var(--amber);padding:2px 6px;border-radius:100px;margin-top:5px;}
+
+  /* DOWNLOAD */
+  .download-area{text-align:center;padding:8px 0 4px;}
+  .download-btn{display:inline-flex;align-items:center;gap:10px;background:var(--amber);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:.1em;padding:15px 36px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 28px rgba(255,184,0,.2);}
+  .download-btn:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 0 44px rgba(255,184,0,.35);}
+  .download-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+  .download-hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7;}
+
+  /* HOW TO */
+  .how-to{background:rgba(123,47,255,.05);border:1px solid rgba(123,47,255,.15);border-radius:12px;padding:16px 20px;margin-top:18px;}
+  .how-to-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--violet2);margin-bottom:10px;}
+  .how-to ol{padding-left:18px;font-size:13px;color:var(--muted);line-height:2.1;}
+  .how-to ol li strong{color:var(--text);}
+
+  /* LOADING */
+  .loading-state{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
+
+  @media(max-width:600px){
+    nav{padding:14px 16px;}
+    .hero{padding:36px 16px 24px;}
+    .main{padding:20px 14px 60px;gap:18px;}
+    .step-body{padding:14px 14px;}
+    .view-grid{grid-template-columns:1fr;}
+    .coll-folders{padding-left:36px;}
+  }
+</style>
+<script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">ULTRA <span>MAX</span></a>
+  <a href="/" class="nav-back">← Back to home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">⚡ Quick Install</div>
+  <h1>Nuvio Collections<br>in 30 Seconds</h1>
+  <p>Pick exactly which collections you want, choose how they display, and download a ready-to-import Nuvio collections file. <strong style="color:var(--violet2);">No addon or setup needed</strong> — content is powered by native Nuvio TMDB and Trakt sources.</p>
+  <div class="hero-warning">
+    <span>⚠️</span>
+    <span>You'll still need a stream source to play content. Don't have one? <a href="https://torbox.app/subscription?referral=6045ea4f-37f9-4184-9ab8-b74bc9725ac8" target="_blank">Get TorBox — 3 months free →</a></span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 1: PICK COLLECTIONS -->
+  <div class="step-block">
+    <div class="step-head">
+      <span class="step-num">01</span>
+      <div>
+        <div class="step-title">Pick Your Collections</div>
+        <div class="step-sub">Tap a collection to expand it and see what's inside. Tick the ones you want.</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="select-row">
+        <div class="select-count"><strong id="selCount">0</strong> of <strong id="totalCount">0</strong> selected</div>
+        <div class="select-btns">
+          <button class="sel-btn" onclick="selectAll()">Select All</button>
+          <button class="sel-btn" onclick="clearAll()">Clear All</button>
+        </div>
+      </div>
+      <div class="coll-grid" id="collGrid">
+        <div class="loading-state">Loading collections...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: DISPLAY STYLE -->
+  <div class="step-block">
+    <div class="step-head">
+      <span class="step-num">02</span>
+      <div>
+        <div class="step-title">Choose Display Style</div>
+        <div class="step-sub">How your collections appear inside Nuvio</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="view-grid">
+        <div class="view-card selected" onclick="selectView('TABBED_GRID',this)">
+          <span class="view-icon">🗂</span>
+          <div class="view-name">Tabbed Grid</div>
+          <div class="view-desc">Tabs at the top, grid below. Works on all devices.</div>
+          <span class="view-rec">Recommended</span>
+        </div>
+        <div class="view-card" onclick="selectView('ROWS',this)">
+          <span class="view-icon">🎬</span>
+          <div class="view-name">Rows</div>
+          <div class="view-desc">Netflix-style scrolling rows. Best on TV.</div>
+        </div>
+        <div class="view-card" onclick="selectView('GRID',this)">
+          <span class="view-icon">⊞</span>
+          <div class="view-name">Grid</div>
+          <div class="view-desc">Simple poster grid. Clean and minimal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: DOWNLOAD -->
+  <div class="step-block">
+    <div class="step-head">
+      <span class="step-num">03</span>
+      <div>
+        <div class="step-title">Download &amp; Import</div>
+        <div class="step-sub">Your personalised collections file, ready to go</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="download-area">
+        <button class="download-btn" id="dlBtn" onclick="downloadJSON()" disabled>
+          📦 Download Collections JSON
+        </button>
+        <div class="download-hint">
+          A <code>.json</code> file will download to your device.<br>
+          Then open Nuvio → Collections → Import JSON.
+        </div>
+      </div>
+
+      <div class="how-to">
+        <div class="how-to-title">How to import into Nuvio</div>
+        <ol>
+          <li><strong>Download</strong> the JSON file above</li>
+          <li>Open <strong>Nuvio</strong> on your device</li>
+          <li>Go to <strong>Collections</strong> in the bottom nav</li>
+          <li>Tap the <strong>Import</strong> button (top right)</li>
+          <li>Select the downloaded <strong>.json file</strong></li>
+          <li>Your collections appear instantly ✅</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ICONS = {
+  'trending':      '🔥',
+  'new':           '🆕',
+  'streaming':     '📡',
+  'genre':         '🎭',
+  'decade':        '📅',
+  'studio':        '🎬',
+  'film collect':  '🗂',
+  'network':       '📺',
+  'actor':         '⭐',
+  'director':      '🎥',
+  'anime':         '🌸',
+  'themed':        '✨',
+  'kids':          '🧒',
+  'sport':         '⚽',
+  'comedy':        '😂',
+  'horror':        '👻',
+  'action':        '💥',
+  'drama':         '🎭',
+  'sci':           '🚀',
+  'crime':         '🔍',
+  'romance':       '💕',
+  'documentary':   '🎙',
+  'animation':     '🎨',
+};
+
+function getIcon(title){
+  const t = title.toLowerCase();
+  for(const [key, icon] of Object.entries(ICONS)){
+    if(t.includes(key)) return icon;
+  }
+  return '📁';
+}
+
+let fullData = [];
+let selected = new Set();
+let selectedView = 'TABBED_GRID';
+
+async function loadData(){
+  try {
+    const res = await fetch('/ultramax-collections.json');
+    fullData = await res.json();
+    // Select all by default
+    fullData.forEach((_,i) => selected.add(i));
+    renderCollections();
+    updateCount();
+  } catch(e) {
+    document.getElementById('collGrid').innerHTML =
+      '<div class="loading-state">Failed to load collections. Please refresh.</div>';
+  }
+}
+
+function renderCollections(){
+  const grid = document.getElementById('collGrid');
+  grid.innerHTML = fullData.map((c, i) => {
+    const folders = (c.folders || []);
+    const isSelected = selected.has(i);
+    const folderPills = folders.map(f =>
+      `<span class="folder-pill">${f.title || f.name || 'Folder'}</span>`
+    ).join('');
+
+    return `<div class="coll-card ${isSelected ? 'selected' : ''}" id="coll-${i}">
+      <div class="coll-header" onclick="toggleCard(${i}, event)">
+        <div class="coll-check">${isSelected ? '✓' : ''}</div>
+        <span class="coll-icon">${getIcon(c.title)}</span>
+        <div class="coll-info">
+          <div class="coll-name">${c.title}</div>
+          <div class="coll-meta">${folders.length} folder${folders.length !== 1 ? 's' : ''}</div>
+        </div>
+        <span class="coll-expand">▼</span>
+      </div>
+      <div class="coll-folders">${folderPills || '<span style="color:var(--muted);font-size:12px;">No folders</span>'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('totalCount').textContent = fullData.length;
+  updateDownloadBtn();
+}
+
+function toggleCard(i, e){
+  // Check if clicking the checkbox area vs expand arrow
+  const card = document.getElementById('coll-' + i);
+
+  // Toggle selection when clicking checkbox or name area
+  // Toggle expand when clicking expand arrow
+  const isExpandClick = e.target.classList.contains('coll-expand');
+
+  if(isExpandClick){
+    card.classList.toggle('open');
+    return;
+  }
+
+  // Toggle selection
+  if(selected.has(i)){
+    selected.delete(i);
+  } else {
+    selected.add(i);
+  }
+
+  // Re-render just this card
+  const isSelected = selected.has(i);
+  const check = card.querySelector('.coll-check');
+  check.textContent = isSelected ? '✓' : '';
+  card.classList.toggle('selected', isSelected);
+
+  updateCount();
+}
+
+function updateCount(){
+  document.getElementById('selCount').textContent = selected.size;
+  updateDownloadBtn();
+}
+
+function updateDownloadBtn(){
+  const btn = document.getElementById('dlBtn');
+  btn.disabled = selected.size === 0;
+}
+
+function selectAll(){
+  fullData.forEach((_,i) => selected.add(i));
+  renderCollections();
+  updateCount();
+}
+
+function clearAll(){
+  selected.clear();
+  renderCollections();
+  updateCount();
+}
+
+function selectView(view, el){
+  selectedView = view;
+  document.querySelectorAll('.view-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function downloadJSON(){
+  if(selected.size === 0) return;
+
+  function getType(id){
+    if(id.includes('_series') || id.includes('airing') || id.includes('ontheair')) return 'series';
+    const seriesMdb = ['mdb_86751','mdb_86753','mdb_86758','mdb_86759','mdb_88319','mdb_89649','mdb_86761','mdb_88327','mdb_86710','mdb_88309'];
+    if(seriesMdb.includes(id)) return 'series';
+    return 'movie';
+  }
+
+  function catalogIdToSource(id, def) {
+    if(!def) return null;
+    const mediaType = def.type === 'series' ? 'SERIES' : 'MOVIE';
+    switch(def.handler) {
+      case 'tmdb_collection':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COLLECTION', tmdbId: def.collectionId, sortBy: 'original', filters: {} };
+      case 'tmdb_multi_collection':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COLLECTION', tmdbId: def.collectionIds[0], sortBy: 'original', filters: {} };
+      case 'tmdb_genre':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withGenres: String(def.genre || def.genreId) } };
+      case 'tmdb_provider':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withWatchProviders: String(def.provider), watchRegion: 'US' } };
+      case 'tmdb_network':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withNetworks: String(def.networkId), voteCountGte: 50, withOriginalLanguage: 'en' } };
+      case 'tmdb_company':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COMPANY', tmdbId: parseInt(String(def.company).split('|')[0]), sortBy: 'primary_release_date.desc', filters: { voteCountGte: 10 } };
+      case 'tmdb_keyword':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withKeywords: String(def.keyword) } };
+      case 'tmdb_director':
+      case 'tmdb_actor':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withPeople: String(def.personId) } };
+      case 'tmdb_anime':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withGenres: '16', withOriginalLanguage: 'ja' } };
+      case 'tmdb_paramount':
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withWatchProviders: '531', watchRegion: 'US' } };
+      case 'trakt_trending':
+        return { title: def.name, provider: 'trakt', mediaType, traktListId: def.type === 'series' ? 34808161 : 34808160, sortBy: 'rank', sortHow: 'asc' };
+      case 'trakt_popular':
+        return { title: def.name, provider: 'trakt', mediaType, traktListId: def.type === 'series' ? 34819171 : 34819170, sortBy: 'rank', sortHow: 'asc' };
+      case 'mdb': {
+        const decadeMatch = id.match(/decade_(\d{4})s/);
+        if(decadeMatch) {
+          const decade = parseInt(decadeMatch[1]);
+          return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'vote_average.desc', filters: { primaryReleaseDateGte: decade+'-01-01', primaryReleaseDateLte: (decade+9)+'-12-31', voteCountGte: 200 } };
+        }
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'vote_average.desc', filters: { voteCountGte: 200 } };
+      }
+      default:
+        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: {} };
+    }
+  }
+
+  const collections = Array.from(selected)
+    .sort((a,b) => a - b)
+    .map(i => {
+      const coll = JSON.parse(JSON.stringify(fullData[i]));
+      coll.viewMode = selectedView;
+      coll.catalogSources = [];
+      if(coll.folders){
+        coll.folders = coll.folders.map(folder => {
+          const rows = folder.rows || [];
+          // Use Kaptain's Trakt lists if available
+          if(folder.traktIds) {
+            const srcs = [];
+            if(folder.traktIds.movie) srcs.push({ title: folder.title, provider: 'trakt', mediaType: 'MOVIE', traktListId: folder.traktIds.movie, sortBy: 'rank', sortHow: 'asc' });
+            if(folder.traktIds.tv) srcs.push({ title: folder.title, provider: 'trakt', mediaType: 'TV', traktListId: folder.traktIds.tv, sortBy: 'rank', sortHow: 'asc' });
+            if(srcs.length) folder.sources = srcs;
+          }
+          // Use Kaptain's TMDB sources if available and no trakt
+          else if(folder.kaptainSources && folder.kaptainSources.length) {
+            folder.sources = folder.kaptainSources;
+          }
+          // Fall back to our own TMDB sources
+          else if(rows.length) {
+            folder.sources = rows.map(id => {
+              const def = CATALOG_DEFS[id];
+              return catalogIdToSource(id, def);
+            }).filter(Boolean);
+          }
+          folder.catalogSources = [];
+          delete folder.rows;
+          delete folder.traktIds;
+          delete folder.kaptainSources;
+          return folder;
+        });
+      }
+      return coll;
+    });
+
+  const jsonStr = JSON.stringify(collections, null, 2);
+  try {
+    const blob = new Blob([jsonStr], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ultramax-collections.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+  } catch(e) {
+    const a = document.createElement('a');
+    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonStr);
+    a.download = 'ultramax-collections.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  URL.revokeObjectURL(url);
+}
+
+
+loadData();
+</script>
+
+</body>
+</html>

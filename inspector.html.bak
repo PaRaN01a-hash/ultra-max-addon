@@ -4,72 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Token Inspector — Ultra MAX Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #080810;
-    color: #e0e0f0;
+    background: #05050f;
+    color: #e2e8f0;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     padding: 28px 16px 60px;
-    overflow-x: hidden;
   }
-  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
-  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-  .particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
-  @keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
-  #cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.06) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
 
   .container { max-width: 780px; margin: 0 auto; }
 
   /* Header */
-  .header { text-align: center; margin-bottom: 32px; position: relative; z-index: 2; }
-  .header-orb{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:400px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.1) 0%,transparent 70%);filter:blur(40px);pointer-events:none;}
+  .header { text-align: center; margin-bottom: 28px; }
   .header-eyebrow {
-    display:inline-flex;align-items:center;gap:6px;
-    font-size: 10px; letter-spacing: 0.2em; color: #9B5FFF;
-    text-transform: uppercase; margin-bottom: 12px;
-    background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);
-    padding:5px 14px;border-radius:100px;
+    font-size: 10px; letter-spacing: 0.25em; color: #1e3a5a;
+    text-transform: uppercase; margin-bottom: 8px;
   }
-  .header-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:#9B5FFF;animation:blink 2s ease-in-out infinite;}
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
   .header h1 {
-    font-family:'Bebas Neue',sans-serif;
-    font-size: clamp(2.5rem,7vw,4rem); letter-spacing:.06em; line-height:.9;
-    background: linear-gradient(135deg, #fff 30%, #7B2FFF);
+    font-size: 26px; font-weight: 900;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .header p { color: #7070a0; font-size: 13px; margin-top: 8px; }
+  .header p { color: #334155; font-size: 12px; margin-top: 6px; }
 
   /* Search bar */
   .search-bar {
-    background: #12121f; border: 1px solid #2a2a45;
-    border-radius: 16px; padding: 14px; margin-bottom: 20px;
+    background: #0a0a1e; border: 1px solid #1a2a4a;
+    border-radius: 14px; padding: 14px; margin-bottom: 20px;
     display: flex; gap: 10px; align-items: center;
-    position: relative; z-index: 2; transition: border-color .2s;
   }
-  .search-bar:focus-within { border-color: #7B2FFF; }
   .search-bar input {
-    flex: 1; background: #080810; border: 1px solid #2a2a45;
-    border-radius: 10px; padding: 11px 14px; color: #e0e0f0;
-    font-size: 15px; font-family: 'JetBrains Mono', monospace; outline: none;
-    transition: border-color 0.2s; letter-spacing: .08em;
+    flex: 1; background: #05050f; border: 1px solid #1a2a4a;
+    border-radius: 8px; padding: 11px 14px; color: #e2e8f0;
+    font-size: 15px; font-family: monospace; outline: none;
+    transition: border-color 0.2s;
   }
-  .search-bar input:focus { border-color: #7B2FFF; }
-  .search-bar input::placeholder { color: #44445a; font-family: 'Inter', sans-serif; letter-spacing: 0; }
+  .search-bar input:focus { border-color: #3b82f6; }
+  .search-bar input::placeholder { color: #334155; }
   .search-bar button {
-    background: linear-gradient(135deg, #7B2FFF, #FF3D5A);
-    border: none; border-radius: 10px; padding: 11px 22px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border: none; border-radius: 8px; padding: 11px 22px;
     color: #fff; font-weight: 700; font-size: 14px;
-    cursor: pointer; white-space: nowrap; transition: all .2s;
+    cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
   }
-  .search-bar button:disabled { opacity: 0.4; cursor: not-allowed; background: #1e1e36; }
-  .search-bar button:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(123,47,255,.3); }
+  .search-bar button:disabled { opacity: 0.4; cursor: not-allowed; background: #1a2a4a; }
+  .search-bar button:not(:disabled):hover { opacity: 0.85; }
 
   /* Error */
   .error {
@@ -81,8 +64,8 @@
   /* Stat cards */
   .stat-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .stat-card {
-    background: #12121f; border-radius: 14px; padding: 14px 18px;
-    flex: 1; min-width: 90px; position: relative; z-index: 2;
+    background: #0f0f23; border-radius: 12px; padding: 14px 18px;
+    flex: 1; min-width: 90px;
   }
   .stat-value { font-size: 20px; font-weight: 800; line-height: 1; }
   .stat-sub { font-size: 10px; margin-top: 2px; }
@@ -90,16 +73,13 @@
 
   /* Config card */
   .card {
-    background: #12121f; border: 1px solid #2a2a45;
-    border-radius: 16px; padding: 18px 20px; margin-bottom: 14px;
-    position: relative; z-index: 2;
+    background: #0a0a1e; border: 1px solid #1a2a4a;
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 14px;
   }
   .card-title {
-    font-size: 10px; color: #7070a0; text-transform: uppercase;
-    letter-spacing: 0.14em; margin-bottom: 14px;
-    display:flex;align-items:center;gap:8px;
+    font-size: 10px; color: #334155; text-transform: uppercase;
+    letter-spacing: 0.12em; margin-bottom: 12px;
   }
-  .card-title::after{content:'';flex:1;height:1px;background:#1e1e36;}
   .info-row {
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 7px 0; border-bottom: 1px solid #0d1a2e; gap: 12px;
@@ -143,16 +123,15 @@
 
   /* Group accordion */
   .group {
-    background: #0f0f1e; border: 1px solid #2a2a45;
-    border-radius: 14px; overflow: hidden; margin-bottom: 8px;
-    position: relative; z-index: 2;
+    background: #080818; border: 1px solid #1a2a3a;
+    border-radius: 12px; overflow: hidden; margin-bottom: 8px;
   }
   .group-header {
-    padding: 12px 16px; display: flex; justify-content: space-between;
-    align-items: center; cursor: pointer; background: #12121f;
-    user-select: none; transition: background .15s;
+    padding: 11px 16px; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; background: #0d1525;
+    user-select: none;
   }
-  .group-header:hover { background: #161630; }
+  .group-header:hover { background: #101c2e; }
   .group-title { font-weight: 600; color: #cbd5e1; font-size: 13px; }
   .group-meta { display: flex; align-items: center; gap: 8px; }
   .group-count {
@@ -165,8 +144,8 @@
 
   /* Badges */
   .badge {
-    background: rgba(123,47,255,.1); border: 1px solid rgba(123,47,255,.2);
-    color: #9B5FFF; border-radius: 6px; padding: 3px 10px;
+    background: #0d1a30; border: 1px solid #1e3a5a;
+    color: #93c5fd; border-radius: 6px; padding: 3px 10px;
     font-size: 12px; display: inline-block; margin: 3px;
   }
   .badge.hidden-badge {
@@ -204,14 +183,11 @@
 </style>
 </head>
 <body>
-<div id="particles"></div>
-<div id="cursorGlow"></div>
 <div class="container">
 
   <a href="https://admin.ultramax.vip" class="back-link">← Admin Dashboard</a>
 
   <div class="header">
-    <div class="header-orb"></div>
     <div class="header-eyebrow">Ultra MAX Admin</div>
     <h1>Token Inspector</h1>
     <p>Full config breakdown for any installed user</p>
@@ -446,22 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Enter") inspect();
   });
 });
-</script>
-
-<script>
-(function(){
-  const c=document.getElementById('particles');
-  if(!c) return;
-  for(let i=0;i<40;i++){
-    const p=document.createElement('div');p.className='particle';
-    const r=Math.random();
-    const clr=r<0.2?'rgba(123,47,255,0.6)':r<0.3?'rgba(255,61,90,0.4)':'rgba(255,255,255,0.3)';
-    p.style.cssText=`width:${Math.random()*2+.5}px;height:${Math.random()*2+.5}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
-    c.appendChild(p);
-  }
-})();
-const _glow=document.getElementById('cursorGlow');
-if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
 </script>
 </body>
 </html>

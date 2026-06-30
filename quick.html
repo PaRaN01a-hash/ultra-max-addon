@@ -11,111 +11,142 @@
     --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --card2:#1a1a2e;
     --border:#1e1e36; --border2:#2a2a45;
     --violet:#7B2FFF; --violet2:#9B5FFF;
+    --coral:#FF3D5A;
     --amber:#ffb800; --amber2:#ffd060;
     --text:#e0e0f0; --muted:#7070a0; --green:#00d2a0;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+  /* Noise texture */
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+
+  /* Particles */
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
+  @keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
+
+  /* Cursor glow */
+  #cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.1) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
 
   /* NAV */
   nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
   .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
-  .logo span{color:var(--amber);}
-  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .logo span{background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:6px;}
   .nav-back:hover{color:var(--text);}
 
   /* HERO */
-  .hero{text-align:center;padding:52px 24px 36px;max-width:680px;margin:0 auto;}
-  .hero-badge{display:inline-block;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.25);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:18px;}
-  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,4.8rem);letter-spacing:.04em;line-height:1;margin-bottom:14px;background:linear-gradient(135deg,#fff 40%,var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .hero p{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:14px;}
-  .hero-warning{display:flex;align-items:flex-start;gap:8px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--muted);line-height:1.6;text-align:left;margin-top:8px;}
-  .hero-warning a{color:var(--amber);text-decoration:none;}
+  .hero{text-align:center;padding:70px 24px 50px;max-width:700px;margin:0 auto;position:relative;z-index:2;}
+  .hero-orb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,184,0,0.1) 0%,rgba(123,47,255,0.08) 40%,transparent 70%);filter:blur(60px);pointer-events:none;animation:orbPulse 6s ease-in-out infinite;}
+  @keyframes orbPulse{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1);}}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.2);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:24px;}
+  .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--amber);animation:blink 2s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,5.5rem);letter-spacing:.04em;line-height:.92;margin-bottom:20px;color:#fff;}
+  .hero h1 span{background:linear-gradient(135deg,var(--amber),var(--amber2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+  .hero p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:20px;max-width:520px;margin-left:auto;margin-right:auto;}
+  .hero p strong{color:var(--violet2);}
+
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;}
+  .hero-tag{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--muted);}
+
+  .hero-warning{display:inline-flex;align-items:center;gap:8px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:10px 16px;font-size:13px;color:var(--muted);line-height:1.6;}
+  .hero-warning a{color:var(--amber);text-decoration:none;font-weight:600;}
   .hero-warning a:hover{text-decoration:underline;}
 
-  /* MAIN LAYOUT */
-  .main{max-width:920px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:28px;}
+  /* MAIN */
+  .main{max-width:960px;margin:0 auto;padding:40px 24px 100px;display:flex;flex-direction:column;gap:24px;position:relative;z-index:2;}
 
-  /* STEP BLOCK */
-  .step-block{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;}
-  .step-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-  .step-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:var(--amber);opacity:.7;width:26px;flex-shrink:0;}
-  .step-title{font-weight:700;font-size:16px;color:var(--text);}
-  .step-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-  .step-body{padding:18px 22px;}
+  /* STEP BLOCKS */
+  .step-block{background:var(--card);border:1px solid var(--border2);border-radius:20px;overflow:hidden;transition:border-color .3s;}
+  .step-block:hover{border-color:rgba(123,47,255,.3);}
+  .step-head{padding:22px 26px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(123,47,255,.04),transparent);}
+  .step-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;line-height:1;background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;width:36px;flex-shrink:0;}
+  .step-title{font-weight:700;font-size:17px;color:var(--text);}
+  .step-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .step-body{padding:22px 26px;}
 
   /* COLLECTION CARDS */
-  .coll-grid{display:flex;flex-direction:column;gap:10px;}
-
-  .coll-card{border:1px solid var(--border2);border-radius:12px;background:var(--bg2);overflow:hidden;transition:border-color .15s;}
-  .coll-card.selected{border-color:var(--amber);}
-  .coll-card.selected .coll-header{background:rgba(255,184,0,.04);}
-
-  .coll-header{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s;}
-  .coll-header:hover{background:rgba(255,255,255,.03);}
-
-  .coll-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;color:#000;}
-  .coll-card.selected .coll-check{background:var(--amber);border-color:var(--amber);}
-
-  .coll-icon{font-size:1.3rem;flex-shrink:0;}
-  .coll-info{flex:1;min-width:0;}
-  .coll-name{font-weight:700;font-size:14px;color:var(--text);}
-  .coll-meta{font-size:11px;color:var(--muted);margin-top:2px;}
-
-  .coll-expand{font-size:11px;color:var(--muted);flex-shrink:0;transition:transform .2s;padding:4px;}
-  .coll-card.open .coll-expand{transform:rotate(180deg);}
-
-  .coll-folders{display:none;padding:0 16px 14px 52px;flex-wrap:wrap;gap:6px;}
-  .coll-card.open .coll-folders{display:flex;}
-
-  .folder-pill{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);}
-
-  /* SELECT ALL ROW */
-  .select-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .select-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
   .select-count{font-size:13px;color:var(--muted);}
   .select-count strong{color:var(--amber);}
   .select-btns{display:flex;gap:8px;}
-  .sel-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;}
+  .sel-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;}
   .sel-btn:hover{border-color:var(--amber);color:var(--amber);}
 
+  .coll-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:640px){.coll-grid{grid-template-columns:1fr;}}
+
+  .coll-card{border:1px solid var(--border2);border-radius:14px;background:var(--bg2);overflow:hidden;transition:all .2s;position:relative;}
+  .coll-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(255,184,0,.08),transparent);opacity:0;transition:opacity .2s;}
+  .coll-card.selected{border-color:var(--amber);}
+  .coll-card.selected::before{opacity:1;}
+  .coll-card:hover{border-color:rgba(255,184,0,.4);transform:translateY(-2px);}
+
+  .coll-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;}
+  .coll-check{width:22px;height:22px;border-radius:7px;border:2px solid var(--border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px;color:#000;font-weight:700;}
+  .coll-card.selected .coll-check{background:var(--amber);border-color:var(--amber);}
+  .coll-icon{font-size:1.4rem;flex-shrink:0;}
+  .coll-info{flex:1;min-width:0;}
+  .coll-name{font-weight:700;font-size:13px;color:var(--text);}
+  .coll-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .coll-expand{font-size:10px;color:var(--muted);flex-shrink:0;transition:transform .2s;padding:4px;opacity:.6;}
+  .coll-card.open .coll-expand{transform:rotate(180deg);}
+  .coll-folders{display:none;padding:0 16px 14px 52px;flex-wrap:wrap;gap:6px;}
+  .coll-card.open .coll-folders{display:flex;}
+  .folder-pill{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);}
+
   /* VIEW MODE */
-  .view-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .view-card{border:2px solid var(--border2);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .15s;text-align:center;background:var(--bg2);}
-  .view-card:hover{border-color:var(--amber);}
-  .view-card.selected{border-color:var(--amber);background:rgba(255,184,0,.07);}
-  .view-icon{font-size:1.4rem;margin-bottom:6px;display:block;}
-  .view-name{font-weight:700;font-size:13px;color:var(--text);}
-  .view-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
-  .view-rec{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,184,0,.15);color:var(--amber);padding:2px 6px;border-radius:100px;margin-top:5px;}
+  .view-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .view-card{border:2px solid var(--border2);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .2s;text-align:center;background:var(--bg2);position:relative;overflow:hidden;}
+  .view-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,47,255,.1),transparent);opacity:0;transition:opacity .2s;}
+  .view-card:hover{border-color:var(--violet2);transform:translateY(-2px);}
+  .view-card:hover::before{opacity:1;}
+  .view-card.selected{border-color:var(--violet);background:rgba(123,47,255,.08);}
+  .view-card.selected::before{opacity:1;}
+  .view-icon{font-size:1.8rem;margin-bottom:10px;display:block;}
+  .view-name{font-weight:700;font-size:14px;color:var(--text);}
+  .view-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  .view-rec{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(123,47,255,.2);color:var(--violet2);padding:3px 8px;border-radius:100px;margin-top:7px;}
 
   /* DOWNLOAD */
-  .download-area{text-align:center;padding:8px 0 4px;}
-  .download-btn{display:inline-flex;align-items:center;gap:10px;background:var(--amber);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:.1em;padding:15px 36px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 28px rgba(255,184,0,.2);}
-  .download-btn:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 0 44px rgba(255,184,0,.35);}
-  .download-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
-  .download-hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7;}
+  .download-area{text-align:center;padding:10px 0 8px;}
+  .download-btn{display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--violet),var(--coral));color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;padding:18px 48px;border-radius:14px;border:none;cursor:pointer;transition:all .25s;box-shadow:0 0 40px rgba(123,47,255,.25);}
+  .download-btn:hover{transform:translateY(-3px);box-shadow:0 0 60px rgba(123,47,255,.4);}
+  .download-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
+  .download-hint{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.8;}
+  .download-hint code{background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;font-size:11px;}
 
   /* HOW TO */
-  .how-to{background:rgba(123,47,255,.05);border:1px solid rgba(123,47,255,.15);border-radius:12px;padding:16px 20px;margin-top:18px;}
-  .how-to-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--violet2);margin-bottom:10px;}
-  .how-to ol{padding-left:18px;font-size:13px;color:var(--muted);line-height:2.1;}
-  .how-to ol li strong{color:var(--text);}
+  .how-to{background:rgba(123,47,255,.04);border:1px solid rgba(123,47,255,.12);border-radius:14px;padding:20px 24px;margin-top:20px;}
+  .how-to-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--violet2);margin-bottom:14px;}
+  .how-steps-list{display:flex;flex-direction:column;gap:10px;}
+  .how-step-item{display:flex;align-items:flex-start;gap:12px;}
+  .how-step-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--violet2);line-height:1;width:20px;flex-shrink:0;margin-top:1px;}
+  .how-step-text{font-size:13px;color:var(--muted);line-height:1.6;}
+  .how-step-text strong{color:var(--text);}
 
   /* LOADING */
-  .loading-state{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
+  .loading-state{text-align:center;padding:48px;color:var(--muted);font-size:13px;grid-column:1/-1;}
 
   @media(max-width:600px){
     nav{padding:14px 16px;}
-    .hero{padding:36px 16px 24px;}
-    .main{padding:20px 14px 60px;gap:18px;}
-    .step-body{padding:14px 14px;}
+    .hero{padding:50px 16px 32px;}
+    .main{padding:20px 14px 60px;gap:16px;}
+    .step-body{padding:16px 16px;}
+    .step-head{padding:16px 18px 14px;}
     .view-grid{grid-template-columns:1fr;}
     .coll-folders{padding-left:36px;}
+    .download-btn{font-size:1.1rem;padding:15px 32px;}
   }
 </style>
 <script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
 </head>
 <body>
+
+<div id="particles"></div>
+<div id="cursorGlow"></div>
 
 <nav>
   <a href="/" class="logo">ULTRA <span>MAX</span></a>
@@ -123,9 +154,16 @@
 </nav>
 
 <div class="hero">
+  <div class="hero-orb"></div>
   <div class="hero-badge">⚡ Quick Install</div>
-  <h1>Nuvio Collections<br>in 30 Seconds</h1>
-  <p>Pick exactly which collections you want, choose how they display, and download a ready-to-import Nuvio collections file. <strong style="color:var(--violet2);">No addon or setup needed</strong> — content is powered by native Nuvio TMDB and Trakt sources.</p>
+  <h1>Nuvio Collections<br><span>in 30 Seconds</span></h1>
+  <p>Pick exactly which collections you want, choose how they display, and download a ready-to-import file. <strong>No addon or setup needed</strong> — content is powered by native Nuvio TMDB and Trakt sources.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">📁 Preset Collections</span>
+    <span class="hero-tag">🔌 No Addon Needed</span>
+    <span class="hero-tag">⚡ One Click Import</span>
+    <span class="hero-tag">🎬 Native Nuvio Sources</span>
+  </div>
   <div class="hero-warning">
     <span>⚠️</span>
     <span>You'll still need a stream source to play content. Don't have one? <a href="https://torbox.app/subscription?referral=6045ea4f-37f9-4184-9ab8-b74bc9725ac8" target="_blank">Get TorBox — 3 months free →</a></span>
@@ -204,20 +242,20 @@
         </button>
         <div class="download-hint">
           A <code>.json</code> file will download to your device.<br>
-          Then open Nuvio → Collections → Import JSON.
+          Then open <strong style="color:var(--text)">Nuvio → Collections → Import JSON</strong>
         </div>
       </div>
 
       <div class="how-to">
         <div class="how-to-title">How to import into Nuvio</div>
-        <ol>
-          <li><strong>Download</strong> the JSON file above</li>
-          <li>Open <strong>Nuvio</strong> on your device</li>
-          <li>Go to <strong>Collections</strong> in the bottom nav</li>
-          <li>Tap the <strong>Import</strong> button (top right)</li>
-          <li>Select the downloaded <strong>.json file</strong></li>
-          <li>Your collections appear instantly ✅</li>
-        </ol>
+        <div class="how-steps-list">
+          <div class="how-step-item"><div class="how-step-num">1</div><div class="how-step-text"><strong>Download</strong> the JSON file above</div></div>
+          <div class="how-step-item"><div class="how-step-num">2</div><div class="how-step-text">Open <strong>Nuvio</strong> on your device</div></div>
+          <div class="how-step-item"><div class="how-step-num">3</div><div class="how-step-text">Go to <strong>Collections</strong> in the bottom nav</div></div>
+          <div class="how-step-item"><div class="how-step-num">4</div><div class="how-step-text">Tap the <strong>Import</strong> button (top right)</div></div>
+          <div class="how-step-item"><div class="how-step-num">5</div><div class="how-step-text">Select the downloaded <strong>.json file</strong></div></div>
+          <div class="how-step-item"><div class="how-step-num">6</div><div class="how-step-text">Your collections appear instantly ✅</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -225,255 +263,166 @@
 </div>
 
 <script>
+// ── PARTICLES ──
+(function(){
+  const container = document.getElementById('particles');
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const size=Math.random()*2+0.5;
+    const r=Math.random();
+    const clr=r<0.2?'rgba(255,184,0,0.6)':r<0.3?'rgba(123,47,255,0.7)':'rgba(255,255,255,0.4)';
+    p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
+    container.appendChild(p);
+  }
+})();
+
+// ── CURSOR GLOW ──
+const glow=document.getElementById('cursorGlow');
+if(glow){
+  document.addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
+}
+
 const ICONS = {
-  'trending':      '🔥',
-  'new':           '🆕',
-  'streaming':     '📡',
-  'genre':         '🎭',
-  'decade':        '📅',
-  'studio':        '🎬',
-  'film collect':  '🗂',
-  'network':       '📺',
-  'actor':         '⭐',
-  'director':      '🎥',
-  'anime':         '🌸',
-  'themed':        '✨',
-  'kids':          '🧒',
-  'sport':         '⚽',
-  'comedy':        '😂',
-  'horror':        '👻',
-  'action':        '💥',
-  'drama':         '🎭',
-  'sci':           '🚀',
-  'crime':         '🔍',
-  'romance':       '💕',
-  'documentary':   '🎙',
-  'animation':     '🎨',
+  'trending':'🔥','new':'🆕','streaming':'📡','genre':'🎭','decade':'📅',
+  'studio':'🎬','film collect':'🗂','network':'📺','actor':'⭐','director':'🎥',
+  'anime':'🌸','themed':'✨','kids':'🧒','sport':'⚽','comedy':'😂',
+  'horror':'👻','action':'💥','drama':'🎭','sci':'🚀','crime':'🔍',
+  'romance':'💕','documentary':'🎙','animation':'🎨',
 };
 
 function getIcon(title){
-  const t = title.toLowerCase();
-  for(const [key, icon] of Object.entries(ICONS)){
-    if(t.includes(key)) return icon;
-  }
+  const t=title.toLowerCase();
+  for(const [key,icon] of Object.entries(ICONS)){if(t.includes(key)) return icon;}
   return '📁';
 }
 
-let fullData = [];
-let selected = new Set();
-let selectedView = 'TABBED_GRID';
+let fullData=[],selected=new Set(),selectedView='TABBED_GRID';
 
 async function loadData(){
-  try {
-    const res = await fetch('/ultramax-collections.json');
-    fullData = await res.json();
-    // Select all by default
-    fullData.forEach((_,i) => selected.add(i));
+  try{
+    const res=await fetch('/ultramax-collections.json');
+    fullData=await res.json();
+    fullData.forEach((_,i)=>selected.add(i));
     renderCollections();
     updateCount();
-  } catch(e) {
-    document.getElementById('collGrid').innerHTML =
-      '<div class="loading-state">Failed to load collections. Please refresh.</div>';
+  }catch(e){
+    document.getElementById('collGrid').innerHTML='<div class="loading-state">Failed to load collections. Please refresh.</div>';
   }
 }
 
 function renderCollections(){
-  const grid = document.getElementById('collGrid');
-  grid.innerHTML = fullData.map((c, i) => {
-    const folders = (c.folders || []);
-    const isSelected = selected.has(i);
-    const folderPills = folders.map(f =>
-      `<span class="folder-pill">${f.title || f.name || 'Folder'}</span>`
-    ).join('');
-
-    return `<div class="coll-card ${isSelected ? 'selected' : ''}" id="coll-${i}">
-      <div class="coll-header" onclick="toggleCard(${i}, event)">
-        <div class="coll-check">${isSelected ? '✓' : ''}</div>
+  const grid=document.getElementById('collGrid');
+  grid.innerHTML=fullData.map((c,i)=>{
+    const folders=(c.folders||[]);
+    const isSelected=selected.has(i);
+    const folderPills=folders.map(f=>`<span class="folder-pill">${f.title||f.name||'Folder'}</span>`).join('');
+    return `<div class="coll-card ${isSelected?'selected':''}" id="coll-${i}">
+      <div class="coll-header" onclick="toggleCard(${i},event)">
+        <div class="coll-check">${isSelected?'✓':''}</div>
         <span class="coll-icon">${getIcon(c.title)}</span>
         <div class="coll-info">
           <div class="coll-name">${c.title}</div>
-          <div class="coll-meta">${folders.length} folder${folders.length !== 1 ? 's' : ''}</div>
+          <div class="coll-meta">${folders.length} folder${folders.length!==1?'s':''}</div>
         </div>
         <span class="coll-expand">▼</span>
       </div>
-      <div class="coll-folders">${folderPills || '<span style="color:var(--muted);font-size:12px;">No folders</span>'}</div>
+      <div class="coll-folders">${folderPills||'<span style="color:var(--muted);font-size:12px;">No folders</span>'}</div>
     </div>`;
   }).join('');
-
-  document.getElementById('totalCount').textContent = fullData.length;
+  document.getElementById('totalCount').textContent=fullData.length;
   updateDownloadBtn();
 }
 
-function toggleCard(i, e){
-  // Check if clicking the checkbox area vs expand arrow
-  const card = document.getElementById('coll-' + i);
-
-  // Toggle selection when clicking checkbox or name area
-  // Toggle expand when clicking expand arrow
-  const isExpandClick = e.target.classList.contains('coll-expand');
-
-  if(isExpandClick){
-    card.classList.toggle('open');
-    return;
-  }
-
-  // Toggle selection
-  if(selected.has(i)){
-    selected.delete(i);
-  } else {
-    selected.add(i);
-  }
-
-  // Re-render just this card
-  const isSelected = selected.has(i);
-  const check = card.querySelector('.coll-check');
-  check.textContent = isSelected ? '✓' : '';
-  card.classList.toggle('selected', isSelected);
-
+function toggleCard(i,e){
+  const card=document.getElementById('coll-'+i);
+  if(e.target.classList.contains('coll-expand')){card.classList.toggle('open');return;}
+  if(selected.has(i)){selected.delete(i);}else{selected.add(i);}
+  const isSelected=selected.has(i);
+  card.querySelector('.coll-check').textContent=isSelected?'✓':'';
+  card.classList.toggle('selected',isSelected);
   updateCount();
 }
 
-function updateCount(){
-  document.getElementById('selCount').textContent = selected.size;
-  updateDownloadBtn();
-}
-
-function updateDownloadBtn(){
-  const btn = document.getElementById('dlBtn');
-  btn.disabled = selected.size === 0;
-}
-
-function selectAll(){
-  fullData.forEach((_,i) => selected.add(i));
-  renderCollections();
-  updateCount();
-}
-
-function clearAll(){
-  selected.clear();
-  renderCollections();
-  updateCount();
-}
-
-function selectView(view, el){
-  selectedView = view;
-  document.querySelectorAll('.view-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-}
+function updateCount(){document.getElementById('selCount').textContent=selected.size;updateDownloadBtn();}
+function updateDownloadBtn(){document.getElementById('dlBtn').disabled=selected.size===0;}
+function selectAll(){fullData.forEach((_,i)=>selected.add(i));renderCollections();updateCount();}
+function clearAll(){selected.clear();renderCollections();updateCount();}
+function selectView(view,el){selectedView=view;document.querySelectorAll('.view-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');}
 
 function downloadJSON(){
-  if(selected.size === 0) return;
-
+  if(selected.size===0) return;
   function getType(id){
-    if(id.includes('_series') || id.includes('airing') || id.includes('ontheair')) return 'series';
-    const seriesMdb = ['mdb_86751','mdb_86753','mdb_86758','mdb_86759','mdb_88319','mdb_89649','mdb_86761','mdb_88327','mdb_86710','mdb_88309'];
+    if(id.includes('_series')||id.includes('airing')||id.includes('ontheair')) return 'series';
+    const seriesMdb=['mdb_86751','mdb_86753','mdb_86758','mdb_86759','mdb_88319','mdb_89649','mdb_86761','mdb_88327','mdb_86710','mdb_88309'];
     if(seriesMdb.includes(id)) return 'series';
     return 'movie';
   }
-
-  function catalogIdToSource(id, def) {
+  function catalogIdToSource(id,def){
     if(!def) return null;
-    const mediaType = def.type === 'series' ? 'SERIES' : 'MOVIE';
-    switch(def.handler) {
-      case 'tmdb_collection':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COLLECTION', tmdbId: def.collectionId, sortBy: 'original', filters: {} };
-      case 'tmdb_multi_collection':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COLLECTION', tmdbId: def.collectionIds[0], sortBy: 'original', filters: {} };
-      case 'tmdb_genre':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withGenres: String(def.genre || def.genreId) } };
-      case 'tmdb_provider':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withWatchProviders: String(def.provider), watchRegion: 'US' } };
-      case 'tmdb_network':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withNetworks: String(def.networkId), voteCountGte: 50, withOriginalLanguage: 'en' } };
-      case 'tmdb_company':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'COMPANY', tmdbId: parseInt(String(def.company).split('|')[0]), sortBy: 'primary_release_date.desc', filters: { voteCountGte: 10 } };
-      case 'tmdb_keyword':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withKeywords: String(def.keyword) } };
-      case 'tmdb_director':
-      case 'tmdb_actor':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withPeople: String(def.personId) } };
-      case 'tmdb_anime':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withGenres: '16', withOriginalLanguage: 'ja' } };
-      case 'tmdb_paramount':
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: { withWatchProviders: '531', watchRegion: 'US' } };
-      case 'trakt_trending':
-        return { title: def.name, provider: 'trakt', mediaType, traktListId: def.type === 'series' ? 34808161 : 34808160, sortBy: 'rank', sortHow: 'asc' };
-      case 'trakt_popular':
-        return { title: def.name, provider: 'trakt', mediaType, traktListId: def.type === 'series' ? 34819171 : 34819170, sortBy: 'rank', sortHow: 'asc' };
+    const mediaType=def.type==='series'?'SERIES':'MOVIE';
+    switch(def.handler){
+      case 'tmdb_collection': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'COLLECTION',tmdbId:def.collectionId,sortBy:'original',filters:{}};
+      case 'tmdb_multi_collection': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'COLLECTION',tmdbId:def.collectionIds[0],sortBy:'original',filters:{}};
+      case 'tmdb_genre': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withGenres:String(def.genre||def.genreId)}};
+      case 'tmdb_provider': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withWatchProviders:String(def.provider),watchRegion:'US'}};
+      case 'tmdb_network': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withNetworks:String(def.networkId),voteCountGte:50,withOriginalLanguage:'en'}};
+      case 'tmdb_company': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'COMPANY',tmdbId:parseInt(String(def.company).split('|')[0]),sortBy:'primary_release_date.desc',filters:{voteCountGte:10}};
+      case 'tmdb_keyword': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withKeywords:String(def.keyword)}};
+      case 'tmdb_director': case 'tmdb_actor': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withPeople:String(def.personId)}};
+      case 'tmdb_anime': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withGenres:'16',withOriginalLanguage:'ja'}};
+      case 'tmdb_paramount': return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{withWatchProviders:'531',watchRegion:'US'}};
+      case 'trakt_trending': return {title:def.name,provider:'trakt',mediaType,traktListId:def.type==='series'?34808161:34808160,sortBy:'rank',sortHow:'asc'};
+      case 'trakt_popular': return {title:def.name,provider:'trakt',mediaType,traktListId:def.type==='series'?34819171:34819170,sortBy:'rank',sortHow:'asc'};
       case 'mdb': {
-        const decadeMatch = id.match(/decade_(\d{4})s/);
-        if(decadeMatch) {
-          const decade = parseInt(decadeMatch[1]);
-          return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'vote_average.desc', filters: { primaryReleaseDateGte: decade+'-01-01', primaryReleaseDateLte: (decade+9)+'-12-31', voteCountGte: 200 } };
-        }
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'vote_average.desc', filters: { voteCountGte: 200 } };
+        const decadeMatch=id.match(/decade_(\d{4})s/);
+        if(decadeMatch){const decade=parseInt(decadeMatch[1]);return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'vote_average.desc',filters:{primaryReleaseDateGte:decade+'-01-01',primaryReleaseDateLte:(decade+9)+'-12-31',voteCountGte:200}};}
+        return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'vote_average.desc',filters:{voteCountGte:200}};
       }
-      default:
-        return { title: def.name, provider: 'tmdb', mediaType, tmdbSourceType: 'DISCOVER', tmdbId: null, sortBy: 'popularity.desc', filters: {} };
+      default: return {title:def.name,provider:'tmdb',mediaType,tmdbSourceType:'DISCOVER',tmdbId:null,sortBy:'popularity.desc',filters:{}};
     }
   }
-
-  const collections = Array.from(selected)
-    .sort((a,b) => a - b)
-    .map(i => {
-      const coll = JSON.parse(JSON.stringify(fullData[i]));
-      coll.viewMode = selectedView;
-      coll.catalogSources = [];
-      if(coll.folders){
-        coll.folders = coll.folders.map(folder => {
-          const rows = folder.rows || [];
-          // Use Kaptain's Trakt lists if available
-          if(folder.traktIds) {
-            const srcs = [];
-            if(folder.traktIds.movie) srcs.push({ title: folder.title, provider: 'trakt', mediaType: 'MOVIE', traktListId: folder.traktIds.movie, sortBy: 'rank', sortHow: 'asc' });
-            if(folder.traktIds.tv) srcs.push({ title: folder.title, provider: 'trakt', mediaType: 'TV', traktListId: folder.traktIds.tv, sortBy: 'rank', sortHow: 'asc' });
-            if(srcs.length) folder.sources = srcs;
-          }
-          // Use Kaptain's TMDB sources if available and no trakt
-          else if(folder.kaptainSources && folder.kaptainSources.length) {
-            folder.sources = folder.kaptainSources;
-          }
-          // Fall back to our own TMDB sources
-          else if(rows.length) {
-            folder.sources = rows.map(id => {
-              const def = CATALOG_DEFS[id];
-              return catalogIdToSource(id, def);
-            }).filter(Boolean);
-          }
-          folder.catalogSources = [];
-          delete folder.rows;
-          delete folder.traktIds;
-          delete folder.kaptainSources;
-          return folder;
-        });
-      }
-      return coll;
-    });
-
-  const jsonStr = JSON.stringify(collections, null, 2);
-  try {
-    const blob = new Blob([jsonStr], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ultramax-collections.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
-  } catch(e) {
-    const a = document.createElement('a');
-    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonStr);
-    a.download = 'ultramax-collections.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const collections=Array.from(selected).sort((a,b)=>a-b).map(i=>{
+    const coll=JSON.parse(JSON.stringify(fullData[i]));
+    coll.viewMode=selectedView;
+    coll.catalogSources=[];
+    if(coll.folders){
+      coll.folders=coll.folders.map(folder=>{
+        const rows=folder.rows||[];
+        if(folder.traktIds){
+          const srcs=[];
+          if(folder.traktIds.movie) srcs.push({title:folder.title,provider:'trakt',mediaType:'MOVIE',traktListId:folder.traktIds.movie,sortBy:'rank',sortHow:'asc'});
+          if(folder.traktIds.tv) srcs.push({title:folder.title,provider:'trakt',mediaType:'TV',traktListId:folder.traktIds.tv,sortBy:'rank',sortHow:'asc'});
+          if(srcs.length) folder.sources=srcs;
+        } else if(folder.kaptainSources&&folder.kaptainSources.length){
+          folder.sources=folder.kaptainSources;
+        } else if(rows.length){
+          folder.sources=rows.map(id=>{const def=CATALOG_DEFS[id];return catalogIdToSource(id,def);}).filter(Boolean);
+        }
+        folder.catalogSources=[];
+        delete folder.rows;delete folder.traktIds;delete folder.kaptainSources;
+        return folder;
+      });
+    }
+    return coll;
+  });
+  const jsonStr=JSON.stringify(collections,null,2);
+  try{
+    const blob=new Blob([jsonStr],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='ultramax-collections.json';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+  }catch(e){
+    const a=document.createElement('a');
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(jsonStr);
+    a.download='ultramax-collections.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
   }
-  URL.revokeObjectURL(url);
 }
-
 
 loadData();
 </script>
-
 </body>
 </html>

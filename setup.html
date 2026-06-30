@@ -7150,6 +7150,31 @@ async function loadConfigByToken(token){
     if(data.googleAiKey && document.getElementById('googleAiKey')) document.getElementById('googleAiKey').value = data.googleAiKey;
     if(document.getElementById('enableAiRecommended')) document.getElementById('enableAiRecommended').checked = !!data.enableAiRecommended;
 
+    // ── MISSING FIELDS RESTORE ──
+    if(data.fanartKey){ const el=document.getElementById('fanartKey'); if(el) el.value = data.fanartKey; }
+    if(data.omdbKey){ const el=document.getElementById('omdbKey'); if(el) el.value = data.omdbKey; }
+    { const el=document.getElementById('includeAdult'); if(el) el.checked = !!data.includeAdult; }
+    { const el=document.getElementById('debridCachedOnly'); if(el) el.checked = !!data.debridCachedOnly; }
+    { const el=document.getElementById('debridEnglishOnly'); if(el) el.checked = data.debridEnglishOnly !== false; }
+    { const el=document.getElementById('debridRemoveTrash'); if(el) el.checked = data.debridRemoveTrash !== false; }
+    { const el=document.getElementById('debridRes4k'); if(el) el.checked = data.debridRes4k !== false; }
+    { const el=document.getElementById('debridRes1080'); if(el) el.checked = data.debridRes1080 !== false; }
+    { const el=document.getElementById('debridRes720'); if(el) el.checked = data.debridRes720 !== false; }
+    { const el=document.getElementById('debridRes480'); if(el) el.checked = !!data.debridRes480; }
+    if(data.betterPostersStyle){
+      const bpHidden = document.getElementById('betterPostersStyleHidden');
+      if(bpHidden) bpHidden.value = data.betterPostersStyle;
+      if(data.betterPostersStyle.startsWith('http')){
+        const manualEl = document.getElementById('bpManualUrl');
+        if(manualEl) manualEl.value = data.betterPostersStyle;
+        const bpEnabledEl = document.getElementById('bpEnabled');
+        if(bpEnabledEl) bpEnabledEl.checked = true;
+      }
+      if(typeof updateBPStyle === 'function') updateBPStyle();
+      const bpPreview = document.getElementById('bpUrlPreview');
+      if(bpPreview) bpPreview.textContent = data.betterPostersStyle;
+    }
+
     if(data.hiddenCatalogs && data.hiddenCatalogs.length) {
       data.hiddenCatalogs.forEach(function(id){
         hidden.add(id);
@@ -8119,7 +8144,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked, fanartKey: (document.getElementById("fanartKey")||{}).value.trim() || null, omdbKey: (document.getElementById("omdbKey")||{}).value.trim() || null, googleAiKey: (document.getElementById("googleAiKey")||{}).value.trim() || null, enableAiRecommended: !!(document.getElementById("enableAiRecommended")||{}).checked, includeAdult: !!(document.getElementById("includeAdult")||{}).checked })
     });
     const data = await res.json();
 

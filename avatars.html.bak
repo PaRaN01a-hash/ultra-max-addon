@@ -10,100 +10,85 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #080810; --surface: #0d0d1a; --card: #12121f; --card-h: #161628;
-      --border: #1e1e36; --border2: #2a2a45; --violet: #7B2FFF; --violet2: #9B5FFF;
+      --border: #1e1e36; --violet: #7B2FFF; --violet2: #9B5FFF;
       --coral: #FF3D5A; --text: #e8e8f0; --muted: #8888aa; --faint: #44445a; --ok: #34d399;
     }
     html, body { min-height: 100vh; background: var(--bg); color: var(--text);
       font-family: 'Inter', sans-serif; font-size: 14px; overflow-x: hidden; }
-    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
-    #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-    .particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
-    @keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
-    #cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.08) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
     nav { display:flex; align-items:center; justify-content:space-between;
       padding:16px 24px; border-bottom:1px solid var(--border);
       position:sticky; top:0; background:rgba(8,8,16,.92);
       backdrop-filter:blur(12px); z-index:20; }
     .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:22px;
       letter-spacing:.08em; color:var(--text); text-decoration:none; }
-    .nav-logo span { background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; transition:color .2s; }
+    .nav-logo span { color:var(--violet2); }
+    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; }
     .nav-back:hover { color:var(--text); }
-    header { padding:70px 24px 0; max-width:1100px; margin:0 auto; position:relative; z-index:2; }
-    .hero-orb { position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.12) 0%,transparent 70%);filter:blur(80px);pointer-events:none;animation:orbPulse 7s ease-in-out infinite;z-index:0; }
-    @keyframes orbPulse{0%,100%{opacity:.6;}50%{opacity:1;}}
-    .eyebrow { display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet2);margin-bottom:16px;background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:6px 16px;border-radius:100px; }
-    .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--violet2);animation:blink 2s ease-in-out infinite;}
-    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-    h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,8vw,5.5rem);
-      letter-spacing:.04em; line-height:.9; margin-bottom:12px; color:#fff; }
-    h1 span { background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block; }
-    .sub { color:var(--muted); font-size:14px; max-width:480px; line-height:1.7; margin-bottom:4px; }
+    header { padding:40px 24px 0; max-width:1100px; margin:0 auto; }
+    .eyebrow { font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--violet2); margin-bottom:10px; }
+    h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,6vw,52px);
+      letter-spacing:.04em; margin-bottom:8px; }
+    .sub { color:var(--muted); font-size:13px; max-width:480px; line-height:1.6; margin-bottom:4px; }
     .tabs-wrap { position:sticky; top:57px; z-index:10; padding:14px 24px 10px;
       background:linear-gradient(var(--bg) 80%,transparent);
       max-width:1100px; margin:0 auto; }
     .tabs { display:flex; gap:6px; flex-wrap:wrap; }
-    .tab { background:rgba(255,255,255,.03); border:1px solid var(--border2);
-      color:var(--muted); font-size:12px; font-weight:600;
-      padding:7px 16px; border-radius:100px; cursor:pointer;
-      transition:all .2s; white-space:nowrap; }
+    .tab { background:var(--card); border:1px solid var(--border);
+      color:var(--muted); font-size:12px; font-weight:500;
+      padding:6px 14px; border-radius:20px; cursor:pointer;
+      transition:all .15s; white-space:nowrap; }
     .tab:hover { border-color:var(--violet2); color:var(--violet2); }
-    .tab.active { background:var(--violet); border-color:var(--violet); color:#fff; box-shadow:0 0 16px rgba(123,47,255,.3); }
-    .search-wrap { max-width:1100px; margin:0 auto; padding:10px 24px 4px; position:relative; z-index:2; }
-    .search-wrap input { width:100%; max-width:320px; background:var(--card);
-      border:1px solid var(--border2); color:var(--text); font-family:'Inter',sans-serif;
-      font-size:13px; padding:10px 16px; border-radius:10px; outline:none; transition:border-color .2s; }
-    .search-wrap input:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(123,47,255,.1); }
+    .tab.active { background:var(--violet); border-color:var(--violet); color:#fff; }
+    .search-wrap { max-width:1100px; margin:0 auto; padding:10px 24px 4px; }
+    .search-wrap input { width:100%; max-width:300px; background:var(--card);
+      border:1px solid var(--border); color:var(--text); font-family:'Inter',sans-serif;
+      font-size:13px; padding:8px 14px; border-radius:8px; outline:none; transition:border-color .15s; }
+    .search-wrap input:focus { border-color:var(--violet); }
     .search-wrap input::placeholder { color:var(--faint); }
-    .grid-wrap { max-width:1100px; margin:0 auto; padding:16px 24px 100px; position:relative; z-index:2; }
-    .count { font-size:11px; color:var(--muted); margin-bottom:16px; letter-spacing:.05em; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:12px; }
+    .grid-wrap { max-width:1100px; margin:0 auto; padding:16px 24px 80px; }
+    .count { font-size:11px; color:var(--muted); margin-bottom:14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:12px; }
     .av { background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:14px 10px 10px; text-align:center;
-      cursor:pointer; transition:all .2s;
+      border-radius:14px; padding:10px 8px 8px; text-align:center;
+      cursor:pointer; transition:border-color .15s,background .15s,transform .1s;
       position:relative; overflow:hidden; }
-    .av::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(123,47,255,.08),transparent); opacity:0; transition:opacity .2s; border-radius:16px; }
-    .av:hover { border-color:var(--violet2); background:var(--card-h); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.3); }
-    .av:hover::before { opacity:1; }
+    .av:hover { border-color:var(--violet2); background:var(--card-h); transform:translateY(-2px); }
     .av.copied { border-color:var(--ok); }
-    .av img { width:68px; height:68px; border-radius:50%;
-      border:2px solid var(--border2); background:var(--surface);
-      display:block; margin:0 auto 8px; object-fit:cover;
-      transition:border-color .2s; position:relative; z-index:1; }
+    .av img { width:64px; height:64px; border-radius:50%;
+      border:2px solid var(--border); background:var(--surface);
+      display:block; margin:0 auto 7px; object-fit:cover;
+      transition:border-color .15s; }
     .av:hover img { border-color:var(--violet2); }
     .av.copied img { border-color:var(--ok); }
     .av-name { font-size:10px; color:var(--muted); white-space:nowrap;
-      overflow:hidden; text-overflow:ellipsis; position:relative; z-index:1; }
+      overflow:hidden; text-overflow:ellipsis; }
     .av-badge { position:absolute; inset:0; display:flex; align-items:center;
-      justify-content:center; background:rgba(8,8,16,.8); border-radius:16px;
-      font-size:12px; font-weight:700; color:var(--ok); opacity:0;
+      justify-content:center; background:rgba(8,8,16,.75); border-radius:14px;
+      font-size:11px; font-weight:600; color:var(--ok); opacity:0;
       transition:opacity .15s; pointer-events:none; }
     .av.copied .av-badge { opacity:1; }
     #toast { position:fixed; bottom:24px; left:50%;
       transform:translateX(-50%) translateY(20px);
-      background:var(--ok); color:#000; font-size:12px; font-weight:700;
-      padding:10px 24px; border-radius:100px; opacity:0;
-      transition:all .2s; pointer-events:none; z-index:999; }
+      background:var(--ok); color:#000; font-size:12px; font-weight:600;
+      padding:8px 20px; border-radius:20px; opacity:0;
+      transition:all .2s; pointer-events:none; z-index:99; }
     #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     @media(max-width:480px) {
       header,.tabs-wrap,.grid-wrap,.search-wrap { padding-left:16px; padding-right:16px; }
-      .grid { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:10px; }
-      header { padding-top:50px; }
+      .grid { grid-template-columns:repeat(auto-fill,minmax(76px,1fr)); gap:10px; }
     }
   </style>
 </head>
 <body>
-<div id="particles"></div>
-<div id="cursorGlow"></div>
-<div class="hero-orb"></div>
 <nav>
   <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
   <a class="nav-back" href="/">← Back to home</a>
 </nav>
 <header>
   <div class="eyebrow">Nuvio Profiles</div>
-  <h1>AVATAR<br><span>VAULT</span></h1>
-  <p class="sub">226 character avatars for your Nuvio profile. Tap any avatar to copy its URL, then paste it in Nuvio → Profile → Avatar.</p>
+  <h1>Avatar Vault</h1>
+  <p class="sub">Tap any avatar to copy its URL, then paste it in Nuvio → Profile → Avatar.</p>
 </header>
 <div class="search-wrap">
   <input type="search" id="searchQ" placeholder="Search avatars…" autocomplete="off">
@@ -346,22 +331,6 @@ function copy(url, card) {
 
 document.getElementById("searchQ").addEventListener("input",e=>{searchQ=e.target.value;render();});
 renderTabs(); render();
-</script>
-
-<script>
-(function(){
-  const c=document.getElementById('particles');
-  if(!c) return;
-  for(let i=0;i<40;i++){
-    const p=document.createElement('div');p.className='particle';
-    const r=Math.random();
-    const clr=r<0.2?'rgba(123,47,255,0.7)':r<0.3?'rgba(255,61,90,0.5)':'rgba(255,255,255,0.4)';
-    p.style.cssText=`width:${Math.random()*2+.5}px;height:${Math.random()*2+.5}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
-    c.appendChild(p);
-  }
-})();
-const _glow=document.getElementById('cursorGlow');
-if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
 </script>
 </body>
 </html>

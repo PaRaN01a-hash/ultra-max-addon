@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxMusic — Music for Stremio & Nuvio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
+    --teal:#00d2a0; --teal2:#00f0b8; --violet:#7B2FFF; --violet2:#9B5FFF;
+    --text:#e0e0f0; --muted:#7070a0;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+  .logo span{color:var(--teal);}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-back:hover{color:var(--text);}
+
+  /* HERO */
+  .hero{text-align:center;padding:60px 24px 48px;max-width:700px;margin:0 auto;}
+  .hero-badge{display:inline-block;background:rgba(0,210,160,0.1);border:1px solid rgba(0,210,160,0.25);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,5.5rem);letter-spacing:.04em;line-height:1;margin-bottom:16px;background:linear-gradient(135deg,#fff 40%,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:16px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto;}
+
+  /* MAIN */
+  .main{max-width:800px;margin:0 auto;padding:48px 24px 80px;}
+
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* STATS */
+  .stats-row{display:flex;gap:16px;margin-bottom:40px;flex-wrap:wrap;}
+  .stat{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:18px 16px;text-align:center;}
+  .stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.04em;color:var(--teal);display:block;}
+  .stat-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+
+  /* INFO CARDS */
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:40px;}
+  .info-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:18px;}
+  .info-icon{font-size:1.4rem;margin-bottom:8px;display:block;}
+  .info-title{font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
+  .info-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+
+  /* HOW TO USE */
+  .how-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:28px;}
+  .how-title{font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;}
+  .how-steps{display:flex;flex-direction:column;gap:12px;}
+  .how-step{display:flex;align-items:flex-start;gap:12px;}
+  .how-num{width:26px;height:26px;border-radius:50%;background:rgba(0,210,160,0.15);border:1px solid rgba(0,210,160,0.3);color:var(--teal);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .how-text{font-size:13px;color:var(--muted);line-height:1.6;}
+  .how-text strong{color:var(--text);}
+
+  /* INSTALL */
+  .install-box{background:linear-gradient(135deg,rgba(0,210,160,0.08),rgba(123,47,255,0.06));border:1px solid rgba(0,210,160,0.2);border-radius:18px;padding:32px;text-align:center;margin-bottom:28px;}
+  .install-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.06em;color:#fff;margin-bottom:8px;}
+  .install-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+  .install-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+  .btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;padding:14px 32px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(0,210,160,0.2);font-weight:700;}
+  .btn-primary:hover{background:var(--teal2);transform:translateY(-2px);box-shadow:0 0 36px rgba(0,210,160,0.35);}
+  .btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:14px 24px;border-radius:10px;text-decoration:none;border:1px solid var(--border2);cursor:pointer;transition:all .2s;}
+  .btn-secondary:hover{border-color:var(--violet);color:var(--violet2);}
+
+  .note{background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.15);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--muted);line-height:1.7;text-align:center;}
+  .note strong{color:var(--text);}
+  .note a{color:var(--violet2);text-decoration:none;}
+
+  @media(max-width:600px){
+    nav{padding:14px 16px;}
+    .hero{padding:40px 16px 32px;}
+    .main{padding:28px 16px 60px;}
+    .install-btns{flex-direction:column;align-items:stretch;}
+    .btn-primary,.btn-secondary{justify-content:center;}
+  }
+</style>
+<script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">MAX<span>MUSIC</span></a>
+  <a href="/" class="nav-back">← Back to home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🎵 Music</div>
+  <h1>Music in<br>Stremio &amp; Nuvio</h1>
+  <p>Search and stream tracks, albums, artists and playlists directly inside Stremio or Nuvio. Powered by Last.fm and Deezer.</p>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat">
+      <span class="stat-num">90M+</span>
+      <div class="stat-label">Tracks</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <div class="stat-label">Content Types</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">Free</span>
+      <div class="stat-label">No Login</div>
+    </div>
+  </div>
+
+  <!-- WHAT YOU GET -->
+  <div class="section-label">What You Get</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="info-icon">🎵</span>
+      <div class="info-title">Tracks</div>
+      <div class="info-desc">Search any song and stream it directly. Full tracks, not previews.</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">💿</span>
+      <div class="info-title">Albums</div>
+      <div class="info-desc">Browse and play full albums from any artist in your library.</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">🎤</span>
+      <div class="info-title">Artists</div>
+      <div class="info-desc">Explore artist pages with top tracks, similar artists and discography.</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">📋</span>
+      <div class="info-title">Playlists</div>
+      <div class="info-desc">Search curated playlists and popular charts sorted by Last.fm popularity.</div>
+    </div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="section-label">How to Use</div>
+  <div class="how-card">
+    <div class="how-title">Finding music after installing</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-text">Install MaxMusic using the button below</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-text">Open <strong>Stremio or Nuvio</strong> and go to the <strong>Search</strong> tab</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-text">Search for any <strong>artist, album, track or playlist</strong></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-text">MaxMusic results will appear alongside your other addons — tap to stream</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTALL -->
+  <div class="install-box">
+    <div class="install-title">Ready to Install</div>
+    <div class="install-sub">One tap to add MaxMusic to Stremio or Nuvio.<br>No account or API key needed.</div>
+    <div class="install-btns">
+      <a class="btn-primary" href="/musicvideos.html" style="background:var(--teal);margin-bottom:8px;">🎬 Set Up Music Videos</a>
+      <a class="btn-primary" href="stremio://music.maxstreams.opik.net/manifest.json">
+        🎵 Install in Stremio
+      </a>
+      <button class="btn-secondary" onclick="copyManifest('https://music.maxstreams.opik.net/manifest.json', this)">
+        📋 Copy Manifest URL
+      </button>
+      </a>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Note:</strong> MaxMusic uses <a href="https://www.last.fm" target="_blank">Last.fm</a> for music discovery and popularity sorting. Stream availability depends on Deezer catalogue coverage. Some tracks may not be available in all regions.
+  </div>
+
+</div>
+
+  <div style="max-width:800px;margin:0 auto 40px;padding:0 24px;">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--muted);line-height:1.7;">
+      <strong style="color:var(--text);">⚠️ Availability disclaimer:</strong> Stream and channel availability varies by region and is entirely outside our control. Geo-blocks, expired stream links, offline sources and regional restrictions mean we cannot guarantee any channel, track or stream will work in your location or at any given time. We provide access to publicly available sources — what actually plays depends on those sources, not us.
+    </div>
+  </div>
+</body>
+<script>
+function copyManifest(url, btn){
+  var ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  btn.textContent = '✅ Copied!';
+  btn.style.borderColor = 'var(--teal,#00d2a0)';
+  btn.style.color = 'var(--teal,#00d2a0)';
+  setTimeout(function(){
+    btn.textContent = '📋 Copy Manifest URL';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }, 2500);
+}
+</script>
+</html>

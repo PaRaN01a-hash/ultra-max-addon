@@ -9,65 +9,87 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080810; --card: #12121f; --border: #1e1e36;
-      --violet: #7B2FFF; --violet2: #9B5FFF;
+      --bg: #080810; --card: #12121f; --border: #1e1e36; --border2: #2a2a45;
+      --violet: #7B2FFF; --violet2: #9B5FFF; --coral: #FF3D5A;
       --text: #e8e8f0; --muted: #8888aa; --faint: #44445a; --ok: #34d399; --err: #f87171;
     }
     html, body { min-height: 100vh; background: var(--bg); color: var(--text);
-      font-family: 'Inter', sans-serif; }
+      font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+    #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+    .particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
+    @keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
+    #cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.08) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
+
     nav { display:flex; align-items:center; justify-content:space-between;
       padding:16px 24px; border-bottom:1px solid var(--border);
-      background:rgba(8,8,16,.92); backdrop-filter:blur(12px); }
+      background:rgba(8,8,16,.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
     .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:22px;
       letter-spacing:.08em; color:var(--text); text-decoration:none; }
-    .nav-logo span { color:var(--violet2); }
-    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; }
+    .nav-logo span { background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; transition:color .2s; }
     .nav-back:hover { color:var(--text); }
-    main { max-width:480px; margin:80px auto; padding:0 24px 80px; }
-    .eyebrow { font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-      color:var(--violet2); margin-bottom:10px; }
-    h1 { font-family:'Bebas Neue',sans-serif; font-size:42px;
-      letter-spacing:.04em; margin-bottom:8px; }
-    .sub { color:var(--muted); font-size:14px; line-height:1.7; margin-bottom:32px; }
-    .card { background:var(--card); border:1px solid var(--border);
-      border-radius:14px; padding:24px; }
-    label { display:block; font-size:12px; font-weight:600; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
-    input[type=email] { width:100%; background:#0a0a18; border:1px solid var(--border);
+
+    main { max-width:480px; margin:0 auto; padding:80px 24px 80px; position:relative; z-index:2; }
+    .hero-orb{position:absolute;top:0;left:50%;transform:translateX(-50%);width:500px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.12) 0%,transparent 70%);filter:blur(60px);pointer-events:none;}
+
+    .eyebrow { display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet2);background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:6px 16px;border-radius:100px;margin-bottom:16px; }
+    .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--violet2);animation:blink 2s ease-in-out infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+    h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,9vw,4.5rem);
+      letter-spacing:.04em; line-height:.9; margin-bottom:14px; color:#fff; }
+    h1 span{background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+    .sub { color:var(--muted); font-size:14px; line-height:1.7; margin-bottom:36px; }
+
+    .card { background:var(--card); border:1px solid var(--border2);
+      border-radius:18px; padding:28px; position:relative; overflow:hidden; }
+    .card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,47,255,.05),transparent);pointer-events:none;}
+    label { display:block; font-size:11px; font-weight:700; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+    input[type=email] { width:100%; background:#0a0a18; border:1px solid var(--border2);
       color:var(--text); font-family:'Inter',sans-serif; font-size:15px;
-      padding:12px 14px; border-radius:8px; outline:none; transition:border-color .15s;
-      margin-bottom:12px; }
-    input[type=email]:focus { border-color:var(--violet); }
+      padding:13px 16px; border-radius:10px; outline:none; transition:all .2s;
+      margin-bottom:14px; }
+    input[type=email]:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(123,47,255,.1); }
     input[type=email]::placeholder { color:var(--faint); }
-    button { width:100%; background:var(--violet); color:#fff; border:none;
-      font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
-      padding:13px; border-radius:8px; cursor:pointer; transition:opacity .15s; }
-    button:hover { opacity:.85; }
-    button:disabled { opacity:.5; cursor:not-allowed; }
-    .result { margin-top:14px; font-size:13px; line-height:1.6;
-      min-height:20px; text-align:center; }
+    button { width:100%; background:linear-gradient(135deg,var(--violet),var(--coral)); color:#fff; border:none;
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:700;
+      padding:14px; border-radius:10px; cursor:pointer; transition:all .2s;
+      box-shadow:0 0 24px rgba(123,47,255,.2); }
+    button:hover { transform:translateY(-2px); box-shadow:0 0 36px rgba(123,47,255,.35); }
+    button:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    .result { margin-top:14px; font-size:13px; line-height:1.6; min-height:20px; text-align:center; }
     .result.ok  { color:var(--ok); }
     .result.err { color:var(--err); }
-    .divider { border:none; border-top:1px solid var(--border); margin:28px 0; }
-    .note { font-size:12px; color:var(--faint); line-height:1.7; text-align:center; }
+
+    .divider { border:none; border-top:1px solid var(--border); margin:32px 0; }
+    .note { font-size:12px; color:var(--faint); line-height:1.9; text-align:center; }
     .note a { color:var(--violet2); text-decoration:none; }
+    .note a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
+
+<div id="particles"></div>
+<div id="cursorGlow"></div>
+
 <nav>
   <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
   <a class="nav-back" href="/">← Back to home</a>
 </nav>
+
 <main>
+  <div class="hero-orb"></div>
   <div class="eyebrow">Token Recovery</div>
-  <h1>Lost Your Token?</h1>
+  <h1>LOST YOUR<br><span>TOKEN?</span></h1>
   <p class="sub">Enter the email address you registered when setting up Ultra MAX and we'll send your token straight to your inbox.</p>
 
   <div class="card">
     <label for="emailInput">Your email address</label>
     <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"
       onkeydown="if(event.key==='Enter') recover()">
-    <button id="recoverBtn" onclick="recover()">Send My Token</button>
+    <button id="recoverBtn" onclick="recover()">Send My Token →</button>
     <div class="result" id="result"></div>
   </div>
 
@@ -85,43 +107,40 @@ async function recover() {
   const email  = document.getElementById('emailInput').value.trim();
   const btn    = document.getElementById('recoverBtn');
   const result = document.getElementById('result');
-
-  if (!email) {
-    result.className = 'result err';
-    result.textContent = 'Please enter your email address';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  result.className = 'result';
-  result.textContent = '';
-
+  if (!email) { result.className='result err'; result.textContent='Please enter your email address'; return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  result.className = 'result'; result.textContent = '';
   try {
     const r = await fetch('/api/recover-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    const data = await r.json();
     if (r.status === 429) {
-      result.className = 'result err';
-      result.textContent = '✗ Too many attempts. Try again in an hour.';
-      btn.disabled = false;
-      btn.textContent = 'Send My Token';
-      return;
+      result.className='result err'; result.textContent='✗ Too many attempts. Try again in an hour.';
+      btn.disabled=false; btn.textContent='Send My Token →'; return;
     }
-    // Always show success message (prevents email enumeration)
-    result.className = 'result ok';
-    result.textContent = '✓ If that email is registered, your token is on its way.';
-    btn.textContent = 'Sent ✓';
+    result.className='result ok'; result.textContent='✓ If that email is registered, your token is on its way.';
+    btn.textContent='Sent ✓';
   } catch(e) {
-    result.className = 'result err';
-    result.textContent = '✗ Network error — please try again';
-    btn.disabled = false;
-    btn.textContent = 'Send My Token';
+    result.className='result err'; result.textContent='✗ Network error — please try again';
+    btn.disabled=false; btn.textContent='Send My Token →';
   }
 }
+</script>
+
+<script>
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');p.className='particle';
+    const r=Math.random();
+    const clr=r<0.2?'rgba(123,47,255,0.7)':r<0.3?'rgba(255,61,90,0.5)':'rgba(255,255,255,0.4)';
+    p.style.cssText=`width:${Math.random()*2+.5}px;height:${Math.random()*2+.5}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
+    c.appendChild(p);
+  }
+})();
+const _glow=document.getElementById('cursorGlow');
+if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
 </script>
 </body>
 </html>

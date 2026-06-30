@@ -25,12 +25,7 @@
   --red:#f87171;
 }
 html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
-#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
-@keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
-#cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.08) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 /* HEADER */
 .header{
@@ -54,28 +49,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* HERO */
 .hero{
-  padding:70px 20px 48px;
+  padding:48px 20px 32px;
   text-align:center;
-  position:relative;
-  z-index:2;
+  background:radial-gradient(ellipse 80% 300px at 50% 0%, rgba(123,47,255,0.12) 0%, transparent 70%);
 }
-.hero-orb{position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.14) 0%,rgba(24,255,255,0.05) 40%,transparent 70%);filter:blur(60px);pointer-events:none;animation:orbPulse 7s ease-in-out infinite;}
-@keyframes orbPulse{0%,100%{opacity:.7;}50%{opacity:1;}}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px;background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:6px 16px;border-radius:100px;}
-.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 2s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);letter-spacing:.04em;line-height:.92;margin-bottom:14px;color:#fff;}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:12px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,6vw,3.8rem);letter-spacing:.04em;line-height:1;margin-bottom:10px;}
 .hero h1 span{
   background:linear-gradient(90deg,var(--accent),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  display:block;
 }
-.hero p{color:var(--muted);font-size:15px;max-width:480px;margin:0 auto 28px;line-height:1.7;}
-.hero-stats{display:flex;gap:0;justify-content:center;margin-bottom:28px;background:rgba(13,13,30,0.8);border:1px solid var(--border2);border-radius:16px;padding:18px 32px;max-width:400px;margin-left:auto;margin-right:auto;backdrop-filter:blur(10px);}
-.hero-stat{flex:1;text-align:center;padding:0 16px;}
-.hero-stat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent2);display:block;line-height:1;}
-.hero-stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
-.hero-stat-divider{width:1px;background:var(--border2);margin:4px 0;}
+.hero p{color:var(--muted);font-size:14px;max-width:480px;margin:0 auto 24px;}
+.hero-stats{display:flex;gap:24px;justify-content:center;margin-bottom:28px;}
+.hero-stat{text-align:center;}
+.hero-stat-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent2);}
+.hero-stat-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
 
 /* FILTERS */
 .toolbar{
@@ -217,9 +205,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </head>
 <body>
 
-<div id="particles"></div>
-<div id="cursorGlow"></div>
-
 <div class="header">
   <div class="logo">ULTRA <span>MAX</span></div>
   <div class="hbtns">
@@ -229,16 +214,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </div>
 
 <div class="hero">
-  <div class="hero-orb"></div>
   <div class="hero-eyebrow">Community Gallery</div>
   <h1>Share Your <span>Collections</span></h1>
   <p>Download community-built Nuvio collection packs. Import the JSON directly into Nuvio → Collections → Import.</p>
   <div class="hero-stats">
-    <div class="hero-stat"><span class="hero-stat-n" id="statTotal">—</span><div class="hero-stat-l">Collections</div></div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat"><span class="hero-stat-n" id="statDownloads">—</span><div class="hero-stat-l">Downloads</div></div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat"><span class="hero-stat-n" id="statLikes">—</span><div class="hero-stat-l">Likes</div></div>
+    <div class="hero-stat"><div class="hero-stat-n" id="statTotal">—</div><div class="hero-stat-l">Collections</div></div>
+    <div class="hero-stat"><div class="hero-stat-n" id="statDownloads">—</div><div class="hero-stat-l">Downloads</div></div>
+    <div class="hero-stat"><div class="hero-stat-n" id="statLikes">—</div><div class="hero-stat-l">Likes</div></div>
   </div>
   <button class="btn btn-accent" onclick="openSubmit()">+ Submit Your Collection</button>
 </div>
@@ -778,22 +760,6 @@ function getExtraFiles(){
     loadShares();
   }
 })();
-</script>
-
-<script>
-(function(){
-  const c=document.getElementById('particles');
-  if(!c) return;
-  for(let i=0;i<40;i++){
-    const p=document.createElement('div');p.className='particle';
-    const r=Math.random();
-    const clr=r<0.2?'rgba(123,47,255,0.7)':r<0.3?'rgba(24,255,255,0.5)':'rgba(255,255,255,0.4)';
-    p.style.cssText=`width:${Math.random()*2+.5}px;height:${Math.random()*2+.5}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
-    c.appendChild(p);
-  }
-})();
-const _glow=document.getElementById('cursorGlow');
-if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
 </script>
 </body>
 </html>
