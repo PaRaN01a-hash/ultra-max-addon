@@ -92,6 +92,18 @@
   .preset-btn .preset-name{display:block;font-weight:700;font-size:13px;color:#fff;margin-bottom:3px;}
   .preset-btn .preset-desc{display:block;font-size:10px;color:#aaa;letter-spacing:0.05em;line-height:1.4;}
   .preset-btn.active{border-color:#fff;background:#1a1a1a;}
+  .coll-action-btn{border-style:dashed !important;border-color:rgba(123,47,255,.4) !important;position:relative;}
+  .coll-action-btn:hover{border-style:solid !important;border-color:var(--violet) !important;background:rgba(123,47,255,.08) !important;}
+  .coll-action-btn.just-added{animation:collJustAdded .6s ease;}
+  @keyframes collJustAdded{
+    0%{background:rgba(52,211,153,.25);border-color:#34d399 !important;}
+    100%{background:transparent;}
+  }
+  .coll-card-flash{animation:collCardFlash 1.1s ease;}
+  @keyframes collCardFlash{
+    0%{box-shadow:0 0 0 3px rgba(123,47,255,.6);background:rgba(123,47,255,.08);}
+    100%{box-shadow:0 0 0 0px transparent;background:transparent;}
+  }
 
   /* CATALOG CONTROLS */
   .catalog-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
@@ -124,7 +136,7 @@
 }
   .select-all:hover{color:#fff;}
   .pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .pill{background:transparent;border:1px solid #333;color:#bbb;font-family:'Courier Prime',monospace;font-size:12px;padding:5px 12px;border-radius:3px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.03em;}
+  .pill{background:transparent;border:1px solid #333;color:#ccc;font-family:'Courier Prime',monospace;font-size:13.5px;font-weight:500;padding:7px 14px;border-radius:4px;cursor:pointer;transition:all 0.15s;user-select:none;letter-spacing:0.02em;}
   .pill:hover{border-color:#aaa;color:#fff;}
   .pill.selected{background:#fff;border-color:#fff;color:#000;font-weight:700;}
   .pill.hidden{display:none;}
@@ -4786,21 +4798,21 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- 1. Preset Collections -->
       <div id="presetsPanel" class="um-card" style="margin-bottom:16px;">
         <div class="um-card-title">1. Pick Your Presets</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Select presets to quickly build your collection groups. You can add multiple.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Tap a preset to <strong style="color:var(--text);">instantly add it</strong> as a new collection below. Unlike Step 2, these are one-tap actions, not multi-select.</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button class="global-btn preset-btn" data-preset="streaming" onclick="loadPreset('streaming')">&#128250; Streaming Services</button>
-          <button class="global-btn preset-btn" data-preset="trending" onclick="loadPreset('trending')">&#128293; Trending &amp; Popular</button>
-          <button class="global-btn preset-btn" data-preset="latest" onclick="loadPreset('latest')">&#127381; New &amp; Latest</button>
-          <button class="global-btn preset-btn" data-preset="genres" onclick="loadPreset('genres')">&#127917; Genres</button>
-          <button class="global-btn preset-btn" data-preset="themed" onclick="loadPreset('themed')">&#127916; Themed &amp; Curated</button>
-          <button class="global-btn preset-btn" data-preset="studios" onclick="loadPreset('studios')">&#127909; Studios</button>
-          <button class="global-btn preset-btn" data-preset="directors" onclick="loadPreset('directors')">&#127908; Directors</button>
-          <button class="global-btn preset-btn" data-preset="actors" onclick="loadPreset('actors')">&#127911; Actors</button>
-          <button class="global-btn preset-btn" data-preset="trakt" onclick="loadPreset('trakt')">&#127908; Trakt</button>
-          <button class="global-btn preset-btn" data-preset="collections" onclick="loadPreset('collections')">&#127916; Film Collections</button>
-          <button class="global-btn preset-btn" data-preset="decades" onclick="loadPreset('decades')">&#128197; By Decade</button>
-          <button class="global-btn preset-btn" data-preset="kids" onclick="loadPreset('kids')">&#128118; Kids &amp; Family</button>
-          <button class="global-btn preset-btn" data-preset="uk" onclick="loadPreset('uk')">&#127468;&#127463; UK</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="streaming" onclick="loadPreset('streaming')">&#128250; Streaming Services</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="trending" onclick="loadPreset('trending')">&#128293; Trending &amp; Popular</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="latest" onclick="loadPreset('latest')">&#127381; New &amp; Latest</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="genres" onclick="loadPreset('genres')">&#127917; Genres</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="themed" onclick="loadPreset('themed')">&#127916; Themed &amp; Curated</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="studios" onclick="loadPreset('studios')">&#127909; Studios</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="directors" onclick="loadPreset('directors')">&#127908; Directors</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="actors" onclick="loadPreset('actors')">&#127911; Actors</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="trakt" onclick="loadPreset('trakt')">&#127908; Trakt</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="collections" onclick="loadPreset('collections')">&#127916; Film Collections</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="decades" onclick="loadPreset('decades')">&#128197; By Decade</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="kids" onclick="loadPreset('kids')">&#128118; Kids &amp; Family</button>
+          <button class="global-btn preset-btn coll-action-btn" data-preset="uk" onclick="loadPreset('uk')">&#127468;&#127463; UK</button>
         </div>
       </div>
 
@@ -4885,6 +4897,9 @@ document.addEventListener('DOMContentLoaded', function() {
               <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
               <a class="rbtn" id="installBtn" href="#">Install in Stremio/Nuvio</a>
             </div>
+            <div style="margin-top:12px;background:rgba(123,47,255,0.06);border:1px solid rgba(123,47,255,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#b0b0d0;line-height:1.7;">
+              💡 <strong style="color:#e8e8f0;">This URL never changes.</strong> Come back anytime with your token to edit your setup — any changes save instantly to this same link. You do <strong style="color:#e8e8f0;">not</strong> need to reinstall or get a new URL in Nuvio/Stremio. If a catalog doesn't update right away, just pull-to-refresh or restart the app.
+            </div>
             <div class="token-save">
               Your token: <span id="tokenDisplay"></span>
               <button onclick="window.copyToken(event)" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
@@ -4942,16 +4957,22 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   const _st = sessionStorage.getItem('um_setup_token');
   if(_st && !editToken){ editToken=_st; setTimeout(()=>{ if(typeof checkTraktStatus==='function') checkTraktStatus(_st); if(typeof checkSimklStatus==='function') checkSimklStatus(_st); },500); }
-  // Restore form state after OAuth redirect
-  if(sessionStorage.getItem('um_form_state')){
-    setTimeout(()=>{ if(typeof restoreFormState==='function') restoreFormState(); },300);
-  }
-
   const urlParams = new URLSearchParams(window.location.search);
   const urlToken = urlParams.get('token');
+
+  // Restore form state after OAuth redirect — but NOT if we're loading a specific token via URL,
+  // since that would overwrite the freshly-loaded config with a stale draft.
+  if(sessionStorage.getItem('um_form_state') && !urlToken){
+    setTimeout(()=>{ if(typeof restoreFormState==='function') restoreFormState(); },300);
+  }
   if(urlToken){
-    const tokenInput = document.getElementById('loadTokenInput') || document.getElementById('tokenInput');
-    if(tokenInput){ tokenInput.value = urlToken; if(typeof loadConfigByToken==='function') loadConfigByToken(urlToken); } const cpw = document.getElementById('confirmPasswordWrap'); if(cpw) cpw.style.display = 'none'; const fpc = document.getElementById('forgotPasswordCard'); if(fpc) fpc.style.display = 'block';
+    editToken = urlToken;
+    sessionStorage.setItem('um_setup_token', urlToken);
+    const tokenInput = document.getElementById('returningToken') || document.getElementById('loadTokenInput') || document.getElementById('tokenInput');
+    if(tokenInput) tokenInput.value = urlToken;
+    if(typeof loadConfigByToken === 'function') loadConfigByToken(urlToken);
+    const cpw = document.getElementById('confirmPasswordWrap'); if(cpw) cpw.style.display = 'none';
+    const fpc = document.getElementById('forgotPasswordCard'); if(fpc) fpc.style.display = 'block';
   }
   var fi = document.getElementById('projectFileInput');
   if(fi) fi.addEventListener('change', function(e){ if(typeof _importProjectFile==='function') _importProjectFile(e); else alert('Import not ready yet - please try again'); });
@@ -5995,6 +6016,25 @@ function pushAlphaCollections(baseTitle, folders){
   });
 }
 
+function afterPresetAdded(key){
+  const btn = document.querySelector('.coll-action-btn[data-preset="' + key + '"]');
+  if(btn){
+    btn.classList.remove('just-added');
+    void btn.offsetWidth;
+    btn.classList.add('just-added');
+  }
+  setTimeout(function(){
+    const cards = document.querySelectorAll('#collections-list .result-section, #collections-list .coll-card');
+    const last = cards[cards.length - 1];
+    if(last){
+      last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      last.classList.remove('coll-card-flash');
+      void last.offsetWidth;
+      last.classList.add('coll-card-flash');
+    }
+  }, 150);
+}
+
 function loadPreset(key){
 
   if(key === 'streaming'){
@@ -6027,6 +6067,7 @@ function loadPreset(key){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6063,6 +6104,7 @@ function loadPreset(key){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6114,6 +6156,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6156,6 +6199,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6218,6 +6262,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6262,6 +6307,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6323,6 +6369,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6414,6 +6461,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6477,6 +6525,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6525,6 +6574,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6560,6 +6610,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6633,6 +6684,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -6723,6 +6775,7 @@ if(key === 'genres'){
     }
 
     renderCollections();
+    afterPresetAdded(key);
 
     return;
   }
@@ -7102,6 +7155,8 @@ async function loadConfig(){
 
 async function loadConfigByToken(token){
   try{
+    // Loading a specific token means we don't want a stale local draft to clobber it later
+    try{ sessionStorage.removeItem('um_form_state'); }catch(e){}
     const res = await fetch(API_BASE+'/c/'+token+'/config');
     if(!res.ok) return;
       const raw = await res.text();
@@ -7668,9 +7723,10 @@ function showHowToUse(){
 
   d.innerHTML = `
     <div class="howto-card">
-      <button class="howto-close" onclick="document.getElementById('howtoOverlay').remove()">Close</button>
+      <button class="howto-close" onclick="dismissHowToUse()">Close</button>
 
       <h2>🚀 How To Use Ultra MAX</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:18px;">A 60-second read before you start. Worth it — promise.</p>
 
       <h3>1. Required Keys</h3>
       <p><strong>TMDB API Key</strong> is required. It powers movies, shows, filters, collections and metadata.</p>
@@ -7707,12 +7763,33 @@ function showHowToUse(){
       <h3>☕ Support Ultra MAX</h3>
       <p>If Ultra MAX helps your setup, you can support future development here:</p>
       <p><a href="https://ko-fi.com/ultramaxaddon" target="_blank" rel="noopener">ko-fi.com/ultramaxaddon →</a></p>
+
+      <button class="nav-btn primary" style="width:100%;margin-top:20px;" onclick="dismissHowToUse()">Got it — let's build →</button>
     </div>
   `;
 
   document.body.appendChild(d);
 }
 
+function dismissHowToUse(){
+  try{ localStorage.setItem('um_onboarding_seen', '1'); }catch(e){}
+  const el = document.getElementById('howtoOverlay');
+  if(el) el.remove();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    const seen = localStorage.getItem('um_onboarding_seen');
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasTokenInUrl = !!urlParams.get('token');
+    const hasStoredToken = !!sessionStorage.getItem('um_setup_token');
+    if(!seen && !hasTokenInUrl && !hasStoredToken){
+      setTimeout(function(){
+        if(typeof showHowToUse === 'function') showHowToUse();
+      }, 600);
+    }
+  }catch(e){}
+});
 
 
 function toggleOptionalSection(){

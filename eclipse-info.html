@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclipse Music · Stream Deezer in Full Quality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #080810;
+    --surface:   #0e0e1c;
+    --surface2:  #14142a;
+    --border:    #1e1e38;
+    --indigo:    #6366f1;
+    --violet:    #a78bfa;
+    --glow:      #7c3aed;
+    --white:     #f0f0ff;
+    --muted:     #6b6b8a;
+    --success:   #34d399;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--op, 0.6); }
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── Nav ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+  }
+  .nav-back {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--violet); }
+  .nav-back svg { width: 16px; height: 16px; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 56px 0 64px;
+  }
+
+  .logo-wrap {
+    margin: 0 auto 32px;
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    background: conic-gradient(from 0deg, var(--indigo), var(--violet), var(--indigo)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: spin 8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .logo-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 32px rgba(99,102,241,0.4);
+  }
+  .logo-icon svg {
+    width: 28px; height: 28px;
+    fill: none; stroke: white; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(38px, 7vw, 60px);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--white) 0%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    font-weight: 300;
+    color: #a0a0c0;
+    line-height: 1.7;
+    max-width: 540px;
+    margin: 0 auto 36px;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 15px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--indigo), var(--glow));
+    color: white;
+    box-shadow: 0 4px 24px rgba(99,102,241,0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 4px 36px rgba(99,102,241,0.5);
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--white);
+  }
+  .btn-ghost:hover { border-color: var(--violet); color: var(--violet); }
+
+  /* ── Screenshots ── */
+  .screens-wrap {
+    margin-bottom: 64px;
+  }
+  .screens-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 4px 0 16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screens-scroll::-webkit-scrollbar { height: 6px; }
+  .screens-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .screen-card {
+    flex: 0 0 auto;
+    width: 200px;
+    scroll-snap-align: start;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    position: relative;
+  }
+  .screen-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgba(167,139,250,0.1), 0 12px 32px rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+  .screen-card img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── Feature grid ── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+  @media (max-width: 600px) {
+    .features { grid-template-columns: 1fr; }
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--indigo), transparent);
+    opacity: 0.5;
+  }
+
+  .feature-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(167,139,250,0.15));
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .feature-icon svg {
+    width: 18px; height: 18px;
+    stroke: var(--violet); fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .feature-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── How it works ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 28px;
+  }
+
+  .how {
+    margin-bottom: 64px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--violet);
+  }
+
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .step-content p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── Requirements ── */
+  .reqs {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 64px;
+  }
+  .reqs-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .req-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .req-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #b0b0d0;
+    line-height: 1.5;
+  }
+  .req-item svg {
+    width: 16px; height: 16px;
+    stroke: var(--success);
+    fill: none; stroke-width: 2.5;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Final CTA ── */
+  .final-cta {
+    text-align: center;
+    padding: 56px 32px;
+    background: linear-gradient(135deg, var(--surface), var(--surface2));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    margin-bottom: 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 800;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .final-cta p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  footer {
+    text-align: center;
+    padding: 32px 0 48px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  footer a { color: var(--violet); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<main>
+  <nav>
+    <a href="/" class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Ultra MAX
+    </a>
+  </nav>
+
+  <div class="hero">
+    <div class="logo-wrap">
+      <div class="ring"></div>
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+    </div>
+    <p class="eyebrow">A New Ultra MAX Project</p>
+    <h1>Eclipse Music</h1>
+    <p class="hero-sub">Full-quality Deezer streaming inside the Eclipse Music app — your own private install link, your own account, automatically tuned to the best quality you're entitled to.</p>
+    <div class="hero-ctas">
+      <a href="/eclipse.html" class="btn btn-primary">
+        Get Your Install Link
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="https://eclipsemusic.app" target="_blank" class="btn btn-ghost">Download Eclipse Music</a>
+    </div>
+  </div>
+
+  <div class="screens-wrap">
+    <p class="section-title">A Look Inside Eclipse Music</p>
+    <div class="screens-scroll">
+      <div class="screen-card"><img src="/images/eclipse-screens/screenshot-home.jpg" alt="Eclipse Music home screen with your replay and personal playlists"></div>
+      <div class="screen-card"><img src="/images/eclipse-screens/screenshot-discover.jpg" alt="Eclipse Music discover screen with daily drops and recommendations"></div>
+      <div class="screen-card"><img src="/images/eclipse-screens/screenshot-search.jpg" alt="Eclipse Music search screen with genre browsing"></div>
+      <div class="screen-card"><img src="/images/eclipse-screens/screenshot-library.jpg" alt="Eclipse Music library screen with artists, songs, albums and playlists"></div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <div class="feature-title">Full Tracks, Best Quality</div>
+      <div class="feature-text">No 30-second previews. Streams at the highest quality your Deezer account allows, automatically.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="feature-title">Private By Design</div>
+      <div class="feature-text">Your install link is unique to you. Nothing is stored on our servers — your credentials stay yours.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <div class="feature-title">Search Everything</div>
+      <div class="feature-text">Tracks, albums, artists and playlists — all searchable directly inside Eclipse Music.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="feature-title">Synced Lyrics</div>
+      <div class="feature-text">Live, synced lyrics pulled in automatically while you listen.</div>
+    </div>
+  </div>
+
+  <div class="how">
+    <p class="section-title">How It Works</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Get your install link</h3>
+          <p>Paste your Deezer ARL into our generator — it builds a private install URL just for you.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Open Eclipse Music</h3>
+          <p>Don't have it yet? Grab the app for your platform from eclipsemusic.app.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Add your addon</h3>
+          <p>Paste your install URL into Eclipse's addon settings and you're streaming in seconds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reqs">
+    <div class="reqs-title">What you'll need</div>
+    <div class="req-list">
+      <div class="req-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        A Deezer account — free works, HiFi/Premium unlocks lossless FLAC
+      </div>
+      <div class="req-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        The Eclipse Music app installed on your device
+      </div>
+      <div class="req-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Your Deezer ARL cookie — we'll show you exactly how to find it
+      </div>
+    </div>
+  </div>
+
+  <div class="final-cta">
+    <h2>Ready to plug in?</h2>
+    <p>Takes less than a minute to set up.</p>
+    <a href="/eclipse.html" class="btn btn-primary">Generate My Install Link →</a>
+  </div>
+</main>
+
+<footer>
+  Part of the <a href="/">Ultra MAX</a> ecosystem ·
+  <a href="https://reddit.com/r/Ultra_Max" target="_blank">r/Ultra_Max</a> ·
+  <a href="https://github.com/PaRaN01a-hash/ultramax-music" target="_blank">GitHub</a> ·
+  <a href="https://ko-fi.com/ultramaxaddon" target="_blank">Support on Ko-fi</a>
+</footer>
+
+<script>
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2+Math.random()*4}s;
+      --delay:${-Math.random()*6}s;
+      --op:${0.2+Math.random()*0.7};
+    `;
+    starsEl.appendChild(s);
+  }
+</script>
+</body>
+</html>
