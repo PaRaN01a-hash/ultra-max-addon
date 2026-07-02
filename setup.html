@@ -4428,6 +4428,9 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
 
       <!-- NAV -->
+      <div id="s2StremioWarn" style="display:none;background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:#ffb800;margin-top:16px;">
+        ⚠️ <strong>Stremio users:</strong> 200+ catalogs may exceed Stremio's manifest size limit. Works fine in Nuvio. Consider hiding unused rows rather than removing them.
+      </div>
       <div class="nav-btns" style="margin-top:24px;">
         <button class="nav-btn" onclick="goToStep1()">← Back</button>
         <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
@@ -4692,7 +4695,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <div class="final-export-row">
               <button class="nav-btn primary" type="button" onclick="downloadCollectionsJson()">📦 Export<br>Nuvio JSON</button>
-              <button class="nav-btn primary" type="button" id="pushNuvioBtn" onclick="pushToNuvio()" style="background:linear-gradient(135deg,#6366f1,#7c3aed);">🚀 Push to<br>Nuvio</button>
               <button class="nav-btn" type="button" onclick="downloadProjectFile()">💾 Export<br>Project File</button>
               <button class="nav-btn" type="button" onclick="downloadCatalogCsv()">📊 Export<br>Catalog CSV</button>
             </div>
@@ -4710,6 +4712,22 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="counterBar" style="display:none;"></div>
 
   </main>
+<!-- TOKEN PASSWORD MODAL -->
+<div id="tokenPasswordModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px;width:90%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,.6);">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);margin-bottom:6px;">Welcome Back</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Enter your password to load your setup.</div>
+    <input type="password" id="tokenModalPassword" placeholder="Your password..." 
+      style="width:100%;box-sizing:border-box;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:14px;padding:12px 14px;border-radius:10px;outline:none;margin-bottom:10px;"
+      onkeydown="if(event.key==='Enter') verifyTokenPassword()">
+    <div id="tokenModalError" style="font-size:12px;color:#FF3D5A;margin-bottom:10px;min-height:16px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="cancelTokenModal()" style="flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:inherit;font-size:13px;padding:11px;border-radius:10px;cursor:pointer;">Cancel</button>
+      <button onclick="verifyTokenPassword()" id="tokenModalBtn" style="flex:2;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer;">Load My Setup →</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /um-app -->
 
 </div>
@@ -4736,7 +4754,8 @@ document.addEventListener('DOMContentLoaded', function(){
     sessionStorage.setItem('um_setup_token', urlToken);
     const tokenInput = document.getElementById('returningToken') || document.getElementById('loadTokenInput') || document.getElementById('tokenInput');
     if(tokenInput) tokenInput.value = urlToken;
-    if(typeof loadConfigByToken === 'function') loadConfigByToken(urlToken);
+    // Show password modal instead of loading directly
+    setTimeout(function(){ if(typeof showTokenPasswordModal === 'function') showTokenPasswordModal(urlToken); }, 400);
     const cpw = document.getElementById('confirmPasswordWrap'); if(cpw) cpw.style.display = 'none';
     const fpc = document.getElementById('forgotPasswordCard'); if(fpc) fpc.style.display = 'block';
   }
@@ -5403,6 +5422,9 @@ function s2UpdateCounter(){
   if(el) el.textContent = count;
   var fab = document.getElementById('s2FabCount');
   if(fab) fab.textContent = count;
+  // Stremio warning
+  var warn = document.getElementById('s2StremioWarn');
+  if(warn) warn.style.display = count > 200 ? 'block' : 'none';
 }
 
 var S2_POSTER_IDS = {
@@ -6056,8 +6078,8 @@ const FOLDER_MEDIA = {
   'ITVX':               { cover: 'https://ultramax.vip/images/uk.itvx.webp', gif: 'https://ultramax.vip/images/uk.itvx.focus.gif', shape: 'LANDSCAPE' },
   'Channel 4':          { cover: 'https://ultramax.vip/images/uk.channel_4.webp', gif: 'https://ultramax.vip/images/uk.channel_4.focus.gif', shape: 'LANDSCAPE' },
   'Crunchyroll':        { cover: 'https://kao-xt.com/Streaming%20Platforms/Crunchyroll/cover.webp', gif: 'https://ultramax.vip/images/streaming_services.crunchyroll.focus.gif', shape: 'LANDSCAPE' },
-  'Starz':              { cover: 'https://kao-xt.com/Streaming%20Platforms/Starz/cover.webp',         gif: IMAGE_BASE + 'starz.gif',                                    shape: 'LANDSCAPE' },
-  'MUBI':               { cover: 'https://kao-xt.com/Streaming%20Platforms/MUBI/cover.webp',          gif: IMAGE_BASE + 'mubi.gif',                                     shape: 'LANDSCAPE' },
+  'Starz':              { cover: 'https://ultramax.vip/images/quick/streaming_services__starz__cover.webp', gif: 'https://ultramax.vip/images/quick/starz.gif', shape: 'LANDSCAPE' },
+  'MUBI':               { cover: 'https://ultramax.vip/images/quick/streaming_services__mubi__cover.webp', gif: 'https://ultramax.vip/images/quick/mubi.gif', shape: 'LANDSCAPE' },
   'Discovery+':         { cover: 'https://kao-xt.com/Streaming%20Platforms/Discovery%2B/cover.webp',  gif: IMAGE_BASE + 'Discovery.gif',                                shape: 'LANDSCAPE' },
   'National Geographic':{ cover: IMAGE_BASE + 'NatGeo.jpg',                                       gif: IMAGE_BASE + 'NatGeo.gif',                                   shape: 'LANDSCAPE' },
   'Animal Planet':      { cover: 'https://ultramax.vip/images/animal_planet.png', gif: 'https://ultramax.vip/images/animal_planet.gif', shape: 'LANDSCAPE' },
@@ -7482,10 +7504,70 @@ async function loadConfig(){
   if(!token) return;
   editToken = token;
   window.history.pushState({}, '', '/configure/' + token);
-  document.getElementById('editBanner').classList.add('visible');
-  document.getElementById('confirmPassword').style.display = 'none';
-  document.getElementById('password').placeholder = 'Enter your password to save changes';
-  await loadConfigByToken(token);
+  showTokenPasswordModal(token);
+}
+
+var _pendingToken = null;
+
+function showTokenPasswordModal(token){
+  _pendingToken = token;
+  var modal = document.getElementById('tokenPasswordModal');
+  if(modal){ modal.style.display = 'flex'; }
+  setTimeout(function(){ 
+    var inp = document.getElementById('tokenModalPassword');
+    if(inp) inp.focus();
+  }, 100);
+}
+
+function cancelTokenModal(){
+  var modal = document.getElementById('tokenPasswordModal');
+  if(modal) modal.style.display = 'none';
+  _pendingToken = null;
+  document.getElementById('tokenModalPassword').value = '';
+  document.getElementById('tokenModalError').textContent = '';
+}
+
+async function verifyTokenPassword(){
+  var pass = document.getElementById('tokenModalPassword').value;
+  var errEl = document.getElementById('tokenModalError');
+  var btn = document.getElementById('tokenModalBtn');
+  if(!pass){ errEl.textContent = 'Please enter your password'; return; }
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  errEl.textContent = '';
+  
+  try {
+    // Verify password by attempting to load config
+    var res = await fetch(API_BASE + '/c/' + _pendingToken + '/config');
+    if(!res.ok){ errEl.textContent = 'Token not found'; btn.textContent = 'Load My Setup →'; btn.disabled = false; return; }
+    var data = await res.json();
+    
+    // Check password using bcrypt via the update endpoint with a dummy call
+    var checkRes = await fetch(API_BASE + '/c/' + _pendingToken + '/verify-password', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ password: pass })
+    });
+    
+    if(checkRes.ok){
+      // Password good — close modal, autofill password, load config
+      var modal = document.getElementById('tokenPasswordModal');
+      if(modal) modal.style.display = 'none';
+      var pwEl = document.getElementById('password');
+      if(pwEl) pwEl.value = pass;
+      var confirmEl = document.getElementById('confirmPassword');
+      if(confirmEl) confirmEl.value = pass;
+      document.getElementById('tokenModalPassword').value = '';
+      loadConfigByToken(_pendingToken).then(function(){
+        setTimeout(function(){ setStep(1); }, 500);
+      });
+    } else {
+      errEl.textContent = 'Incorrect password — please try again';
+      btn.textContent = 'Load My Setup →'; btn.disabled = false;
+    }
+  } catch(e) {
+    errEl.textContent = 'Error checking password';
+    btn.textContent = 'Load My Setup →'; btn.disabled = false;
+  }
 }
 
 async function loadConfigByToken(token){
@@ -7626,7 +7708,12 @@ function buildCollectionsExport(){
       id: coll.id || safeNuvioId('collection', collTitle, 'collection-' + collIndex),
       title: collTitle,
       folders: (coll.folders || []).map(function(folder, folderIndex){
-        const folderTitle = folder.title || 'Folder';
+        // Derive title from first row if not set
+        var folderTitle = folder.title;
+        if(!folderTitle && folder.rows && folder.rows[0]){
+          folderTitle = getCatalogLabel(folder.rows[0]).replace(' · Movies','').replace(' · Series','');
+        }
+        folderTitle = folderTitle || 'Folder';
 
         return {
           id: folder.id || safeNuvioId('folder', collTitle + '-' + folderTitle, 'folder-' + collIndex + '-' + folderIndex),
@@ -7667,7 +7754,7 @@ async function pushToNuvio(){
     // Save collections to server
     await saveCollectionsToServer(editToken);
     // Open Nuvio import URL
-    const url = 'https://nuvio.tv/collections/import?url=' + encodeURIComponent('https://ultramax.vip/c/' + editToken + '/collections.json');
+    const url = 'https://nuvio.tv/collections/share?url=' + encodeURIComponent('https://ultramax.vip/c/' + editToken + '/collections.json');
     window.open(url, '_blank');
   } catch(e) {
     alert('Failed to push: ' + e.message);
@@ -8719,7 +8806,8 @@ function toggleSubSection(pillsId, headerEl){
 
 // Collapsible categories
 function initCollapsible(){
-  // Standard categories (not parent/sub hierarchy)
+  // Disabled — old pill system replaced by new category builder
+  return;
   const groups = ["quickpicks","trending","providers","genres","studios","collections","tvcollections","directors","actors","decades","kids"];
   groups.forEach(function(g){
     const header = document.querySelector(`[onclick="selectAll('${g}')"]`).closest(".cat-header");
@@ -9156,7 +9244,7 @@ window.addEventListener('resize', makeSprockets);
 window.addEventListener('load', function(){
   try { setTimeout(makeSprockets, 300); } catch(e) { console.error('makeSprockets failed', e); }
   try { updateCategoryCounts(); } catch(e) { console.error('updateCategoryCounts failed', e); }
-  try { initCollapsible(); } catch(e) { console.error('initCollapsible failed', e); }
+  // initCollapsible disabled — old pill system removed
   try { refreshCollectionPresetButtons(); } catch(e) { console.error('refreshCollectionPresetButtons failed', e); }
   try { renderCollectionDrafts(); } catch(e) { console.error('renderCollectionDrafts failed', e); }
 });
