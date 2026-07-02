@@ -907,8 +907,9 @@
       color: var(--white);
     }
     .trending-catalog-pct {
-      font-size: 0.75rem;
-      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--violet2);
     }
     .trending-poster-row {
       display: flex;
@@ -1315,7 +1316,7 @@
     <div class="nav-links">
       <a href="#services">Services</a>
       <a href="https://reddit.com/r/Ultra_Max" target="_blank">Community</a>
-      <a href="/changelog.html">What's New</a>
+      <a href="/changelog.html" style="position:relative;">What's New <span id="changelogDot" style="display:none;position:absolute;top:-2px;right:-8px;width:7px;height:7px;background:#FF3D5A;border-radius:50%;"></span></a>
       <a href="/status.html">Status</a>
       <a href="https://ko-fi.com/ultramaxaddon" target="_blank">Support</a>
       <a class="nav-cta" href="/setup.html">Get Setup →</a>
@@ -1327,7 +1328,7 @@
     <div class="mobile-menu" id="mobileMenu">
       <a href="#services" onclick="toggleMenu()">Services</a>
       <a href="https://reddit.com/r/Ultra_Max" target="_blank" onclick="toggleMenu()">Community</a>
-      <a href="/changelog.html" onclick="toggleMenu()">What's New</a>
+      <a href="/changelog.html" onclick="toggleMenu()" style="position:relative;">What's New <span style="display:inline-block;width:7px;height:7px;background:#FF3D5A;border-radius:50%;margin-left:4px;vertical-align:middle;"></span></a>
       <a href="/status.html" onclick="toggleMenu()">Status</a>
       <a href="https://ko-fi.com/ultramaxaddon" target="_blank" onclick="toggleMenu()">☕ Support</a>
       <a class="nav-cta" href="/setup.html" onclick="toggleMenu()">Get Setup →</a>
@@ -1400,19 +1401,58 @@
 
     <!-- NUVIO MOCKUP — scroll-animated -->
     <div class="eco-mockup-section">
-      <div class="eco-eyebrow">Your Home Screen</div>
+      <div class="eco-eyebrow">Your Collections</div>
       <h2 class="eco-title">WATCH YOUR NUVIO<br><span class="eco-title-accent">COME ALIVE</span></h2>
-      <p class="eco-sub">Every row you pick lands exactly here. 500+ catalogs, one link, straight into Nuvio.</p>
-      <div class="nuvio-mockup" id="liveMockup">
-        <div class="nuvio-bar">
-          <div class="nuvio-logo">NUVIO</div>
-          <div class="nuvio-bar-tabs">
-            <span class="nuvio-tab active">Home</span>
-            <span class="nuvio-tab">Discover</span>
-            <span class="nuvio-tab">Library</span>
+      <p class="eco-sub">Group your rows into beautiful Nuvio collections. Streaming services, genres, studios — all organised exactly how you want.</p>
+
+      <!-- Collections preview -->
+      <div style="max-width:860px;margin:0 auto;">
+
+        <!-- Streaming Platforms -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Streaming Platforms</div>
+          <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/netflix.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Netflix"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Disney.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Disney+"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/HBO.jpg" style="width:100%;height:100%;object-fit:cover;" alt="HBO"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Apple.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Apple TV+"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/prime.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Prime"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Hulu.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Hulu"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Peacock.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Peacock"></div>
           </div>
         </div>
-        <div class="nuvio-body" id="mockupRows"></div>
+
+        <!-- Studios -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Studios</div>
+          <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Marvel.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Marvel"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/DC.jpg" style="width:100%;height:100%;object-fit:cover;" alt="DC"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/A24.jpg" style="width:100%;height:100%;object-fit:cover;" alt="A24"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Blumhouse.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Blumhouse"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Pixar.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Pixar"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Ghibli.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Ghibli"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Dreamworks.jpg" style="width:100%;height:100%;object-fit:cover;" alt="DreamWorks"></div>
+          </div>
+        </div>
+
+        <!-- Genres -->
+        <div>
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Genres</div>
+          <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_action.png" style="width:100%;height:100%;object-fit:cover;" alt="Action"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_horror.png" style="width:100%;height:100%;object-fit:cover;" alt="Horror"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_comedy.png" style="width:100%;height:100%;object-fit:cover;" alt="Comedy"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_scifi.png" style="width:100%;height:100%;object-fit:cover;" alt="Sci-Fi"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_thriller.png" style="width:100%;height:100%;object-fit:cover;" alt="Thriller"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_drama.png" style="width:100%;height:100%;object-fit:cover;" alt="Drama"></div>
+            <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_anime.png" style="width:100%;height:100%;object-fit:cover;" alt="Anime"></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1659,54 +1699,61 @@
       <div class="trending-grid" id="trendingGrid"></div>
     </div>
 
-    <!-- ECLIPSE MUSIC PROMO -->
+    <!-- ECOSYSTEM PROMO -->
     <div style="max-width:920px;margin:0 auto 80px;padding:0 24px;">
-      <div style="background:linear-gradient(135deg,#0e0e1c,#14142a);border:1px solid #1e1e38;border-radius:20px;padding:40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,0.15),transparent 70%);pointer-events:none;"></div>
-        <div style="width:64px;height:64px;flex-shrink:0;border-radius:18px;background:linear-gradient(135deg,#6366f1,#a78bfa);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(99,102,241,0.4);position:relative;">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--violet2);margin-bottom:10px;font-family:'Syne',sans-serif;">The Ultra MAX Ecosystem</div>
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#fff;margin-bottom:8px;">MORE THAN JUST CATALOGS</h2>
+        <p style="color:#6b6b8a;font-size:0.9rem;max-width:480px;margin:0 auto;line-height:1.6;">Ultra MAX connects with the best music streaming apps in the Nuvio ecosystem.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- Eclipse -->
+        <div style="background:linear-gradient(135deg,#0e0e1c,#14142a);border:1px solid #1e1e38;border-radius:16px;padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50%;right:-5%;width:200px;height:200px;background:radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%);pointer-events:none;"></div>
+          <div style="width:48px;height:48px;flex-shrink:0;border-radius:14px;background:linear-gradient(135deg,#6366f1,#a78bfa);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(99,102,241,0.4);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#a78bfa;margin-bottom:4px;font-family:'Syne',sans-serif;">Eclipse Music</div>
+            <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:4px;">Full-quality Deezer streaming</div>
+            <div style="color:#6b6b8a;font-size:0.8rem;line-height:1.5;">Your own private install link, automatically tuned to best quality.</div>
+          </div>
+          <a href="/eclipse-info.html" style="flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;border-radius:10px;text-decoration:none;background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;white-space:nowrap;">Explore →</a>
         </div>
-        <div style="flex:1;min-width:240px;position:relative;">
-          <div style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#a78bfa;margin-bottom:8px;font-family:'Syne',sans-serif;">New · Eclipse Music</div>
-          <h3 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px;color:#f0f0ff;">Full-quality Deezer streaming</h3>
-          <p style="color:#6b6b8a;font-size:0.9rem;line-height:1.6;">Stream full tracks through Eclipse Music with your own private install link — automatically tuned to your best available quality.</p>
+
+        <!-- BeatBoss -->
+        <div style="background:linear-gradient(135deg,#0a0e14,#111827);border:1px solid #1e2a38;border-radius:16px;padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50%;right:-5%;width:200px;height:200px;background:radial-gradient(circle,rgba(34,197,94,0.08),transparent 70%);pointer-events:none;"></div>
+          <div style="width:48px;height:48px;flex-shrink:0;border-radius:14px;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(34,197,94,0.4);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#22c55e;margin-bottom:4px;font-family:'Syne',sans-serif;">BeatBoss</div>
+            <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:4px;">Ultra MAX on BeatBoss</div>
+            <div style="color:#6b6b8a;font-size:0.8rem;line-height:1.5;">A dedicated music app for Nuvio — Ultra MAX is officially in their collection.</div>
+          </div>
+          <a href="https://beatboss.thevolecitor.qzz.io/mobile" target="_blank" rel="noopener" style="flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;border-radius:10px;text-decoration:none;background:linear-gradient(135deg,#16a34a,#15803d);color:white;white-space:nowrap;">Open →</a>
         </div>
-        <a href="https://eclipsemusic.app" style="position:relative;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;text-decoration:none;background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;box-shadow:0 4px 24px rgba(99,102,241,0.3);white-space:nowrap;">Explore Eclipse →</a>
+
+        <!-- Max Music -->
+        <div style="background:linear-gradient(135deg,#0d0a1a,#14102a);border:1px solid #2a1e45;border-radius:16px;padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50%;right:-5%;width:200px;height:200px;background:radial-gradient(circle,rgba(123,47,255,0.1),transparent 70%);pointer-events:none;"></div>
+          <div style="width:48px;height:48px;flex-shrink:0;border-radius:14px;background:linear-gradient(135deg,#7B2FFF,#FF5E5B);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(123,47,255,0.4);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#a78bfa;margin-bottom:4px;font-family:'Syne',sans-serif;">Max Music</div>
+            <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:4px;">Deezer for Eclipse & BeatBoss</div>
+            <div style="color:#6b6b8a;font-size:0.8rem;line-height:1.5;">One install link that works across both platforms.</div>
+          </div>
+          <a href="https://ultramax.vip/eclipse.html" style="flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;border-radius:10px;text-decoration:none;background:linear-gradient(135deg,#7B2FFF,#6d28d9);color:white;white-space:nowrap;">Get Max Music →</a>
+        </div>
+
       </div>
     </div>
 
-    <!-- BEATBOSS PROMO -->
-    <div style="max-width:920px;margin:0 auto 40px;padding:0 24px;">
-      <div style="background:linear-gradient(135deg,#0a0e14,#111827);border:1px solid #1e2a38;border-radius:20px;padding:40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(34,197,94,0.1),transparent 70%);pointer-events:none;"></div>
-        <div style="width:64px;height:64px;flex-shrink:0;border-radius:18px;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(34,197,94,0.4);position:relative;overflow:hidden;">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-        </div>
-        <div style="flex:1;min-width:240px;position:relative;">
-          <div style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#22c55e;margin-bottom:8px;font-family:'Syne',sans-serif;">Featured · BeatBoss</div>
-          <h3 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px;color:#f0f0ff;">Ultra MAX on BeatBoss</h3>
-          <p style="color:#6b6b8a;font-size:0.9rem;line-height:1.6;">BeatBoss is a dedicated music streaming app for Nuvio — and Ultra MAX is officially part of their collection. Stream music with full catalog integration.</p>
-        </div>
-        <a href="https://beatboss.thevolecitor.qzz.io/mobile" target="_blank" rel="noopener" style="position:relative;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;text-decoration:none;background:linear-gradient(135deg,#16a34a,#15803d);color:white;box-shadow:0 4px 24px rgba(34,197,94,0.3);white-space:nowrap;">Open BeatBoss →</a>
-      </div>
-    </div>
-
-    <!-- ULTRA MAX ADDON PROMO -->
-    <div style="max-width:920px;margin:0 auto 40px;padding:0 24px;">
-      <div style="background:linear-gradient(135deg,#0d0a1a,#14102a);border:1px solid #2a1e45;border-radius:20px;padding:40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(123,47,255,0.12),transparent 70%);pointer-events:none;"></div>
-        <div style="width:64px;height:64px;flex-shrink:0;border-radius:18px;background:linear-gradient(135deg,#7B2FFF,#FF5E5B);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(123,47,255,0.4);position:relative;">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-        </div>
-        <div style="flex:1;min-width:240px;position:relative;">
-          <div style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#a78bfa;margin-bottom:8px;font-family:'Syne',sans-serif;">Free · Max Music</div>
-          <h3 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px;color:#f0f0ff;">Deezer streaming for Eclipse & BeatBoss</h3>
-          <p style="color:#6b6b8a;font-size:0.9rem;line-height:1.6;">Max Music brings full-quality Deezer streaming to both Eclipse and BeatBoss. One install link, works across both platforms.</p>
-        </div>
-        <a href="https://ultramax.vip/eclipse.html" style="position:relative;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;text-decoration:none;background:linear-gradient(135deg,#7B2FFF,#6d28d9);color:white;box-shadow:0 4px 24px rgba(123,47,255,0.3);white-space:nowrap;">Get Ultra MAX →</a>
-      </div>
-    </div>
-
+    <!-- FINAL CTA -->
     <!-- FINAL CTA -->
     <div class="final-cta-section">
       <div class="poster-strip-wrap" style="position:absolute;inset:0;opacity:0.08;pointer-events:none;overflow:hidden;">
@@ -2037,5 +2084,17 @@
   if(howSection) connectorObserver.observe(howSection);
   </script>
 
+<script>
+// Show changelog dot if last update was within 30 days
+(function(){
+  var lastUpdate = new Date('2026-07-02'); // Update this when changelog is updated
+  var now = new Date();
+  var daysDiff = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+  if(daysDiff < 30){
+    var dot = document.getElementById('changelogDot');
+    if(dot) dot.style.display = 'inline-block';
+  }
+})();
+</script>
 </body>
 </html>

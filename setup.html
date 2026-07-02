@@ -721,10 +721,87 @@ body.lite-mode #step-2 #quickpicks {
 }
 
 
-.quick-v3 { margin:20px 0; padding:20px; border:1px solid #333; border-radius:12px; background:#0b0f1a; }
-.quick-v3-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.quick-card { padding:15px; border:1px solid #444; border-radius:10px; background:#111; color:white; cursor:pointer; }
-.quick-card:hover { border-color:#18ffff; }
+.quick-v3 { margin:20px 0; }
+
+/* ── STEP 1 OVERHAUL ── */
+.optional-shell {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+.optional-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s;
+}
+.optional-toggle:hover { background: rgba(255,255,255,.03); }
+.optional-sub {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 20px 14px;
+  margin-top: -8px;
+}
+#optionalWrap {
+  border-top: 1px solid var(--border);
+  padding: 16px 20px 20px;
+}
+.field-block {
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.field-block:last-child { margin-bottom: 0; }
+.quick-v3-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.quick-card {
+  padding:20px 16px;
+  border:1px solid var(--border2);
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--card),rgba(255,255,255,.02));
+  color:white;
+  cursor:pointer;
+  text-align:left;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.quick-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity .2s;
+}
+.quick-card:nth-child(1)::before { background:linear-gradient(135deg,rgba(123,47,255,.15),transparent); }
+.quick-card:nth-child(2)::before { background:linear-gradient(135deg,rgba(255,94,91,.15),transparent); }
+.quick-card:nth-child(3)::before { background:linear-gradient(135deg,rgba(99,102,241,.15),transparent); }
+.quick-card:nth-child(4)::before { background:linear-gradient(135deg,rgba(0,210,160,.15),transparent); }
+.quick-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.4); }
+.quick-card:nth-child(1):hover { border-color:var(--violet); }
+.quick-card:nth-child(2):hover { border-color:#FF5E5B; }
+.quick-card:nth-child(3):hover { border-color:#6366f1; }
+.quick-card:nth-child(4):hover { border-color:#00d2a0; }
+.quick-card:hover::before { opacity:1; }
+.quick-card.active { border-color:var(--violet); box-shadow:0 0 0 2px rgba(123,47,255,.2); }
+.quick-icon { font-size:1.8rem; margin-bottom:10px; display:block; position:relative; z-index:1; }
+.quick-title { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:.04em; color:var(--white); margin-bottom:4px; position:relative; z-index:1; }
+.quick-desc { font-size:11px; color:var(--muted); line-height:1.5; position:relative; z-index:1; }
+.quick-v3-summary { font-size:12px; color:var(--muted); margin:14px 0; padding:12px 16px; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; line-height:1.6; min-height:40px; }
+.quick-v3-actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
 
 
 /* Quick Setup v3 separation */
@@ -3422,11 +3499,49 @@ body {
 
 /* ── CARD ── */
 .um-card {
-  background: var(--card);
+  background: linear-gradient(135deg, var(--card), rgba(255,255,255,.01));
   border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 22px;
   margin-bottom: 4px;
+  transition: border-color .3s, box-shadow .3s, transform .2s;
+  position: relative;
+  animation: cardSlideIn .4s ease both;
+}
+.um-card:nth-child(2) { animation-delay: .1s; }
+.um-card:nth-child(3) { animation-delay: .2s; }
+@keyframes cardSlideIn {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.um-card:hover {
+  border-color: rgba(123,47,255,.4);
+  box-shadow: 0 8px 32px rgba(123,47,255,.1), 0 2px 8px rgba(0,0,0,.3);
+  transform: translateY(-1px);
+}
+.um-card.api-key-hero {
+  border-left: 3px solid var(--violet);
+  padding-left: 20px;
+}
+/* Glowing input focus */
+#step-1 input:focus {
+  border-color: var(--violet) !important;
+  box-shadow: 0 0 0 3px rgba(123,47,255,.15) !important;
+  outline: none;
+}
+/* Ambient glow behind required section */
+.um-fields-grid {
+  position: relative;
+}
+.um-fields-grid::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 200px;
+  background: radial-gradient(circle, rgba(123,47,255,.08), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .um-card-title {
@@ -3630,19 +3745,22 @@ body {
       </div>
 
       <!-- SETUP TOOLS TOOLBAR -->
-      <div class="um-toolbar">
-        <div class="um-toolbar-label">Setup Tools</div>
-        <div class="um-toolbar-btns">
-          <input type="file" id="projectFileInput" accept=".json,application/json" style="display:none">
-          <button class="um-tool-btn" type="button" onclick="startNewBuild()" title="Start fresh">🚀 New Build</button>
-          <button class="um-tool-btn" type="button" title="Import project" onclick="document.getElementById('projectFileInput').click()">📦 Import</button>
-          <button class="um-tool-btn" type="button" onclick="openReturningTools()" title="Load existing token">🔑 Load Token</button>
-          <a class="um-tool-btn" href="/recover" target="_blank" title="Recover lost token" style="text-decoration:none;">📧 Recover Token</a>
-          <button class="um-tool-btn" type="button" onclick="saveDraftState(); showBanner('Draft saved.', 'success')" title="Save draft">💾 Save</button>
-          <button class="um-tool-btn" type="button" onclick="restoreDraftState()" title="Restore draft">↩ Restore</button>
-          <button class="um-tool-btn" type="button" onclick="clearDraftState()" title="Clear draft">🗑 Clear</button>
-          <button class="um-tool-btn" type="button" onclick="showHowToUse()" title="How to use">❓ Help</button>
-          <button class="um-tool-btn" type="button" onclick="openAssetModal(-1,-1,'standalone')" title="Browse cover art">🖼 Assets</button>
+      <input type="file" id="projectFileInput" accept=".json,application/json" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:24px;align-items:center;">
+        <button onclick="startNewBuild()" type="button" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">🚀 New Setup</button>
+        <button onclick="openReturningTools()" type="button" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--violet2)'" onmouseout="this.style.borderColor='var(--border2)'">🔑 Load Token</button>
+        <button onclick="saveDraftState(); showBanner('Draft saved.', 'success')" type="button" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--violet2)'" onmouseout="this.style.borderColor='var(--border2)'">💾 Save</button>
+        <div style="position:relative;margin-left:auto;">
+          <button onclick="toggleToolsMenu()" type="button" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;padding:11px 16px;border-radius:12px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--violet2)'" onmouseout="this.style.borderColor='var(--border2)'">••• More</button>
+          <div id="toolsMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:8px;z-index:100;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,.4);">
+            <button onclick="document.getElementById('projectFileInput').click();toggleToolsMenu()" type="button" style="width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">📦 Import</button>
+            <a href="/recover" target="_blank" style="width:100%;display:flex;align-items:center;gap:10px;color:var(--text);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;text-decoration:none;display:flex;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">📧 Recover Token</a>
+            <button onclick="restoreDraftState();toggleToolsMenu()" type="button" style="width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">↩ Restore</button>
+            <button onclick="showHowToUse();toggleToolsMenu()" type="button" style="width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">❓ Help</button>
+            <button onclick="openAssetModal(-1,-1,'standalone');toggleToolsMenu()" type="button" style="width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">🖼 Assets</button>
+            <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+            <button onclick="clearDraftState();toggleToolsMenu()" type="button" style="width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:none;color:#FF3D5A;font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;" onmouseover="this.style.background='rgba(255,61,90,.08)'" onmouseout="this.style.background='transparent'">🗑 Clear</button>
+          </div>
         </div>
       </div>
 
@@ -3703,7 +3821,10 @@ body {
       <div id="advancedBuilderContainer">
 
         <!-- REQUIRED FIELDS -->
-        <div class="um-section-label" style="margin-top:28px;">Required</div>
+        <div style="display:flex;align-items:center;gap:12px;margin:24px 0 16px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--coral);">● Required</span>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,61,90,.3),transparent);"></div>
+        </div>
         <div class="um-fields-grid">
 
           <!-- Password -->
@@ -4264,6 +4385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .s2-preset-count { font-size:10px; color:var(--violet2); font-weight:600; }
         .s2-preset-tick { position:absolute; top:6px; right:6px; width:16px; height:16px; border-radius:50%; background:var(--violet); display:none; align-items:center; justify-content:center; font-size:9px; color:#fff; }
         .s2-preset.s2-active .s2-preset-tick { display:flex; }
+        @keyframes s2Pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02);box-shadow:0 0 20px rgba(123,47,255,.3);} }
 
         /* Category cards */
         .s2-cats { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
@@ -4451,6 +4573,18 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
 
       <!-- 1. Preset Collections -->
+      <!-- STICKY PRESETS -->
+      <div class="s3-sticky-presets" id="s3StickyPresets">
+        <div class="s3-sticky-toggle" onclick="s3ToggleStickyPresets()">
+          <div class="s3-sticky-label">
+            ⚡ Quick start — tap to add a collection
+            <span style="font-size:9px;color:var(--violet2);font-weight:600;">tap to expand</span>
+          </div>
+          <span class="s3-sticky-chev">▼</span>
+        </div>
+        <div class="s3-sticky-grid s3-presets-grid" id="s3StickyGrid"></div>
+      </div>
+
       <div id="presetsPanel" style="margin-bottom:28px;">
         <div class="s3-label">Quick start — tap to add a collection</div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Each preset instantly creates a new collection below. Tap as many as you like — one at a time.</p>
@@ -4655,55 +4789,72 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
 
+        <button class="nav-btn primary" id="genBtn" onclick="generate()" style="width:100%;font-size:16px;padding:16px;margin-bottom:16px;border-radius:14px;">🚀 Generate Final Setup</button>
+
         <div class="loading" id="loading">Generating your addon...</div>
 
         <div id="resultBox" style="display:none;">
-          <div class="result-section">
-            <div class="result-label">Your Final Setup URL</div>
-            <div class="url-display" id="urlDisplay"></div>
-            <div class="result-btns">
-              <button class="rbtn primary" onclick="copyUrl()">Copy URL</button>
-              <a class="rbtn" id="installBtn" href="#">Install in Stremio/Nuvio</a>
-            </div>
-            <div style="margin-top:12px;background:rgba(123,47,255,0.06);border:1px solid rgba(123,47,255,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#b0b0d0;line-height:1.7;">
-              💡 <strong style="color:#e8e8f0;">This URL never changes.</strong> Come back anytime with your token to edit your setup — any changes save instantly to this same link. You do <strong style="color:#e8e8f0;">not</strong> need to reinstall or get a new URL in Nuvio/Stremio. If a catalog doesn't update right away, just pull-to-refresh or restart the app.
-            </div>
-            <div class="token-save">
-              Your token: <span id="tokenDisplay"></span>
-              <button onclick="window.copyToken(event)" id="copyTokenBtn" style="background:transparent;border:1px solid #333;color:#aaa;font-family:'Courier Prime',monospace;font-size:11px;padding:3px 10px;cursor:pointer;border-radius:3px;margin-left:6px;">Copy</button>
-              <br>Save your token — you'll need it to edit your config later.<br>
-              Edit at: <span id="editLink"></span>
+
+          <!-- TWO PART EXPLAINER -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+
+            <!-- Part 1: Addon URL -->
+            <div style="background:linear-gradient(135deg,rgba(123,47,255,.1),rgba(123,47,255,.05));border:1px solid rgba(123,47,255,.3);border-radius:16px;padding:18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--violet2);margin-bottom:8px;">Step 1 · Install</div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📡 Addon URL</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Copy this URL and install it in Nuvio or Stremio. This gives you all your catalog rows.</div>
+              <div class="url-display" id="urlDisplay" style="font-size:11px;margin-bottom:10px;border-radius:8px;"></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="rbtn primary" onclick="copyUrl()" style="font-size:12px;padding:8px 14px;border-radius:8px;">📋 Copy URL</button>
+                <a class="rbtn" id="installBtn" href="#" style="font-size:12px;padding:8px 14px;border-radius:8px;" title="Install directly in Stremio app">⚡ Stremio Install</a>
+              </div>
             </div>
 
-            <!-- Email Registration for Token Recovery -->
-            <div id="emailRegSection" style="margin-top:16px;background:#0a0a18;border:1px solid #2a2a45;border-radius:10px;padding:16px;">
-              <div style="font-size:12px;font-weight:600;color:#e8e8f0;margin-bottom:3px;">📧 Register your email <span style="font-size:10px;font-weight:400;color:#44445a;margin-left:6px;">Optional</span></div>
-              <div style="font-size:11px;color:#8888aa;margin-bottom:10px;line-height:1.5;">So you can recover your token if you lose it. Never used for marketing.</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <input type="email" id="recoveryEmail" placeholder="your@email.com" style="flex:1;min-width:180px;background:#14142a;border:1px solid #2a2a45;color:#e8e8f0;font-family:inherit;font-size:12px;padding:8px 10px;border-radius:6px;outline:none;" onfocus="this.style.borderColor='#7B2FFF'" onblur="this.style.borderColor='#1e1e36'">
-                <button onclick="registerRecoveryEmail()" style="background:#7B2FFF;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:600;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;" id="registerEmailBtn">Register</button>
-              </div>
-              <div id="emailRegResult" style="font-size:11px;margin-top:6px;min-height:14px;"></div>
+            <!-- Part 2: Nuvio JSON -->
+            <div style="background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(99,102,241,.05));border:1px solid rgba(99,102,241,.3);border-radius:16px;padding:18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;margin-bottom:8px;">Step 2 · Collections</div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">🗂 Nuvio JSON</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Export this file and import it in Nuvio's Collections page. This gives you folders and collections.</div>
+              <button class="nav-btn primary" type="button" onclick="downloadCollectionsJson()" style="font-size:12px;padding:8px 14px;border-radius:8px;width:100%;">📦 Export Nuvio JSON</button>
             </div>
+
+          </div>
+
+          <!-- Token info -->
+          <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">Your token — save this!</div>
+              <div id="tokenDisplayNew" style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--violet2);letter-spacing:.1em;"></div>
+            </div>
+            <button onclick="copyToken()" style="background:rgba(123,47,255,.15);border:1px solid rgba(123,47,255,.3);color:var(--violet2);font-family:inherit;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;">Copy Token</button>
+          </div>
+
+          <!-- Register email -->
+          <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">📧 Register your email <span style="font-weight:400;color:var(--faint);">Optional</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">So you can recover your token if you lose it. Never used for marketing.</div>
+            <div style="display:flex;gap:8px;">
+              <input type="email" id="recoveryEmail" placeholder="your@email.com" style="flex:1;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;border-radius:8px;outline:none;">
+              <button id="registerEmailBtn" onclick="registerRecoveryEmail(false)" style="background:var(--violet);border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;flex-shrink:0;">Register</button>
+            </div>
+            <div id="emailRegResult" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
+          </div>
+
+          <!-- Extra exports -->
+          <div class="final-export-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="nav-btn" type="button" onclick="downloadProjectFile()" style="font-size:12px;">💾 Project File</button>
+            <button class="nav-btn" type="button" onclick="downloadCatalogCsv()" style="font-size:12px;">📊 Catalog CSV</button>
+          </div>
+
+          <div class="final-back-row">
+            <button class="nav-btn" onclick="setStep(3)">← Back</button>
           </div>
         </div>
-
-        <div class="nav-btns final-actions">
-            <div class="final-launch-note">⚡ Ready to launch your setup · Takes around 10 seconds</div>
-
-            <button class="nav-btn primary" id="genBtn" onclick="generate()">🚀 Generate<br>Final Setup</button>
-
-            <div class="final-export-row">
-              <button class="nav-btn primary" type="button" onclick="downloadCollectionsJson()">📦 Export<br>Nuvio JSON</button>
-              <button class="nav-btn" type="button" onclick="downloadProjectFile()">💾 Export<br>Project File</button>
-              <button class="nav-btn" type="button" onclick="downloadCatalogCsv()">📊 Export<br>Catalog CSV</button>
-            </div>
-
-            <div class="final-back-row">
-              <button class="nav-btn" onclick="setStep(3)">← Back</button>
-            </div>
           </div>
         <div class="error-msg" id="genError" style="margin-top:12px;"></div>
+        <!-- Hidden legacy elements for JS compatibility -->
+        <div id="editLink" style="display:none;"></div>
+        <div id="tokenDisplay" style="display:none;"></div>
       </div>
 
       <!-- STICKY COUNTER (step 2 only) -->
@@ -4712,6 +4863,52 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="counterBar" style="display:none;"></div>
 
   </main>
+<!-- WELCOME MODAL -->
+<div id="welcomeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;">
+  
+  <!-- New/Load choice -->
+  <div id="welcomeChoicePanel" style="width:90%;max-width:420px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#fff;line-height:1;margin-bottom:8px;">ULTRA MAX</div>
+      <div style="font-size:13px;color:var(--muted);">500+ catalogs for Nuvio & Stremio</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button onclick="welcomeNewSetup()" style="background:linear-gradient(135deg,var(--violet),var(--coral));border:none;border-radius:16px;padding:20px 24px;color:#fff;font-family:inherit;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:16px;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(123,47,255,.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <span style="font-size:2rem;flex-shrink:0;">🚀</span>
+        <div>
+          <div style="font-weight:700;font-size:16px;margin-bottom:3px;">New Setup</div>
+          <div style="font-size:12px;opacity:.8;">Build your personalised addon from scratch</div>
+        </div>
+      </button>
+      <button onclick="welcomeLoadToken()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:20px 24px;color:#fff;font-family:inherit;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:16px;" onmouseover="this.style.background='rgba(255,255,255,.09)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <span style="font-size:2rem;flex-shrink:0;">🔑</span>
+        <div>
+          <div style="font-weight:700;font-size:16px;margin-bottom:3px;">Load Existing Setup</div>
+          <div style="font-size:12px;opacity:.6;">Enter your token to edit your setup</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Token entry panel -->
+  <div id="welcomeTokenPanel" style="display:none;width:90%;max-width:420px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#fff;margin-bottom:6px;">Enter Your Token</div>
+      <div style="font-size:13px;color:var(--muted);">The 8-character code from your previous setup</div>
+    </div>
+    <input type="text" id="welcomeTokenInput" placeholder="e.g. EA8I30DO" maxlength="8"
+      style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.4rem;letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:16px;border-radius:12px;outline:none;margin-bottom:10px;"
+      oninput="this.value=this.value.toUpperCase()"
+      onkeydown="if(event.key==='Enter') welcomeSubmitToken()">
+    <div id="welcomeTokenError" style="font-size:12px;color:#FF3D5A;text-align:center;margin-bottom:10px;min-height:16px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="welcomeBackToChoice()" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--muted);font-family:inherit;font-size:13px;padding:12px;border-radius:12px;cursor:pointer;">← Back</button>
+      <button onclick="welcomeSubmitToken()" id="welcomeTokenBtn" style="flex:2;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:14px;font-weight:700;padding:12px;border-radius:12px;cursor:pointer;">Load My Setup →</button>
+    </div>
+  </div>
+
+</div>
+
 <!-- TOKEN PASSWORD MODAL -->
 <div id="tokenPasswordModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px;width:90%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,.6);">
@@ -4752,6 +4949,8 @@ document.addEventListener('DOMContentLoaded', function(){
   if(urlToken){
     editToken = urlToken;
     sessionStorage.setItem('um_setup_token', urlToken);
+    // Clear draft so auto-restore doesn't jump to step 4
+    try{ localStorage.removeItem('ultramaxDraftV1'); }catch(e){}
     const tokenInput = document.getElementById('returningToken') || document.getElementById('loadTokenInput') || document.getElementById('tokenInput');
     if(tokenInput) tokenInput.value = urlToken;
     // Show password modal instead of loading directly
@@ -4761,6 +4960,12 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   var fi = document.getElementById('projectFileInput');
   if(fi) fi.addEventListener('change', function(e){ if(typeof _importProjectFile==='function') _importProjectFile(e); else alert('Import not ready yet - please try again'); });
+
+  // Show welcome modal on page load if no URL token
+  var _urlToken = new URLSearchParams(window.location.search).get('token');
+  if(!_urlToken){
+    showWelcomeModal();
+  }
 });
 
 
@@ -5046,6 +5251,9 @@ function setStep(n){
     setTimeout(refreshPillEyeStates, 80);
     setTimeout(renderCustomCatalogList, 100);
     setTimeout(function(){ if(typeof s2Init==='function') s2Init(); }, 200);
+  }
+  if(n === 3) {
+    setTimeout(function(){ if(typeof s3InitStickyPresets==='function') s3InitStickyPresets(); }, 300);
   }
 }
 
@@ -5605,7 +5813,7 @@ function renderCollections(){
           +'<span style="color:#555;font-size:11px;margin-left:4px;">'+(fo?'&#9660;':'&#9654;')+'</span>'
           +'</div>';
         if(fo){
-          html+='<div class="folder-body" style="padding:12px;display:flex;flex-direction:column;gap:10px;">'
+          html+='<div class="folder-body" style="padding:8px;display:flex;flex-direction:column;gap:6px;">'
             +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
             +'<div style="background:#1a1a35;border:1px solid #2a2a45;border-radius:8px;padding:10px;">'
             +'<div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6666aa;margin-bottom:8px;">Cover Image</div>'
@@ -6332,6 +6540,30 @@ function afterPresetAdded(key){
     }
   }, 150);
 }
+
+function s3ToggleStickyPresets(){
+  var el = document.getElementById('s3StickyPresets');
+  if(el) el.classList.toggle('s3-open');
+  var label = el ? el.querySelector('.s3-sticky-label span') : null;
+  if(label) label.textContent = el.classList.contains('s3-open') ? 'tap to collapse' : 'tap to expand';
+}
+
+// Populate sticky preset grid (clone of main grid)
+function s3InitStickyPresets(){
+  var mainGrid = document.getElementById('s3PresetsGrid');
+  var stickyGrid = document.getElementById('s3StickyGrid');
+  if(!mainGrid || !stickyGrid) return;
+  stickyGrid.innerHTML = mainGrid.innerHTML;
+  // Fix onclick handlers — they reference the card element
+  stickyGrid.querySelectorAll('.s3-preset-card').forEach(function(card){
+    var preset = card.dataset.preset;
+    card.onclick = function(){ s3PresetClick(card, preset); };
+  });
+}
+
+// Init sticky presets when step 3 becomes active
+var _s3StickyInit = false;
+var _origSetStep = typeof setStep === 'function' ? setStep : null;
 
 function s3PresetClick(card, key){
   card.classList.remove('just-added');
@@ -7213,7 +7445,13 @@ function syncHiddenFromCollections(){
 }
 
 function goToStep3(){
-  if(selected.size === 0) return;
+  if(selected.size === 0){
+    if(typeof showBanner === 'function') showBanner('⚡ Pick at least one row before continuing — try a preset above!', 'error');
+    // Highlight the presets section
+    var grid = document.getElementById('s2PresetsGrid');
+    if(grid){ grid.style.animation='none'; setTimeout(function(){ grid.style.animation='s2Pulse .6s ease 3'; },10); }
+    return;
+  }
   setStep(3);
   updateBuilderRecommendation();
   renderCollections();
@@ -7509,8 +7747,59 @@ async function loadConfig(){
 
 var _pendingToken = null;
 
+// ── WELCOME MODAL ──
+function showWelcomeModal(){
+  var modal = document.getElementById('welcomeModal');
+  if(modal) modal.style.display = 'flex';
+}
+
+function toggleToolsMenu(){
+  var menu = document.getElementById('toolsMenu');
+  if(menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+// Close tools menu when clicking outside
+document.addEventListener('click', function(e){
+  var menu = document.getElementById('toolsMenu');
+  if(menu && !e.target.closest('#toolsMenu') && !e.target.closest('[onclick*="toggleToolsMenu"]')){
+    menu.style.display = 'none';
+  }
+});
+
+function welcomeNewSetup(){
+  var modal = document.getElementById('welcomeModal');
+  if(modal) modal.style.display = 'none';
+  // Show help/onboarding
+  if(typeof showHowToUse === 'function') setTimeout(showHowToUse, 300);
+}
+
+function welcomeLoadToken(){
+  document.getElementById('welcomeChoicePanel').style.display = 'none';
+  document.getElementById('welcomeTokenPanel').style.display = 'block';
+  setTimeout(function(){ document.getElementById('welcomeTokenInput').focus(); }, 100);
+}
+
+function welcomeBackToChoice(){
+  document.getElementById('welcomeTokenPanel').style.display = 'none';
+  document.getElementById('welcomeChoicePanel').style.display = 'block';
+  document.getElementById('welcomeTokenInput').value = '';
+  document.getElementById('welcomeTokenError').textContent = '';
+}
+
+function welcomeSubmitToken(){
+  var token = document.getElementById('welcomeTokenInput').value.trim().toUpperCase();
+  var errEl = document.getElementById('welcomeTokenError');
+  var btn = document.getElementById('welcomeTokenBtn');
+  if(token.length < 6){ errEl.textContent = 'Please enter your token'; return; }
+  // Close welcome modal and show password modal
+  document.getElementById('welcomeModal').style.display = 'none';
+  editToken = token;
+  sessionStorage.setItem('um_setup_token', token);
+  showTokenPasswordModal(token);
+}
+
 function showTokenPasswordModal(token){
   _pendingToken = token;
+  window._tokenLoadInProgress = true;
   var modal = document.getElementById('tokenPasswordModal');
   if(modal){ modal.style.display = 'flex'; }
   setTimeout(function(){ 
@@ -7558,7 +7847,14 @@ async function verifyTokenPassword(){
       if(confirmEl) confirmEl.value = pass;
       document.getElementById('tokenModalPassword').value = '';
       loadConfigByToken(_pendingToken).then(function(){
-        setTimeout(function(){ setStep(1); }, 500);
+        setTimeout(function(){ setStep(1); }, 800);
+        setTimeout(function(){
+          var rowCount = selected ? selected.size : 0;
+          var collCount = v2Collections ? v2Collections.length : 0;
+          var msg = '✓ Setup loaded — ' + rowCount + ' rows';
+          if(collCount > 0) msg += ', ' + collCount + ' collection' + (collCount !== 1 ? 's' : '');
+          if(typeof showBanner === 'function') showBanner(msg, 'success');
+        }, 1200);
       });
     } else {
       errEl.textContent = 'Incorrect password — please try again';
@@ -8293,19 +8589,13 @@ function startNewBuild(){
 }
 
 function openReturningTools(){
-  const token = prompt('Enter your Ultra MAX token');
-  if(!token) return;
-
-  let input = document.getElementById('tokenInput');
-  if(!input){
-    input = document.createElement('input');
-    input.type = 'hidden';
-    input.id = 'tokenInput';
-    document.body.appendChild(input);
+  var modal = document.getElementById('welcomeModal');
+  if(modal){
+    document.getElementById('welcomeChoicePanel').style.display = 'none';
+    document.getElementById('welcomeTokenPanel').style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(function(){ document.getElementById('welcomeTokenInput').focus(); }, 100);
   }
-
-  input.value = token.trim();
-  loadConfig();
 }
 
 
@@ -8522,7 +8812,7 @@ function restoreDraftState(){
     updateCategoryCounts();
     renderCollections();
 
-    setStep((data.currentStep && data.currentStep >= 1 && data.currentStep <= 4) ? data.currentStep : 1);
+    setStep(1); // Always restore to Step 1 so user clicks through naturally
 
     if(typeof showBanner === 'function'){
       showBanner('💾 Draft restored from this browser.', 'success');
@@ -8701,7 +8991,11 @@ async function generate(){
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
 
-    document.getElementById('tokenDisplay').textContent = data.token;
+    var rtEl = document.getElementById('tokenDisplayNew');
+    if(rtEl) rtEl.textContent = data.token;
+    // Keep tokenDisplay for backward compat
+    var tdEl = document.getElementById('tokenDisplay');
+    if(tdEl) tdEl.textContent = data.token;
     document.getElementById('editLink').innerHTML = '<a href="/configure/' + data.token + '" style="color:#aaa;">ultramax.vip/configure/' + data.token + '</a>';
     saveDraftState();
     document.getElementById('resultBox').style.display = 'block';
@@ -10923,9 +11217,10 @@ document.addEventListener("DOMContentLoaded", function(){
   document.addEventListener("input", autoSave);
   document.addEventListener("change", autoSave);
 
-  // Auto-restore on load
+  // Auto-restore on load — skip if token loading in progress
   setTimeout(function(){
-    if(typeof restoreDraftState === "function"){
+    var hasUrlToken = new URLSearchParams(window.location.search).get('token');
+    if(!hasUrlToken && !window._tokenLoadInProgress && typeof restoreDraftState === "function"){
       try{ restoreDraftState(); }catch(e){}
     }
   }, 500);
@@ -11016,10 +11311,19 @@ document.addEventListener("DOMContentLoaded", function(){
 .sortable-ghost{opacity:0.3;}
 .row-item{
   display:flex;justify-content:space-between;align-items:center;
-  gap:10px;padding:5px 0;
+  gap:8px;padding:6px 0;
   border-bottom:1px solid rgba(255,255,255,.04);
 }
 .row-item:last-child{border-bottom:none;}
+@media(max-width:600px){
+  .coll-card-header { padding:10px 12px; }
+  .folder-body { padding:8px !important; }
+  .coll-card-thumb { width:56px; height:32px; }
+}
+.row-item > div:first-child {
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.row-item button { flex-shrink:0; }
 
 /* ── S3 PRESET CARDS ── */
 .s3-presets-grid{
@@ -11050,6 +11354,46 @@ document.addEventListener("DOMContentLoaded", function(){
 .s3-preset-icon{font-size:.85rem;display:inline;margin-right:4px;}
 .s3-preset-name{font-weight:700;font-size:11px;color:var(--text);display:inline;}
 .s3-preset-add{font-size:9px;color:var(--violet2);font-weight:600;margin-top:2px;}
+
+        /* Sticky presets panel */
+        .s3-sticky-presets {
+          position:sticky;
+          top:60px;
+          z-index:50;
+          background:var(--bg);
+          border-bottom:1px solid var(--border);
+          margin:-1px -24px 24px;
+          padding:10px 16px;
+          transition:all .2s;
+        }
+        .s3-sticky-toggle {
+          display:flex;align-items:center;justify-content:space-between;
+          cursor:pointer;user-select:none;
+        }
+        .s3-sticky-label {
+          font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+          color:var(--muted);display:flex;align-items:center;gap:8px;
+        }
+        .s3-sticky-chev { color:var(--faint);font-size:10px;transition:transform .2s; }
+        .s3-sticky-presets.s3-open .s3-sticky-chev { transform:rotate(180deg); }
+        .s3-sticky-grid { display:none;margin-top:10px; }
+        .s3-sticky-presets.s3-open .s3-sticky-grid { display:flex;flex-wrap:wrap;gap:8px; }
+        /* Override preset card style in sticky — make them chips */
+        .s3-sticky-grid .s3-preset-card {
+          border-radius:100px !important;
+          overflow:visible !important;
+          display:flex !important;
+          align-items:center !important;
+          width:auto !important;
+        }
+        .s3-sticky-grid .s3-preset-strip { display:none !important; }
+        .s3-sticky-grid .s3-preset-body {
+          padding:6px 14px !important;
+          display:flex;align-items:center;gap:6px;
+        }
+        .s3-sticky-grid .s3-preset-icon { display:inline !important; font-size:.85rem; }
+        .s3-sticky-grid .s3-preset-name { display:inline !important; font-size:12px; }
+        .s3-sticky-grid .s3-preset-add { display:none !important; }
 
 /* ── S3 VIEW MODE CARDS ── */
 .s3-viewmode-grid{display:flex;gap:10px;flex-wrap:wrap;}
