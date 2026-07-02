@@ -1,1 +1,22 @@
-[addon git]
+# Images - served from server, not git
+images/
+
+# Addon dependencies and logs
+addon/node_modules/
+addon/configs.json
+addon/shares.json
+addon/.env
+
+# Eclipse stuff - separate repo
+eclipse.html
+eclipse-info.html
+
+# Backups and scripts
+*.bak
+*.py
+
+# Collections exports
+ultramax-collections.json
+
+# OS
+.DS_Store
