@@ -4918,6 +4918,9 @@ document.addEventListener('DOMContentLoaded', function() {
       style="width:100%;box-sizing:border-box;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:14px;padding:12px 14px;border-radius:10px;outline:none;margin-bottom:10px;"
       onkeydown="if(event.key==='Enter') verifyTokenPassword()">
     <div id="tokenModalError" style="font-size:12px;color:#FF3D5A;margin-bottom:10px;min-height:16px;"></div>
+    <div style="text-align:right;margin-bottom:10px;">
+      <a href="/recover" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;">Forgot password? Recover token →</a>
+    </div>
     <div style="display:flex;gap:10px;">
       <button onclick="cancelTokenModal()" style="flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:inherit;font-size:13px;padding:11px;border-radius:10px;cursor:pointer;">Cancel</button>
       <button onclick="verifyTokenPassword()" id="tokenModalBtn" style="flex:2;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer;">Load My Setup →</button>
@@ -5312,20 +5315,37 @@ var S2_DEFS = {};
 var s2RawVisible = false;
 
 var S2_CATEGORIES = [
-  { id:'quickpicks', icon:'⚡', name:'Quick Picks', sub:'AI, Right Now, Trending, Popular',
-    filter: function(id){ return id.startsWith('ai_')||id.startsWith('rightnow')||id.startsWith('trending')||id.startsWith('popular')||id.startsWith('top_')||id.startsWith('now_')||id.startsWith('airing')||id.startsWith('ontheair'); },
+  { id:'quickpicks', icon:'⚡', name:'Quick Picks', sub:'AI, Right Now, Trending, Popular, New Releases',
+    filter: function(id){
+      var qpMdb = ['mdb_2236','mdb_1198','mdb_69','mdb_87667','mdb_88434','mdb_960','mdb_86934','mdb_2202','mdb_1176','mdb_86710'];
+      return id.startsWith('ai_')||id.startsWith('rightnow')||id.startsWith('trending')||id.startsWith('popular')||id.startsWith('top_')||id.startsWith('now_')||id.startsWith('airing')||id.startsWith('ontheair')||qpMdb.includes(id);
+    },
     posters:['tt0816692','tt1375666','tt0468569','tt1160419','tt15398776','tt0137523'] },
   { id:'streaming', icon:'📡', name:'Streaming Services', sub:'Netflix, Prime, Disney+, HBO and more',
-    filter: function(id){ var s=['netflix','amazon','disney','hbo','apple','peacock','hulu','paramount','shudder','britbox','acorn','itvx','channel4','crunchyroll','hidive','mgm','starz','mubi','discovery','natgeo','ae_','animalplanet']; return s.some(function(p){ return id.startsWith(p); }); },
+    filter: function(id){
+      var s=['netflix','amazon','disney','hbo','apple','peacock','hulu','paramount','shudder','britbox','acorn','itvx','channel4','crunchyroll','hidive','mgm','starz','mubi','discovery','natgeo','ae_','animalplanet'];
+      var sMdb=['mdb_88328','mdb_86751','mdb_86755','mdb_86753','mdb_86759','mdb_86758','mdb_89647','mdb_89649','mdb_88317','mdb_88319','mdb_86762','mdb_86761','mdb_88326','mdb_88327'];
+      return s.some(function(p){ return id.startsWith(p); })||sMdb.includes(id);
+    },
     posters:['tt15398776','tt5180504','tt7366338','tt2442560'] },
   { id:'genres', icon:'🎭', name:'Genres', sub:'Action, Horror, Comedy, Sci-Fi and more',
-    filter: function(id){ var s=['action','comedy','horror','scifi','thriller','crime','drama','romance','mystery','fantasy','animation','family','documentary','anime','bollywood','adventure','history','romcom','reality','war','western','curiosity','standup','new_movies']; return s.some(function(p){ return id.startsWith(p); }); },
+    filter: function(id){
+      var s=['action','comedy','horror','scifi','thriller','crime','drama','romance','mystery','fantasy','animation','family','documentary','anime','bollywood','adventure','history','romcom','reality','war','western','curiosity','standup','new_movies'];
+      var gMdb=['mdb_8043','mdb_84487','mdb_84401','mdb_83497','mdb_84403','mdb_2410','mdb_102554','mdb_84677','mdb_4390','mdb_2858'];
+      return s.some(function(p){ return id.startsWith(p); })||gMdb.includes(id);
+    },
     posters:['tt0110912','tt0137523','tt0245429','tt3783958'] },
   { id:'themed', icon:'✨', name:'Themed & Curated', sub:'Superhero, Heist, Zombie, Horror subgenres',
-    filter: function(id){ return id.startsWith('theme_'); },
+    filter: function(id){
+      var tMdb=['mdb_3892','mdb_3920','mdb_3923','mdb_2909','mdb_3087','mdb_3091','mdb_4081','mdb_136620','mdb_3885','mdb_3928','mdb_3918'];
+      return id.startsWith('theme_')||tMdb.includes(id);
+    },
     posters:['tt0816692','tt1375666','tt0468569','tt1160419'] },
   { id:'decades', icon:'📅', name:'By Decade', sub:'1950s through 2020s',
-    filter: function(id){ return id.startsWith('decade_'); },
+    filter: function(id){
+      var dMdb=['mdb_91300','mdb_91301','mdb_91302','mdb_91303','mdb_91304','mdb_92337'];
+      return id.startsWith('decade_')||dMdb.includes(id);
+    },
     posters:['tt0111161','tt0068646','tt0071562','tt0050083'] },
   { id:'collections', icon:'🗂', name:'Film Collections', sub:'Harry Potter, Star Wars, Marvel and more',
     filter: function(id){ return id.endsWith('_coll')||id.endsWith('_collection'); },
@@ -7470,8 +7490,10 @@ function goToStep4(){
     });
   });
 
-  const homeRows = Math.max(0, selected.size - collectionIds.size - hidden.size);
-  const hiddenRows = hidden.size;
+  // Only count hidden rows that are actually selected
+  const hiddenSelected = new Set([...hidden].filter(id => selected.has(id)));
+  const homeRows = Math.max(0, selected.size - collectionIds.size - hiddenSelected.size);
+  const hiddenRows = hiddenSelected.size;
   const collectionCount = v2Collections.length;
   const collectionRows = collectionIds.size;
 

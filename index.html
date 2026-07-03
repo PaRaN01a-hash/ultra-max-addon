@@ -33,6 +33,9 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    html {
+      overflow-x: hidden;
+    }
 
     /* ── NOISE OVERLAY ── */
     body::before {
@@ -446,6 +449,8 @@
       top: 0; left: 0; right: 0;
       z-index: 100;
       padding: 16px 32px;
+      box-sizing: border-box;
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1316,7 +1321,7 @@
     <div class="nav-links">
       <a href="#services">Services</a>
       <a href="https://reddit.com/r/Ultra_Max" target="_blank">Community</a>
-      <a href="/changelog.html" style="position:relative;">What's New <span id="changelogDot" style="display:none;position:absolute;top:-2px;right:-8px;width:7px;height:7px;background:#FF3D5A;border-radius:50%;"></span></a>
+      <a href="/changelog.html" style="position:relative;">What's New <span id="changelogDot" style="display:none;position:absolute;top:0;right:-10px;width:7px;height:7px;background:#FF3D5A;border-radius:50%;"></span></a>
       <a href="/status.html">Status</a>
       <a href="https://ko-fi.com/ultramaxaddon" target="_blank">Support</a>
       <a class="nav-cta" href="/setup.html">Get Setup →</a>
@@ -1406,13 +1411,13 @@
       <p class="eco-sub">Group your rows into beautiful Nuvio collections. Streaming services, genres, studios — all organised exactly how you want.</p>
 
       <!-- Collections preview -->
-      <div style="max-width:860px;margin:0 auto;">
+      <div style="max-width:860px;margin:0 auto;overflow:hidden;">
 
         <!-- Streaming Platforms -->
         <div style="margin-bottom:28px;">
           <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Streaming Platforms</div>
           <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
-          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;max-width:100%;">
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/netflix.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Netflix"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Disney.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Disney+"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/HBO.jpg" style="width:100%;height:100%;object-fit:cover;" alt="HBO"></div>
@@ -1427,7 +1432,7 @@
         <div style="margin-bottom:28px;">
           <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Studios</div>
           <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
-          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;max-width:100%;">
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/Marvel.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Marvel"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/DC.jpg" style="width:100%;height:100%;object-fit:cover;" alt="DC"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/A24.jpg" style="width:100%;height:100%;object-fit:cover;" alt="A24"></div>
@@ -1442,7 +1447,7 @@
         <div>
           <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Genres</div>
           <div style="width:36px;height:3px;background:#4f8ef7;border-radius:2px;margin-bottom:14px;"></div>
-          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none;max-width:100%;">
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_action.png" style="width:100%;height:100%;object-fit:cover;" alt="Action"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_horror.png" style="width:100%;height:100%;object-fit:cover;" alt="Horror"></div>
             <div style="flex-shrink:0;width:180px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4);"><img src="https://ultramax.vip/images/elucid_comedy.png" style="width:100%;height:100%;object-fit:cover;" alt="Comedy"></div>
