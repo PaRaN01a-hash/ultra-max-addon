@@ -8968,10 +8968,13 @@ function getCustomCatalogsFromForm(){
 }
 
 function getStreamAddonsFromForm(){
-  const enabled = !!(document.getElementById('enableStreamBridge') || {}).checked;
   const raw = (document.getElementById('streamAddons') || {}).value || '';
-  if(!enabled) return [];
-  return raw.split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  const addons = raw.split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  // Also check getStoredStreamAddons in case the hidden field wasn't populated
+  if(!addons.length && typeof getStoredStreamAddons === 'function'){
+    return getStoredStreamAddons();
+  }
+  return addons;
 }
 
 async function generate(){
