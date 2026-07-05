@@ -4198,6 +4198,14 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="info-box" style="margin-top:10px;">Filters out movies and series that haven't released yet.</div>
             </div>
 
+            <div class="field-block">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="hideWatched" style="width:18px;height:18px;cursor:pointer;" />
+                <span style="font-weight:600;">👁️ Hide watched titles</span>
+              </label>
+              <div class="info-box" style="margin-top:10px;">Hides movies you've watched and shows you've fully completed, based on your connected Trakt/Simkl history.</div>
+            </div>
+
             <!-- Adult Content -->
             <div class="field-block">
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -7914,6 +7922,7 @@ async function loadConfigByToken(token){
     if(data.tpKey) document.getElementById('tpKey').value = data.tpKey;
     if(data.traktUser) document.getElementById('traktUser').value = data.traktUser;
     if(data.excludeUnreleased){ const el=document.getElementById('excludeUnreleased'); if(el) el.checked = true; }
+    if(data.hideWatched){ const el2=document.getElementById('hideWatched'); if(el2) el2.checked = true; }
     if(data.maxRating){ const el=document.getElementById('maxRating'); if(el) el.value = data.maxRating; }
     if(data.excludeLanguages && typeof setExcludeLanguages === 'function') setExcludeLanguages(data.excludeLanguages);
     checkTraktStatus(token);
@@ -8124,6 +8133,7 @@ function buildProjectExport(){
       tpKey: (document.getElementById('tpKey') || {}).value || '',
       traktUser: (document.getElementById('traktUser') || {}).value || '',
       excludeUnreleased: !!((document.getElementById('excludeUnreleased') || {}).checked),
+      hideWatched: !!((document.getElementById('hideWatched') || {}).checked),
       maxRating: (document.getElementById('maxRating') || {}).value || '',
       includeAdult: !!((document.getElementById('includeAdult') || {}).checked)
     },
@@ -8360,6 +8370,8 @@ function importProjectData(data){
 
   const excl = document.getElementById('excludeUnreleased');
   if(excl) excl.checked = !!setup.excludeUnreleased;
+  const hw = document.getElementById('hideWatched');
+  if(hw) hw.checked = !!setup.hideWatched;
 
   // Restore debrid settings
   if(Array.isArray(setup.debridServices) && setup.debridServices.length) {
@@ -8776,6 +8788,7 @@ function buildDraftState(){
       tpKey: (document.getElementById('tpKey') || {}).value || '',
       traktUser: (document.getElementById('traktUser') || {}).value || '',
       excludeUnreleased: !!((document.getElementById('excludeUnreleased') || {}).checked),
+      hideWatched: !!((document.getElementById('hideWatched') || {}).checked),
       maxRating: (document.getElementById('maxRating') || {}).value || '',
       includeAdult: !!((document.getElementById('includeAdult') || {}).checked)
     },
@@ -8824,6 +8837,8 @@ function restoreDraftState(){
 
     const excl = document.getElementById('excludeUnreleased');
     if(excl) excl.checked = !!setup.excludeUnreleased;
+    const hw = document.getElementById('hideWatched');
+    if(hw) hw.checked = !!setup.hideWatched;
   const adult = document.getElementById('includeAdult');
   if(adult) adult.checked = !!setup.includeAdult;
 
@@ -8916,7 +8931,7 @@ function showDraftPrompt(){
 
 function bindDraftAutoSave(){
   const ids = [
-    'language','mdblistKey','rpdbKey','tpKey','traktUser','excludeUnreleased','maxRating'
+    'language','mdblistKey','rpdbKey','tpKey','traktUser','excludeUnreleased','hideWatched','maxRating'
   ];
 
   ids.forEach(function(id){
@@ -9000,7 +9015,8 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked, fanartKey: (document.getElementById("fanartKey")||{}).value.trim() || null, omdbKey: (document.getElementById("omdbKey")||{}).value.trim() || null, googleAiKey: (document.getElementById("googleAiKey")||{}).value.trim() || null, enableAiRecommended: !!(document.getElementById("enableAiRecommended")||{}).checked, includeAdult: !!(document.getElementById("includeAdult")||{}).checked })
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false,
+      hideWatched: (document.getElementById('hideWatched')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked, fanartKey: (document.getElementById("fanartKey")||{}).value.trim() || null, omdbKey: (document.getElementById("omdbKey")||{}).value.trim() || null, googleAiKey: (document.getElementById("googleAiKey")||{}).value.trim() || null, enableAiRecommended: !!(document.getElementById("enableAiRecommended")||{}).checked, includeAdult: !!(document.getElementById("includeAdult")||{}).checked })
     });
     const data = await res.json();
 
@@ -9231,6 +9247,7 @@ function saveFormState(){
       language: (document.getElementById('language')||{}).value || '',
       maxRating: (document.getElementById('maxRating')||{}).value || '',
       excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false,
+      hideWatched: (document.getElementById('hideWatched')||{}).checked || false,
       includeAdult: (document.getElementById('includeAdult')||{}).checked || false,
       betterPostersStyle: (document.getElementById('betterPostersStyleHidden')||{}).value || (document.getElementById('betterPostersStyle')||{}).value || '',
       excludeLanguages: getExcludeLanguages(),
@@ -9290,6 +9307,7 @@ async function connectTrakt(){
         tpKey: (document.getElementById('tpKey')||{}).value || null,
         traktUser: null,
         excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false,
+      hideWatched: (document.getElementById('hideWatched')||{}).checked || false,
         maxRating: (document.getElementById('maxRating')||{}).value || null,
         hiddenCatalogs: Array.from(hidden),
         streamAddons: getStreamAddonsFromForm(),
@@ -9884,7 +9902,7 @@ function initGuidedSetup(){
     if(el) posters.appendChild(el);
   });
 
-  [field('traktUser'), field('excludeUnreleased'), field('maxRating')].forEach(el => {
+  [field('traktUser'), field('excludeUnreleased'), field('hideWatched'), field('maxRating')].forEach(el => {
     if(el) filters.appendChild(el);
   });
 
