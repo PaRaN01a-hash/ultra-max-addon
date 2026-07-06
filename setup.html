@@ -4425,8 +4425,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .s2-pill-type { font-size:9px; opacity:.55; }
         .s2-pill-hidden-cb { display:none; align-items:center; gap:3px; font-size:9px; color:var(--muted); margin-top:4px; cursor:pointer; }
         .s2-pill.s2-sel .s2-pill-hidden-cb { display:flex; }
+        .s2-reorder-ghost { opacity:0.4; background:rgba(123,47,255,.2) !important; border-color:var(--violet) !important; }
         .s2-pill.s2-sel.s2-hidden { background:rgba(255,255,255,.02); border-color:var(--border2); color:var(--muted); opacity:0.6; }
         .s2-pill.s2-sel.s2-hidden .s2-pill-hidden-cb { color:var(--coral); }
+        .s2-reorder-ghost { opacity:0.4; background:rgba(123,47,255,.2) !important; }
 
         /* Show all button */
         .s2-showall { display:flex; align-items:center; gap:8px; width:100%; background:transparent; border:1px dashed var(--border2); border-radius:10px; padding:10px 14px; color:var(--muted); font-size:12px; cursor:pointer; margin-top:4px; transition:all .2s; font-family:inherit; }
@@ -4554,6 +4556,18 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="s2-nuvio-rows" id="s2NuvioRowsMobile"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- REORDER ROWS -->
+      <div style="margin-top:24px;">
+        <div onclick="s2ToggleReorder()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:12px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;user-select:none;">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">🔀 Reorder Rows</div>
+          <span id="s2ReorderChev" style="font-size:10px;color:var(--faint);transition:transform .2s;">▼</span>
+        </div>
+        <div id="s2ReorderBody" style="display:none;margin-top:8px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Drag to reorder. This controls the order rows appear in Nuvio/Stremio.</div>
+          <div id="s2ReorderList" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
 
@@ -5591,6 +5605,45 @@ function s2UpdatePillHiddenState(id){
   pill.classList.toggle('s2-hidden', isHidden);
   var cb = pill.querySelector('[data-hid]');
   if(cb) cb.checked = isHidden;
+}
+
+var s2ReorderSortable = null;
+var catalogOrder = [];
+
+function s2ToggleReorder(){
+  var body = document.getElementById('s2ReorderBody');
+  var chev = document.getElementById('s2ReorderChev');
+  if(!body) return;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+  if(!open) s2BuildReorderList();
+}
+
+function s2BuildReorderList(){
+  var list = document.getElementById('s2ReorderList');
+  if(!list) return;
+  var ids = catalogOrder.length ? catalogOrder.filter(function(id){ return selected.has(id); }) : Array.from(selected);
+  selected.forEach(function(id){ if(!ids.includes(id)) ids.push(id); });
+  catalogOrder = ids;
+  list.innerHTML = ids.map(function(id){
+    var def = typeof S2_DEFS !== 'undefined' && S2_DEFS[id];
+    var name = def ? def.name + (def.type === 'series' ? ' · Series' : ' · Movies') : id;
+    return '<div class="s2-reorder-item" data-id="'+id+'" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;cursor:grab;">'
+      + '<span style="color:var(--muted);font-size:14px;flex-shrink:0;">≡</span>'
+      + '<span style="font-size:12px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+name+'</span>'
+      + '</div>';
+  }).join('');
+  if(s2ReorderSortable) s2ReorderSortable.destroy();
+  if(typeof Sortable !== 'undefined'){
+    s2ReorderSortable = Sortable.create(list, {
+      animation: 150,
+      ghostClass: 's2-reorder-ghost',
+      onEnd: function(){
+        catalogOrder = Array.from(list.querySelectorAll('.s2-reorder-item')).map(function(el){ return el.dataset.id; });
+      }
+    });
+  }
 }
 
 function s2HideAll(){
@@ -7987,6 +8040,8 @@ async function loadConfigByToken(token){
     }
     updateCounter(); updateCategoryCounts();
     setTimeout(makeSprockets, 200);
+    // Restore catalogOrder from config
+    if(data.catalogOrder && data.catalogOrder.length) catalogOrder = data.catalogOrder;
     // Refresh new Step 2 UI with loaded selections
     setTimeout(function(){ if(typeof s2Init==='function') s2Init().then(function(){ if(typeof s2RestoreFromSelected==='function') s2RestoreFromSelected(); }); }, 300);
   }catch(e){ 
@@ -8139,6 +8194,7 @@ function buildProjectExport(){
     },
     selectedCatalogs: Array.from(selected || []),
     hiddenCatalogs: Array.from(hidden || []),
+    catalogOrder: (typeof catalogOrder !== 'undefined' ? catalogOrder : []),
     collections: JSON.parse(JSON.stringify(v2Collections || [])),
     customCatalogs: JSON.parse(JSON.stringify(getCustomCatalogsFromForm())),
     nuvioViewMode: getNuvioViewMode()
@@ -8843,6 +8899,7 @@ function restoreDraftState(){
   if(adult) adult.checked = !!setup.includeAdult;
 
     applyImportedSelections(data.selectedCatalogs || [], data.hiddenCatalogs || []);
+    if(data.catalogOrder && data.catalogOrder.length) catalogOrder = data.catalogOrder;
     v2Collections = normalizeImportedCollections(data.collections || []); window.v2Collections = v2Collections;
 
     updateCounter();
