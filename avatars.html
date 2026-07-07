@@ -105,6 +105,36 @@
   <h1>AVATAR<br><span>VAULT</span></h1>
   <p class="sub">226 character avatars for your Nuvio profile. Tap any avatar to copy its URL, then paste it in Nuvio → Profile → Avatar.</p>
 </header>
+<div id="nuvioAvatarBanner" style="max-width:1100px;margin:0 auto 20px;padding:0 24px;">
+  <div style="background:linear-gradient(135deg,rgba(123,47,255,.1),rgba(123,47,255,.05));border:1px solid rgba(123,47,255,.3);border-radius:16px;padding:18px;">
+
+    <div id="nuvioAvatarLoginStage">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">🔗 Link your Nuvio account</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Link your account to set avatars directly — just tap any avatar below instead of copying URLs manually.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="email" id="nuvioAvatarEmail" placeholder="Nuvio email" autocomplete="username" style="flex:1;min-width:180px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:#fff;font-size:12px;">
+        <input type="password" id="nuvioAvatarPassword" placeholder="Nuvio password" autocomplete="current-password" style="flex:1;min-width:180px;padding:10px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:#fff;font-size:12px;">
+        <button type="button" id="nuvioAvatarLoginBtn" style="padding:10px 20px;border-radius:8px;border:none;background:var(--violet);color:#fff;font-weight:700;font-size:12px;cursor:pointer;">Continue</button>
+      </div>
+      <div id="nuvioAvatarLoginStatus" style="margin-top:8px;font-size:11px;"></div>
+    </div>
+
+    <div id="nuvioAvatarProfileStage" style="display:none;">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;">Select a profile to set avatars for</div>
+      <div id="nuvioAvatarProfileList" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;"></div>
+      <button type="button" id="nuvioAvatarLogoutBtn" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;">Log out</button>
+    </div>
+
+    <div id="nuvioAvatarActiveStage" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="nuvioAvatarActiveImg" style="width:32px;height:32px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;"></div>
+        <div style="flex:1;font-size:12px;color:#fff;">Tap any avatar below to set it for <strong id="nuvioAvatarActiveName"></strong></div>
+        <button type="button" id="nuvioAvatarChangeBtn" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;">Change</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <div class="search-wrap">
   <input type="search" id="searchQ" placeholder="Search avatars…" autocomplete="off">
 </div>
@@ -330,6 +360,10 @@ function setTab(id) { activeTab=id; renderTabs(); render(); }
 
 let toastTimer;
 function copy(url, card) {
+  if (window.nuvioAvatarState && window.nuvioAvatarState.selectedProfileId) {
+    window.pushAvatarToProfile(url, card);
+    return;
+  }
   navigator.clipboard.writeText(url).catch(()=>{
     const t=document.createElement("textarea"); t.value=url;
     t.style.position="fixed"; t.style.opacity="0";
@@ -362,6 +396,159 @@ renderTabs(); render();
 })();
 const _glow=document.getElementById('cursorGlow');
 if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
+</script>
+<script src="/nuvio-push.js"></script>
+<script>
+(function(){
+  window.nuvioAvatarState = { accessToken: null, profiles: [], selectedProfileId: null };
+
+  const loginStage = document.getElementById('nuvioAvatarLoginStage');
+  const profileStage = document.getElementById('nuvioAvatarProfileStage');
+  const activeStage = document.getElementById('nuvioAvatarActiveStage');
+  const loginStatus = document.getElementById('nuvioAvatarLoginStatus');
+  const profileList = document.getElementById('nuvioAvatarProfileList');
+  const loginBtn = document.getElementById('nuvioAvatarLoginBtn');
+  const logoutBtn = document.getElementById('nuvioAvatarLogoutBtn');
+  const changeBtn = document.getElementById('nuvioAvatarChangeBtn');
+  const activeImg = document.getElementById('nuvioAvatarActiveImg');
+  const activeName = document.getElementById('nuvioAvatarActiveName');
+
+  function renderProfilePicker(){
+    profileList.innerHTML = '';
+    window.nuvioAvatarState.profiles.forEach(function(p){
+      const chip = document.createElement('div');
+      chip.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border:1px solid var(--border2);border-radius:100px;cursor:pointer;background:rgba(255,255,255,.02);';
+
+      const avatarWrap = document.createElement('div');
+      avatarWrap.style.cssText = 'width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:12px;';
+      if (p.avatar_url) {
+        const img = document.createElement('img');
+        img.src = p.avatar_url;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        img.onerror = function(){
+          avatarWrap.textContent = (p.name || '?').charAt(0).toUpperCase();
+          avatarWrap.style.background = p.avatar_color_hex || '#7B2FFF';
+          img.remove();
+        };
+        avatarWrap.appendChild(img);
+      } else {
+        avatarWrap.textContent = (p.name || '?').charAt(0).toUpperCase();
+        avatarWrap.style.background = p.avatar_color_hex || '#7B2FFF';
+      }
+
+      const nameEl = document.createElement('span');
+      nameEl.textContent = p.name;
+      nameEl.style.cssText = 'font-size:12px;font-weight:600;color:#fff;';
+
+      chip.appendChild(avatarWrap);
+      chip.appendChild(nameEl);
+      chip.addEventListener('click', function(){ selectProfile(p); });
+      profileList.appendChild(chip);
+    });
+  }
+
+  function selectProfile(p){
+    window.nuvioAvatarState.selectedProfileId = p.profile_index;
+
+    activeImg.innerHTML = '';
+    if (p.avatar_url) {
+      const img = document.createElement('img');
+      img.src = p.avatar_url;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      img.onerror = function(){
+        activeImg.textContent = (p.name || '?').charAt(0).toUpperCase();
+        activeImg.style.background = p.avatar_color_hex || '#7B2FFF';
+        img.remove();
+      };
+      activeImg.appendChild(img);
+    } else {
+      activeImg.textContent = (p.name || '?').charAt(0).toUpperCase();
+      activeImg.style.background = p.avatar_color_hex || '#7B2FFF';
+    }
+    activeName.textContent = p.name;
+
+    profileStage.style.display = 'none';
+    activeStage.style.display = 'block';
+  }
+
+  loginBtn.addEventListener('click', async () => {
+    const email = document.getElementById('nuvioAvatarEmail').value.trim();
+    const password = document.getElementById('nuvioAvatarPassword').value;
+
+    if (!email || !password) {
+      loginStatus.textContent = 'Please enter your Nuvio email and password.';
+      loginStatus.style.color = '#ff6b6b';
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginStatus.style.color = 'var(--muted)';
+    loginStatus.textContent = 'Logging in...';
+
+    try {
+      const result = await nuvioLoginAndListProfiles(email, password);
+      window.nuvioAvatarState.accessToken = result.accessToken;
+      window.nuvioAvatarState.profiles = result.profiles;
+      document.getElementById('nuvioAvatarPassword').value = '';
+
+      loginStage.style.display = 'none';
+
+      if (result.profiles.length === 1) {
+        selectProfile(result.profiles[0]);
+      } else {
+        renderProfilePicker();
+        profileStage.style.display = 'block';
+      }
+    } catch (err) {
+      loginStatus.textContent = err.message || 'Login failed.';
+      loginStatus.style.color = '#ff6b6b';
+    } finally {
+      loginBtn.disabled = false;
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    window.nuvioAvatarState = { accessToken: null, profiles: [], selectedProfileId: null };
+    profileStage.style.display = 'none';
+    loginStage.style.display = 'block';
+    loginStatus.textContent = '';
+  });
+
+  changeBtn.addEventListener('click', () => {
+    window.nuvioAvatarState.selectedProfileId = null;
+    activeStage.style.display = 'none';
+    if (window.nuvioAvatarState.profiles.length > 1) {
+      renderProfilePicker();
+      profileStage.style.display = 'block';
+    } else {
+      loginStage.style.display = 'block';
+    }
+  });
+
+  window.pushAvatarToProfile = async function(url, card){
+    const state = window.nuvioAvatarState;
+    const toast = document.getElementById('toast');
+
+    card.classList.add('copied');
+    toast.textContent = 'Setting avatar...';
+    toast.classList.add('show');
+
+    try {
+      const updated = await nuvioSetProfileAvatar(state.accessToken, state.profiles, state.selectedProfileId, url);
+      state.profiles = updated;
+      const activeProfile = updated.find(p => p.profile_index === state.selectedProfileId);
+      if (activeProfile) selectProfile(activeProfile);
+
+      toast.textContent = 'Avatar set ✓';
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    } catch (err) {
+      toast.textContent = err.message || 'Failed to set avatar.';
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    } finally {
+      setTimeout(() => card.classList.remove('copied'), 1800);
+    }
+  };
+})();
 </script>
 </body>
 </html>

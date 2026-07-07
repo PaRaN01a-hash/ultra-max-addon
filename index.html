@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ultra MAX — The Ultimate Streaming Setup</title>
@@ -1305,7 +1306,6 @@
 
   </style>
   <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 
@@ -2099,6 +2099,15 @@
     if(dot) dot.style.display = 'inline-block';
   }
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(function(reg){
+    console.log('SW registered:', reg.scope);
+  }).catch(function(e){
+    console.log('SW failed:', e);
+  });
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,45 @@
+{
+  "name": "Ultra MAX Setup",
+  "short_name": "Ultra MAX",
+  "description": "Build your personalised Nuvio & Stremio setup — 500+ catalogs, one link.",
+  "start_url": "/setup.html",
+  "display": "standalone",
+  "background_color": "#08080f",
+  "theme_color": "#7B2FFF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-mobile.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["entertainment", "utilities"],
+  "shortcuts": [
+    {
+      "name": "New Setup",
+      "url": "/setup.html",
+      "description": "Build a new Ultra MAX setup"
+    },
+    {
+      "name": "Load Token",
+      "url": "/setup.html?action=load",
+      "description": "Load an existing setup"
+    }
+  ]
+}

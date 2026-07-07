@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultra MAX — Build Your Addon</title>
@@ -3683,6 +3684,12 @@ body {
 
 </style>
 <script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+  <!-- PWA -->
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="theme-color" content="#7B2FFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ultra MAX">
 </head>
 <body>
 <body>
@@ -4839,6 +4846,190 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Export this file and import it in Nuvio's Collections page. This gives you folders and collections.</div>
               <button class="nav-btn primary" type="button" onclick="downloadCollectionsJson()" style="font-size:12px;padding:8px 14px;border-radius:8px;width:100%;">📦 Export Nuvio JSON</button>
             </div>
+            <div style="background:linear-gradient(135deg,rgba(76,175,80,.1),rgba(76,175,80,.05));border:1px solid rgba(76,175,80,.3);border-radius:16px;padding:18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4caf50;margin-bottom:8px;">Optional</div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">🚀 Push Directly to Nuvio</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Skip the manual steps — link your Nuvio account and we'll add Ultra MAX and your collections directly to a profile.</div>
+
+              <div id="nuvio-login-stage">
+                <input type="email" id="nuvio-email" placeholder="Nuvio email" autocomplete="username" style="width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:#fff;font-size:12px;box-sizing:border-box;" />
+                <input type="password" id="nuvio-password" placeholder="Nuvio password" autocomplete="current-password" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:#fff;font-size:12px;box-sizing:border-box;" />
+                <button class="nav-btn primary" type="button" id="nuvio-login-btn" style="font-size:12px;padding:8px 14px;border-radius:8px;width:100%;">Continue</button>
+              </div>
+
+              <div id="nuvio-profile-stage" style="display:none;">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">This installs the addon and replaces the collections on the selected profile.</div>
+                <div style="display:flex;gap:16px;margin-bottom:12px;padding:10px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;">
+                    <input type="checkbox" id="nuvio-push-catalogs" checked style="width:14px;height:14px;">
+                    Catalogs
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;">
+                    <input type="checkbox" id="nuvio-push-collections" checked style="width:14px;height:14px;">
+                    Collections
+                  </label>
+                </div>
+                <div id="nuvio-profile-list"></div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                  <button class="nav-btn" type="button" id="nuvio-cancel-btn" style="font-size:12px;padding:8px 14px;border-radius:8px;flex:1;">Cancel</button>
+                  <button class="nav-btn primary" type="button" id="nuvio-confirm-btn" style="font-size:12px;padding:8px 14px;border-radius:8px;flex:1;" disabled>Push to Nuvio</button>
+                </div>
+              </div>
+
+              <div id="nuvio-status" style="margin-top:10px;font-size:11px;color:var(--muted);"></div>
+            </div>
+<script>
+(function(){
+  let nuvioAccessToken = null;
+  let nuvioProfiles = [];
+  let nuvioSelectedProfileId = null;
+
+  const loginStage = document.getElementById('nuvio-login-stage');
+  const profileStage = document.getElementById('nuvio-profile-stage');
+  const profileList = document.getElementById('nuvio-profile-list');
+  const statusEl = document.getElementById('nuvio-status');
+  const loginBtn = document.getElementById('nuvio-login-btn');
+  const confirmBtn = document.getElementById('nuvio-confirm-btn');
+  const cancelBtn = document.getElementById('nuvio-cancel-btn');
+
+  function renderProfiles(){
+    profileList.innerHTML = '';
+    nuvioProfiles.forEach(function(p){
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;background:rgba(255,255,255,.02);';
+      row.dataset.profileId = p.profile_index;
+
+      const avatarWrap = document.createElement('div');
+      avatarWrap.style.cssText = 'width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;';
+
+      if (p.avatar_url) {
+        const img = document.createElement('img');
+        img.src = p.avatar_url;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        img.onerror = function(){
+          avatarWrap.textContent = (p.name || '?').charAt(0).toUpperCase();
+          avatarWrap.style.background = p.avatar_color_hex || '#7B2FFF';
+          img.remove();
+        };
+        avatarWrap.appendChild(img);
+      } else {
+        avatarWrap.textContent = (p.name || '?').charAt(0).toUpperCase();
+        avatarWrap.style.background = p.avatar_color_hex || '#7B2FFF';
+      }
+
+      const nameEl = document.createElement('div');
+      nameEl.textContent = p.name;
+      nameEl.style.cssText = 'font-size:13px;font-weight:600;color:#fff;';
+
+      row.appendChild(avatarWrap);
+      row.appendChild(nameEl);
+
+      row.addEventListener('click', function(){
+        Array.from(profileList.children).forEach(function(r){
+          r.style.borderColor = 'var(--border)';
+          r.style.background = 'rgba(255,255,255,.02)';
+        });
+        row.style.borderColor = '#7B2FFF';
+        row.style.background = 'rgba(123,47,255,.1)';
+        nuvioSelectedProfileId = p.profile_index;
+        confirmBtn.disabled = false;
+      });
+
+      profileList.appendChild(row);
+    });
+  }
+
+  loginBtn.addEventListener('click', async () => {
+    const email = document.getElementById('nuvio-email').value.trim();
+    const password = document.getElementById('nuvio-password').value;
+
+    if (!email || !password) {
+      statusEl.textContent = 'Please enter your Nuvio email and password.';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+
+    if (!window.generatedAddonUrl) {
+      statusEl.textContent = 'Please generate your setup first before pushing to Nuvio.';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+
+    loginBtn.disabled = true;
+    statusEl.style.color = 'inherit';
+    statusEl.textContent = 'Logging in...';
+
+    try {
+      const result = await nuvioLoginAndListProfiles(email, password);
+      nuvioAccessToken = result.accessToken;
+      nuvioProfiles = result.profiles;
+      document.getElementById('nuvio-password').value = '';
+
+      if (nuvioProfiles.length === 1) {
+        nuvioSelectedProfileId = nuvioProfiles[0].profile_index;
+        await doPush();
+      } else {
+        renderProfiles();
+        loginStage.style.display = 'none';
+        profileStage.style.display = 'block';
+        statusEl.textContent = 'Select which profile to push to.';
+      }
+    } catch (err) {
+      statusEl.textContent = err.message || 'Login failed.';
+      statusEl.style.color = '#ff6b6b';
+    } finally {
+      loginBtn.disabled = false;
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    profileStage.style.display = 'none';
+    loginStage.style.display = 'block';
+    statusEl.textContent = '';
+    nuvioAccessToken = null;
+    nuvioProfiles = [];
+    nuvioSelectedProfileId = null;
+  });
+
+  confirmBtn.addEventListener('click', doPush);
+
+  async function doPush(){
+    const pushCatalogs = document.getElementById('nuvio-push-catalogs').checked;
+    const pushCollections = document.getElementById('nuvio-push-collections').checked;
+
+    if (!pushCatalogs && !pushCollections) {
+      statusEl.textContent = 'Select at least Catalogs or Collections to push.';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+
+    confirmBtn.disabled = true;
+    cancelBtn.disabled = true;
+    statusEl.style.color = 'inherit';
+
+    try {
+      await pushUltraMaxToProfile(
+        nuvioAccessToken,
+        nuvioSelectedProfileId,
+        {
+          manifestUrl: window.generatedAddonUrl,
+          collections: window.generatedNuvioCollections || [],
+          pushCatalogs: pushCatalogs,
+          pushCollections: pushCollections
+        },
+        (msg) => { statusEl.textContent = msg; }
+      );
+      statusEl.style.color = '#4caf50';
+    } catch (err) {
+      statusEl.textContent = err.message || 'Something went wrong. Please try again.';
+      statusEl.style.color = '#ff6b6b';
+    } finally {
+      confirmBtn.disabled = false;
+      cancelBtn.disabled = false;
+    }
+  }
+})();
+</script>
 
           </div>
 
@@ -5843,6 +6034,12 @@ function importCollectionsJSON(event){
   reader.readAsText(file);
 }
 
+var _renderCollTimeout = null;
+function renderCollectionsDebounced(){
+  clearTimeout(_renderCollTimeout);
+  _renderCollTimeout = setTimeout(renderCollections, 80);
+}
+
 function renderCollections(){
   const list=document.getElementById('collections-list');
   const empty=document.getElementById('empty-state');
@@ -5862,10 +6059,10 @@ function renderCollections(){
     var c=obj.c,i=obj.i;
     var firstCover=(c.folders||[]).map(function(f){return f.coverImageUrl;}).find(function(u){return u&&u.trim();});
     var fc=(c.folders||[]).length,rc=(c.folders||[]).reduce(function(s,f){return s+(f.rows||[]).length;},0);
-    var html='<div class="coll-card" data-idx="'+i+'">'
+    var html='<div class="coll-card'+(c.collapsed?' coll-collapsed':'')+'" data-idx="'+i+'">'
       +'<div class="coll-card-header" onclick="toggleCollectionCollapse('+i+')">'
       +'<span class="drag-handle coll-drag" title="Drag">&#9827;</span>'
-      +(firstCover?'<img class="coll-card-thumb" src="'+firstCover+'" onerror="this.style.display=\'none\'">':'<div class="coll-card-thumb-empty"></div>')
+      +(firstCover?'<img class="coll-card-thumb" src="'+firstCover+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="coll-card-thumb-empty"></div>')
       +'<div class="coll-card-title">'+escapeHtml(c.title)+'</div>'
       +'<div class="coll-card-meta">'+fc+' folder'+(fc!==1?'s':'')+' &middot; '+rc+' row'+(rc!==1?'s':'')+'</div>'
       +'<div class="coll-card-actions" onclick="event.stopPropagation()">'
@@ -5877,7 +6074,8 @@ function renderCollections(){
       +'<span style="color:#555;font-size:12px;margin-left:4px;">'+(c.collapsed?'&#9654;':'&#9660;')+'</span>'
       +'</div>';
     if(!c.collapsed){
-      html+='<div class="coll-card-body">';
+      if(c.collapsed){ html+='<div class="coll-card-body" style="display:none;"></div>'; html+='</div>'; list.innerHTML+=html; return; }
+    html+='<div class="coll-card-body">';
       (c.folders||[]).forEach(function(f,fi){
         var avail=Array.from(selected||[]).filter(function(id){return !(f.rows||[]).includes(id);});
         var fo=f.collapsed!==true;
@@ -5987,7 +6185,7 @@ function toggleCollectionCollapse(i){
   const item = v2Collections[i];
   if(!item) return;
   item.collapsed = !item.collapsed;
-  renderCollections();
+  renderCollectionsDebounced();
 }
 
 function duplicateCollection(i){
@@ -6456,7 +6654,7 @@ function getCatalogLabel(id){
   fetch('/catalog-defs.json').then(function(r){ return r.json(); }).then(function(d){
     if(typeof S2_DEFS !== 'undefined') Object.assign(S2_DEFS, d);
     // Re-render collections now that labels are available
-    if(typeof renderCollections === 'function') setTimeout(renderCollections, 100);
+    if(typeof renderCollections === 'function') renderCollectionsDebounced();
   }).catch(function(){});
 })();
 
@@ -9086,6 +9284,8 @@ async function generate(){
     }
 
     const manifestUrl = DISPLAY_URL + '/c/' + data.token + '/manifest.json';
+    window.generatedAddonUrl = manifestUrl;
+    window.generatedNuvioCollections = buildCollectionsExport();
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
 
@@ -12128,4 +12328,14 @@ function doInlineShare(){
 </script>
 <!-- END INLINE SHARE MODAL -->
 
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(function(reg){
+    console.log('SW registered:', reg.scope);
+  }).catch(function(e){
+    console.log('SW failed:', e);
+  });
+}
+</script>
+<script src="/nuvio-push.js"></script>
 </body>
