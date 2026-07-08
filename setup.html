@@ -3685,7 +3685,7 @@ body {
 </style>
 <script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
   <!-- PWA -->
-  <link rel="manifest" href="/app.webmanifest">
+  <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#7B2FFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4850,6 +4850,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4caf50;margin-bottom:8px;">Optional</div>
               <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">🚀 Push Directly to Nuvio</div>
               <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Skip the manual steps — link your Nuvio account and we'll add Ultra MAX and your collections directly to a profile.</div>
+              <a href="/account.html" id="manageAccountLink" style="display:block;font-size:11px;color:var(--violet2);text-decoration:none;margin-bottom:12px;">⚙️ Already linked? Manage your addons &amp; collections →</a>
 
               <div id="nuvio-login-stage">
                 <input type="email" id="nuvio-email" placeholder="Nuvio email" autocomplete="username" style="width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:#fff;font-size:12px;box-sizing:border-box;" />
@@ -4878,11 +4879,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
               <div id="nuvio-status" style="margin-top:10px;font-size:11px;color:var(--muted);"></div>
             </div>
+            <div style="background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(96,165,250,.05));border:1px solid rgba(96,165,250,.3);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#60a5fa;margin-bottom:8px;">Optional</div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📱 Push From Your Phone</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px;">Scan this with your phone camera to push directly, no typing required.</div>
+              <button type="button" id="nuvio-qr-toggle" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:8px 14px;border-radius:8px;cursor:pointer;width:100%;margin-bottom:10px;">Show QR Code</button>
+              <div id="nuvio-qr-code" style="display:none;padding:16px;background:#fff;border-radius:12px;"></div>
+              <div id="nuvio-qr-status" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+            </div>
 <script>
 (function(){
   let nuvioAccessToken = null;
   let nuvioProfiles = [];
-  let nuvioSelectedProfileId = null;
+  let nuvioSelectedProfileIds = new Set();
 
   const loginStage = document.getElementById('nuvio-login-stage');
   const profileStage = document.getElementById('nuvio-profile-stage');
@@ -4892,10 +4901,50 @@ document.addEventListener('DOMContentLoaded', function() {
   const confirmBtn = document.getElementById('nuvio-confirm-btn');
   const cancelBtn = document.getElementById('nuvio-cancel-btn');
 
+  function updateConfirmState(){
+    confirmBtn.disabled = nuvioSelectedProfileIds.size === 0;
+    confirmBtn.textContent = nuvioSelectedProfileIds.size > 1
+      ? `Push to Nuvio (${nuvioSelectedProfileIds.size} profiles)`
+      : 'Push to Nuvio';
+  }
+
+  function toggleRowSelected(row, p, forceState){
+    const isSelected = forceState !== undefined ? forceState : !nuvioSelectedProfileIds.has(p.profile_index);
+    if (isSelected) {
+      nuvioSelectedProfileIds.add(p.profile_index);
+      row.style.borderColor = '#7B2FFF';
+      row.style.background = 'rgba(123,47,255,.1)';
+      row.querySelector('.nuvio-check').style.opacity = '1';
+    } else {
+      nuvioSelectedProfileIds.delete(p.profile_index);
+      row.style.borderColor = 'var(--border)';
+      row.style.background = 'rgba(255,255,255,.02)';
+      row.querySelector('.nuvio-check').style.opacity = '0';
+    }
+    updateConfirmState();
+  }
+
   function renderProfiles(){
     profileList.innerHTML = '';
+
+    if (nuvioProfiles.length > 1) {
+      const selectAllRow = document.createElement('div');
+      selectAllRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:8px;';
+      selectAllRow.innerHTML = '<button type="button" id="nuvio-select-all" style="background:transparent;border:none;color:var(--violet2);font-size:11px;cursor:pointer;padding:4px;">Select All</button>';
+      profileList.appendChild(selectAllRow);
+
+      document.getElementById('nuvio-select-all').addEventListener('click', function(){
+        const allSelected = nuvioSelectedProfileIds.size === nuvioProfiles.length;
+        Array.from(profileList.querySelectorAll('.nuvio-profile-row')).forEach(function(row, idx){
+          toggleRowSelected(row, nuvioProfiles[idx], !allSelected);
+        });
+        this.textContent = allSelected ? 'Select All' : 'Select None';
+      });
+    }
+
     nuvioProfiles.forEach(function(p){
       const row = document.createElement('div');
+      row.className = 'nuvio-profile-row';
       row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;background:rgba(255,255,255,.02);';
       row.dataset.profileId = p.profile_index;
 
@@ -4919,20 +4968,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const nameEl = document.createElement('div');
       nameEl.textContent = p.name;
-      nameEl.style.cssText = 'font-size:13px;font-weight:600;color:#fff;';
+      nameEl.style.cssText = 'font-size:13px;font-weight:600;color:#fff;flex:1;';
+
+      const checkEl = document.createElement('div');
+      checkEl.className = 'nuvio-check';
+      checkEl.textContent = '✓';
+      checkEl.style.cssText = 'color:#7B2FFF;font-weight:700;font-size:16px;opacity:0;transition:opacity .15s;';
 
       row.appendChild(avatarWrap);
       row.appendChild(nameEl);
+      row.appendChild(checkEl);
 
       row.addEventListener('click', function(){
-        Array.from(profileList.children).forEach(function(r){
-          r.style.borderColor = 'var(--border)';
-          r.style.background = 'rgba(255,255,255,.02)';
-        });
-        row.style.borderColor = '#7B2FFF';
-        row.style.background = 'rgba(123,47,255,.1)';
-        nuvioSelectedProfileId = p.profile_index;
-        confirmBtn.disabled = false;
+        toggleRowSelected(row, p);
       });
 
       profileList.appendChild(row);
@@ -4966,13 +5014,15 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('nuvio-password').value = '';
 
       if (nuvioProfiles.length === 1) {
-        nuvioSelectedProfileId = nuvioProfiles[0].profile_index;
+        nuvioSelectedProfileIds = new Set([nuvioProfiles[0].profile_index]);
         await doPush();
       } else {
+        nuvioSelectedProfileIds = new Set();
         renderProfiles();
+        updateConfirmState();
         loginStage.style.display = 'none';
         profileStage.style.display = 'block';
-        statusEl.textContent = 'Select which profile to push to.';
+        statusEl.textContent = 'Select which profile(s) to push to.';
       }
     } catch (err) {
       statusEl.textContent = err.message || 'Login failed.';
@@ -4988,7 +5038,7 @@ document.addEventListener('DOMContentLoaded', function() {
     statusEl.textContent = '';
     nuvioAccessToken = null;
     nuvioProfiles = [];
-    nuvioSelectedProfileId = null;
+    nuvioSelectedProfileIds = new Set();
   });
 
   confirmBtn.addEventListener('click', doPush);
@@ -5003,14 +5053,20 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    if (nuvioSelectedProfileIds.size === 0) {
+      statusEl.textContent = 'Select at least one profile.';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+
     confirmBtn.disabled = true;
     cancelBtn.disabled = true;
     statusEl.style.color = 'inherit';
 
     try {
-      await pushUltraMaxToProfile(
+      await pushUltraMaxToProfiles(
         nuvioAccessToken,
-        nuvioSelectedProfileId,
+        Array.from(nuvioSelectedProfileIds),
         {
           manifestUrl: window.generatedAddonUrl,
           collections: window.generatedNuvioCollections || [],
@@ -9286,6 +9342,14 @@ async function generate(){
     const manifestUrl = DISPLAY_URL + '/c/' + data.token + '/manifest.json';
     window.generatedAddonUrl = manifestUrl;
     window.generatedNuvioCollections = buildCollectionsExport();
+    window.generatedToken = data.token;
+    var manageLinkEl = document.getElementById('manageAccountLink');
+    if (manageLinkEl) manageLinkEl.href = '/account.html?token=' + data.token;
+    fetch(DISPLAY_URL + '/c/' + data.token + '/collections', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ collections: window.generatedNuvioCollections, replace: true })
+    }).catch(function(e){ console.log('Collections save failed:', e); });
     document.getElementById('urlDisplay').textContent = manifestUrl;
     document.getElementById('installBtn').href = 'stremio://' + manifestUrl.replace('https://','').replace('http://','');
 
@@ -12337,5 +12401,53 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+<script src="/qrcode.min.js"></script>
 <script src="/nuvio-push.js"></script>
+<script>
+(function(){
+  const DISPLAY_URL = 'https://ultramax.vip';
+  let qrGenerated = false;
+  const toggle = document.getElementById('nuvio-qr-toggle');
+  const qrDiv = document.getElementById('nuvio-qr-code');
+  const qrStatus = document.getElementById('nuvio-qr-status');
+
+  qrDiv.style.position = 'relative';
+
+  toggle.addEventListener('click', function(){
+    if (!window.generatedToken) {
+      qrStatus.textContent = 'Generate your setup first (Step 4) before scanning.';
+      qrStatus.style.color = '#ff6b6b';
+      return;
+    }
+
+    if (qrDiv.style.display === 'none') {
+      qrDiv.style.display = 'inline-block';
+      qrStatus.textContent = 'Scan with your phone camera';
+      qrStatus.style.color = 'var(--muted)';
+
+      if (!qrGenerated) {
+        new QRCode(qrDiv, {
+          text: DISPLAY_URL + '/push.html?token=' + window.generatedToken,
+          width: 200,
+          height: 200,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+        const logoWrap = document.createElement('div');
+        logoWrap.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:4px;box-shadow:0 0 0 4px #fff;';
+        const logoImg = document.createElement('img');
+        logoImg.src = '/icons/icon-192.png';
+        logoImg.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:6px;';
+        logoWrap.appendChild(logoImg);
+        qrDiv.appendChild(logoWrap);
+
+        qrGenerated = true;
+      }
+    } else {
+      qrDiv.style.display = 'none';
+      qrStatus.textContent = '';
+    }
+  });
+})();
+</script>
 </body>

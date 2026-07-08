@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX · Nuvio Account Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --card: #12121f; --border: #1e1e36; --border2: #2a2a45;
+      --violet: #7B2FFF; --violet2: #9B5FFF; --coral: #FF3D5A;
+      --text: #e8e8f0; --muted: #8888aa; --ok: #34d399; --err: #ff6b6b;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 15px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .06em;
+      text-align: center; margin-bottom: 6px; }
+    .logo span { background: linear-gradient(135deg, var(--violet), var(--coral));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .card { background: linear-gradient(135deg, rgba(123,47,255,.1), rgba(123,47,255,.05));
+      border: 1px solid rgba(123,47,255,.3); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+    input[type=email], input[type=password] {
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border2);
+      background: rgba(255,255,255,.03); color: #fff; font-size: 14px; margin-bottom: 10px;
+      font-family: inherit;
+    }
+    label.remember { display: flex; align-items: center; gap: 8px; font-size: 13px;
+      color: var(--muted); margin-bottom: 14px; cursor: pointer; }
+    button {
+      padding: 13px; border-radius: 10px; border: none; cursor: pointer;
+      font-family: inherit; font-weight: 700; font-size: 14px;
+    }
+    .btn-full { width: 100%; }
+    .btn-primary { background: var(--violet); color: #fff; }
+    .btn-primary:disabled { opacity: .5; cursor: default; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+    .status { margin-top: 12px; font-size: 13px; text-align: center; min-height: 18px; }
+    .profile-row {
+      display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border2);
+      border-radius: 12px; margin-bottom: 10px; cursor: pointer; background: rgba(255,255,255,.02);
+    }
+    .profile-row.selected { border-color: var(--violet); background: rgba(123,47,255,.12); }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-name { font-size: 14px; font-weight: 600; }
+    .hidden { display: none; }
+    .top-link { display: block; text-align: center; font-size: 12px; color: var(--muted);
+      text-decoration: none; margin-top: 18px; }
+    .section-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between; }
+    .item-row {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border2);
+      border-radius: 10px; margin-bottom: 8px; background: rgba(255,255,255,.02);
+    }
+    .item-name { flex: 1; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item-sub { font-size: 11px; color: var(--muted); }
+    .remove-btn {
+      background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.3); color: var(--err);
+      width: 28px; height: 28px; border-radius: 8px; font-size: 14px; padding: 0; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+    }
+    .empty-note { font-size: 12px; color: var(--muted); text-align: center; padding: 12px; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .top-bar .profile-mini { display: flex; align-items: center; gap: 8px; }
+    .top-bar .avatar { width: 28px; height: 28px; font-size: 11px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">ULTRA <span>MAX</span></div>
+  <div class="sub">Nuvio Account Manager</div>
+
+  <div id="loginStage" class="card">
+    <input type="email" id="email" placeholder="Nuvio email" autocomplete="username">
+    <input type="password" id="password" placeholder="Nuvio password" autocomplete="current-password">
+    <label class="remember">
+      <input type="checkbox" id="rememberMe">
+      Remember me on this device
+    </label>
+    <button class="btn-primary btn-full" id="loginBtn">Continue</button>
+    <div class="status"></div>
+  </div>
+
+  <div id="profilePickStage" class="card hidden">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Select a profile</div>
+    <div id="profileList"></div>
+    <div class="status"></div>
+  </div>
+
+  <div id="managerStage" class="hidden">
+    <div class="card">
+      <div class="top-bar">
+        <div class="profile-mini">
+          <div class="avatar" id="activeAvatar"></div>
+          <strong id="activeName"></strong>
+        </div>
+        <button class="btn-secondary" id="switchBtn" style="padding:6px 12px;font-size:11px;">Switch</button>
+      </div>
+
+      <div class="section-title">
+        Addons
+        <span id="addonCount" style="font-weight:400;color:var(--muted);font-size:11px;"></span>
+      </div>
+      <div id="addonList"></div>
+
+      <div class="section-title" style="margin-top:18px;">
+        Collections
+        <span id="collectionCount" style="font-weight:400;color:var(--muted);font-size:11px;"></span>
+      </div>
+      <div id="collectionList"></div>
+
+      <button class="btn-primary btn-full" id="saveBtn" style="margin-top:16px;">Save Changes</button>
+      <div class="status" id="managerStatus"></div>
+    </div>
+  </div>
+
+  <a href="/" id="backLink" class="top-link">← Back to Ultra MAX</a>
+</div>
+
+<script src="/nuvio-push.js"></script>
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const setupToken = params.get('token');
+  if (setupToken) {
+    document.getElementById('backLink').href = '/configure/' + setupToken;
+  }
+
+  const loginStage = document.getElementById('loginStage');
+  const profilePickStage = document.getElementById('profilePickStage');
+  const managerStage = document.getElementById('managerStage');
+  const loginStatus = loginStage.querySelector('.status');
+  const pickStatus = profilePickStage.querySelector('.status');
+  const managerStatus = document.getElementById('managerStatus');
+  const profileList = document.getElementById('profileList');
+  const addonList = document.getElementById('addonList');
+  const collectionList = document.getElementById('collectionList');
+
+  let accessToken = null;
+  let profiles = [];
+  let selectedProfile = null;
+  let currentAddons = [];
+  let currentCollections = [];
+
+  (async function init(){
+    const restored = await nuvioTryRestoreSession().catch(() => null);
+    if (restored) {
+      accessToken = restored.accessToken;
+      profiles = restored.profiles;
+      loginStage.classList.add('hidden');
+      showProfilePicker();
+    }
+  })();
+
+  function renderProfileList(container, onSelect){
+    container.innerHTML = '';
+    profiles.forEach(function(p){
+      const row = document.createElement('div');
+      row.className = 'profile-row';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      if (p.avatar_url) {
+        const img = document.createElement('img');
+        img.src = p.avatar_url;
+        img.onerror = function(){
+          avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+          avatar.style.background = p.avatar_color_hex || '#7B2FFF';
+          img.remove();
+        };
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+        avatar.style.background = p.avatar_color_hex || '#7B2FFF';
+      }
+
+      const name = document.createElement('div');
+      name.className = 'profile-name';
+      name.textContent = p.name;
+
+      row.appendChild(avatar);
+      row.appendChild(name);
+      row.addEventListener('click', function(){ onSelect(p); });
+      container.appendChild(row);
+    });
+  }
+
+  function showProfilePicker(){
+    profilePickStage.classList.remove('hidden');
+    renderProfileList(profileList, selectProfile);
+  }
+
+  async function selectProfile(p){
+    selectedProfile = p;
+    profilePickStage.classList.add('hidden');
+    managerStage.classList.remove('hidden');
+
+    const activeAvatar = document.getElementById('activeAvatar');
+    activeAvatar.innerHTML = '';
+    if (p.avatar_url) {
+      const img = document.createElement('img');
+      img.src = p.avatar_url;
+      img.onerror = function(){
+        activeAvatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+        activeAvatar.style.background = p.avatar_color_hex || '#7B2FFF';
+        img.remove();
+      };
+      activeAvatar.appendChild(img);
+    } else {
+      activeAvatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+      activeAvatar.style.background = p.avatar_color_hex || '#7B2FFF';
+    }
+    document.getElementById('activeName').textContent = p.name;
+
+    managerStatus.textContent = 'Loading...';
+    managerStatus.style.color = 'var(--muted)';
+
+    try {
+      currentAddons = await nuvioGetAddons(accessToken, p.profile_index);
+      currentCollections = await nuvioGetCollections(accessToken, p.profile_index);
+      renderAddons();
+      renderCollections();
+      managerStatus.textContent = '';
+    } catch (err) {
+      managerStatus.textContent = err.message || 'Failed to load profile data.';
+      managerStatus.style.color = 'var(--err)';
+    }
+  }
+
+  function renderAddons(){
+    document.getElementById('addonCount').textContent = currentAddons.length + ' installed';
+    addonList.innerHTML = '';
+    if (currentAddons.length === 0) {
+      addonList.innerHTML = '<div class="empty-note">No addons installed on this profile.</div>';
+      return;
+    }
+    currentAddons.forEach(function(addon, idx){
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML =
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="item-name">' + escapeHtml(addon.name || 'Unnamed addon') + '</div>' +
+          '<div class="item-sub">' + escapeHtml(addon.url || '') + '</div>' +
+        '</div>';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', function(){
+        currentAddons.splice(idx, 1);
+        renderAddons();
+      });
+      row.appendChild(removeBtn);
+      addonList.appendChild(row);
+    });
+  }
+
+  function renderCollections(){
+    document.getElementById('collectionCount').textContent = currentCollections.length + ' collections';
+    collectionList.innerHTML = '';
+    if (currentCollections.length === 0) {
+      collectionList.innerHTML = '<div class="empty-note">No collections on this profile.</div>';
+      return;
+    }
+    currentCollections.forEach(function(coll, idx){
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      const folderCount = Array.isArray(coll.folders) ? coll.folders.length : 0;
+      row.innerHTML =
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="item-name">' + escapeHtml(coll.title || 'Untitled collection') + '</div>' +
+          '<div class="item-sub">' + folderCount + ' folder' + (folderCount === 1 ? '' : 's') + '</div>' +
+        '</div>';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', function(){
+        currentCollections.splice(idx, 1);
+        renderCollections();
+      });
+      row.appendChild(removeBtn);
+      collectionList.appendChild(row);
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const btn = document.getElementById('loginBtn');
+
+    if (!email || !password) {
+      loginStatus.textContent = 'Please enter your Nuvio email and password.';
+      loginStatus.style.color = 'var(--err)';
+      return;
+    }
+
+    btn.disabled = true;
+    loginStatus.style.color = 'var(--muted)';
+    loginStatus.textContent = 'Logging in...';
+
+    try {
+      const result = await nuvioLoginAndListProfiles(email, password);
+      accessToken = result.accessToken;
+      profiles = result.profiles;
+      document.getElementById('password').value = '';
+
+      if (remember) {
+        nuvioSaveSession(result.refreshToken);
+      }
+
+      loginStage.classList.add('hidden');
+      showProfilePicker();
+    } catch (err) {
+      loginStatus.textContent = err.message || 'Login failed.';
+      loginStatus.style.color = 'var(--err)';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('switchBtn').addEventListener('click', () => {
+    managerStage.classList.add('hidden');
+    showProfilePicker();
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    managerStatus.style.color = 'var(--muted)';
+    managerStatus.textContent = 'Saving addons...';
+
+    try {
+      await nuvioPushAddons(accessToken, selectedProfile.profile_index, currentAddons);
+      managerStatus.textContent = 'Saving collections...';
+      await nuvioPushCollections(accessToken, selectedProfile.profile_index, currentCollections);
+      managerStatus.textContent = 'Saved ✓';
+      managerStatus.style.color = 'var(--ok)';
+    } catch (err) {
+      managerStatus.textContent = err.message || 'Failed to save changes.';
+      managerStatus.style.color = 'var(--err)';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

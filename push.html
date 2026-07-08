@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX · Push to Nuvio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --card: #12121f; --border: #1e1e36; --border2: #2a2a45;
+      --violet: #7B2FFF; --violet2: #9B5FFF; --coral: #FF3D5A;
+      --text: #e8e8f0; --muted: #8888aa; --ok: #34d399; --err: #ff6b6b;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 15px; }
+    .wrap { max-width: 460px; margin: 0 auto; padding: 32px 20px; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .06em;
+      text-align: center; margin-bottom: 6px; }
+    .logo span { background: linear-gradient(135deg, var(--violet), var(--coral));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .card { background: linear-gradient(135deg, rgba(123,47,255,.1), rgba(123,47,255,.05));
+      border: 1px solid rgba(123,47,255,.3); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+    input[type=email], input[type=password] {
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border2);
+      background: rgba(255,255,255,.03); color: #fff; font-size: 14px; margin-bottom: 10px;
+      font-family: inherit;
+    }
+    label.remember { display: flex; align-items: center; gap: 8px; font-size: 13px;
+      color: var(--muted); margin-bottom: 14px; cursor: pointer; }
+    button {
+      width: 100%; padding: 13px; border-radius: 10px; border: none; cursor: pointer;
+      font-family: inherit; font-weight: 700; font-size: 14px;
+    }
+    .btn-primary { background: var(--violet); color: #fff; }
+    .btn-primary:disabled { opacity: .5; cursor: default; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+    .status { margin-top: 12px; font-size: 13px; text-align: center; min-height: 18px; }
+    .profile-row {
+      display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border2);
+      border-radius: 12px; margin-bottom: 10px; cursor: pointer; background: rgba(255,255,255,.02);
+    }
+    .profile-row.selected { border-color: var(--violet); background: rgba(123,47,255,.12); }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-name { font-size: 14px; font-weight: 600; }
+    .scope-row { display: flex; gap: 18px; margin-bottom: 14px; padding: 10px;
+      background: rgba(255,255,255,.02); border: 1px solid var(--border2); border-radius: 10px; }
+    .scope-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+    .hidden { display: none; }
+    .top-link { display: block; text-align: center; font-size: 12px; color: var(--muted);
+      text-decoration: none; margin-top: 18px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">ULTRA <span>MAX</span></div>
+  <div class="sub">Push your setup straight to Nuvio</div>
+
+  <div id="loadingStage" class="card">
+    <div class="status">Loading your setup...</div>
+  </div>
+
+  <div id="errorStage" class="card hidden">
+    <div class="status" style="color:var(--err);"></div>
+  </div>
+
+  <div id="loginStage" class="card hidden">
+    <input type="email" id="email" placeholder="Nuvio email" autocomplete="username">
+    <input type="password" id="password" placeholder="Nuvio password" autocomplete="current-password">
+    <label class="remember">
+      <input type="checkbox" id="rememberMe">
+      Remember me on this device
+    </label>
+    <button class="btn-primary" id="loginBtn">Continue</button>
+    <div class="status"></div>
+  </div>
+
+  <div id="profileStage" class="card hidden">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Select a profile</div>
+    <div class="scope-row">
+      <label><input type="checkbox" id="scopeCatalogs" checked> Catalogs</label>
+      <label><input type="checkbox" id="scopeCollections" checked> Collections</label>
+    </div>
+    <div id="profileList"></div>
+    <button class="btn-primary" id="confirmBtn" disabled style="margin-top:6px;">Push to Nuvio</button>
+    <button class="btn-secondary" id="logoutBtn" style="margin-top:8px;">Not you? Log out</button>
+    <div class="status"></div>
+  </div>
+
+  <a href="/" id="backLink" class="top-link">← Back to Ultra MAX</a>
+</div>
+
+<script src="/nuvio-push.js"></script>
+<script>
+(function(){
+  const DISPLAY_URL = 'https://ultramax.vip';
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    document.getElementById('backLink').href = '/configure/' + token;
+  }
+
+  const loadingStage = document.getElementById('loadingStage');
+  const errorStage = document.getElementById('errorStage');
+  const loginStage = document.getElementById('loginStage');
+  const profileStage = document.getElementById('profileStage');
+  const loginStatus = loginStage.querySelector('.status');
+  const profileStatus = profileStage.querySelector('.status');
+  const profileList = document.getElementById('profileList');
+
+  let manifestUrl = null;
+  let collections = [];
+  let accessToken = null;
+  let profiles = [];
+  let selectedProfileId = null;
+
+  function showError(msg){
+    loadingStage.classList.add('hidden');
+    errorStage.classList.remove('hidden');
+    errorStage.querySelector('.status').textContent = msg;
+  }
+
+  if (!token) {
+    showError('No setup token found in the link. Please scan the QR code again from your setup page.');
+    return;
+  }
+
+  manifestUrl = DISPLAY_URL + '/c/' + token + '/manifest.json';
+
+  fetch(DISPLAY_URL + '/c/' + token + '/collections.json')
+    .then(r => r.json())
+    .then(async (data) => {
+      collections = Array.isArray(data) ? data : [];
+      loadingStage.classList.add('hidden');
+
+      const restored = await nuvioTryRestoreSession().catch(() => null);
+      if (restored) {
+        accessToken = restored.accessToken;
+        profiles = restored.profiles;
+        showProfileStage();
+      } else {
+        loginStage.classList.remove('hidden');
+      }
+    })
+    .catch(() => {
+      showError("Couldn't load this setup. The link may have expired or the token is invalid.");
+    });
+
+  function renderProfiles(){
+    profileList.innerHTML = '';
+    profiles.forEach(function(p){
+      const row = document.createElement('div');
+      row.className = 'profile-row';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      if (p.avatar_url) {
+        const img = document.createElement('img');
+        img.src = p.avatar_url;
+        img.onerror = function(){
+          avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+          avatar.style.background = p.avatar_color_hex || '#7B2FFF';
+          img.remove();
+        };
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+        avatar.style.background = p.avatar_color_hex || '#7B2FFF';
+      }
+
+      const name = document.createElement('div');
+      name.className = 'profile-name';
+      name.textContent = p.name;
+
+      row.appendChild(avatar);
+      row.appendChild(name);
+      row.addEventListener('click', function(){
+        Array.from(profileList.children).forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        selectedProfileId = p.profile_index;
+        document.getElementById('confirmBtn').disabled = false;
+      });
+      profileList.appendChild(row);
+    });
+  }
+
+  function showProfileStage(){
+    loginStage.classList.add('hidden');
+    profileStage.classList.remove('hidden');
+    renderProfiles();
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const btn = document.getElementById('loginBtn');
+
+    if (!email || !password) {
+      loginStatus.textContent = 'Please enter your Nuvio email and password.';
+      loginStatus.style.color = 'var(--err)';
+      return;
+    }
+
+    btn.disabled = true;
+    loginStatus.style.color = 'var(--muted)';
+    loginStatus.textContent = 'Logging in...';
+
+    try {
+      const result = await nuvioLoginAndListProfiles(email, password);
+      accessToken = result.accessToken;
+      profiles = result.profiles;
+      document.getElementById('password').value = '';
+
+      if (remember) {
+        nuvioSaveSession(result.refreshToken);
+      }
+
+      showProfileStage();
+    } catch (err) {
+      loginStatus.textContent = err.message || 'Login failed.';
+      loginStatus.style.color = 'var(--err)';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    nuvioClearSession();
+    accessToken = null;
+    profiles = [];
+    selectedProfileId = null;
+    profileStage.classList.add('hidden');
+    loginStage.classList.remove('hidden');
+    profileStatus.textContent = '';
+  });
+
+  document.getElementById('confirmBtn').addEventListener('click', async () => {
+    const pushCatalogs = document.getElementById('scopeCatalogs').checked;
+    const pushCollections = document.getElementById('scopeCollections').checked;
+    const btn = document.getElementById('confirmBtn');
+
+    if (!pushCatalogs && !pushCollections) {
+      profileStatus.textContent = 'Select at least Catalogs or Collections.';
+      profileStatus.style.color = 'var(--err)';
+      return;
+    }
+
+    btn.disabled = true;
+    profileStatus.style.color = 'var(--muted)';
+
+    try {
+      await pushUltraMaxToProfile(
+        accessToken,
+        selectedProfileId,
+        { manifestUrl, collections, pushCatalogs, pushCollections },
+        (msg) => { profileStatus.textContent = msg; }
+      );
+      profileStatus.style.color = 'var(--ok)';
+    } catch (err) {
+      profileStatus.textContent = err.message || 'Something went wrong.';
+      profileStatus.style.color = 'var(--err)';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

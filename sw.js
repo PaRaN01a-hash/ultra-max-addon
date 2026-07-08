@@ -1,5 +1,6 @@
-const CACHE = 'ultramax-v1';
+const CACHE = 'ultramax-v2';
 const OFFLINE = [
+  '/app.html',
   '/setup.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
