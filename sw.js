@@ -1,10 +1,10 @@
-const CACHE = 'ultramax-v2';
+const CACHE = 'ultramax-v3';
 const OFFLINE = [
   '/app.html',
   '/setup.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/manifest.json'
+  '/pwa-manifest.json'
 ];
 
 self.addEventListener('install', e => {

@@ -6,7 +6,7 @@
   <title>Ultra MAX</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/pwa-manifest.json">
   <meta name="theme-color" content="#090514">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -246,11 +246,14 @@
   <div class="poster-strip row1" id="row3"></div>
   <div class="poster-strip row2" id="row4"></div>
 </div>
-
+<script src="/um-session.js"></script>
 <script>
 (function(){
-  var token = null;
-  try { token = sessionStorage.getItem('um_setup_token'); } catch(e){}
+  var remembered = (typeof umGetSession === 'function') ? umGetSession() : null;
+  var token = remembered ? remembered.token : null;
+  if (!token) {
+    try { token = sessionStorage.getItem('um_setup_token'); } catch(e){}
+  }
   if (token) {
     var card = document.getElementById('continueCard');
     card.href = '/configure/' + token;

@@ -1,242 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra MAX TV — Setup</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
-    --teal:#00d2a0; --teal2:#00f0b8; --violet:#7B2FFF; --violet2:#9B5FFF;
-    --text:#e0e0f0; --muted:#7070a0; --green:#00E676; --red:#FF4444;
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX TV — Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
+      --teal:#00d2a0; --teal2:#00f0b8; --violet:#7B2FFF; --violet2:#9B5FFF;
+      --text:#e0e0f0; --muted:#7070a0; --green:#00E676; --red:#FF4444;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
 
-  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
-  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
-  .logo span{color:var(--teal);}
-  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;}
-  .nav-back:hover{color:var(--text);}
+    nav{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+    .logo span{color:var(--teal);}
+    .nav-back{font-size:13px;color:var(--muted);text-decoration:none;}
+    .nav-back:hover{color:var(--text);}
 
-  .hero{text-align:center;padding:52px 24px 36px;max-width:700px;margin:0 auto;}
-  .hero-badge{display:inline-block;background:rgba(0,210,160,0.1);border:1px solid rgba(0,210,160,0.25);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px;}
-  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);letter-spacing:.04em;line-height:1;margin-bottom:12px;background:linear-gradient(135deg,#fff 40%,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .hero p{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin:0 auto;}
+    .hero{text-align:center;padding:52px 24px 36px;max-width:700px;margin:0 auto;}
+    .hero-badge{display:inline-block;background:rgba(0,210,160,0.1);border:1px solid rgba(0,210,160,0.25);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px;}
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);letter-spacing:.04em;line-height:1;margin-bottom:12px;background:linear-gradient(135deg,#fff 40%,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero p{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin:0 auto;}
+    
+    .main{max-width:720px;margin:0 auto;padding:32px 24px 80px;}
+    .section-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-  .main{max-width:720px;margin:0 auto;padding:32px 24px 80px;}
+    .select-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .select-count{font-size:13px;color:var(--muted);}
+    .select-count span{color:var(--teal);font-weight:600;}
+    .select-actions{display:flex;gap:8px;}
+    .select-btn{background:none;border:1px solid var(--border2);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+    .select-btn:hover{border-color:var(--teal);color:var(--teal);}
 
-  .section-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:28px;}
+    .country-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;user-select:none;}
+    .country-card:hover{border-color:rgba(0,210,160,0.4);background:#14142a;}
+    .country-card.selected{border-color:var(--teal);background:rgba(0,210,160,0.08);}
+    .country-flag{font-size:1.6rem;line-height:1;}
+    .country-info{flex:1;min-width:0;}
+    .country-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .country-count{font-size:11px;color:var(--muted);margin-top:2px;}
+    .country-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:10px;}
+    .country-card.selected .country-check{background:var(--teal);border-color:var(--teal);color:#000;}
 
-  /* Select all bar */
-  .select-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .select-count{font-size:13px;color:var(--muted);}
-  .select-count span{color:var(--teal);font-weight:600;}
-  .select-actions{display:flex;gap:8px;}
-  .select-btn{background:none;border:1px solid var(--border2);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
-  .select-btn:hover{border-color:var(--teal);color:var(--teal);}
+    .install-box{background:linear-gradient(135deg,rgba(0,210,160,0.08),rgba(123,47,255,0.06));border:1px solid rgba(0,210,160,0.2);border-radius:18px;padding:28px;text-align:center;margin-bottom:20px;}
+    .install-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;color:#fff;margin-bottom:6px;}
+    .install-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+    
+    .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;padding:14px 40px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(0,210,160,0.2);font-weight:700;width:100%;}
+    .btn-primary:hover{background:var(--teal2);transform:translateY(-2px);}
+    .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
 
-  /* Country grid */
-  .country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:28px;}
+    .result-box{background:var(--card);border:1px solid rgba(0,230,118,0.3);border-radius:16px;padding:24px;display:none;flex-direction:column;gap:14px;margin-bottom:24px;}
+    .result-box.visible{display:flex;}
+    .result-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green);letter-spacing:.06em;}
+    .manifest-url{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:monospace;font-size:12px;color:var(--teal);word-break:break-all;cursor:pointer;}
+    .install-btns{display:flex;gap:10px;flex-wrap:wrap;}
+    .install-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s;flex:1;}
+    .install-stremio{background:var(--violet);color:#fff;}
 
-  .country-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;user-select:none;}
-  .country-card:hover{border-color:rgba(0,210,160,0.4);background:#14142a;}
-  .country-card.selected{border-color:var(--teal);background:rgba(0,210,160,0.08);}
-  .country-flag{font-size:1.6rem;line-height:1;}
-  .country-info{flex:1;min-width:0;}
-  .country-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .country-count{font-size:11px;color:var(--muted);margin-top:2px;}
-  .country-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:10px;}
-  .country-card.selected .country-check{background:var(--teal);border-color:var(--teal);color:#000;}
-
-  /* Install box */
-  .install-box{background:linear-gradient(135deg,rgba(0,210,160,0.08),rgba(123,47,255,0.06));border:1px solid rgba(0,210,160,0.2);border-radius:18px;padding:28px;text-align:center;margin-bottom:20px;}
-  .install-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;color:#fff;margin-bottom:6px;}
-  .install-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
-  .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;padding:14px 40px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(0,210,160,0.2);font-weight:700;width:100%;}
-  .btn-primary:hover{background:var(--teal2);transform:translateY(-2px);}
-  .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
-
-  /* Result */
-  .result-box{background:var(--card);border:1px solid rgba(0,230,118,0.3);border-radius:16px;padding:24px;display:none;flex-direction:column;gap:14px;margin-bottom:24px;}
-  .result-box.visible{display:flex;}
-  .result-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green);letter-spacing:.06em;}
-  .manifest-url{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:monospace;font-size:12px;color:var(--teal);word-break:break-all;cursor:pointer;}
-  .install-btns{display:flex;gap:10px;flex-wrap:wrap;}
-  .install-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s;flex:1;}
-  .install-stremio{background:var(--violet);color:#fff;}
-  .install-nuvio{background:var(--teal);color:#000;}
-
-  .error-msg{color:var(--red);font-size:13px;padding:12px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:10px;display:none;margin-bottom:16px;}
-  .error-msg.visible{display:block;}
-
-  .loading{text-align:center;padding:40px;color:var(--muted);}
-
-  @media(max-width:600px){
-    .country-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
-    .install-btns{flex-direction:column;}
-  }
-</style>
-<script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
+    .error-msg{color:var(--red);font-size:13px;padding:12px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:10px;display:none;margin-bottom:16px;}
+    .error-msg.visible{display:block;}
+    .loading{text-align:center;padding:40px;color:var(--muted);}
+    
+    @media(max-width:600px){
+      .country-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+      .install-btns{flex-direction:column;}
+    }
+  </style>
+  <script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
 </head>
 <body>
 
-<nav>
-  <a href="https://ultramax.vip/tv" class="logo">ULTRA MAX <span>TV</span></a>
-  <a href="https://ultramax.vip" class="nav-back">← Home</a>
-</nav>
+  <nav>
+    <a href="https://ultramax.vip/tv" class="logo">ULTRA MAX <span>TV</span></a>
+    <a href="https://ultramax.vip" class="nav-back">← Home</a>
+  </nav>
 
-<div class="hero">
-  <div class="hero-badge">📺 Setup</div>
-  <h1>Pick your<br>countries</h1>
-  <p>Select which countries you want live TV from. Only working, tested channels — no dead streams.</p>
-</div>
-
-<div class="main">
-
-  <div class="section-label">Available countries</div>
-
-  <div class="select-bar">
-    <div class="select-count"><span id="selectedCount">0</span> countries selected</div>
-    <div class="select-actions">
-      <button class="select-btn" onclick="selectAll()">Select all</button>
-      <button class="select-btn" onclick="selectNone()">Clear</button>
-    </div>
+  <div class="hero">
+    <div class="hero-badge">📺 Setup</div>
+    <h1>Pick your<br>countries</h1>
+    <p>Select which countries you want live TV from. Only working, tested channels — no dead streams.</p>
   </div>
 
-  <div id="countryGrid" class="country-grid">
-    <div class="loading">Loading countries...</div>
-  </div>
-
-  <div class="error-msg" id="errorMsg"></div>
-
-  <div class="result-box" id="resultBox">
-    <div class="result-title">📺 Ready to watch!</div>
-    <div style="font-size:13px;color:var(--muted);">Your personal manifest — tap to copy:</div>
-    <div class="manifest-url" id="manifestUrl" onclick="copyManifest()">—</div>
-    <div class="install-btns">
-      <a id="installStremio" href="#" class="install-link install-stremio">▶ Install in Stremio</a>
-    </div>
-    <div style="font-size:12px;color:var(--muted);">For <strong style="color:var(--text);">Nuvio</strong> — copy the URL above and paste it into Add Addon. For <strong style="color:var(--text);">Stremio</strong> — use the install button.</div>
-  </div>
-
-  <div class="install-box">
-    <div class="install-title">Generate Your Manifest</div>
-    <div class="install-sub">Pick your countries above then generate a personal manifest with only the channels you want.</div>
-    <button class="btn-primary" onclick="generate()" id="generateBtn" disabled>Generate My TV Manifest</button>
-  </div>
-
-</div>
-
-<script>
-const TV_BASE = 'https://tv.ultramax.vip';
-const selected = new Set();
-let countries = [];
-
-async function loadCountries() {
-  try {
-    const res = await fetch(`${TV_BASE}/api/countries`);
-    countries = await res.json();
-    renderGrid();
-  } catch(e) {
-    document.getElementById('countryGrid').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load countries</div>';
-  }
-}
-
-function renderGrid() {
-  const grid = document.getElementById('countryGrid');
-  grid.innerHTML = countries.map(c => `
-    <div class="country-card ${selected.has(c.code) ? 'selected' : ''}" 
-         id="card-${c.code}" onclick="toggleCountry('${c.code}')">
-      <div class="country-flag">${c.flag}</div>
-      <div class="country-info">
-        <div class="country-name">${c.name}</div>
-        <div class="country-count">${c.channelCount} channels</div>
+  <div class="main">
+    <div class="section-label">Available countries</div>
+    <div class="select-bar">
+      <div class="select-count"><span id="selectedCount">0</span> countries selected</div>
+      <div class="select-actions">
+        <button type="button" class="select-btn" onclick="selectAll()">Select all</button>
+        <button type="button" class="select-btn" onclick="selectNone()">Clear</button>
       </div>
-      <div class="country-check">${selected.has(c.code) ? '✓' : ''}</div>
     </div>
-  `).join('');
-  updateCount();
-}
 
-function toggleCountry(code) {
-  if (selected.has(code)) {
-    selected.delete(code);
-  } else {
-    selected.add(code);
-  }
-  const card = document.getElementById(`card-${code}`);
-  card.classList.toggle('selected', selected.has(code));
-  card.querySelector('.country-check').textContent = selected.has(code) ? '✓' : '';
-  updateCount();
-}
+    <div id="countryGrid" class="country-grid">
+      <div class="loading">Loading countries...</div>
+    </div>
 
-function updateCount() {
-  document.getElementById('selectedCount').textContent = selected.size;
-  document.getElementById('generateBtn').disabled = selected.size === 0;
-}
+    <div style="margin-bottom: 28px; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 12px;">
+      <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--teal); margin-bottom: 8px; letter-spacing: 1px;">
+        🚀 Premium VOD Integration (Optional)
+      </h3>
+      <p style="font-size: 13px; color: var(--muted); margin-bottom: 20px;">
+        Add your private Xtream Codes API credentials to overlay matching premium movie links directly inside live TV channel menus.
+      </p>
+      
+      <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; font-size: 11px; color: var(--text); margin-bottom: 6px; font-weight: 600; text-transform: uppercase;">Server URL / Domain</label>
+          <input type="text" id="xtreamDomain" placeholder="example-dns.com" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; outline: none;">
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 11px; color: var(--text); margin-bottom: 6px; font-weight: 600; text-transform: uppercase;">Username</label>
+          <input type="text" id="xtreamUser" placeholder="Your Username" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; outline: none;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; color: var(--text); margin-bottom: 6px; font-weight: 600; text-transform: uppercase;">Password</label>
+          <input type="password" id="xtreamPass" placeholder="Your Password" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; outline: none;">
+        </div>
+      </div>
+    </div>
 
-function selectAll() {
-  countries.forEach(c => selected.add(c.code));
-  renderGrid();
-}
+    <div class="error-msg" id="errorMsg"></div>
 
-function selectNone() {
-  selected.clear();
-  renderGrid();
-}
+    <div class="result-box" id="resultBox">
+      <div class="result-title">📺 Ready to watch!</div>
+      <div style="font-size:13px;color:var(--muted);">Your personal manifest — tap to copy:</div>
+      <div class="manifest-url" id="manifestUrl" onclick="copyManifest()">—</div>
+      <div class="install-btns">
+        <a id="installStremio" href="#" class="install-link install-stremio">▶ Install in Stremio</a>
+      </div>
+      <div style="font-size:12px;color:var(--muted); margin-top: 10px;">For <strong style="color:var(--text);">Nuvio</strong> — copy the URL above and paste it into Add Addon. For <strong style="color:var(--text);">Stremio</strong> — use the install button.</div>
+    </div>
 
-async function generate() {
-  const errorMsg = document.getElementById('errorMsg');
-  errorMsg.classList.remove('visible');
+    <div class="install-box">
+      <div class="install-title">Generate Your Manifest</div>
+      <div class="install-sub">Pick your countries above then generate a personal manifest with only the channels you want.</div>
+      <button type="button" class="btn-primary" onclick="generateManifest()" id="generateBtn">Generate My TV Manifest</button>
+    </div>
+  </div>
 
-  if (selected.size === 0) {
-    errorMsg.textContent = 'Please select at least one country';
-    errorMsg.classList.add('visible');
-    return;
-  }
+  <script>
+    const TV_BASE = 'https://tv.ultramax.vip';
+    const selected = new Set();
+    let countries = [];
 
-  const btn = document.getElementById('generateBtn');
-  btn.textContent = 'Generating...';
-  btn.disabled = true;
+    async function loadCountries() {
+      try {
+        const res = await fetch(`${TV_BASE}/api/countries`);
+        countries = await res.json();
+        renderGrid();
+      } catch(e) {
+        document.getElementById('countryGrid').innerHTML = '<div class="loading" style="color:var(--red)">Failed to load countries</div>';
+      }
+    }
 
-  try {
-    const res = await fetch(`${TV_BASE}/setup/create`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ countries: [...selected] })
-    });
-    const data = await res.json();
-    if (!data.token) throw new Error(data.error || 'Setup failed');
+    function renderGrid() {
+      const grid = document.getElementById('countryGrid');
+      grid.innerHTML = countries.map(c => `
+        <div class="country-card ${selected.has(c.code) ? 'selected' : ''}" id="card-${c.code}" onclick="toggleCountry('${c.code}')">
+          <div class="country-flag">${c.flag}</div>
+          <div class="country-info">
+            <div class="country-name">${c.name}</div>
+            <div class="country-count">${c.channelCount} channels</div>
+          </div>
+          <div class="country-check">${selected.has(c.code) ? '✓' : ''}</div>
+        </div>
+      `).join('');
+      updateCount();
+    }
 
-    const manifestUrl = `${TV_BASE}/c/${data.token}/manifest.json`;
-    document.getElementById('manifestUrl').textContent = manifestUrl;
-    document.getElementById('installStremio').href = `stremio://${TV_BASE.replace('https://','')}/c/${data.token}/manifest.json`;
-    document.getElementById('resultBox').classList.add('visible');
-    document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
-  } catch(e) {
-    errorMsg.textContent = '❌ ' + e.message;
-    errorMsg.classList.add('visible');
-  }
+    function toggleCountry(code) {
+      if (selected.has(code)) {
+        selected.delete(code);
+      } else {
+        selected.add(code);
+      }
+      const card = document.getElementById(`card-${code}`);
+      if(card) {
+        card.classList.toggle('selected', selected.has(code));
+        card.querySelector('.country-check').textContent = selected.has(code) ? '✓' : '';
+      }
+      updateCount();
+    }
 
-  btn.textContent = 'Generate My TV Manifest';
-  btn.disabled = false;
-}
+    function updateCount() {
+      document.getElementById('selectedCount').textContent = selected.size;
+    }
 
-function copyManifest() {
-  const url = document.getElementById('manifestUrl').textContent;
-  navigator.clipboard.writeText(url).then(() => {
-    const el = document.getElementById('manifestUrl');
-    const orig = el.textContent;
-    el.textContent = '✅ Copied!';
-    setTimeout(() => el.textContent = orig, 1500);
-  });
-}
+    function selectAll() {
+      countries.forEach(c => selected.add(c.code));
+      renderGrid();
+    }
 
-loadCountries();
-</script>
+    function selectNone() {
+      selected.clear();
+      renderGrid();
+    }
+
+    async function generateManifest() {
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.classList.remove('visible');
+
+      const elDomain = document.getElementById('xtreamDomain');
+      const elPort = document.getElementById('xtreamPort');
+      const elUser = document.getElementById('xtreamUser');
+      const elPass = document.getElementById('xtreamPass');
+
+      const domain = elDomain ? (elDomain.value || '').trim() : '';
+      const port = '';
+      const username = elUser ? (elUser.value || '').trim() : '';
+      const password = elPass ? (elPass.value || '').trim() : '';
+
+      const hasAnyXtreamInput = !!(domain || port || username || password);
+      const hasFullXtream = !!(domain && username && password);
+      const hasCountries = (selected.size > 0);
+
+      if (hasAnyXtreamInput && !hasFullXtream) {
+        errorMsg.textContent = '❌ Incomplete Login. Please fill in Domain, Username, and Password.';
+        errorMsg.classList.add('visible');
+        return;
+      }
+
+      if (!hasCountries && !hasFullXtream) {
+        errorMsg.textContent = '❌ Please select a country or fill out your Xtream logins.';
+        errorMsg.classList.add('visible');
+        return;
+      }
+
+      const btn = document.getElementById('generateBtn');
+      btn.textContent = 'Generating...';
+      btn.disabled = true;
+
+      try {
+        let payload = { countries: [...selected] };
+        if (hasFullXtream) {
+          payload.xtream = { domain, port, username, password };
+        }
+
+        const res = await fetch(`${TV_BASE}/setup/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.token) throw new Error(data.error || 'Setup processing failure');
+
+        const manifestUrl = `${TV_BASE}/c/${data.token}/manifest.json`;
+        document.getElementById('manifestUrl').textContent = manifestUrl;
+        document.getElementById('installStremio').href = `stremio://${TV_BASE.replace(/^https?:\/\//, '')}/c/${data.token}/manifest.json`;
+        document.getElementById('resultBox').classList.add('visible');
+        document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+      } catch(e) {
+        errorMsg.textContent = '❌ Error: ' + e.message;
+        errorMsg.classList.add('visible');
+      }
+
+      btn.textContent = 'Generate My TV Manifest';
+      btn.disabled = false;
+    }
+
+    function copyManifest() {
+      const url = document.getElementById('manifestUrl').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        const el = document.getElementById('manifestUrl');
+        const orig = el.textContent;
+        el.textContent = '✅ Copied!';
+        setTimeout(() => el.textContent = orig, 1500);
+      });
+    }
+
+    loadCountries();
+  </script>
 </body>
 </html>

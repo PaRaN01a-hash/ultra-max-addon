@@ -4,7 +4,7 @@
 <head>
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Ultra MAX — Build Your Addon</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap');
@@ -1672,6 +1672,20 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
 .lang-label { display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;user-select:none; }
     .lang-label:hover { background:var(--hover); }
     .lang-label input { cursor:pointer; }
+@media (max-width: 700px){
+  #step1Toolbar { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  #step1Toolbar > button { width: 100% !important; justify-content: center !important; }
+  #step1Toolbar > div { position: static !important; width: 100% !important; }
+  #step1Toolbar > div > button { width: 100% !important; justify-content: center !important; }
+  #toolsMenu { left: 0 !important; right: 0 !important; width: 100% !important; }
+  #nuvio-qr-card { display: none !important; }
+}
+</style>
+<style>
+.um-app-mode .um-sidebar-nav { display: none !important; }
+.um-app-mode .um-sidebar-footer { display: none !important; }
+.um-app-mode .um-sidebar-logo { flex: 1 !important; width: 100% !important; text-align: center !important; padding: 24px 16px !important; border: none !important; }
+.um-app-mode .um-logo-link { font-size: 2rem !important; letter-spacing: .06em !important; }
 </style>
 
 <style id="ultramax-theme-mode">
@@ -3685,13 +3699,12 @@ body {
 </style>
 <script defer src="https://umami-maxbase.duckdns.org/script.js" data-website-id="57e5e9f9-98bb-46cb-bd46-9b2a299e1af3"></script>
   <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/pwa-manifest.json">
   <meta name="theme-color" content="#7B2FFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ultra MAX">
 </head>
-<body>
 <body>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -3753,7 +3766,7 @@ body {
 
       <!-- SETUP TOOLS TOOLBAR -->
       <input type="file" id="projectFileInput" accept=".json,application/json" style="display:none">
-      <div style="display:flex;gap:8px;margin-bottom:24px;align-items:center;">
+      <div id="step1Toolbar" style="display:flex;gap:8px;margin-bottom:24px;align-items:center;flex-wrap:wrap;">
         <button onclick="startNewBuild()" type="button" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">🚀 New Setup</button>
         <button onclick="openReturningTools()" type="button" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--violet2)'" onmouseout="this.style.borderColor='var(--border2)'">🔑 Load Token</button>
         <button onclick="saveDraftState(); showBanner('Draft saved.', 'success')" type="button" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;padding:11px 20px;border-radius:12px;cursor:pointer;transition:all .2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--violet2)'" onmouseout="this.style.borderColor='var(--border2)'">💾 Save</button>
@@ -3834,8 +3847,65 @@ body {
         </div>
         <div class="um-fields-grid">
 
+          <!-- STEP 1 TILE GRID (app mode only) -->
+          <div id="step1TileGrid" style="display:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+
+              <div class="s1-tile" onclick="s1ShowTile('password')" style="--tile-clr:#7B2FFF;">
+                <div class="s1-tile-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                </div>
+                <div class="s1-tile-name">Password</div>
+                <div class="s1-tile-status" id="s1-status-password">Required</div>
+              </div>
+
+              <div class="s1-tile" onclick="s1ShowTile('mdblist')" style="--tile-clr:#34d399;">
+                <div class="s1-tile-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3-3.5 3.5zm-2 2l1.5 1.5"/></svg>
+                </div>
+                <div class="s1-tile-name">MDBList Key</div>
+                <div class="s1-tile-status" id="s1-status-mdblist">Required</div>
+              </div>
+
+              <div class="s1-tile s1-tile-wide" onclick="s1ShowTile('optional')" style="--tile-clr:#60a5fa;">
+                <div class="s1-tile-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 100-16 8 8 0 000 16z"/><path d="M12 8v4l3 3"/></svg>
+                </div>
+                <div class="s1-tile-text">
+                  <div class="s1-tile-name">Optional Enhancements</div>
+                  <div class="s1-tile-status">Posters, language, filters</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="step1TileBack" style="display:none;margin-bottom:16px;">
+            <button type="button" onclick="s1ShowGrid()" style="background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;">← Back to overview</button>
+          </div>
+
+          <style>
+            .s1-tile {
+              background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+              border: 1px solid var(--border); border-radius: 20px; padding: 22px 16px;
+              display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
+              cursor: pointer; min-height: 140px; justify-content: center;
+            }
+            .s1-tile:active { border-color: var(--tile-clr); }
+            .s1-tile-badge {
+              width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+              background: var(--tile-clr);
+              background: linear-gradient(140deg, var(--tile-clr), color-mix(in srgb, var(--tile-clr) 60%, black));
+            }
+            .s1-tile-badge svg { width: 24px; height: 24px; }
+            .s1-tile-name { font-size: 14px; font-weight: 700; color: #fff; }
+            .s1-tile-status { font-size: 11px; color: var(--muted); }
+            .s1-tile-wide { grid-column: 1 / -1; flex-direction: row; text-align: left; min-height: auto; padding: 16px 18px; gap: 14px; justify-content: flex-start; }
+            .s1-tile-wide .s1-tile-badge { width: 40px; height: 40px; flex-shrink: 0; }
+            .s1-tile-wide .s1-tile-badge svg { width: 20px; height: 20px; }
+          </style>
           <!-- Password -->
-          <div class="um-card">
+          <div class="um-card" id="tile-content-password">
             <div class="field-label">🔐 Password <span class="badge badge-required">REQUIRED</span></div>
             <div class="input-row">
               <div style="position:relative;display:flex;align-items:center;">
@@ -3849,6 +3919,10 @@ body {
             </div>
             <div class="error-msg" id="passError">Passwords do not match</div>
             <div class="input-hint">Save this — you'll need it to edit your setup later.</div>
+            <label id="rememberMeRow" style="display:none;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer;">
+              <input type="checkbox" id="rememberMeDevice" style="width:14px;height:14px;">
+              Remember me on this device
+            </label>
           </div>
 
           <!-- Forgot Password -->
@@ -3866,7 +3940,7 @@ body {
           </div>
 
           <!-- MDBList -->
-          <div class="um-card api-key-hero">
+          <div class="um-card api-key-hero" id="tile-content-mdblist">
             <div class="field-label">🔑 MDBList API Key <span class="badge badge-required">REQUIRED</span></div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="text" id="mdblistKey" placeholder="Paste your free MDBList API key" style="flex:1;" />
@@ -4620,10 +4694,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="s3-presets-grid" id="s3PresetsGrid">
           <div class="s3-preset-card" data-preset="streaming" onclick="s3PresetClick(this,'streaming')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt15398776.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt5180504.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt7366338.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt2442560.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/netflix.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/Disney.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/prime.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/HBO.jpg" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">📡</span><div class="s3-preset-name">Streaming</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
@@ -4638,55 +4712,55 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="s3-preset-card" data-preset="genres" onclick="s3PresetClick(this,'genres')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0110912.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0137523.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0245429.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt3783958.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_action.png" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_horror.png" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_scifi.png" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_comedy.png" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">🎭</span><div class="s3-preset-name">Genres</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
           <div class="s3-preset-card" data-preset="themed" onclick="s3PresetClick(this,'themed')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt4633694.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt1745960.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt6710474.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0172495.jpg" loading="lazy">
+              <img src="https://www.image2url.com/r2/default/images/1782419193489-fdc70025-293e-4bcc-93df-9b2d0cd0b55c.webp" loading="lazy">
+              <img src="https://www.image2url.com/r2/default/images/1782418927941-1fb1531e-af25-4ec3-9d3f-9a0502c36607.webp" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_horror.png" loading="lazy">
+              <img src="https://ultramax.vip/images/elucid_thriller.png" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">✨</span><div class="s3-preset-name">Themed</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
           <div class="s3-preset-card" data-preset="collections" onclick="s3PresetClick(this,'collections')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0816692.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0330373.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0120338.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt2488496.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/harrypotter_tmdb.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/lotr_tmdb.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/starwars_tmdb.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/bond_tmdb.jpg" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">🗂</span><div class="s3-preset-name">Film Collections</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
           <div class="s3-preset-card" data-preset="studios" onclick="s3PresetClick(this,'studios')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt4633694.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt3783958.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0816692.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt1375666.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/Marvel.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/DC.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/A24.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/Pixar.jpg" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">🎬</span><div class="s3-preset-name">Studios</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
           <div class="s3-preset-card" data-preset="directors" onclick="s3PresetClick(this,'directors')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0816692.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0111161.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0468569.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0110912.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/director_nolan.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/director_scorsese.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/director_spielberg.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/director_tarantino.jpg" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">🎥</span><div class="s3-preset-name">Directors</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
           <div class="s3-preset-card" data-preset="actors" onclick="s3PresetClick(this,'actors')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0816692.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt1375666.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0468569.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt4633694.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/actor_pitt.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/actor_denzel.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/actor_dicaprio.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/actor_cruise.jpg" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">⭐</span><div class="s3-preset-name">Actors</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
@@ -4719,10 +4793,10 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="s3-preset-card" data-preset="uk" onclick="s3PresetClick(this,'uk')">
             <div class="s3-preset-strip">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt1475582.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt0108778.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt3107288.jpg" loading="lazy">
-              <img src="https://api.ratingposterdb.com/t0-free-rpdb/imdb/poster-default/tt2306299.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/uk.itvx.webp" loading="lazy">
+              <img src="https://ultramax.vip/images/uk.channel_4.webp" loading="lazy">
+              <img src="https://ultramax.vip/images/Brit.jpg" loading="lazy">
+              <img src="https://ultramax.vip/images/uk.acorn_tv.webp" loading="lazy">
             </div>
             <div class="s3-preset-body"><span class="s3-preset-icon">🇬🇧</span><div class="s3-preset-name">UK</div><div class="s3-preset-add">+ Add collection</div></div>
           </div>
@@ -4879,7 +4953,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
               <div id="nuvio-status" style="margin-top:10px;font-size:11px;color:var(--muted);"></div>
             </div>
-            <div style="background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(96,165,250,.05));border:1px solid rgba(96,165,250,.3);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div id="nuvio-qr-card" style="background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(96,165,250,.05));border:1px solid rgba(96,165,250,.3);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
               <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#60a5fa;margin-bottom:8px;">Optional</div>
               <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📱 Push From Your Phone</div>
               <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px;">Scan this with your phone camera to push directly, no typing required.</div>
@@ -5187,6 +5261,10 @@ document.addEventListener('DOMContentLoaded', function() {
       style="width:100%;box-sizing:border-box;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:14px;padding:12px 14px;border-radius:10px;outline:none;margin-bottom:10px;"
       onkeydown="if(event.key==='Enter') verifyTokenPassword()">
     <div id="tokenModalError" style="font-size:12px;color:#FF3D5A;margin-bottom:10px;min-height:16px;"></div>
+    <label id="rememberMeModalRow" style="display:none;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--muted);cursor:pointer;">
+      <input type="checkbox" id="rememberMeModalDevice" style="width:14px;height:14px;">
+      Remember me on this device
+    </label>
     <div style="text-align:right;margin-bottom:10px;">
       <a href="/recover" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;">Forgot password? Recover token →</a>
     </div>
@@ -5226,7 +5304,27 @@ document.addEventListener('DOMContentLoaded', function(){
     const tokenInput = document.getElementById('returningToken') || document.getElementById('loadTokenInput') || document.getElementById('tokenInput');
     if(tokenInput) tokenInput.value = urlToken;
     // Show password modal instead of loading directly
-    setTimeout(function(){ if(typeof showTokenPasswordModal === 'function') showTokenPasswordModal(urlToken); }, 400);
+    setTimeout(function(){
+      var remembered = (typeof umGetSession === 'function') ? umGetSession() : null;
+      if (remembered && remembered.token === urlToken && remembered.password) {
+        var pwEl = document.getElementById('password');
+        if (pwEl) pwEl.value = remembered.password;
+        var confirmEl = document.getElementById('confirmPassword');
+        if (confirmEl) confirmEl.value = remembered.password;
+        loadConfigByToken(urlToken).then(function(){
+          setTimeout(function(){ setStep(1); }, 800);
+          setTimeout(function(){
+            var rowCount = selected ? selected.size : 0;
+            var collCount = v2Collections ? v2Collections.length : 0;
+            var msg = 'Welcome back — ' + rowCount + ' rows loaded';
+            if (collCount > 0) msg += ', ' + collCount + ' collection' + (collCount !== 1 ? 's' : '');
+            if (typeof showBanner === 'function') showBanner(msg, 'success');
+          }, 1200);
+        });
+      } else {
+        if (typeof showTokenPasswordModal === 'function') showTokenPasswordModal(urlToken);
+      }
+    }, 400);
     const cpw = document.getElementById('confirmPasswordWrap'); if(cpw) cpw.style.display = 'none';
     const fpc = document.getElementById('forgotPasswordCard'); if(fpc) fpc.style.display = 'block';
   }
@@ -8180,6 +8278,9 @@ async function verifyTokenPassword(){
       if(modal) modal.style.display = 'none';
       var pwEl = document.getElementById('password');
       if(pwEl) pwEl.value = pass;
+      if (document.getElementById('rememberMeModalDevice') && document.getElementById('rememberMeModalDevice').checked) {
+        if (typeof umSaveSession === 'function') umSaveSession(_pendingToken, pass);
+      }
       var confirmEl = document.getElementById('confirmPassword');
       if(confirmEl) confirmEl.value = pass;
       document.getElementById('tokenModalPassword').value = '';
@@ -9343,6 +9444,10 @@ async function generate(){
     window.generatedAddonUrl = manifestUrl;
     window.generatedNuvioCollections = buildCollectionsExport();
     window.generatedToken = data.token;
+    if (document.getElementById('rememberMeDevice') && document.getElementById('rememberMeDevice').checked) {
+      var pwEl = document.getElementById('password');
+      if (typeof umSaveSession === 'function') umSaveSession(data.token, pwEl ? pwEl.value : null);
+    }
     var manageLinkEl = document.getElementById('manageAccountLink');
     if (manageLinkEl) manageLinkEl.href = '/account.html?token=' + data.token;
     fetch(DISPLAY_URL + '/c/' + data.token + '/collections', {
@@ -9896,6 +10001,13 @@ if(pathParts.includes('configure') && pathParts[pathParts.length-1] !== 'configu
   document.getElementById('confirmPassword').style.display = 'none';
   document.getElementById('password').placeholder = 'Enter your password to save changes';
   loadConfigByToken(editToken);
+  setTimeout(function(){
+    var remembered = (typeof umGetSession === 'function') ? umGetSession() : null;
+    if (remembered && remembered.token === editToken && remembered.password) {
+      var pwEl = document.getElementById('password');
+      if (pwEl) pwEl.value = remembered.password;
+    }
+  }, 600);
 }
 
 window.addEventListener('resize', makeSprockets);
@@ -11713,7 +11825,7 @@ document.addEventListener("DOMContentLoaded", function(){
   100%{border-color:rgba(123,47,255,.35);background:transparent;}
 }
 .s3-preset-strip{height:40px;overflow:hidden;display:flex;gap:2px;background:var(--bg2);}
-.s3-preset-strip img{height:100%;width:32px;object-fit:cover;flex-shrink:0;}
+.s3-preset-strip img{height:100%;flex:1;min-width:0;object-fit:cover;}
 .s3-preset-body{padding:6px 8px 8px;}
 .s3-preset-icon{font-size:.85rem;display:inline;margin-right:4px;}
 .s3-preset-name{font-weight:700;font-size:11px;color:var(--text);display:inline;}
@@ -12403,6 +12515,99 @@ if('serviceWorker' in navigator){
 </script>
 <script src="/qrcode.min.js"></script>
 <script src="/nuvio-push.js"></script>
+<script src="/um-session.js"></script>
+<script>
+(function(){
+  var contentIds = {
+    password: 'tile-content-password',
+    mdblist: 'tile-content-mdblist'
+  };
+
+  window.s1ShowTile = function(key){
+    document.getElementById('step1TileGrid').style.display = 'none';
+    document.getElementById('step1TileBack').style.display = 'block';
+
+    if (key === 'optional') {
+      var shell = document.querySelector('.optional-shell');
+      if (shell) {
+        shell.style.display = 'block';
+        var arrow = document.getElementById('optionalArrow');
+        if (arrow && arrow.textContent.trim() === '▸' && typeof toggleOptionalSection === 'function') {
+          toggleOptionalSection();
+        }
+      }
+    } else {
+      var el = document.getElementById(contentIds[key]);
+      if (el) el.style.display = 'block';
+      if (key === 'password') {
+        var fpc = document.getElementById('forgotPasswordCard');
+        if (fpc && fpc.dataset.wasShown === 'true') fpc.style.display = 'block';
+      }
+    }
+  };
+
+  window.s1ShowGrid = function(){
+    Object.keys(contentIds).forEach(function(key){
+      var el = document.getElementById(contentIds[key]);
+      if (el) el.style.display = 'none';
+    });
+    var shell = document.querySelector('.optional-shell');
+    if (shell) shell.style.display = 'none';
+    var fpc = document.getElementById('forgotPasswordCard');
+    if (fpc) fpc.style.display = 'none';
+
+    document.getElementById('step1TileBack').style.display = 'none';
+    document.getElementById('step1TileGrid').style.display = 'block';
+    s1UpdateStatuses();
+  };
+
+  window.s1UpdateStatuses = function(){
+    var pwEl = document.getElementById('password');
+    var pwStatus = document.getElementById('s1-status-password');
+    if (pwStatus) pwStatus.textContent = (pwEl && pwEl.value) ? '✓ Set' : 'Required';
+
+    var mdbEl = document.getElementById('mdblistKey');
+    var mdbStatus = document.getElementById('s1-status-mdblist');
+    if (mdbStatus) mdbStatus.textContent = (mdbEl && mdbEl.value) ? '✓ Set' : 'Required';
+  };
+
+  function initTileMode(){
+    if (typeof umIsStandalone !== 'function' || !umIsStandalone()) return;
+    document.body.classList.add('um-app-mode');
+
+    var fpc = document.getElementById('forgotPasswordCard');
+    if (fpc && fpc.style.display === 'block') fpc.dataset.wasShown = 'true';
+    if (fpc) fpc.style.display = 'none';
+
+    var pwEl = document.getElementById('tile-content-password');
+    if (pwEl) pwEl.style.display = 'none';
+    var mdbEl = document.getElementById('tile-content-mdblist');
+    if (mdbEl) mdbEl.style.display = 'none';
+    var shell = document.querySelector('.optional-shell');
+    if (shell) shell.style.display = 'none';
+
+    document.getElementById('step1TileGrid').style.display = 'block';
+    s1UpdateStatuses();
+
+    var pwField = document.getElementById('password');
+    if (pwField) pwField.addEventListener('input', s1UpdateStatuses);
+    var mdbField = document.getElementById('mdblistKey');
+    if (mdbField) mdbField.addEventListener('input', s1UpdateStatuses);
+  }
+
+  setTimeout(initTileMode, 700);
+})();
+</script>
+<script>
+(function(){
+  if (typeof umIsStandalone === "function" && umIsStandalone()) {
+    var row = document.getElementById("rememberMeRow");
+    if (row) row.style.display = "flex";
+    var row2 = document.getElementById("rememberMeModalRow");
+    if (row2) row2.style.display = "flex";
+  }
+})();
+</script>
 <script>
 (function(){
   const DISPLAY_URL = 'https://ultramax.vip';

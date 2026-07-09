@@ -1,0 +1,76 @@
+{
+  "id": "/app.html",
+  "name": "Ultra MAX",
+  "short_name": "Ultra MAX",
+  "description": "The ultimate self-hosted catalog addon for Stremio & Nuvio — 500+ curated catalogs, direct Nuvio account push, and more.",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090514",
+  "theme_color": "#090514",
+  "lang": "en",
+  "categories": ["entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-narrow.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ultra MAX setup wizard"
+    },
+    {
+      "src": "/screenshots/home-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ultra MAX setup wizard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Build Setup",
+      "short_name": "Setup",
+      "url": "/setup.html",
+      "description": "Build or edit your Ultra MAX addon setup"
+    },
+    {
+      "name": "Nuvio Account",
+      "short_name": "Account",
+      "url": "/account.html",
+      "description": "Manage your Nuvio addons and collections"
+    }
+  ]
+}

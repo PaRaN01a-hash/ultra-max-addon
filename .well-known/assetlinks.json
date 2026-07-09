@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "vip.ultramax.twa",
+        "sha256_cert_fingerprints": ["BD:AF:AB:4C:0E:A5:50:7C:32:4E:B9:41:92:B1:81:B6:0C:69:CE:D4:67:B4:E7:80:A1:27:EA:0B:30:20:79:D8"]
+      }
+    }]
