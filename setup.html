@@ -1675,7 +1675,7 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
 @media (max-width: 700px){
   #step1Toolbar { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   #step1Toolbar > button { width: 100% !important; justify-content: center !important; }
-  #step1Toolbar > div { position: static !important; width: 100% !important; }
+  #step1Toolbar > div { position: relative !important; width: 100% !important; }
   #step1Toolbar > div > button { width: 100% !important; justify-content: center !important; }
   #toolsMenu { left: 0 !important; right: 0 !important; width: 100% !important; }
   #nuvio-qr-card { display: none !important; }
@@ -1686,6 +1686,57 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
 .um-app-mode .um-sidebar-footer { display: none !important; }
 .um-app-mode .um-sidebar-logo { flex: 1 !important; width: 100% !important; text-align: center !important; padding: 24px 16px !important; border: none !important; }
 .um-app-mode .um-logo-link { font-size: 2rem !important; letter-spacing: .06em !important; }
+.um-app-mode #step1BackHome { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; width: 100% !important; }
+.um-app-mode .s2-preview-fab, .um-app-mode #summaryBtn { display: none !important; }
+.um-app-mode .s2-app-summary-btn, .um-app-mode .s2-app-preview-btn { display: flex !important; align-items: center; justify-content: center; }
+.um-app-mode #step-2 .nav-btns { flex-wrap: wrap !important; gap: 8px !important; }
+.um-app-mode #step-2 .nav-btns > * { flex: 1 1 auto !important; }
+.um-app-mode .s2ab { padding: 9px 16px !important; font-size: 12px !important; border-radius: 10px !important; font-weight: 700 !important; }
+.um-app-mode .s2ab-clear { background: rgba(255,61,90,.12) !important; }
+.um-app-mode .s2ab-hide, .um-app-mode .s2ab-unhide { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.15) !important; }
+.um-app-mode .s2-showall { border-style: solid !important; background: rgba(255,255,255,.04) !important; padding: 13px 16px !important; font-size: 13px !important; font-weight: 600 !important; }
+.um-app-mode .s2-presets-grid { grid-template-columns: repeat(2, 1fr) !important; }
+.um-app-mode .s2-builder-col { padding-right: 0 !important; }
+.um-app-mode .s2-layout, .um-app-mode .s2-builder-col, .um-app-mode .s2-presets-grid { width: 100% !important; max-width: 100% !important; margin: 0 !important; box-sizing: border-box !important; }
+.um-app-mode .s2-layout { margin-left: -8px !important; }
+.um-app-mode.s3-app-detail-mode .coll-sticky-bar { display: none !important; }
+.um-app-mode.s3-app-detail-mode .coll-card.coll-collapsed { display: none !important; }
+.um-app-mode.s3-app-detail-mode .s3-sticky-presets { display: none !important; }
+.um-app-mode #pushToNuvioCard { grid-column: 1 / -1 !important; }
+/* Folder editor cleanup — CSS only, overrides inline styles, no JS/template changes */
+.um-app-mode .coll-card-header, .um-app-mode .folder-header { flex-wrap: wrap !important; }
+.um-app-mode .coll-card-title, .um-app-mode .folder-title { flex-basis: 100% !important; order: 1; }
+.um-app-mode .coll-card-meta, .um-app-mode .folder-meta { flex-basis: 100% !important; order: 2; margin-top: 2px; }
+.um-app-mode .coll-card-actions, .um-app-mode .folder-actions { flex-basis: 100% !important; order: 3; flex-wrap: wrap !important; margin-top: 8px; }
+.um-app-mode .folder-body { padding: 14px !important; gap: 14px !important; }
+.um-app-mode .folder-body > div:nth-child(1) { grid-template-columns: 1fr !important; gap: 14px !important; }
+.um-app-mode .folder-body > div:nth-child(2) { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+.um-app-mode .s2-presets-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+.s2-presets-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+.s2-presets-grid > *:last-child:nth-child(odd) .s2-preset-strip { justify-content: center !important; }
+.s2-presets-grid > *:last-child:nth-child(odd) .s2-preset-body { text-align: center !important; }
+.um-app-mode .s2-presets-grid > *:last-child:nth-child(odd) .s2-preset-strip { justify-content: center !important; }
+.um-app-mode .s2-presets-grid > *:last-child:nth-child(odd) .s2-preset-body { text-align: center !important; }
+.um-app-mode .optional-toggle, .um-app-mode .optional-sub { display: none !important; }
+.opt-subsection {
+  background: linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+  border: 1px solid var(--border2); border-radius: 14px;
+  margin-bottom: 10px; overflow: hidden;
+}
+.opt-subsection summary {
+  list-style: none; cursor: pointer; padding: 14px 16px;
+  font-size: 14px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 10px;
+  position: relative;
+}
+.opt-subsection summary::-webkit-details-marker { display: none; }
+.opt-subsection summary::after {
+  content: '›'; position: absolute; right: 16px; font-size: 20px; color: var(--muted);
+  transform: rotate(90deg); transition: transform .2s;
+}
+.opt-subsection[open] summary::after { transform: rotate(270deg); }
+.opt-subsection > *:not(summary) { padding: 0 16px 16px; }
+.opt-subsection[open] summary { border-bottom: 1px solid var(--border2); margin-bottom: 14px; }
 </style>
 
 <style id="ultramax-theme-mode">
@@ -3589,11 +3640,8 @@ body {
   margin-bottom: 16px;
 }
 
-.um-torbox-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-  line-height: 1;
-}
+.um-torbox-icon { flex-shrink: 0; }
+.um-torbox-icon img { width: 40px; height: 40px; border-radius: 10px; display: block; }
 
 .um-torbox-title {
   font-weight: 700;
@@ -3877,6 +3925,15 @@ body {
                 </div>
               </div>
 
+              <div class="s1-tile s1-tile-wide" onclick="s1ShowTile('streams')" style="--tile-clr:#FFB800;">
+                <div class="s1-tile-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                </div>
+                <div class="s1-tile-text">
+                  <div class="s1-tile-name">Streams</div>
+                  <div class="s1-tile-status">Debrid providers &amp; manual links</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -3965,13 +4022,15 @@ body {
         </div>
 
         <!-- OPTIONAL ENHANCEMENTS -->
-        <div class="optional-shell" style="margin-top:20px;">
+        <div class="optional-shell" id="optionalEnhancementsShell" style="margin-top:20px;">
           <button type="button" class="optional-toggle" onclick="toggleOptionalSection()">
             <span id="optionalArrow">▸</span> Optional Enhancements
           </button>
           <div class="optional-sub">Posters, language filter, personal rows and filters.</div>
 
           <div id="optionalWrap" style="display:none;">
+            <details class="opt-subsection">
+              <summary>🤖 AI Recommended Rows</summary>
 
             <!-- AI Rows -->
             <div class="field-block" id="aiRecommendedBlock" style="margin-top:16px;">
@@ -3986,7 +4045,9 @@ body {
               </label>
             </div>
 
-            <div class="divider"></div>
+            </details>
+            <details class="opt-subsection">
+              <summary>🌐 Metadata Language</summary>
 
             <!-- Language -->
             <div class="field-block">
@@ -4009,7 +4070,9 @@ body {
               <div class="input-hint">Titles and descriptions will appear in your chosen language.</div>
             </div>
 
-            <div class="divider"></div>
+            </details>
+            <details class="opt-subsection">
+              <summary>🖼️ Poster Provider Keys</summary>
 
             <!-- Poster Keys -->
             <div class="field-block um-card" id="posterProvidersBlock" style="padding:16px;">
@@ -4043,7 +4106,9 @@ body {
               </div>
             </div>
 
-            <div class="divider"></div>
+            </details>
+            <details class="opt-subsection">
+              <summary>🎨 Better Posters &amp; Integrations</summary>
 
             <!-- BETTER POSTERS -->
             <div class="field-block" style="margin-top:16px;">
@@ -4269,7 +4334,9 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
             </div>
 
-            <div class="divider"></div>
+            </details>
+            <details class="opt-subsection">
+              <summary>🎚️ Content Filters</summary>
             <!-- Hide unreleased -->
             <div class="field-block">
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -4309,6 +4376,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </select>
               <div class="info-box" style="margin-top:10px;">Hide content above this rating. Uses US certifications. Also blocks unrated content — recommended for filtering adult anime and hentai from catalogs.</div>
             </div>
+              </details>
 
           </div>
         </div>
@@ -4338,6 +4406,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <option value="premiumize">Premiumize</option>
                 <option value="offcloud">Offcloud</option>
                 <option value="debridlink">Debrid-Link</option>
+                <option value="easydebrid">EasyDebrid</option>
               </select>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
@@ -4415,7 +4484,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <!-- TorBox referral card -->
           <div class="um-torbox-card">
             <div class="um-torbox-inner">
-              <div class="um-torbox-icon">📦</div>
+              <div class="um-torbox-icon"><img src="https://www.google.com/s2/favicons?domain=torbox.app&sz=128" alt="TorBox"></div>
               <div class="um-torbox-text">
                 <div class="um-torbox-title">Need a debrid service?</div>
                 <div class="um-torbox-desc">TorBox is what Ultra MAX is built around. Use the link below and get <strong>3 months free</strong> on top of your subscription.</div>
@@ -4431,7 +4500,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <!-- NEXT BUTTON -->
         <div class="nav-btns" style="margin-top:32px;">
-          <span></span>
+          <a href="/app.html" class="nav-btn" id="step1BackHome" style="display:none;text-decoration:none;">← Back to Home</a>
           <button class="nav-btn primary" onclick="goToStep2()">Next — Pick Catalogs →</button>
         </div>
 
@@ -4559,9 +4628,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <!-- PRESETS -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div class="s2-section-label" style="margin-bottom:0;flex:1;">Start with a preset</div>
-            <button onclick="s2ClearAll()" style="background:transparent;border:1px solid rgba(255,61,90,.3);color:#FF3D5A;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,61,90,.1)'" onmouseout="this.style.background='transparent'">✕ Clear All</button>
-            <button onclick="s2HideAll()" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">Hide All</button>
-            <button onclick="s2UnhideAll()" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">Unhide All</button>
+            <button class="s2ab s2ab-clear" onclick="s2ClearAll()" style="background:transparent;border:1px solid rgba(255,61,90,.3);color:#FF3D5A;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,61,90,.1)'" onmouseout="this.style.background='transparent'">✕ Clear All</button>
+            <button class="s2ab s2ab-hide" onclick="s2HideAll()" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">Hide All</button>
+            <button class="s2ab s2ab-unhide" onclick="s2UnhideAll()" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">Unhide All</button>
           </div>
           <div class="s2-presets-grid" id="s2PresetsGrid">
             <div style="color:var(--muted);font-size:12px;padding:20px;text-align:center;grid-column:1/-1;">Loading...</div>
@@ -4657,7 +4726,9 @@ document.addEventListener('DOMContentLoaded', function() {
         ⚠️ <strong>Stremio users:</strong> 200+ catalogs may exceed Stremio's manifest size limit. Works fine in Nuvio. Consider hiding unused rows rather than removing them.
       </div>
       <div class="nav-btns" style="margin-top:24px;">
-        <button class="nav-btn" onclick="goToStep1()">← Back</button>
+        <button class="nav-btn s2-app-summary-btn" onclick="openSummary()" style="display:none;">📋 Summary</button>
+        <button class="nav-btn s2-app-preview-btn" onclick="s2OpenModal()" style="display:none;">📺 Preview</button>
+        <button class="nav-btn" onclick="setStep(1)">← Back</button>
         <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
           <strong id="s2NavCount" style="color:var(--violet2);font-size:15px;">0</strong> rows selected
         </div>
@@ -4840,6 +4911,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </label>
         <button class="nav-btn primary" style="padding:8px 20px;white-space:nowrap;" onclick="addCollection()">+ Add Collection</button>
       </div>
+      <button type="button" id="s3AppBackBtn" onclick="s3AppBackToCollections()" style="display:none;background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;margin-bottom:14px;">← Back to Collections</button>
       <div id="collections-list"></div>
 
       <div id="empty-state" class="s3-empty">
@@ -4850,6 +4922,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       <!-- Bottom nav -->
       <div class="nav-btns" style="margin-top:32px;">
+          <button class="nav-btn" onclick="setStep(2)">← Back</button>
         <div class="count-display">
           <span id="collCount" style="color:var(--violet2);font-size:22px;font-family:'Bebas Neue',sans-serif;">0</span>
           <span style="font-size:13px;color:var(--muted);margin-left:6px;">collections</span>
@@ -4920,7 +4993,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Export this file and import it in Nuvio's Collections page. This gives you folders and collections.</div>
               <button class="nav-btn primary" type="button" onclick="downloadCollectionsJson()" style="font-size:12px;padding:8px 14px;border-radius:8px;width:100%;">📦 Export Nuvio JSON</button>
             </div>
-            <div style="background:linear-gradient(135deg,rgba(76,175,80,.1),rgba(76,175,80,.05));border:1px solid rgba(76,175,80,.3);border-radius:16px;padding:18px;">
+            <div id="pushToNuvioCard" style="background:linear-gradient(135deg,rgba(76,175,80,.1),rgba(76,175,80,.05));border:1px solid rgba(76,175,80,.3);border-radius:16px;padding:18px;">
               <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4caf50;margin-bottom:8px;">Optional</div>
               <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">🚀 Push Directly to Nuvio</div>
               <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Skip the manual steps — link your Nuvio account and we'll add Ultra MAX and your collections directly to a profile.</div>
@@ -6864,7 +6937,7 @@ function addRowToFolder(ci, fi){
   
   // Auto-hide rows once they are moved into a collection.
   try{
-    const addedRowId = rowId || id || value || selectedRow;
+    const addedRowId = id;
     if(addedRowId){
       hidden.add(addedRowId);
       applyHiddenStateToPill(addedRowId);
@@ -9846,7 +9919,7 @@ function updateSimklUI(connected, username){
 // Multi-provider debrid system
 var debridProviders = []; // [{service, apiKey}]
 
-const DEBRID_NAMES = {torbox:'TorBox',realdebrid:'Real-Debrid',alldebrid:'AllDebrid',premiumize:'Premiumize',offcloud:'Offcloud',debridlink:'Debrid-Link'};
+const DEBRID_NAMES = {torbox:'TorBox',realdebrid:'Real-Debrid',alldebrid:'AllDebrid',premiumize:'Premiumize',offcloud:'Offcloud',debridlink:'Debrid-Link',easydebrid:'EasyDebrid'};
 
 function renderDebridProviders(){
   const list = document.getElementById('debridProviderList');
@@ -12518,22 +12591,49 @@ if('serviceWorker' in navigator){
 <script src="/um-session.js"></script>
 <script>
 (function(){
+  var _autoSaveTimer = null;
+  function scheduleAutoSave(){
+    if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(function(){
+      if (typeof saveDraftState === 'function') {
+        try { saveDraftState(); } catch(e) { console.warn('Auto-save failed', e); }
+      }
+    }, 1500);
+  }
+  document.addEventListener('input', scheduleAutoSave, true);
+  document.addEventListener('change', scheduleAutoSave, true);
+})();
+</script>
+<script>
+(function(){
   var contentIds = {
     password: 'tile-content-password',
     mdblist: 'tile-content-mdblist'
+  };
+
+  var shellIds = {
+    optional: 'optionalEnhancementsShell',
+    streams: 'advancedStreamBridgeBlock'
   };
 
   window.s1ShowTile = function(key){
     document.getElementById('step1TileGrid').style.display = 'none';
     document.getElementById('step1TileBack').style.display = 'block';
 
-    if (key === 'optional') {
-      var shell = document.querySelector('.optional-shell');
+    if (key === 'optional' || key === 'streams') {
+      var shell = document.getElementById(shellIds[key]);
       if (shell) {
         shell.style.display = 'block';
-        var arrow = document.getElementById('optionalArrow');
-        if (arrow && arrow.textContent.trim() === '▸' && typeof toggleOptionalSection === 'function') {
-          toggleOptionalSection();
+        if (key === 'optional') {
+          var arrow = document.getElementById('optionalArrow');
+          if (arrow && arrow.textContent.trim() === '▸' && typeof toggleOptionalSection === 'function') {
+            toggleOptionalSection();
+          }
+        } else if (key === 'streams') {
+          var chevron = document.getElementById('streamsSectionChevron');
+          if (chevron && chevron.textContent.trim() === '▸' && typeof toggleStreamsSection === 'function') {
+            toggleStreamsSection();
+          }
         }
       }
     } else {
@@ -12551,8 +12651,10 @@ if('serviceWorker' in navigator){
       var el = document.getElementById(contentIds[key]);
       if (el) el.style.display = 'none';
     });
-    var shell = document.querySelector('.optional-shell');
-    if (shell) shell.style.display = 'none';
+    Object.keys(shellIds).forEach(function(key){
+      var shell = document.getElementById(shellIds[key]);
+      if (shell) shell.style.display = 'none';
+    });
     var fpc = document.getElementById('forgotPasswordCard');
     if (fpc) fpc.style.display = 'none';
 
@@ -12583,8 +12685,11 @@ if('serviceWorker' in navigator){
     if (pwEl) pwEl.style.display = 'none';
     var mdbEl = document.getElementById('tile-content-mdblist');
     if (mdbEl) mdbEl.style.display = 'none';
-    var shell = document.querySelector('.optional-shell');
-    if (shell) shell.style.display = 'none';
+
+    Object.keys(shellIds).forEach(function(key){
+      var shell = document.getElementById(shellIds[key]);
+      if (shell) shell.style.display = 'none';
+    });
 
     document.getElementById('step1TileGrid').style.display = 'block';
     s1UpdateStatuses();
@@ -12596,6 +12701,75 @@ if('serviceWorker' in navigator){
   }
 
   setTimeout(initTileMode, 700);
+})();
+</script>
+<script>
+(function(){
+  if (typeof umIsStandalone !== 'function' || !umIsStandalone()) return;
+
+  var _origToggle = window.toggleCollectionCollapse;
+  window.toggleCollectionCollapse = function(i){
+    if (typeof v2Collections === 'undefined' || !v2Collections) {
+      if (_origToggle) return _origToggle(i);
+      return;
+    }
+    v2Collections.forEach(function(c, idx){
+      c.collapsed = (idx !== i);
+    });
+    document.body.classList.add('s3-app-detail-mode');
+    var backBtn = document.getElementById('s3AppBackBtn');
+    if (backBtn) backBtn.style.display = 'block';
+    if (typeof renderCollections === 'function') renderCollections();
+  };
+
+  var _origAddCollection = window.addCollection;
+  window.addCollection = function(){
+    if (_origAddCollection) _origAddCollection();
+    if (typeof v2Collections !== 'undefined' && v2Collections && v2Collections.length) {
+      var newIdx = v2Collections.length - 1;
+      v2Collections.forEach(function(c, idx){ c.collapsed = (idx !== newIdx); });
+      document.body.classList.add('s3-app-detail-mode');
+      var backBtn = document.getElementById('s3AppBackBtn');
+      if (backBtn) backBtn.style.display = 'block';
+      if (typeof renderCollections === 'function') renderCollections();
+    }
+  };
+
+  window.s3AppBackToCollections = function(){
+    if (typeof v2Collections !== 'undefined' && v2Collections) {
+      v2Collections.forEach(function(c){ c.collapsed = true; });
+    }
+    document.body.classList.remove('s3-app-detail-mode');
+    var backBtn = document.getElementById('s3AppBackBtn');
+    if (backBtn) backBtn.style.display = 'none';
+    if (typeof renderCollections === 'function') renderCollections();
+  };
+
+  var _collList = document.getElementById('collections-list');
+  if (_collList) {
+    var _fixupRowLabels = function(){
+      _collList.querySelectorAll('.folder-body button.global-btn').forEach(function(btn){
+        var onclickAttr = btn.getAttribute('onclick') || '';
+        if (onclickAttr.indexOf('removeRowFromFolder') === -1) return;
+        var label = btn.previousElementSibling;
+        if (!label) return;
+        label.style.setProperty('color', '#e8e8f0', 'important');
+        label.style.setProperty('font-size', '13px', 'important');
+        label.style.setProperty('opacity', '1', 'important');
+        label.style.setProperty('overflow', 'hidden', 'important');
+        label.style.setProperty('white-space', 'nowrap', 'important');
+        label.style.setProperty('text-overflow', 'ellipsis', 'important');
+        label.style.setProperty('flex', '1 1 auto', 'important');
+        label.style.setProperty('min-width', '0', 'important');
+        btn.style.setProperty('padding', '0', 'important'); btn.style.setProperty('width', '32px', 'important'); btn.style.setProperty('height', '32px', 'important');
+        btn.style.setProperty('min-width', 'auto', 'important');
+        btn.style.setProperty('flex-shrink', '0', 'important');
+      });
+    };
+    _fixupRowLabels();
+    var _rowObserver = new MutationObserver(function(){ _fixupRowLabels(); });
+    _rowObserver.observe(_collList, { childList: true, subtree: true });
+  }
 })();
 </script>
 <script>

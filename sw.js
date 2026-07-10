@@ -1,4 +1,4 @@
-const CACHE = 'ultramax-v3';
+const CACHE = 'ultramax-v4';
 const OFFLINE = [
   '/app.html',
   '/setup.html',
