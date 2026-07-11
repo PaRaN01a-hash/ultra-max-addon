@@ -2,6 +2,9 @@ const UM_SESSION_KEY = 'ultramax_remembered_setup';
 
 function umIsStandalone() {
   try {
+    if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) {
+      return true;
+    }
     return window.matchMedia('(display-mode: standalone)').matches
       || window.navigator.standalone === true;
   } catch (e) {

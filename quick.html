@@ -79,7 +79,7 @@
   @media(max-width:640px){.coll-grid{grid-template-columns:1fr;}}
 
   .coll-card{border:1px solid var(--border2);border-radius:14px;background:var(--bg2);overflow:hidden;transition:all .2s;position:relative;}
-  .coll-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(255,184,0,.08),transparent);opacity:0;transition:opacity .2s;}
+  .coll-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(255,184,0,.08),transparent);opacity:0;transition:opacity .2s;pointer-events:none;}
   .coll-card.selected{border-color:var(--amber);}
   .coll-card.selected::before{opacity:1;}
   .coll-card:hover{border-color:rgba(255,184,0,.4);transform:translateY(-2px);}
@@ -336,12 +336,25 @@ function renderCollections(){
 
 function toggleCard(i,e){
   const card=document.getElementById('coll-'+i);
-  if(e.target.classList.contains('coll-expand')){card.classList.toggle('open');return;}
-  if(selected.has(i)){selected.delete(i);}else{selected.add(i);}
-  const isSelected=selected.has(i);
-  card.querySelector('.coll-check').textContent=isSelected?'✓':'';
-  card.classList.toggle('selected',isSelected);
+  if(!card) return;
+  // If clicking the expand chevron, just expand/collapse
+  if(e.target.classList.contains('coll-expand') || e.target.closest('.coll-expand')){
+    card.classList.toggle('open');
+    return;
+  }
+  // Toggle selection
+  if(selected.has(i)){ selected.delete(i); } else { selected.add(i); }
+  const isSelected = selected.has(i);
+  const check = card.querySelector('.coll-check');
+  if(check){
+    check.textContent = isSelected ? '✓' : '';
+    check.style.background = isSelected ? 'var(--amber)' : 'transparent';
+    check.style.borderColor = isSelected ? 'var(--amber)' : 'var(--border2)';
+    check.style.color = '#000';
+  }
+  card.classList.toggle('selected', isSelected);
   updateCount();
+  renderCollections();
 }
 
 function updateCount(){document.getElementById('selCount').textContent=selected.size;updateDownloadBtn();}

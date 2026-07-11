@@ -5,6 +5,23 @@
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<script>
+(function(){
+  try {
+    var isApp = (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform())
+      || window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+    if (isApp) {
+      document.documentElement.classList.add('um-app-mode');
+      var vp = document.querySelector('meta[name="viewport"]');
+      var w = window.screen && window.screen.width ? window.screen.width : 390;
+      if (vp) {
+        vp.setAttribute('content', 'width=' + w + ', initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover');
+      }
+    }
+  } catch(e) {}
+})();
+</script>
 <title>Ultra MAX — Build Your Addon</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&display=swap');
@@ -1673,16 +1690,28 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
     .lang-label:hover { background:var(--hover); }
     .lang-label input { cursor:pointer; }
 @media (max-width: 700px){
-  #step1Toolbar { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-  #step1Toolbar > button { width: 100% !important; justify-content: center !important; }
-  #step1Toolbar > div { position: relative !important; width: 100% !important; }
-  #step1Toolbar > div > button { width: 100% !important; justify-content: center !important; }
-  #toolsMenu { left: 0 !important; right: 0 !important; width: 100% !important; }
-  #nuvio-qr-card { display: none !important; }
 }
 </style>
 <style>
 .um-app-mode .um-sidebar-nav { display: none !important; }
+.um-app-mode #step1Toolbar { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+.um-app-mode #step1Toolbar > button { width: 100% !important; justify-content: center !important; }
+.um-app-mode #step1Toolbar > div { position: relative !important; width: 100% !important; }
+.um-app-mode #step1Toolbar > div > button { width: 100% !important; justify-content: center !important; }
+.um-app-mode #toolsMenu { left: 0 !important; right: 0 !important; width: 100% !important; }
+.um-app-mode #nuvio-qr-card { display: none !important; }
+.um-app-mode .s2-layout { grid-template-columns: 1fr !important; }
+.um-app-mode .s2-preview-col { display: none !important; }
+.um-app-mode .s2-preview-fab { display: flex !important; }
+/* Force mobile layout structure regardless of Request-Desktop-Site viewport spoofing */
+.um-app-mode .um-app { flex-direction: column !important; }
+.um-app-mode .um-sidebar { width: 100% !important; min-width: unset !important; height: auto !important; position: sticky !important; top: 0 !important; flex-direction: row !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; z-index: 100 !important; }
+.um-app-mode .um-sidebar-footer { display: none !important; }
+.um-app-mode .wizard-step { padding: 16px !important; }
+.um-app-mode .um-step-header { padding: 16px !important; }
+.um-app-mode .um-toolbar { padding: 10px 16px !important; gap: 8px !important; }
+.um-app-mode .um-toolbar-label { display: none !important; }
+.um-app-mode .um-fields-grid { grid-template-columns: 1fr !important; }
 .um-app-mode .um-sidebar-footer { display: none !important; }
 .um-app-mode .um-sidebar-logo { flex: 1 !important; width: 100% !important; text-align: center !important; padding: 24px 16px !important; border: none !important; }
 .um-app-mode .um-logo-link { font-size: 2rem !important; letter-spacing: .06em !important; }
@@ -7071,12 +7100,7 @@ function s3InitStickyPresets(){
 var _s3StickyInit = false;
 var _origSetStep = typeof setStep === 'function' ? setStep : null;
 
-function s3PresetClick(card, key){
-  card.classList.remove('just-added');
-  void card.offsetWidth;
-  card.classList.add('just-added');
-  loadPreset(key);
-}
+// s3PresetClick moved to inline script below
 
 function s3SetViewMode(mode){
   // Update hidden select
@@ -8407,7 +8431,18 @@ async function loadConfigByToken(token){
     if(data.maxRating){ const el=document.getElementById('maxRating'); if(el) el.value = data.maxRating; }
     if(data.excludeLanguages && typeof setExcludeLanguages === 'function') setExcludeLanguages(data.excludeLanguages);
     checkTraktStatus(token);
-    if(data.betterPostersStyle !== undefined){ const el=document.getElementById('betterPostersStyle'); if(el) el.value = data.betterPostersStyle || ''; }
+    if(data.betterPostersStyle !== undefined){
+      const el=document.getElementById('betterPostersStyle');
+      if(el){
+        const rsMatch = (data.betterPostersStyle || '').match(/[?&]rs=([A-Z]+)/);
+        if(rsMatch){
+          const inverseRatingMap = {IM:'imdb',TM:'tmdb',RT:'rt',MC:'metacritic',TR:'trakt',LB:'letterboxd',RE:'rogerebert'};
+          el.value = inverseRatingMap[rsMatch[1]] || '';
+        } else {
+          el.value = '';
+        }
+      }
+    }
     customCatalogs = Array.isArray(data.customCatalogs) ? data.customCatalogs : [];
 
       // ULTRA_STREAM_RELOAD_PATCH
@@ -8444,11 +8479,11 @@ async function loadConfigByToken(token){
     if(data.betterPostersStyle){
       const bpHidden = document.getElementById('betterPostersStyleHidden');
       if(bpHidden) bpHidden.value = data.betterPostersStyle;
+      const bpEnabledEl = document.getElementById('bpEnabled');
+      if(bpEnabledEl) bpEnabledEl.checked = true;
       if(data.betterPostersStyle.startsWith('http')){
         const manualEl = document.getElementById('bpManualUrl');
         if(manualEl) manualEl.value = data.betterPostersStyle;
-        const bpEnabledEl = document.getElementById('bpEnabled');
-        if(bpEnabledEl) bpEnabledEl.checked = true;
       }
       if(typeof updateBPStyle === 'function') updateBPStyle();
       const bpPreview = document.getElementById('bpUrlPreview');
@@ -12590,6 +12625,13 @@ if('serviceWorker' in navigator){
 <script src="/nuvio-push.js"></script>
 <script src="/um-session.js"></script>
 <script>
+window.addEventListener('pageshow', function(event){
+  if (event.persisted) {
+    window.location.reload();
+  }
+});
+</script>
+<script>
 (function(){
   var _autoSaveTimer = null;
   function scheduleAutoSave(){
@@ -12701,6 +12743,30 @@ if('serviceWorker' in navigator){
   }
 
   setTimeout(initTileMode, 700);
+  if (typeof umIsStandalone === 'function' && umIsStandalone()) {
+    var _origSetStep = window.setStep;
+    if (typeof _origSetStep === 'function') {
+      window.setStep = function(n){
+        _origSetStep(n);
+        history.pushState({umStep: n}, '', location.href);
+      };
+      history.replaceState({umStep: (typeof currentStep !== 'undefined' ? currentStep : 1)}, '', location.href);
+      window.addEventListener('popstate', function(e){
+        if (e.state && e.state.umStep) {
+          _origSetStep(e.state.umStep);
+        }
+      });
+    }
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      window.Capacitor.Plugins.App.addListener('backButton', function(){
+        if (typeof currentStep !== 'undefined' && currentStep > 1) {
+          window.history.back();
+        } else {
+          window.Capacitor.Plugins.App.exitApp();
+        }
+      });
+    }
+  }
 })();
 </script>
 <script>
@@ -12829,4 +12895,83 @@ if('serviceWorker' in navigator){
   });
 })();
 </script>
-</body>
+
+<!-- PRESET FOLDER PICKER MODAL -->
+<div id="presetPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1001;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px;width:92%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.6);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--text);" id="pickerTitle">Select Folders</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="pickerSelectAll()" style="background:rgba(123,47,255,.15);border:1px solid rgba(123,47,255,.3);color:var(--violet2);font-family:inherit;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;">All</button>
+        <button onclick="pickerSelectNone()" style="background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;">None</button>
+      </div>
+    </div>
+    <div id="pickerList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closePresetPicker()" style="flex:1;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:inherit;font-size:13px;padding:12px;border-radius:10px;cursor:pointer;">Cancel</button>
+      <button onclick="confirmPresetPicker()" style="flex:2;background:linear-gradient(135deg,var(--violet),var(--coral));border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:12px;border-radius:10px;cursor:pointer;">Add Selected</button>
+    </div>
+  </div>
+</div>
+<script>
+var _pickerKey = null;
+var _pickerCard = null;
+var _pickerFolders = [];
+
+function s3PresetClick(card, key){
+  _pickerKey = key;
+  _pickerCard = card;
+  _pickerFolders = getPresetFolders(key);
+  if(!_pickerFolders.length){ return; }
+  var modal = document.getElementById('presetPickerModal');
+  var title = document.getElementById('pickerTitle');
+  var list = document.getElementById('pickerList');
+  if(!modal) return;
+  var nameEl = card.querySelector('.s3-preset-name');
+  if(title) title.textContent = nameEl ? nameEl.textContent : key;
+  list.innerHTML = _pickerFolders.map(function(folder, idx){
+    var cover = folder.coverImageUrl || '';
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;">'
+      + '<input type="checkbox" data-idx="'+idx+'" checked style="width:16px;height:16px;accent-color:var(--violet);flex-shrink:0;">'
+      + (cover ? '<img src="'+cover+'" style="width:48px;height:27px;object-fit:cover;border-radius:5px;flex-shrink:0;" loading="lazy">' : '<div style="width:48px;height:27px;background:var(--bg2);border-radius:5px;flex-shrink:0;"></div>')
+      + '<span style="font-size:13px;color:var(--text);font-weight:600;">'+escapeHtml(folder.title)+'</span>'
+      + '</label>';
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+function pickerSelectAll(){ document.querySelectorAll('#pickerList input[type=checkbox]').forEach(function(cb){ cb.checked = true; }); }
+function pickerSelectNone(){ document.querySelectorAll('#pickerList input[type=checkbox]').forEach(function(cb){ cb.checked = false; }); }
+
+function closePresetPicker(){
+  var modal = document.getElementById('presetPickerModal');
+  if(modal) modal.style.display = 'none';
+  _pickerKey = null; _pickerCard = null; _pickerFolders = [];
+}
+
+function confirmPresetPicker(){
+  var selectedFolders = Array.from(document.querySelectorAll('#pickerList input[type=checkbox]'))
+    .map(function(cb, idx){ return cb.checked ? _pickerFolders[idx] : null; })
+    .filter(Boolean);
+  if(selectedFolders.length){
+    var titles = {streaming:'Streaming Services',latest:'Latest & New',genres:'Genres',themed:'Themed',collections:'Film Collections',studios:'Studios',directors:'Directors',actors:'Actors',trakt:'Trakt',decades:'By Decade',kids:'Kids & Family',uk:'GB UK'};
+    v2Collections.push({ title: titles[_pickerKey] || _pickerKey, folders: selectedFolders });
+    if(_pickerCard){ _pickerCard.classList.remove('just-added'); void _pickerCard.offsetWidth; _pickerCard.classList.add('just-added'); }
+    renderCollectionsDebounced();
+    if(typeof afterPresetAdded === 'function') afterPresetAdded(_pickerKey);
+  }
+  closePresetPicker();
+}
+
+function getPresetFolders(key){
+  var orig = v2Collections.length;
+  loadPreset(key);
+  if(v2Collections.length > orig){
+    var added = v2Collections[v2Collections.length - 1];
+    v2Collections.splice(orig);
+    return added.folders || [];
+  }
+  return [];
+}
+</script>
+</body><!-- This marker should not appear - debug only -->

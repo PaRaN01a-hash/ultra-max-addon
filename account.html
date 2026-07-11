@@ -60,7 +60,7 @@
       border-radius: 10px; margin-bottom: 8px; background: rgba(255,255,255,.02);
     }
     .item-name { flex: 1; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .item-sub { font-size: 11px; color: var(--muted); }
+    .item-sub { font-size: 11px; color: var(--muted); word-break: break-all; overflow-wrap: break-word; }
     .remove-btn {
       background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.3); color: var(--err);
       width: 28px; height: 28px; border-radius: 8px; font-size: 14px; padding: 0; flex-shrink: 0;
@@ -109,6 +109,11 @@
         <span id="addonCount" style="font-weight:400;color:var(--muted);font-size:11px;"></span>
       </div>
       <div id="addonList"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" id="newAddonUrl" placeholder="Paste addon manifest URL..." style="flex:1;min-width:0;padding:9px 12px;background:var(--bg2,#1a1a2e);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-size:13px;">
+        <button class="btn-secondary" id="addAddonBtn" style="padding:9px 16px;font-size:13px;white-space:nowrap;">Add</button>
+      </div>
+      <div id="addAddonStatus" style="font-size:11px;margin-top:6px;"></div>
 
       <div class="section-title" style="margin-top:18px;">
         Collections
@@ -233,7 +238,6 @@
       managerStatus.style.color = 'var(--err)';
     }
   }
-
   function renderAddons(){
     document.getElementById('addonCount').textContent = currentAddons.length + ' installed';
     addonList.innerHTML = '';
@@ -249,6 +253,31 @@
           '<div class="item-name">' + escapeHtml(addon.name || 'Unnamed addon') + '</div>' +
           '<div class="item-sub">' + escapeHtml(addon.url || '') + '</div>' +
         '</div>';
+      const reorderStyle = 'background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text);border-radius:6px;width:26px;height:26px;flex-shrink:0;cursor:pointer;font-size:12px;';
+      const upBtn = document.createElement('button');
+      upBtn.style.cssText = reorderStyle;
+      upBtn.textContent = '↑';
+      upBtn.disabled = (idx === 0);
+      upBtn.style.opacity = (idx === 0) ? '0.3' : '1';
+      upBtn.addEventListener('click', function(){
+        if (idx === 0) return;
+        const tmp = currentAddons[idx - 1];
+        currentAddons[idx - 1] = currentAddons[idx];
+        currentAddons[idx] = tmp;
+        renderAddons();
+      });
+      const downBtn = document.createElement('button');
+      downBtn.style.cssText = reorderStyle;
+      downBtn.textContent = '↓';
+      downBtn.disabled = (idx === currentAddons.length - 1);
+      downBtn.style.opacity = (idx === currentAddons.length - 1) ? '0.3' : '1';
+      downBtn.addEventListener('click', function(){
+        if (idx === currentAddons.length - 1) return;
+        const tmp = currentAddons[idx + 1];
+        currentAddons[idx + 1] = currentAddons[idx];
+        currentAddons[idx] = tmp;
+        renderAddons();
+      });
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn';
       removeBtn.textContent = '✕';
@@ -256,10 +285,13 @@
         currentAddons.splice(idx, 1);
         renderAddons();
       });
+      row.appendChild(upBtn);
+      row.appendChild(downBtn);
       row.appendChild(removeBtn);
       addonList.appendChild(row);
     });
   }
+
 
   function renderCollections(){
     document.getElementById('collectionCount').textContent = currentCollections.length + ' collections';
@@ -334,6 +366,30 @@
   document.getElementById('switchBtn').addEventListener('click', () => {
     managerStage.classList.add('hidden');
     showProfilePicker();
+  });
+
+  document.getElementById('addAddonBtn').addEventListener('click', async () => {
+    const input = document.getElementById('newAddonUrl');
+    const statusEl = document.getElementById('addAddonStatus');
+    const url = input.value.trim();
+    if (!url) { statusEl.textContent = 'Please paste a manifest URL.'; statusEl.style.color = 'var(--err)'; return; }
+    if (currentAddons.some(a => a.url === url)) { statusEl.textContent = 'That addon is already in the list.'; statusEl.style.color = 'var(--err)'; return; }
+    statusEl.textContent = 'Checking addon...';
+    statusEl.style.color = 'var(--muted)';
+    let addonName = url;
+    try {
+      const manifestUrl = url.endsWith('.json') ? url : url.replace(/\/$/, '') + '/manifest.json';
+      const resp = await fetch(manifestUrl);
+      if (resp.ok) {
+        const manifest = await resp.json();
+        if (manifest && manifest.name) addonName = manifest.name;
+      }
+    } catch (e) { /* fall back to using the URL as the name */ }
+    currentAddons.push({ url: url, name: addonName, enabled: true });
+    renderAddons();
+    input.value = '';
+    statusEl.textContent = 'Added "' + addonName + '" — click Save below to push it to Nuvio.';
+    statusEl.style.color = 'var(--ok)';
   });
 
   document.getElementById('saveBtn').addEventListener('click', async () => {

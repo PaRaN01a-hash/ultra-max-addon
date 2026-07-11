@@ -677,7 +677,11 @@ async function doSubmit(){
     var inputs=row.querySelectorAll('input');
     var aName=inputs[0].value.trim();
     var aUrl=inputs[1].value.trim();
-    if(aName) requiredAddons.push({name:aName,addonId:aName.toLowerCase().replace(/\s+/g,'-'),manifestUrl:aUrl});
+    if(aName){
+      var _slug = aName.toLowerCase().replace(/\s+/g,'-');
+      var _isUltraMax = /^ultra\s*max$/i.test(aName.trim());
+      requiredAddons.push({name:aName, addonId:_isUltraMax?'com.ultramax':_slug, manifestUrl:_isUltraMax?(aUrl||'https://ultramax.vip/setup.html'):aUrl});
+    }
   });
   var btn=document.getElementById('sBtn');
   btn.textContent='Submitting…';btn.disabled=true;
