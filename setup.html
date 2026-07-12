@@ -4750,6 +4750,18 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
+      <!-- CUSTOM ROWS -->
+      <div style="margin-top:24px;">
+        <div onclick="s2ToggleCustomRows()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:12px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;user-select:none;">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">✨ Custom Rows</div>
+          <span id="s2CustomRowsChev" style="font-size:10px;color:var(--faint);transition:transform .2s;">▼</span>
+        </div>
+        <div id="s2CustomRowsBody" style="display:none;margin-top:8px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Add your own rows from IMDb IDs, MDBList, Trakt lists, or TMDB filters — great for shows or franchises not covered by the built-in catalogs.</div>
+          <div id="customCatalogList"></div>
+        </div>
+      </div>
+
       <!-- NAV -->
       <div id="s2StremioWarn" style="display:none;background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:#ffb800;margin-top:16px;">
         ⚠️ <strong>Stremio users:</strong> 200+ catalogs may exceed Stremio's manifest size limit. Works fine in Nuvio. Consider hiding unused rows rather than removing them.
@@ -6065,6 +6077,16 @@ function s2ToggleReorder(){
   body.style.display = open ? 'none' : 'block';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
   if(!open) s2BuildReorderList();
+}
+
+function s2ToggleCustomRows(){
+  var body = document.getElementById('s2CustomRowsBody');
+  var chev = document.getElementById('s2CustomRowsChev');
+  if(!body) return;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+  if(!open && typeof renderCustomCatalogList === 'function') renderCustomCatalogList();
 }
 
 function s2BuildReorderList(){
@@ -9978,7 +10000,6 @@ function removeDebridProvider(i){
   debridProviders.splice(i,1);
   renderDebridProviders();
 }
-
 async function verifyDebrid(){
   const service = (document.getElementById('debridService')||{}).value || '';
   const apiKey = (document.getElementById('debridApiKey')||{}).value || '';
@@ -9987,37 +10008,52 @@ async function verifyDebrid(){
   if(!apiKey){ result.style.color='#f87171'; result.textContent='Please enter an API key'; return; }
   result.style.color='#94a3b8'; result.textContent='Checking…';
   try {
-    const config = {
-      maxResultsPerResolution: 3, maxSize: 0, cachedOnly: false,
-      sortCachedUncachedTogether: false, removeTrash: true,
-      resultFormat: ['title','video_info','quality_info','size'],
-      debridServices: [{ service, apiKey }],
-      enableTorrent: false, deduplicateStreams: true,
-      scrapeDebridAccountTorrents: false, debridStreamProxyPassword: '',
-      languages: { required: [], allowed: ['en'], exclude: [], preferred: ['en'] },
-      resolutions: {}, options: { remove_ranks_under: -10000000000, allow_english_in_languages: true, remove_unknown_languages: false }
-    };
-    const blob = btoa(JSON.stringify(config));
-    const testUrl = 'https://comet.feels.legal/' + blob + '/manifest.json';
-    const r = await fetch(testUrl);
-    if(r.ok){
-      // Check not already added
-      const exists = debridProviders.some(p => p.service === service);
-      if(exists){
-        result.style.color='#f87171'; result.textContent='This provider is already added';
+    let confirmedValid = null;
+    try {
+      const vr = await fetch('/api/verify-debrid-key', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ service, apiKey }) });
+      const vd = await vr.json();
+      confirmedValid = vd.valid;
+    } catch(e){ confirmedValid = null; }
+
+    if(confirmedValid === false){
+      result.style.color='#f87171'; result.textContent='Invalid API key — please check and try again';
+      return;
+    }
+
+    if(confirmedValid !== true){
+      const config = {
+        maxResultsPerResolution: 3, maxSize: 0, cachedOnly: false,
+        sortCachedUncachedTogether: false, removeTrash: true,
+        resultFormat: ['title','video_info','quality_info','size'],
+        debridServices: [{ service, apiKey }],
+        enableTorrent: false, deduplicateStreams: true,
+        scrapeDebridAccountTorrents: false, debridStreamProxyPassword: '',
+        languages: { required: [], allowed: ['en'], exclude: [], preferred: ['en'] },
+        resolutions: {}, options: { remove_ranks_under: -10000000000, allow_english_in_languages: true, remove_unknown_languages: false }
+      };
+      const blob = btoa(JSON.stringify(config));
+      const testUrl = 'https://comet.feels.legal/' + blob + '/manifest.json';
+      const r = await fetch(testUrl);
+      if(!r.ok){
+        result.style.color='#f87171'; result.textContent='Could not verify — check your API key';
         return;
       }
-      debridProviders.push({ service, apiKey });
-      renderDebridProviders();
-      document.getElementById('debridService').value = '';
-      document.getElementById('debridApiKey').value = '';
-      result.style.color='#4ade80'; result.textContent='✅ ' + (DEBRID_NAMES[service]||service) + ' added!';
-      setTimeout(() => { result.textContent = ''; }, 3000);
-    } else {
-      result.style.color='#f87171'; result.textContent='Could not verify — check your API key';
     }
+
+    const exists = debridProviders.some(p => p.service === service);
+    if(exists){
+      result.style.color='#f87171'; result.textContent='This provider is already added';
+      return;
+    }
+    debridProviders.push({ service, apiKey });
+    renderDebridProviders();
+    document.getElementById('debridService').value = '';
+    document.getElementById('debridApiKey').value = '';
+    result.style.color='#4ade80'; result.textContent='✅ ' + (DEBRID_NAMES[service]||service) + ' added!';
+    setTimeout(() => { result.textContent = ''; }, 3000);
   } catch(e){ result.style.color='#f87171'; result.textContent='Verification failed: '+e.message; }
 }
+
 
 function clearDebrid(){
   debridProviders = [];
@@ -10969,11 +11005,15 @@ function renderCustomSourceFields(){
   if(!box) return;
 
   const inputStyle = "width:100%;min-height:120px;padding:11px;background:#0b0b0b;color:#fff;border:1px solid #333;border-radius:8px;";
-
   if(source === 'imdb'){
     box.innerHTML = `
+      <label style="display:grid;gap:6px;margin-bottom:12px;">
+        <span style="font-size:12px;color:#aaa;">🔍 Search for a title</span>
+        <input id="customCatalogSearchInput" type="text" placeholder="Type a movie or show name..." oninput="debouncedTitleSearch()" style="width:100%;padding:11px;background:#0b0b0b;color:#fff;border:1px solid #333;border-radius:8px;">
+      </label>
+      <div id="customCatalogSearchResults" style="display:none;max-height:220px;overflow-y:auto;margin-bottom:12px;border:1px solid #333;border-radius:8px;"></div>
       <label style="display:grid;gap:6px;">
-        <span style="font-size:12px;color:#aaa;">IMDb IDs, one per line</span>
+        <span style="font-size:12px;color:#aaa;">IMDb IDs, one per line (or click a search result above)</span>
         <textarea id="customCatalogValue" placeholder="tt0111161&#10;tt0137523&#10;tt0816692" style="${inputStyle}"></textarea>
       </label>`;
   } else if(source === 'mdblist'){
@@ -11015,6 +11055,60 @@ function renderCustomSourceFields(){
         <textarea id="customCatalogValue" placeholder="trending_movies&#10;popular_movies&#10;studio_a24" style="${inputStyle}"></textarea>
       </label>`;
   }
+}
+
+var _titleSearchTimer = null;
+function debouncedTitleSearch(){
+  clearTimeout(_titleSearchTimer);
+  _titleSearchTimer = setTimeout(runTitleSearch, 400);
+}
+
+async function runTitleSearch(){
+  const input = document.getElementById('customCatalogSearchInput');
+  const resultsBox = document.getElementById('customCatalogSearchResults');
+  if(!input || !resultsBox) return;
+  const q = input.value.trim();
+  if(!q){ resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; return; }
+  resultsBox.style.display = 'block';
+  resultsBox.innerHTML = '<div style="padding:10px;color:#888;font-size:12px;">Searching...</div>';
+  try {
+    const res = await fetch('/api/search-title?q=' + encodeURIComponent(q));
+    const data = await res.json();
+    const results = data.results || [];
+    if(!results.length){
+      resultsBox.innerHTML = '<div style="padding:10px;color:#888;font-size:12px;">No matches found.</div>';
+      return;
+    }
+    resultsBox.innerHTML = results.map(function(r, idx){
+      const posterImg = r.poster ? '<img src="' + r.poster + '" style="width:32px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;">' : '<div style="width:32px;height:48px;background:#222;border-radius:4px;flex-shrink:0;"></div>';
+      return '<div onclick="pickSearchResult(' + idx + ')" style="display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border-bottom:1px solid #222;" onmouseover="this.style.background=&#39;#161616&#39;" onmouseout="this.style.background=&#39;&#39;">' +
+        posterImg +
+        '<div><div style="font-size:13px;color:#fff;">' + (r.title || 'Unknown') + (r.year ? ' (' + r.year + ')' : '') + '</div><div style="font-size:11px;color:#888;text-transform:uppercase;">' + (r.mediaType === 'tv' ? 'Series' : 'Movie') + '</div></div>' +
+      '</div>';
+    }).join('');
+    window._lastTitleSearchResults = results;
+  } catch(e){
+    resultsBox.innerHTML = '<div style="padding:10px;color:#f87171;font-size:12px;">Search failed. Try again.</div>';
+  }
+}
+
+async function pickSearchResult(idx){
+  const results = window._lastTitleSearchResults || [];
+  const picked = results[idx];
+  if(!picked) return;
+  const textarea = document.getElementById('customCatalogValue');
+  const resultsBox = document.getElementById('customCatalogSearchResults');
+  const searchInput = document.getElementById('customCatalogSearchInput');
+  if(!textarea) return;
+  try {
+    const res = await fetch('/api/title-imdb-id?tmdbId=' + picked.tmdbId + '&mediaType=' + picked.mediaType);
+    const data = await res.json();
+    if(!data.imdbId) return;
+    const existing = textarea.value.trim();
+    textarea.value = existing ? existing + '\n' + data.imdbId : data.imdbId;
+    if(resultsBox){ resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
+    if(searchInput) searchInput.value = '';
+  } catch(e){}
 }
 
 function slugifyCustomCatalogName(name){
@@ -11073,14 +11167,18 @@ function saveCustomCatalogDraft(){
 function renderCustomCatalogList(){
   const box = document.getElementById('customCatalogList');
   if(!box) return;
-
   if(!Array.isArray(customCatalogs) || !customCatalogs.length){
     box.innerHTML = `
       <div style="padding:20px;border:1px dashed #333;border-radius:8px;text-align:center;color:#aaa;">
         No custom rows yet.<br>
         <a href="/builder.html" target="_blank" style="display:inline-block;margin-top:10px;padding:8px 16px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">✨ Catalog Builder →</a>
         <div style="font-size:11px;color:#999;margin-top:8px;">AI powered — describe what you want, no key needed</div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #333;">
+          <button type="button" onclick="createCustomCatalog()" style="padding:8px 14px;background:#1f1f1f;color:#fff;border:1px solid #333;border-radius:6px;cursor:pointer;">+ Create Custom Catalog</button>
+          <div style="font-size:11px;color:#999;margin-top:8px;">Manual — build from IMDb IDs, MDBList, Trakt, or TMDB filters</div>
+        </div>
       </div>`;
+
     return;
   }
 
