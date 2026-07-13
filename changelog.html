@@ -87,8 +87,8 @@
 <div id="cursorGlow"></div>
 
 <nav>
-  <a href="/" class="logo">ULTRA <span>MAX</span></a>
-  <a href="/" class="nav-back">← Back to home</a>
+  <a href="/" id="changelogLogoLink" class="logo">ULTRA <span>MAX</span></a>
+  <a href="/" id="changelogBackLink" class="nav-back">← Back to home</a>
 </nav>
 
 <div class="hero">
@@ -99,6 +99,12 @@
 </div>
 
 <div class="main">
+  <div class="changelog-tabs" style="display:flex;gap:10px;margin-bottom:24px;">
+    <button id="tabBtnUltramax" onclick="switchChangelogTab('ultramax')" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border2);background:var(--accent,#7B2FFF);color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Ultra MAX</button>
+    <button id="tabBtnApp" onclick="switchChangelogTab('app')" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;">Android App</button>
+  </div>
+
+  <div id="ultramaxTab">
   <div class="timeline">
 
     <!-- v7.3.0 -->
@@ -364,6 +370,35 @@
 
   </div>
 </div>
+  <div id="appTab" style="display:none;">
+  <div class="timeline">
+
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v1.1</div>
+        <div class="version-date">Jul 2026</div>
+      </div>
+      <div class="version-dot dot-latest"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Native Android App — Beta
+          <span class="badge badge-latest">Latest</span>
+        </div>
+        <div class="version-sub">Ultra MAX now has a genuine native Android app, not just a browser wrapper — built from the ground up for a faster, more app-like experience.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">📱</span><span><strong>Native App Launch</strong> — A real native Android app, built to feel like a proper app rather than a website in a wrapper.</span></div>
+          <div class="change"><span class="change-icon">🔗</span><span><strong>Trakt &amp; Simkl In-App Sign In</strong> — Connecting your account now returns you straight to the app afterward, instead of leaving you stuck in the browser.</span></div>
+          <div class="change"><span class="change-icon">⬅️</span><span><strong>Proper Back Navigation</strong> — The back gesture now steps back through the setup wizard as expected, instead of closing the app.</span></div>
+          <div class="change"><span class="change-icon">🔔</span><span><strong>In-App Update Checker</strong> — The app now checks for new versions automatically and lets you know when one's available.</span></div>
+          <div class="change"><span class="change-icon">🎨</span><span><strong>App-Native UI</strong> — The setup wizard now adapts to a proper mobile app layout, including tile-based navigation for Step 1.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  </div>
 
 
 <script>
@@ -380,6 +415,38 @@
 })();
 const _glow=document.getElementById('cursorGlow');
 if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
+function switchChangelogTab(tab){
+  var ultramaxTab = document.getElementById('ultramaxTab');
+  var appTab = document.getElementById('appTab');
+  var btnUltramax = document.getElementById('tabBtnUltramax');
+  var btnApp = document.getElementById('tabBtnApp');
+  if (tab === 'app') {
+    ultramaxTab.style.display = 'none';
+    appTab.style.display = 'block';
+    btnApp.style.background = 'var(--accent,#7B2FFF)';
+    btnApp.style.color = '#fff';
+    btnUltramax.style.background = 'transparent';
+    btnUltramax.style.color = 'var(--muted)';
+  } else {
+    ultramaxTab.style.display = 'block';
+    appTab.style.display = 'none';
+    btnUltramax.style.background = 'var(--accent,#7B2FFF)';
+    btnUltramax.style.color = '#fff';
+    btnApp.style.background = 'transparent';
+    btnApp.style.color = 'var(--muted)';
+  }
+}
+</script>
+<script src="/um-session.js"></script>
+<script>
+(function(){
+  if (typeof umIsStandalone === 'function' && umIsStandalone()) {
+    var logo = document.getElementById('changelogLogoLink');
+    var back = document.getElementById('changelogBackLink');
+    if (logo) logo.href = '/app.html';
+    if (back) back.href = '/app.html';
+  }
+})();
 </script>
 </body>
 </html>

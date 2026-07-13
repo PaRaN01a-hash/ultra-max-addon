@@ -73,8 +73,8 @@
 <div id="particles"></div>
 <div id="cursorGlow"></div>
 <nav>
-  <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
-  <a class="nav-back" href="/">← Back to home</a>
+  <a class="nav-logo" id="badgesLogoLink" href="/">ULTRA <span>MAX</span></a>
+  <a class="nav-back" id="badgesBackLink" href="/">← Back to home</a>
 </nav>
 <main>
   <div class="hero-section">
@@ -504,6 +504,17 @@ function cp(url, btn) {
 })();
 const _glow=document.getElementById('cursorGlow');
 if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
+</script>
+<script src="/um-session.js"></script>
+<script>
+(function(){
+  if (typeof umIsStandalone === 'function' && umIsStandalone()) {
+    var logo = document.getElementById('badgesLogoLink');
+    var back = document.getElementById('badgesBackLink');
+    if (logo) logo.href = '/app.html';
+    if (back) back.href = '/app.html';
+  }
+})();
 </script>
 </body>
 </html>

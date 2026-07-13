@@ -9889,6 +9889,8 @@ async function connectTrakt(){
     }
   }
   
+  localStorage.setItem('um_return_scroll', window.scrollY);
+  localStorage.setItem('um_return_tile', 'optional');
   saveFormState();
   window.location.href = '/auth/trakt/connect/' + token;
 }
@@ -9943,6 +9945,8 @@ async function connectSimkl(){
     } catch(e) { btn.innerHTML = orig; btn.disabled = false; alert('Could not save: '+e.message); return; }
   }
   saveFormState();
+  localStorage.setItem('um_return_scroll', window.scrollY);
+  localStorage.setItem('um_return_tile', 'optional');
   window.location.href = '/auth/simkl/connect/' + token;
 }
 
@@ -11810,15 +11814,6 @@ async function generateFiveAiRowsList(){
 </script>
 
 <script>
-window.onerror = function(msg, src, line, col, err){
-  document.body.insertAdjacentHTML('afterbegin',
-    '<div style="position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;padding:12px;font-size:13px;z-index:99999;word-break:break-all;">' +
-    '❌ JS Error: ' + msg + ' (line ' + line + ')' +
-    '</div>'
-  );
-  return false;
-};
-
 function openAssetModal(ci, fi, mode){
   var modal = document.getElementById('assetModal');
   var frame = document.getElementById('assetFrame');
@@ -12170,7 +12165,7 @@ function cancelEmailReg() {
 
 
   <!-- Collection picker + close -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px;flex-shrink:0;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 16px 10px;flex-shrink:0;">
     <select id="previewCollPicker" onchange="renderNuvioPreview()" style="padding:6px 10px;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;font-size:12px;max-width:180px;"></select>
     <button onclick="closeNuvioPreview()" style="background:#1a1a1a;border:1px solid #333;color:#888;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:12px;">✕ Close</button>
   </div>
@@ -12841,6 +12836,20 @@ window.addEventListener('pageshow', function(event){
   }
 
   setTimeout(initTileMode, 700);
+  setTimeout(function(){
+    var savedTile = localStorage.getItem('um_return_tile');
+    var savedScroll = localStorage.getItem('um_return_scroll');
+    if (savedTile && typeof window.s1ShowTile === 'function') {
+      window.s1ShowTile(savedTile);
+    }
+    if (savedScroll !== null) {
+      setTimeout(function(){
+        window.scrollTo(0, parseInt(savedScroll, 10) || 0);
+      }, 150);
+    }
+    localStorage.removeItem('um_return_scroll');
+    localStorage.removeItem('um_return_tile');
+  }, 900);
   if (typeof umIsStandalone === 'function' && umIsStandalone()) {
     var _origSetStep = window.setStep;
     if (typeof _origSetStep === 'function') {
@@ -12861,6 +12870,11 @@ window.addEventListener('pageshow', function(event){
           window.history.back();
         } else {
           window.Capacitor.Plugins.App.exitApp();
+        }
+      });
+      window.Capacitor.Plugins.App.addListener('appUrlOpen', function(data){
+        if (data && data.url) {
+          window.location.href = data.url;
         }
       });
     }

@@ -223,7 +223,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="header">
   <div class="logo">ULTRA <span>MAX</span></div>
   <div class="hbtns">
-    <a href="/" class="btn btn-ghost btn-sm">← Home</a>
+    <a href="/" id="galleryHomeLink" class="btn btn-ghost btn-sm">← Home</a>
     <button class="btn btn-accent btn-sm" onclick="openSubmit()">+ Submit</button>
   </div>
 </div>
@@ -798,6 +798,15 @@ function getExtraFiles(){
 })();
 const _glow=document.getElementById('cursorGlow');
 if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
+</script>
+<script src="/um-session.js"></script>
+<script>
+(function(){
+  if (typeof umIsStandalone === 'function' && umIsStandalone()) {
+    var home = document.getElementById('galleryHomeLink');
+    if (home) home.href = '/app.html';
+  }
+})();
 </script>
 </body>
 </html>

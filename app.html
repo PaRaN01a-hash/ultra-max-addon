@@ -301,6 +301,29 @@ if ('serviceWorker' in navigator) {
     console.log('SW failed:', e);
   });
 }
+
+(async function checkForAppUpdate(){
+  try {
+    if (!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.App) return;
+    var info = await window.Capacitor.Plugins.App.getInfo();
+    var currentBuild = parseInt(info.build, 10) || 0;
+    var res = await fetch('https://ultramax.vip/app-version.json');
+    var data = await res.json();
+    if (data.latestVersionCode && data.latestVersionCode > currentBuild) {
+      var banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#7B2FFF,#ec4899);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;font-size:13px;font-weight:600;z-index:99999;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+      var span = document.createElement('span');
+      span.textContent = '🎉 A new version (' + (data.latestVersionName||'') + ') is available!';
+      var btn = document.createElement('button');
+      btn.textContent = 'Update';
+      btn.style.cssText = 'background:#fff;color:#7B2FFF;padding:6px 14px;border:none;border-radius:8px;font-weight:700;white-space:nowrap;cursor:pointer;';
+      btn.onclick = function(){ var dlLink = document.createElement('a'); dlLink.href = data.downloadUrl; dlLink.download = 'UltraMax.apk'; document.body.appendChild(dlLink); dlLink.click(); document.body.removeChild(dlLink); };
+      banner.appendChild(span);
+      banner.appendChild(btn);
+      document.body.appendChild(banner);
+    }
+  } catch(e) { /* silently ignore - non-critical */ }
+})();
 </script>
 </body>
 </html>

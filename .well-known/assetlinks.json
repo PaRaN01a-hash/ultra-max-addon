@@ -1,8 +1,11 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "vip.ultramax.twa",
-        "sha256_cert_fingerprints": ["BD:AF:AB:4C:0E:A5:50:7C:32:4E:B9:41:92:B1:81:B6:0C:69:CE:D4:67:B4:E7:80:A1:27:EA:0B:30:20:79:D8"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "vip.ultramax.app",
+      "sha256_cert_fingerprints":
+      ["64:4C:25:3D:E8:18:CE:4B:7D:1D:F1:B8:11:B0:8A:FE:2C:DB:ED:39:F7:62:67:67:D0:A3:98:59:5D:CA:43:97"]
+    }
+  }
+]

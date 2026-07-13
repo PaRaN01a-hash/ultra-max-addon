@@ -97,8 +97,8 @@
 <div id="cursorGlow"></div>
 <div class="hero-orb"></div>
 <nav>
-  <a class="nav-logo" href="/">ULTRA <span>MAX</span></a>
-  <a class="nav-back" href="/">← Back to home</a>
+  <a class="nav-logo" id="avatarsLogoLink" href="/">ULTRA <span>MAX</span></a>
+  <a class="nav-back" id="avatarsBackLink" href="/">← Back to home</a>
 </nav>
 <header>
   <div class="eyebrow">Nuvio Profiles</div>
@@ -549,6 +549,17 @@ if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'
       setTimeout(() => card.classList.remove('copied'), 1800);
     }
   };
+})();
+</script>
+<script src="/um-session.js"></script>
+<script>
+(function(){
+  if (typeof umIsStandalone === 'function' && umIsStandalone()) {
+    var logo = document.getElementById('avatarsLogoLink');
+    var back = document.getElementById('avatarsBackLink');
+    if (logo) logo.href = '/app.html';
+    if (back) back.href = '/app.html';
+  }
 })();
 </script>
 </body>
