@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 2,
-  "latestVersionName": "1.1",
+  "latestVersionCode": 3,
+  "latestVersionName": "1.2",
   "downloadUrl": "https://dluma.duckdns.org/downloads/UltraMax.apk",
-  "notes": "Bug fixes and improvements"
+  "notes": "New Avatar Vault with custom uploads, cropping and recent avatars. Added shared Nuvio login, remembered setup controls, improved token loading, app navigation and update support."
 }

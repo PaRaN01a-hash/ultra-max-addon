@@ -210,81 +210,6 @@
     .section-label { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
       color: var(--violet2); margin: 8px 0 14px; position: relative; z-index: 2; }
   </style>
-
-<!-- ULTRAMAX APP BUILD BRIDGE START -->
-<script>
-(function () {
-  var params = new URLSearchParams(location.search);
-  var queryBuild = params.get('appbuild');
-
-  if (queryBuild) {
-    try {
-      sessionStorage.setItem(
-        'ultramax_installed_build',
-        queryBuild
-      );
-    } catch (error) {}
-  }
-
-  var storedBuild = queryBuild;
-
-  if (!storedBuild) {
-    try {
-      storedBuild = sessionStorage.getItem(
-        'ultramax_installed_build'
-      );
-    } catch (error) {}
-  }
-
-  window.ultraMaxInstalledBuild =
-    parseInt(storedBuild, 10) || 0;
-
-  function propagateBuild() {
-    if (!window.ultraMaxInstalledBuild) return;
-
-    document.querySelectorAll('a[href]').forEach(function (link) {
-      var rawHref = link.getAttribute('href');
-
-      if (!rawHref || rawHref.startsWith('#')) return;
-
-      try {
-        var url = new URL(rawHref, location.origin);
-
-        if (url.origin !== location.origin) return;
-
-        url.searchParams.set(
-          'appbuild',
-          String(window.ultraMaxInstalledBuild)
-        );
-
-        link.setAttribute(
-          'href',
-          url.pathname + url.search + url.hash
-        );
-      } catch (error) {}
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener(
-      'DOMContentLoaded',
-      propagateBuild
-    );
-  } else {
-    propagateBuild();
-  }
-
-  new MutationObserver(propagateBuild).observe(
-    document.documentElement,
-    {
-      childList: true,
-      subtree: true
-    }
-  );
-})();
-</script>
-<!-- ULTRAMAX APP BUILD BRIDGE END -->
-
 </head>
 <body>
 <div id="particles"></div>
@@ -1198,42 +1123,12 @@ html.native-app #umBackToast.show {
       window.Capacitor.Plugins &&
       window.Capacitor.Plugins.App;
 
-    var currentBuild = 0;
+    if (!AppPlugin) return;
 
-    if (AppPlugin) {
-      var info = await AppPlugin.getInfo();
+    var info = await AppPlugin.getInfo();
 
-      currentBuild =
-        parseInt(info.build, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      currentBuild =
-        parseInt(window.ultraMaxInstalledBuild, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      var paramsBuild =
-        new URLSearchParams(location.search)
-          .get('appbuild');
-
-      currentBuild =
-        parseInt(paramsBuild, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      try {
-        currentBuild =
-          parseInt(
-            sessionStorage.getItem(
-              'ultramax_installed_build'
-            ),
-            10
-          ) || 0;
-      } catch (error) {}
-    }
-
-    if (!currentBuild) return;
+    var currentBuild =
+      parseInt(info.build, 10) || 0;
 
     var response = await fetch(
       '/app-version.json?fresh=' + Date.now(),

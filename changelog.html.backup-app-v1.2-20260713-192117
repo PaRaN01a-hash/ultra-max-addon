@@ -478,123 +478,16 @@
   <div id="appTab" style="display:none;">
   <div class="timeline">
 
-    <!-- ULTRAMAX ANDROID V1.2 START -->
-    <div class="version-block">
-      <div class="version-left">
-        <div class="version-num">v1.2</div>
-        <div class="version-date">Jul 2026</div>
-      </div>
-
-      <div class="version-dot dot-latest"></div>
-
-      <div class="version-content">
-        <div class="version-title">
-          Avatar Vault, Saved Setups &amp; App Updates
-          <span class="badge badge-latest">Latest</span>
-        </div>
-
-        <div class="version-sub">
-          A major quality-of-life update focused on profile customisation,
-          remembered sessions, clearer app information and smoother updates.
-        </div>
-
-        <div class="changes">
-          <div class="change">
-            <span class="change-icon">🎭</span>
-            <span>
-              <strong>Custom Avatar Uploads</strong> — Choose your own image,
-              crop it, reposition it, zoom it and push it directly to a
-              selected Nuvio profile.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🖼️</span>
-            <span>
-              <strong>Recent Avatar Reuse</strong> — Recent custom avatars are
-              remembered on the device and can be reused with a single tap.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🔐</span>
-            <span>
-              <strong>Shared Nuvio Session</strong> — Avatar Vault now reuses
-              the saved Nuvio login from the rest of the app, with one clean
-              shared logout.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🔑</span>
-            <span>
-              <strong>Remembered Token Login</strong> — Token loading once
-              again includes “Remember me on this device” for faster access
-              to existing setups.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🏠</span>
-            <span>
-              <strong>Saved Setup Welcome Card</strong> — Continue a remembered
-              setup, use another token or remove the saved session from the
-              device.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">⚙️</span>
-            <span>
-              <strong>Settings &amp; About</strong> — View the installed app
-              version, latest published release, update status and useful
-              Ultra MAX links.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🔔</span>
-            <span>
-              <strong>Automatic Update Notices</strong> — Ultra MAX now checks
-              the published release and displays an in-app notice whenever a
-              newer APK is available.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">📡</span>
-            <span>
-              <strong>Offline Screen</strong> — A dedicated connection screen
-              appears when Ultra MAX cannot reach the server, complete with a
-              retry button.
-            </span>
-          </div>
-
-          <div class="change">
-            <span class="change-icon">🧭</span>
-            <span>
-              <strong>Navigation &amp; Mobile Polish</strong> — Improved bottom
-              navigation, app-only layouts, profile panels and mobile spacing
-              across the app.
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- ULTRAMAX ANDROID V1.2 END -->
-
-
-
     <div class="version-block">
       <div class="version-left">
         <div class="version-num">v1.1</div>
         <div class="version-date">Jul 2026</div>
       </div>
-      <div class="version-dot"></div>
+      <div class="version-dot dot-latest"></div>
       <div class="version-content">
         <div class="version-title">
           Native Android App — Beta
-          
+          <span class="badge badge-latest">Latest</span>
         </div>
         <div class="version-sub">Ultra MAX now has a genuine native Android app, not just a browser wrapper — built from the ground up for a faster, more app-like experience.</div>
         <div class="changes">

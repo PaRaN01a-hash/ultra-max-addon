@@ -1198,42 +1198,12 @@ html.native-app #umBackToast.show {
       window.Capacitor.Plugins &&
       window.Capacitor.Plugins.App;
 
-    var currentBuild = 0;
+    if (!AppPlugin) return;
 
-    if (AppPlugin) {
-      var info = await AppPlugin.getInfo();
+    var info = await AppPlugin.getInfo();
 
-      currentBuild =
-        parseInt(info.build, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      currentBuild =
-        parseInt(window.ultraMaxInstalledBuild, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      var paramsBuild =
-        new URLSearchParams(location.search)
-          .get('appbuild');
-
-      currentBuild =
-        parseInt(paramsBuild, 10) || 0;
-    }
-
-    if (!currentBuild) {
-      try {
-        currentBuild =
-          parseInt(
-            sessionStorage.getItem(
-              'ultramax_installed_build'
-            ),
-            10
-          ) || 0;
-      } catch (error) {}
-    }
-
-    if (!currentBuild) return;
+    var currentBuild =
+      parseInt(info.build, 10) || 0;
 
     var response = await fetch(
       '/app-version.json?fresh=' + Date.now(),

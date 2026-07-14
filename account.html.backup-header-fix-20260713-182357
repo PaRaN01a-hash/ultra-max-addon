@@ -1162,39 +1162,5 @@ html.native-app #backLink {
 
 <!-- ULTRAMAX ACCOUNT APP VIEW END -->
 
-
-<!-- ULTRAMAX ACCOUNT HEADER FIX START -->
-<style>
-/*
-  The header is injected near the end of the HTML, so it must be fixed
-  rather than sticky. Fixed positioning removes it from document flow.
-*/
-html.native-app .um-account-app-header {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  margin: 0 !important;
-}
-
-/* Make room for the fixed header at the top */
-html.native-app .wrap {
-  padding-top:
-    calc(84px + env(safe-area-inset-top)) !important;
-}
-
-/* The connection/profile dot is unnecessary */
-html.native-app .um-account-status-dot {
-  display: none !important;
-}
-
-/* Keep the title area aligned after removing the dot */
-html.native-app .um-account-heading {
-  padding-right: 42px;
-}
-</style>
-<!-- ULTRAMAX ACCOUNT HEADER FIX END -->
-
 </body>
 </html>
