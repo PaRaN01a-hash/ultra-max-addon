@@ -120,27 +120,6 @@ server {
     }
 
 
-    # Android APK download
-    location = /downloads/UltraMax.apk {
-        types {
-            application/vnd.android.package-archive apk;
-        }
-
-        default_type application/vnd.android.package-archive;
-
-        add_header Content-Disposition 'attachment; filename="UltraMax.apk"' always;
-        add_header Cache-Control "no-store, no-cache, must-revalidate" always;
-
-        try_files $uri =404;
-    }
-
-    location = /app.html {
-        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate" always;
-        add_header Pragma "no-cache" always;
-        add_header Expires "0" always;
-        try_files $uri =404;
-    }
-
     # Static files
     location = /recover {
         try_files /recover.html =404;

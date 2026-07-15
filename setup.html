@@ -1695,6 +1695,177 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
     .lang-label input { cursor:pointer; }
 @media (max-width: 700px){
 }
+
+/* ULTRAMAX SETUP MODE SELECTOR START */
+.um-mode-chooser {
+  margin-bottom: 26px;
+}
+
+.um-mode-chooser.hidden {
+  display: none;
+}
+
+.um-mode-intro {
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(123,47,255,.14),
+      transparent 42%
+    ),
+    var(--card);
+}
+
+.um-mode-kicker {
+  margin-bottom: 6px;
+  color: var(--violet2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.um-mode-title {
+  margin-bottom: 7px;
+  color: var(--text);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.um-mode-copy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.um-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.um-mode-card {
+  min-height: 168px;
+  padding: 20px 17px;
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      155deg,
+      rgba(255,255,255,.055),
+      rgba(255,255,255,.018)
+    );
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+.um-mode-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--mode-colour);
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(
+        in srgb,
+        var(--mode-colour) 14%,
+        transparent
+      ),
+      rgba(255,255,255,.02)
+    );
+}
+
+.um-mode-icon {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 17px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--mode-colour);
+  font-size: 22px;
+  box-shadow:
+    0 10px 28px
+    color-mix(
+      in srgb,
+      var(--mode-colour) 28%,
+      transparent
+    );
+}
+
+.um-mode-name {
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.um-mode-desc {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.um-mode-reopen {
+  display: none;
+  margin-bottom: 18px;
+}
+
+.um-mode-reopen.visible {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .um-mode-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .um-mode-card {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    column-gap: 14px;
+    align-items: center;
+  }
+
+  .um-mode-icon {
+    grid-row: 1 / 3;
+    margin: 0;
+  }
+
+  .um-mode-name,
+  .um-mode-desc {
+    grid-column: 2;
+  }
+}
+/* ULTRAMAX SETUP MODE SELECTOR END */
+
+
+/* ULTRAMAX ROUTE CHOOSER VISIBILITY FIX START */
+body.um-route-choosing #step1Toolbar,
+body.um-route-choosing #returningBox,
+body.um-route-choosing #quickSetupV3,
+body.um-route-choosing #advancedBackBar,
+body.um-route-choosing #advancedBuilderContainer {
+  display: none !important;
+}
+
+body.um-route-choosing #umModeChooser {
+  display: block !important;
+}
+
+body:not(.um-route-choosing) #umModeChooser.hidden {
+  display: none !important;
+}
+/* ULTRAMAX ROUTE CHOOSER VISIBILITY FIX END */
+
 </style>
 <style>
 .um-app-mode .um-sidebar-nav { display: none !important; }
@@ -3845,6 +4016,79 @@ body {
         <p class="um-step-sub">Personalise your Stremio &amp; Nuvio home screen</p>
       </div>
 
+
+<!-- ULTRAMAX SETUP MODE SELECTOR START -->
+<div class="um-mode-chooser" id="umModeChooser">
+  <div class="um-mode-intro">
+    <div class="um-mode-kicker">Choose your route</div>
+
+    <div class="um-mode-title">
+      How would you like to begin?
+    </div>
+
+    <div class="um-mode-copy">
+      Take the quick route, customise everything yourself,
+      or reopen an existing setup with its token.
+    </div>
+  </div>
+
+  <div class="um-mode-grid">
+    <button
+      type="button"
+      class="um-mode-card"
+      style="--mode-colour:#7B2FFF;"
+      onclick="selectSetupMode('quick')"
+    >
+      <div class="um-mode-icon">⚡</div>
+      <div class="um-mode-name">Quick Setup</div>
+      <div class="um-mode-desc">
+        Pick a style and let Ultra MAX choose a clean,
+        balanced collection of rows.
+      </div>
+    </button>
+
+    <button
+      type="button"
+      class="um-mode-card"
+      style="--mode-colour:#60A5FA;"
+      onclick="selectSetupMode('custom')"
+    >
+      <div class="um-mode-icon">🔧</div>
+      <div class="um-mode-name">Custom Setup</div>
+      <div class="um-mode-desc">
+        Choose keys, catalogs, collections, streams
+        and every advanced option yourself.
+      </div>
+    </button>
+
+    <button
+      type="button"
+      class="um-mode-card"
+      style="--mode-colour:#34D399;"
+      onclick="selectSetupMode('restore')"
+    >
+      <div class="um-mode-icon">🔑</div>
+      <div class="um-mode-name">Restore Existing</div>
+      <div class="um-mode-desc">
+        Enter a setup token and continue editing an
+        existing Ultra MAX configuration.
+      </div>
+    </button>
+  </div>
+</div>
+
+<div class="um-mode-reopen" id="umModeReopen">
+  <button
+    type="button"
+    class="nav-btn"
+    onclick="showSetupModeChooser()"
+  >
+    ← Choose a different setup route
+  </button>
+</div>
+<!-- ULTRAMAX SETUP MODE SELECTOR END -->
+
+
       <!-- SETUP TOOLS TOOLBAR -->
       <input type="file" id="projectFileInput" accept=".json,application/json" style="display:none">
       <div id="step1Toolbar" style="display:flex;gap:8px;margin-bottom:24px;align-items:center;flex-wrap:wrap;">
@@ -5637,11 +5881,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var fi = document.getElementById('projectFileInput');
   if(fi) fi.addEventListener('change', function(e){ if(typeof _importProjectFile==='function') _importProjectFile(e); else alert('Import not ready yet - please try again'); });
 
-  // Show welcome modal on page load if no URL token
+  // Old setup welcome modal disabled.
+  // The new route chooser now handles new and returning users.
   var _urlToken = new URLSearchParams(window.location.search).get('token');
-  if(!_urlToken){
-    showWelcomeModal();
-  }
 });
 
 
@@ -5660,7 +5902,7 @@ const COLLECTION_PRESETS = {
   genres: { title:'Genres', ids:['action_movies','action_series','comedy_movies','comedy_series','horror_movies','horror_series','scifi_movies','scifi_series','thriller_movies','thriller_series','crime_movies','crime_series','drama_movies','drama_series','romance_movies','romance_series','mystery_movies','mystery_series','fantasy_movies','fantasy_series','family_movies','family_series','animation_movies','animation_series','documentary_movies','documentary_series','anime_movies','anime_series','bollywood_movies','bollywood_series'] },
   studios: { title:'Studios', ids:['studio_marvel','studio_dc','studio_a24','studio_blumhouse','studio_ghibli','mdb_3918','mdb_3928','studio_wb','studio_universal','studio_sony','studio_paramount','studio_20thcentury','studio_lionsgate','studio_newline','studio_canalplus'] },
   trakt: { title:'Trakt', ids:['trakt_trending_movies','trakt_trending_series','trakt_popular_movies','trakt_popular_series','trakt_anticipated_movies','trakt_anticipated_series','trakt_fav_movies','trakt_fav_series','trakt_watchlist_movies','trakt_watchlist_series','trakt_collection_movies','trakt_collection_series','mdb_87667','mdb_88434'] },
-  collections: { title:'Film Collections', ids:['hp_collection','lotr_collection','starwars_collection','hobbit_collection','bond_collection','mi_collection','indiana_collection','jurassic_coll','fastfurious_coll','johnwick_coll','matrix_collection','diehard_collection','taken_collection','bourne_collection','oceans_collection','madmax_collection','rambo_collection','expendables_coll','kingsman_coll','avengers_coll','captainamerica_coll','ironman_collection','thor_collection','gotg_collection','doctorstrange_coll','blackpanther_coll','antman_collection','deadpool_coll','xmen_collection','wonderwoman_coll','aquaman_collection','alien_collection','terminator_coll','predator_coll','halloween_coll','nightmare_coll','saw_collection','scream_collection','conjuring_coll','planetapes_coll','transformers_coll','hungergames_coll','pirates_collection','shrek_collection','iceage_collection','httyd_collection','despicableme_coll','kungfupanda_coll','incredibles_coll','toystory_coll','findingnemo_coll','shrek2_collection','dune_collection','godfather_collection','spiderman_collection','avatar_collection','scarymovie_coll','knivesout_coll','mazerunner_coll','superman_collection','batman_collection','backtofuture_coll','sherlock_coll','mcu_collection'] },
+  collections: { title:'Film Collections', ids:['hp_collection','lotr_collection','starwars_collection','hobbit_collection','bond_collection','mi_collection','indiana_collection','jurassic_coll','fastfurious_coll','johnwick_coll','matrix_collection','diehard_collection','taken_collection','bourne_collection','oceans_collection','madmax_collection','rambo_collection','expendables_coll','kingsman_coll','avengers_coll','captainamerica_coll','ironman_collection','thor_collection','gotg_collection','doctorstrange_coll','blackpanther_coll','antman_collection','deadpool_coll','xmen_collection','wonderwoman_coll','aquaman_collection','alien_collection','terminator_coll','predator_coll','halloween_coll','nightmare_coll','saw_collection','scream_collection','conjuring_coll','planetapes_coll','transformers_coll','hungergames_coll','pirates_collection','shrek_collection','iceage_collection','httyd_collection','despicableme_coll','kungfupanda_coll','incredibles_coll','toystory_coll','findingnemo_coll','shrek2_collection','dune_collection','godfather_collection','spiderman_collection','avatar_collection','scarymovie_coll','knivesout_coll','mazerunner_coll','superman_collection','batman_collection','backtofuture_coll','sherlock_coll','mcu_collection','mcu_chronological'] },
   tvcollections: { title:'TV Collections', ids:['got_tv_collection','sopranos_tv_collection','outlander_tv_collection','theboys_tv_collection','breakingbad_tv_collection','yellowstone_tv_collection','walkingdead_tv_collection','dexter_tv_collection','power_tv_collection'] },
   decades: { title:'By Decade', ids:['mdb_92337','mdb_91304','mdb_91303','mdb_91302','mdb_91300','mdb_91301'] },
   kids: { title:'Kids & Family', ids:['mdb_88307','mdb_88309','mdb_13'] },
@@ -6028,7 +6270,11 @@ var S2_CATEGORIES = [
     },
     posters:['tt0111161','tt0068646','tt0071562','tt0050083'] },
   { id:'collections', icon:'🗂', name:'Film Collections', sub:'Harry Potter, Star Wars, Marvel and more',
-    filter: function(id){ return id.endsWith('_coll')||id.endsWith('_collection'); },
+    filter: function(id){
+      return id.endsWith('_coll')
+        || id.endsWith('_collection')
+        || id === 'mcu_chronological';
+    },
     posters:['tt0816692','tt4633694','tt1745960','tt6710474'] },
   { id:'tvcollections', icon:'📺', name:'TV Collections', sub:'Breaking Bad, Game of Thrones and more',
     filter: function(id){ return id.endsWith('_tv_collection'); },
@@ -13796,5 +14042,144 @@ body.um-app-mode #themeToggle {
 </nav>
 
 <!-- ULTRAMAX BUILD BOTTOM NAV END -->
+
+
+<script>
+(function () {
+  function element(id) {
+    return document.getElementById(id);
+  }
+
+  window.showSetupModeChooser = function () {
+    document.body.classList.add('um-route-choosing');
+
+    var chooser = element('umModeChooser');
+    var reopen = element('umModeReopen');
+    var toolbar = element('step1Toolbar');
+    var quick = element('quickSetupV3');
+    var advanced = element('advancedBuilderContainer');
+    var returning = element('returningBox');
+    var backBar = element('advancedBackBar');
+
+    if (chooser) chooser.classList.remove('hidden');
+    if (reopen) reopen.classList.remove('visible');
+
+    if (toolbar) toolbar.style.display = 'none';
+    if (quick) quick.style.display = 'none';
+    if (advanced) advanced.style.display = 'none';
+    if (returning) returning.classList.remove('open');
+    if (backBar) backBar.style.display = 'none';
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  window.selectSetupMode = function (mode) {
+    document.body.classList.remove('um-route-choosing');
+
+    var chooser = element('umModeChooser');
+    var reopen = element('umModeReopen');
+    var toolbar = element('step1Toolbar');
+    var quick = element('quickSetupV3');
+    var advanced = element('advancedBuilderContainer');
+    var returning = element('returningBox');
+    var backBar = element('advancedBackBar');
+
+    if (chooser) chooser.classList.add('hidden');
+    if (reopen) reopen.classList.add('visible');
+    if (toolbar) toolbar.style.display = 'flex';
+
+    if (returning) {
+      returning.classList.remove('open');
+    }
+
+    if (mode === 'quick') {
+      if (quick) quick.style.display = '';
+      if (advanced) advanced.style.display = 'none';
+      if (backBar) backBar.style.display = 'none';
+
+      setTimeout(function () {
+        if (quick) {
+          quick.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 60);
+
+      return;
+    }
+
+    if (mode === 'custom') {
+      if (quick) quick.style.display = 'none';
+      if (advanced) advanced.style.display = '';
+      if (backBar) backBar.style.display = 'none';
+
+      setTimeout(function () {
+        if (advanced) {
+          advanced.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 60);
+
+      return;
+    }
+
+    if (mode === 'restore') {
+      if (quick) quick.style.display = 'none';
+      if (advanced) advanced.style.display = 'none';
+
+      if (
+        typeof openReturningTools === 'function'
+      ) {
+        openReturningTools();
+      } else if (returning) {
+        returning.classList.add('open');
+      }
+
+      setTimeout(function () {
+        if (returning) {
+          returning.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+
+          var input =
+            document.getElementById('returningToken');
+
+          if (input) input.focus();
+        }
+      }, 80);
+    }
+  };
+
+  function initialiseSetupModeChooser() {
+    var params =
+      new URLSearchParams(location.search);
+
+    var token = params.get('token');
+
+    if (token) {
+      window.selectSetupMode('restore');
+      return;
+    }
+
+    window.showSetupModeChooser();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      initialiseSetupModeChooser
+    );
+  } else {
+    initialiseSetupModeChooser();
+  }
+})();
+</script>
 
 </body><!-- This marker should not appear - debug only -->

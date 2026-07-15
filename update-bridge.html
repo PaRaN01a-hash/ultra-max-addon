@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ultra MAX Update</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #070510;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 24px;
+    }
+
+    main {
+      max-width: 520px;
+    }
+
+    p {
+      color: #c8c3d8;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Starting Ultra MAX update…</h1>
+    <p id="status">Your download should begin shortly.</p>
+  </main>
+
+  <script>
+    (function () {
+      var apkUrl =
+        'https://ultramax.vip/downloads/UltraMax.apk';
+
+      var finishedUrl =
+        'https://ultramax.vip/update-started.html';
+
+      var key = 'ultramax-update-started-v1';
+
+      try {
+        if (sessionStorage.getItem(key) === '1') {
+          window.location.replace(finishedUrl);
+          return;
+        }
+
+        sessionStorage.setItem(key, '1');
+      } catch (error) {
+        console.warn('Session storage unavailable:', error);
+      }
+
+      var link = document.createElement('a');
+      link.href = apkUrl;
+      link.download = 'UltraMax.apk';
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(function () {
+        window.location.replace(finishedUrl);
+      }, 2000);
+    })();
+  </script>
+</body>
+</html>

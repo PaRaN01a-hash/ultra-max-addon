@@ -354,7 +354,10 @@
     >‹</a>
 
     <div class="header-copy">
-      <div class="eyebrow">Ultra MAX</div>
+      <div class="eyebrow">
+        Ultra MAX ·
+        <span id="settingsHeaderVersion">detecting</span>
+      </div>
       <div class="header-title">Settings &amp; About</div>
     </div>
   </header>
@@ -390,7 +393,7 @@
           </div>
         </div>
 
-        <div class="value" id="installedVersion">1.1</div>
+        <div class="value" id="installedVersion">Detecting…</div>
       </div>
 
       <div class="row">
@@ -430,7 +433,7 @@
         </button>
 
         <a
-          href="https://dluma.duckdns.org/downloads/UltraMax.apk"
+          href="https://ultramax.vip/downloads/UltraMax.apk"
           class="action-link"
           id="downloadBtn"
         >
@@ -541,7 +544,24 @@
       Nuvio and other referenced services remain the property of their
       respective owners.
     </div>
-  </main>
+  
+<section class="card">
+  <button
+    type="button"
+    class="row"
+    id="showWelcomeAgain"
+    style="width:100%;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;"
+  >
+    <div>
+      <div class="row-title">Show welcome screen again</div>
+      <div class="row-sub">
+        Reopen the first-run setup choices on the home screen
+      </div>
+    </div>
+  </button>
+</section>
+
+</main>
 
   <nav
     class="app-bottom-nav"
@@ -636,6 +656,16 @@
         (className ? ' ' + className : '');
     }
 
+    function getBridgedVersion() {
+      var params = new URLSearchParams(location.search);
+
+      return {
+        version: params.get('appversion') || '',
+        build:
+          parseInt(params.get('appbuild'), 10) || 0
+      };
+    }
+
     async function detectInstalledVersion() {
       try {
         var AppPlugin =
@@ -645,6 +675,19 @@
 
         if (!AppPlugin) {
           var params = new URLSearchParams(location.search);
+
+          var fallbackVersion =
+            params.get('appversion') || '';
+
+          if (!fallbackVersion) {
+            try {
+              fallbackVersion =
+                sessionStorage.getItem(
+                  'ultramax_installed_version'
+                ) || '';
+            } catch (error) {}
+          }
+
           var fallbackBuild = params.get('appbuild');
 
           if (!fallbackBuild) {
@@ -658,18 +701,25 @@
           installedCode =
             parseInt(fallbackBuild, 10) || 0;
 
-          var knownVersionNames = {
-            1: '1.0',
-            2: '1.1',
-            3: '1.2'
-          };
-
-          if (knownVersionNames[installedCode]) {
-            installedName =
-              knownVersionNames[installedCode];
+          if (fallbackVersion) {
+            installedName = fallbackVersion;
 
             installedVersion.textContent =
               installedName;
+          } else {
+            var knownVersionNames = {
+              1: '1.0',
+              2: '1.1',
+              3: '1.2'
+            };
+
+            if (knownVersionNames[installedCode]) {
+              installedName =
+                knownVersionNames[installedCode];
+
+              installedVersion.textContent =
+                installedName;
+            }
           }
 
           if (installedCode > 0) {
@@ -697,8 +747,22 @@
         installedBuild.textContent =
           'Build ' + installedCode;
       } catch (error) {
-        installedBuild.textContent =
-          'Could not read installed build';
+        var bridged = getBridgedVersion();
+
+        if (bridged.version) {
+          installedVersion.textContent =
+            bridged.version;
+        }
+
+        if (bridged.build) {
+          installedCode = bridged.build;
+
+          installedBuild.textContent =
+            'Build ' + bridged.build;
+        } else {
+          installedBuild.textContent =
+            'Could not read installed build';
+        }
       }
     }
 
@@ -772,6 +836,7 @@
         loadReleaseData(true);
       });
 
+
     document
       .querySelectorAll('a[href]')
       .forEach(function (link) {
@@ -800,5 +865,85 @@
       });
   })();
   </script>
+
+<script>
+(function () {
+  var headerVersion =
+    document.getElementById('settingsHeaderVersion');
+
+  var installedVersion =
+    document.getElementById('installedVersion');
+
+  var installedBuild =
+    document.getElementById('installedBuild');
+
+  if (
+    !headerVersion ||
+    !installedVersion ||
+    !installedBuild
+  ) {
+    return;
+  }
+
+  function refreshSettingsHeader() {
+    var version =
+      installedVersion.textContent.trim();
+
+    var build =
+      installedBuild.textContent.trim();
+
+    if (
+      !version ||
+      version === 'Detecting…' ||
+      version === 'Unknown'
+    ) {
+      return;
+    }
+
+    headerVersion.textContent =
+      version +
+      (build && build !== 'Detecting…'
+        ? ' · ' + build
+        : '');
+  }
+
+  new MutationObserver(refreshSettingsHeader)
+    .observe(installedVersion, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+
+  new MutationObserver(refreshSettingsHeader)
+    .observe(installedBuild, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+
+  refreshSettingsHeader();
+})();
+</script>
+
+
+<script>
+(function () {
+  var button =
+    document.getElementById('showWelcomeAgain');
+
+  if (!button) return;
+
+  button.addEventListener('click', function () {
+    try {
+      localStorage.removeItem(
+        'um_dev_onboarding_seen_v2'
+      );
+    } catch (error) {}
+
+    window.location.href = '/app.html?native=1';
+  });
+})();
+</script>
+
 </body>
 </html>

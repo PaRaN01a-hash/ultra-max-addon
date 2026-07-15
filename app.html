@@ -209,7 +209,201 @@
     .stat-divider { width: 1px; height: 32px; background: var(--border2); }
     .section-label { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
       color: var(--violet2); margin: 8px 0 14px; position: relative; z-index: 2; }
-  </style>
+
+  
+/* ULTRAMAX FIRST RUN START */
+.um-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding:
+    calc(24px + env(safe-area-inset-top))
+    22px
+    calc(24px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(123,47,255,.34),
+      transparent 42%
+    ),
+    rgba(4,3,10,.96);
+  backdrop-filter: blur(18px);
+}
+
+.um-onboarding.open {
+  display: flex;
+}
+
+.um-onboarding-card {
+  width: min(100%, 430px);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 30px 24px 24px;
+  border: 1px solid rgba(155,95,255,.34);
+  border-radius: 28px;
+  background:
+    linear-gradient(
+      160deg,
+      rgba(28,20,52,.98),
+      rgba(10,8,20,.98)
+    );
+  box-shadow:
+    0 32px 100px rgba(0,0,0,.65),
+    0 0 70px rgba(123,47,255,.12);
+}
+
+.um-onboarding-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #7b2fff, #ff3d5a);
+  box-shadow: 0 14px 36px rgba(123,47,255,.28);
+  font-size: 30px;
+}
+
+.um-onboarding-kicker {
+  margin-bottom: 8px;
+  color: #a98aff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.um-onboarding h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 29px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.um-onboarding-copy {
+  margin: 12px auto 24px;
+  max-width: 340px;
+  color: #aaa6c2;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.um-onboarding-actions {
+  display: grid;
+  gap: 11px;
+}
+
+.um-onboarding-btn {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  background: rgba(255,255,255,.055);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.um-onboarding-btn.primary {
+  border: 0;
+  background: linear-gradient(135deg, #7b2fff, #ff3d5a);
+  box-shadow: 0 12px 28px rgba(123,47,255,.2);
+}
+
+.um-onboarding-btn.continue {
+  display: none;
+  border-color: rgba(52,211,153,.36);
+  background: rgba(52,211,153,.09);
+  color: #b7f7d8;
+}
+
+.um-onboarding-btn span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255,255,255,.62);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.um-restore-box {
+  display: none;
+  margin-top: 11px;
+  padding: 14px;
+  border: 1px solid rgba(155,95,255,.22);
+  border-radius: 16px;
+  background: rgba(0,0,0,.2);
+}
+
+.um-restore-box.open {
+  display: block;
+}
+
+.um-restore-row {
+  display: flex;
+  gap: 8px;
+}
+
+.um-restore-input {
+  min-width: 0;
+  flex: 1;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #3a3551;
+  border-radius: 13px;
+  outline: none;
+  background: #0b0915;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.um-restore-input:focus {
+  border-color: #8f61ff;
+}
+
+.um-restore-go {
+  min-width: 84px;
+  border: 0;
+  border-radius: 13px;
+  background: #fff;
+  color: #090711;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.um-restore-error {
+  min-height: 17px;
+  margin-top: 8px;
+  color: #ff7c8f;
+  font-size: 11px;
+}
+
+.um-onboarding-skip {
+  width: 100%;
+  margin-top: 17px;
+  border: 0;
+  background: transparent;
+  color: #77728f;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+/* ULTRAMAX FIRST RUN END */
+
+</style>
 
 <!-- ULTRAMAX APP BUILD BRIDGE START -->
 <script>
@@ -239,6 +433,32 @@
   window.ultraMaxInstalledBuild =
     parseInt(storedBuild, 10) || 0;
 
+  var queryVersion =
+    params.get('appversion') || '';
+
+  if (queryVersion) {
+    try {
+      sessionStorage.setItem(
+        'ultramax_installed_version',
+        queryVersion
+      );
+    } catch (error) {}
+  }
+
+  var storedVersion = queryVersion;
+
+  if (!storedVersion) {
+    try {
+      storedVersion =
+        sessionStorage.getItem(
+          'ultramax_installed_version'
+        ) || '';
+    } catch (error) {}
+  }
+
+  window.ultraMaxInstalledVersion =
+    storedVersion || '';
+
   function propagateBuild() {
     if (!window.ultraMaxInstalledBuild) return;
 
@@ -256,6 +476,13 @@
           'appbuild',
           String(window.ultraMaxInstalledBuild)
         );
+
+        if (window.ultraMaxInstalledVersion) {
+          url.searchParams.set(
+            'appversion',
+            window.ultraMaxInstalledVersion
+          );
+        }
 
         link.setAttribute(
           'href',
@@ -294,8 +521,101 @@
 <div class="hero-orb-3"></div>
 <div class="wrap">
 
+<!-- ULTRAMAX FIRST RUN START -->
+<div
+  class="um-onboarding"
+  id="umOnboarding"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="umOnboardingTitle"
+>
+  <div class="um-onboarding-card">
+    <div class="um-onboarding-icon">✦</div>
+
+    <div class="um-onboarding-kicker">
+      Welcome to Ultra MAX
+    </div>
+
+    <h2 id="umOnboardingTitle">
+      Let’s build your setup
+    </h2>
+
+    <p class="um-onboarding-copy">
+      Create something new, restore an existing setup,
+      or take a look around before touching any switches.
+    </p>
+
+    <div class="um-onboarding-actions">
+      <button
+        type="button"
+        class="um-onboarding-btn continue"
+        id="umContinueSetup"
+      >
+        Continue remembered setup
+        <span>Pick up exactly where you left off</span>
+      </button>
+
+      <button
+        type="button"
+        class="um-onboarding-btn primary"
+        id="umCreateSetup"
+      >
+        Create a new setup
+        <span>Choose catalogs, services and preferences</span>
+      </button>
+
+      <button
+        type="button"
+        class="um-onboarding-btn"
+        id="umRestoreToggle"
+      >
+        Restore with a token
+        <span>Open a setup you created previously</span>
+      </button>
+    </div>
+
+    <div class="um-restore-box" id="umRestoreBox">
+      <div class="um-restore-row">
+        <input
+          type="text"
+          class="um-restore-input"
+          id="umRestoreToken"
+          placeholder="Setup token"
+          maxlength="32"
+          autocomplete="off"
+          spellcheck="false"
+        >
+
+        <button
+          type="button"
+          class="um-restore-go"
+          id="umRestoreGo"
+        >
+          Open
+        </button>
+      </div>
+
+      <div
+        class="um-restore-error"
+        id="umRestoreError"
+      ></div>
+    </div>
+
+    <button
+      type="button"
+      class="um-onboarding-skip"
+      id="umExploreFirst"
+    >
+      Explore the app first
+    </button>
+  </div>
+</div>
+<!-- ULTRAMAX FIRST RUN END -->
+
+
   <div class="header">
     <img src="/icons/icon-192.png" alt="Ultra MAX" class="app-icon">
+
     <div class="logo">ULTRA <span>MAX</span></div>
     <div class="tagline">Your Stremio &amp; Nuvio catalog hub</div>
   </div>
@@ -1313,23 +1633,23 @@ html.native-app #umBackToast.show {
     );
 
     updateButton.addEventListener(
-      'click',
-      function () {
-        if (!data.downloadUrl) return;
+    'click',
+    function () {
+      if (!data.downloadUrl) return;
 
-        var link = document.createElement('a');
+      updateButton.disabled = true;
+      updateButton.textContent = 'Opening download…';
 
-        link.href = data.downloadUrl;
-        link.download = 'UltraMax.apk';
-        link.rel = 'noopener';
+      window.location.href = data.downloadUrl;
 
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-    );
+      setTimeout(function () {
+        updateButton.disabled = false;
+        updateButton.textContent = 'Update now';
+      }, 2000);
+    }
+  );
 
-    requestAnimationFrame(function () {
+  requestAnimationFrame(function () {
       overlay.classList.add('open');
     });
   } catch (error) {
@@ -1342,6 +1662,291 @@ html.native-app #umBackToast.show {
 </script>
 
 <!-- ULTRAMAX UPDATE MODAL END -->
+
+
+<script>
+(function () {
+  async function updateDevBuildBadge() {
+    var versionElement =
+      document.getElementById('devBadgeVersion');
+
+    var buildElement =
+      document.getElementById('devBadgeBuild');
+
+    if (!versionElement || !buildElement) return;
+
+    var versionName = '';
+    var buildCode = 0;
+
+    try {
+      var AppPlugin =
+        window.Capacitor &&
+        window.Capacitor.Plugins &&
+        window.Capacitor.Plugins.App;
+
+      if (AppPlugin) {
+        var info = await AppPlugin.getInfo();
+
+        versionName = info.version || '';
+        buildCode = parseInt(info.build, 10) || 0;
+      }
+    } catch (error) {
+      console.warn(
+        'Could not read native Dev version:',
+        error
+      );
+    }
+
+    if (!buildCode) {
+      buildCode =
+        parseInt(window.ultraMaxInstalledBuild, 10) || 0;
+    }
+
+    if (!buildCode) {
+      buildCode =
+        parseInt(
+          new URLSearchParams(location.search)
+            .get('appbuild'),
+          10
+        ) || 0;
+    }
+
+    if (!versionName) {
+      versionName =
+        new URLSearchParams(location.search)
+          .get('appversion') || '';
+    }
+
+    versionElement.textContent =
+      versionName || 'Dev';
+
+    buildElement.textContent =
+      buildCode || '?';
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      updateDevBuildBadge
+    );
+  } else {
+    updateDevBuildBadge();
+  }
+})();
+</script>
+
+
+<script>
+(function () {
+  var STORAGE_KEY = 'um_dev_onboarding_seen_v2';
+
+  function getRememberedToken() {
+    var remembered = null;
+    var token = '';
+
+    try {
+      if (typeof umGetSession === 'function') {
+        remembered = umGetSession();
+      }
+    } catch (error) {}
+
+    if (remembered && remembered.token) {
+      token = remembered.token;
+    }
+
+    if (!token) {
+      try {
+        token =
+          sessionStorage.getItem('um_setup_token') || '';
+      } catch (error) {}
+    }
+
+    return String(token || '').trim();
+  }
+
+  function normaliseToken(value) {
+    return String(value || '')
+      .trim()
+      .replace(/[^a-zA-Z0-9_-]/g, '')
+      .toUpperCase();
+  }
+
+  function setupUrl(token) {
+    var url = new URL('/setup.html', location.origin);
+
+    url.searchParams.set('native', '1');
+
+    if (token) {
+      url.searchParams.set('token', token);
+    }
+
+    if (window.ultraMaxInstalledBuild) {
+      url.searchParams.set(
+        'appbuild',
+        String(window.ultraMaxInstalledBuild)
+      );
+    }
+
+    if (window.ultraMaxInstalledVersion) {
+      url.searchParams.set(
+        'appversion',
+        window.ultraMaxInstalledVersion
+      );
+    }
+
+    return url.pathname + url.search;
+  }
+
+  function closeOnboarding(markSeen) {
+    var overlay =
+      document.getElementById('umOnboarding');
+
+    if (overlay) {
+      overlay.classList.remove('open');
+    }
+
+    if (markSeen) {
+      try {
+        localStorage.setItem(STORAGE_KEY, '1');
+      } catch (error) {}
+    }
+  }
+
+  function initialiseOnboarding() {
+    var overlay =
+      document.getElementById('umOnboarding');
+
+    if (!overlay) return;
+
+    var hasSeen = false;
+
+    try {
+      hasSeen =
+        localStorage.getItem(STORAGE_KEY) === '1';
+    } catch (error) {}
+
+    if (hasSeen) return;
+
+    var rememberedToken = getRememberedToken();
+
+    var continueButton =
+      document.getElementById('umContinueSetup');
+
+    var createButton =
+      document.getElementById('umCreateSetup');
+
+    var restoreToggle =
+      document.getElementById('umRestoreToggle');
+
+    var restoreBox =
+      document.getElementById('umRestoreBox');
+
+    var restoreInput =
+      document.getElementById('umRestoreToken');
+
+    var restoreGo =
+      document.getElementById('umRestoreGo');
+
+    var restoreError =
+      document.getElementById('umRestoreError');
+
+    var exploreButton =
+      document.getElementById('umExploreFirst');
+
+    if (rememberedToken) {
+      continueButton.style.display = 'block';
+
+      continueButton.addEventListener(
+        'click',
+        function () {
+          closeOnboarding(true);
+          location.href = setupUrl(rememberedToken);
+        }
+      );
+    }
+
+    createButton.addEventListener(
+      'click',
+      function () {
+        closeOnboarding(true);
+        location.href = setupUrl('');
+      }
+    );
+
+    restoreToggle.addEventListener(
+      'click',
+      function () {
+        restoreBox.classList.toggle('open');
+
+        if (restoreBox.classList.contains('open')) {
+          setTimeout(function () {
+            restoreInput.focus();
+          }, 80);
+        }
+      }
+    );
+
+    function restoreSetup() {
+      var token =
+        normaliseToken(restoreInput.value);
+
+      restoreInput.value = token;
+
+      if (token.length < 4) {
+        restoreError.textContent =
+          'Enter a valid setup token.';
+        return;
+      }
+
+      restoreError.textContent = '';
+
+      try {
+        sessionStorage.setItem(
+          'um_setup_token',
+          token
+        );
+      } catch (error) {}
+
+      closeOnboarding(true);
+      location.href = setupUrl(token);
+    }
+
+    restoreGo.addEventListener(
+      'click',
+      restoreSetup
+    );
+
+    restoreInput.addEventListener(
+      'keydown',
+      function (event) {
+        if (event.key === 'Enter') {
+          restoreSetup();
+        }
+      }
+    );
+
+    exploreButton.addEventListener(
+      'click',
+      function () {
+        closeOnboarding(true);
+      }
+    );
+
+    requestAnimationFrame(function () {
+      overlay.classList.add('open');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      initialiseOnboarding
+    );
+  } else {
+    initialiseOnboarding();
+  }
+})();
+</script>
 
 </body>
 </html>
