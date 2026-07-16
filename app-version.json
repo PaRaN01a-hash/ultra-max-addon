@@ -2,5 +2,5 @@
   "latestVersionCode": 4,
   "latestVersionName": "1.3",
   "downloadUrl": "https://dluma.duckdns.org/update-bridge.html",
-  "notes": "New setup welcome screen, Nuvio Account Manager, addon URL installation, addon reordering, MCU release and chronological watch orders, improved navigation and general stability."
+  "notes": "New Avatar Vault with custom uploads, cropping and recent avatars. Added shared Nuvio login, remembered setup controls, improved token loading, app navigation and update support."
 }

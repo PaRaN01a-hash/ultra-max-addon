@@ -1,72 +1,37 @@
-const CACHE = 'ultramax-v5';
-
+const CACHE = 'ultramax-v4';
 const OFFLINE = [
+  '/app.html',
   '/setup.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/pwa-manifest.json'
 ];
 
-const NEVER_CACHE = [
-  '/app.html',
-  '/app-version.json',
-  '/sw.js'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(OFFLINE))
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(OFFLINE))
   );
-
   self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
+self.addEventListener('activate', e => {
+  e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE)
-          .map(key => caches.delete(key))
-      )
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     )
   );
-
   self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  if (
-    event.request.method !== 'GET' ||
-    url.origin !== self.location.origin
-  ) {
-    return;
-  }
-
-  if (NEVER_CACHE.includes(url.pathname)) {
-    event.respondWith(
-      fetch(event.request, {
-        cache: 'no-store'
+self.addEventListener('fetch', e => {
+  // Network first, fallback to cache
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
       })
-    );
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        if (response && response.ok) {
-          const copy = response.clone();
-
-          caches.open(CACHE).then(cache => {
-            cache.put(event.request, copy);
-          });
-        }
-
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(e.request))
   );
 });

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra MAX · Badge Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080810; --bg2: #0d0d1a; --card: #12121f;
+      --border: #1e1e36; --border2: #2a2a45;
+      --violet: #7B2FFF; --violet2: #9B5FFF;
+      --coral: #FF3D5A; --teal: #00D2BE; --gold: #F5C518;
+      --text: #e8e8f0; --muted: #8888aa; --faint: #44445a;
+      --ok: #34d399; --red: #ef4444; --amber: #f59e0b;
+    }
+    html, body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+    /* ── Nav ─────────────────────────────────────────────────────────── */
+    nav { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(8,8,16,.94); backdrop-filter:blur(14px); z-index:30; }
+    .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.08em; color:var(--text); text-decoration:none; }
+    .nav-logo span { background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+    .nav-back { font-size:12px; color:var(--muted); text-decoration:none; transition:color .2s; }
+    .nav-back:hover { color:var(--text); }
+
+    /* ── Layout ──────────────────────────────────────────────────────── */
+    main { max-width:900px; margin:0 auto; padding:0 20px 100px; }
+    .page-hero { padding:44px 0 28px; }
+    .eyebrow { display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet2);margin-bottom:14px;background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:5px 14px;border-radius:100px; }
+    .page-hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.6rem,7vw,4.2rem); letter-spacing:.04em; color:#fff; margin-bottom:8px; }
+    .page-hero p { color:var(--muted); font-size:14px; line-height:1.7; max-width:560px; }
+
+    /* ── Preview bar ─────────────────────────────────────────────────── */
+    .preview-bar { background:var(--card); border:1px solid var(--border2); border-radius:16px; padding:20px; margin-bottom:18px; }
+    .preview-bar-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .preview-label { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--violet2); }
+    .preview-count { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+    .preview-input { width:100%; background:var(--bg2); border:1px solid var(--border2); border-radius:9px; padding:10px 14px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; margin-bottom:12px; transition:border-color .2s; }
+    .preview-input:focus { outline:none; border-color:rgba(123,47,255,.5); }
+    .preview-chips { display:flex; flex-wrap:wrap; gap:7px; min-height:28px; align-items:center; }
+    .preview-empty { font-size:12px; color:var(--faint); font-style:italic; }
+
+    /* ── Badge chip ──────────────────────────────────────────────────── */
+    .badge-chip { display:inline-flex; align-items:center; justify-content:center; border-radius:4px; overflow:hidden; flex-shrink:0; }
+    .badge-chip img { height:24px; max-width:80px; object-fit:contain; display:block; border-radius:3px; }
+    .badge-chip-text { font-size:10px; font-weight:700; padding:3px 7px; border-radius:4px; white-space:nowrap; font-family:'Inter',sans-serif; letter-spacing:.02em; }
+
+    /* ── Gallery ─────────────────────────────────────────────────────── */
+    .gallery-toggle { display:flex; align-items:center; gap:10px; cursor:pointer; padding:13px 18px; background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:600; color:var(--text); user-select:none; transition:border-color .2s; }
+    .gallery-toggle:hover { border-color:rgba(123,47,255,.4); }
+    .gallery-toggle .chev { margin-left:auto; color:var(--muted); font-size:10px; transition:transform .2s; }
+    .gallery-toggle.open .chev { transform:rotate(180deg); }
+    .gallery { display:none; margin-bottom:18px; }
+    .gallery.open { display:block; }
+    .gsec { font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--violet2); margin:14px 0 8px; }
+    .ggrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
+    .gcard { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; cursor:pointer; transition:all .18s; }
+    .gcard:hover { border-color:rgba(123,47,255,.5); transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,0,0,.3); }
+    .gcard.loading-state { opacity:.55; pointer-events:none; }
+    .gcard-name { font-size:13px; font-weight:700; margin-bottom:2px; }
+    .gcard-meta { font-size:11px; color:var(--muted); margin-bottom:9px; }
+    .gcard-chips { display:flex; gap:5px; flex-wrap:wrap; min-height:22px; align-items:center; }
+    .gcard-more { font-size:10px; color:var(--muted); }
+
+    /* ── Editor card ─────────────────────────────────────────────────── */
+    .editor-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:18px; }
+    .tabs { display:flex; border-bottom:1px solid var(--border); background:var(--bg2); }
+    .tab { padding:13px 20px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .18s; user-select:none; }
+    .tab:hover { color:var(--text); }
+    .tab.active { color:var(--text); border-bottom-color:var(--violet); background:var(--card); }
+    .tab-panel { display:none; padding:18px; }
+    .tab-panel.active { display:block; }
+
+    /* ── Badges tab ──────────────────────────────────────────────────── */
+    .badges-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .search-box { flex:1; min-width:130px; background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:8px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; transition:border-color .2s; }
+    .search-box:focus { outline:none; border-color:rgba(123,47,255,.4); }
+    .badge-enabled-count { font-size:12px; color:var(--muted); white-space:nowrap; }
+    .btn-sm { background:transparent; border:1px solid var(--border2); color:var(--muted); border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; white-space:nowrap; }
+    .btn-sm:hover { border-color:var(--violet); color:var(--text); }
+    .badges-hint { font-size:11px; color:var(--muted); margin-bottom:14px; }
+
+    .bgroup { margin-bottom:10px; }
+    .bgroup-header { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; background:rgba(255,255,255,.025); margin-bottom:4px; user-select:none; transition:background .15s; }
+    .bgroup-header:hover { background:rgba(123,47,255,.08); }
+    .bgroup-chev { font-size:9px; color:var(--faint); transition:transform .18s; }
+    .bgroup.collapsed .bgroup-chev { transform:rotate(-90deg); }
+    .bgroup.collapsed .bgroup-items { display:none; }
+    .bgroup-name { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); flex:1; }
+    .bgroup-count { font-size:11px; color:var(--faint); }
+    .btn-add-to-group { font-size:11px; color:var(--violet2); background:none; border:none; cursor:pointer; padding:2px 7px; border-radius:4px; font-family:'Inter',sans-serif; font-weight:600; transition:background .18s; }
+    .btn-add-to-group:hover { background:rgba(123,47,255,.14); }
+
+    .bitem { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; transition:background .14s; border:1px solid transparent; cursor:default; }
+    .bitem:hover { background:rgba(255,255,255,.03); border-color:var(--border); }
+    .bitem.disabled { opacity:.4; }
+    .bitem.drag-over { border-color:var(--violet); background:rgba(123,47,255,.08); }
+    .bitem.dragging { opacity:.3; }
+    .drag-handle { color:var(--faint); cursor:grab; font-size:13px; flex-shrink:0; line-height:1; padding:2px; }
+    .drag-handle:active { cursor:grabbing; }
+    .bitem-preview { flex-shrink:0; width:68px; display:flex; align-items:center; }
+    .bitem-name { flex:1; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .bitem-actions { display:flex; gap:4px; flex-shrink:0; }
+    .icon-btn { background:none; border:none; color:var(--faint); cursor:pointer; padding:5px; border-radius:5px; transition:all .15s; font-size:13px; line-height:1; display:flex; align-items:center; }
+    .icon-btn:hover { color:var(--text); background:rgba(255,255,255,.06); }
+    .eye-on { color:var(--ok); }
+    .eye-off { color:var(--faint); }
+
+    /* ── Groups tab ──────────────────────────────────────────────────── */
+    .groups-hint { font-size:12px; color:var(--muted); margin-bottom:14px; }
+    .grp-item { display:flex; align-items:center; gap:9px; padding:10px 12px; background:var(--bg2); border-radius:8px; margin-bottom:6px; border:1px solid transparent; transition:border-color .15s; }
+    .grp-item:hover { border-color:var(--border); }
+    .grp-item.drag-over { border-color:var(--violet); background:rgba(123,47,255,.07); }
+    .grp-name-input { flex:1; background:transparent; border:none; color:var(--text); font-size:13px; font-weight:600; font-family:'Inter',sans-serif; padding:2px 0; min-width:0; }
+    .grp-name-input:focus { outline:none; border-bottom:1px solid rgba(123,47,255,.6); }
+    .grp-count { font-size:11px; color:var(--muted); white-space:nowrap; min-width:58px; text-align:right; }
+    .btn-add-group { display:flex; align-items:center; gap:7px; background:none; border:1px dashed var(--border2); color:var(--muted); border-radius:9px; padding:10px 14px; font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; width:100%; justify-content:center; margin-top:8px; transition:all .18s; }
+    .btn-add-group:hover { border-color:var(--violet); color:var(--text); }
+
+    /* ── Advanced tab ────────────────────────────────────────────────── */
+    .adv-sec { margin-bottom:20px; }
+    .adv-lbl { font-size:11px; font-weight:700; color:var(--muted); margin-bottom:7px; text-transform:uppercase; letter-spacing:.1em; display:block; }
+    .adv-hint { font-size:11px; color:var(--faint); margin-top:5px; }
+    .adv-row { display:flex; gap:8px; }
+    .adv-input { flex:1; background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:9px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; transition:border-color .2s; }
+    .adv-input:focus { outline:none; border-color:rgba(123,47,255,.4); }
+    .adv-textarea { width:100%; background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:11px; resize:vertical; min-height:110px; transition:border-color .2s; }
+    .adv-textarea:focus { outline:none; border-color:rgba(123,47,255,.4); }
+    .adv-json { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:11px; resize:vertical; min-height:130px; max-height:260px; overflow:auto; }
+    .adv-actions { display:flex; gap:8px; margin-top:8px; }
+    .adv-json-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn-primary { background:var(--violet); color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background .18s; white-space:nowrap; }
+    .btn-primary:hover { background:var(--violet2); }
+    .btn-outline { background:transparent; border:1px solid var(--border2); color:var(--text); border-radius:9px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+    .btn-outline:hover { border-color:var(--violet); }
+
+    /* ── Download card ───────────────────────────────────────────────── */
+    .download-card { background:linear-gradient(135deg,rgba(123,47,255,.09),rgba(255,61,90,.04)); border:1px solid rgba(123,47,255,.22); border-radius:16px; padding:22px; margin-bottom:18px; }
+    .download-title { font-size:15px; font-weight:700; margin-bottom:4px; }
+    .download-sub { font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6; }
+    .download-row { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+    .pack-name-input { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border2); border-radius:9px; padding:10px 14px; color:var(--text); font-size:14px; font-family:'Inter',sans-serif; transition:border-color .2s; }
+    .pack-name-input:focus { outline:none; border-color:rgba(123,47,255,.5); }
+    .download-hint { font-size:12px; color:var(--muted); line-height:1.6; }
+
+    /* ── Modal ───────────────────────────────────────────────────────── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:100; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px); }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--card); border:1px solid var(--border2); border-radius:18px; padding:24px; width:100%; max-width:480px; max-height:92vh; overflow-y:auto; }
+    .modal-title { font-size:16px; font-weight:700; margin-bottom:18px; }
+    .badge-large-preview { display:flex; justify-content:center; align-items:center; min-height:48px; padding:14px; background:var(--bg); border-radius:10px; margin-bottom:16px; }
+    .fgroup { margin-bottom:14px; }
+    .flabel { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.09em; display:block; margin-bottom:6px; }
+    .finput { width:100%; background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:9px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; transition:border-color .2s; }
+    .finput:focus { outline:none; border-color:rgba(123,47,255,.5); }
+    .fselect { width:100%; background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:9px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; appearance:none; }
+    .frow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .color-pair { display:flex; align-items:center; gap:7px; }
+    .color-swatch { width:36px; height:34px; border:1px solid var(--border2); border-radius:7px; padding:3px; background:var(--bg2); cursor:pointer; flex-shrink:0; }
+    .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+    .btn-danger { background:transparent; border:1px solid rgba(239,68,68,.3); color:var(--red); border-radius:8px; padding:8px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; }
+    .btn-danger:hover { background:rgba(239,68,68,.1); border-color:var(--red); }
+
+    /* ── Empty / toast ───────────────────────────────────────────────── */
+    .empty { text-align:center; padding:36px 20px; color:var(--faint); font-size:13px; line-height:1.7; }
+    #toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(18px); background:var(--ok); color:#000; font-size:12px; font-weight:700; padding:10px 22px; border-radius:100px; opacity:0; transition:all .22s; pointer-events:none; z-index:999; white-space:nowrap; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    #toast.err { background:var(--red); color:#fff; }
+
+    @media(max-width:600px) {
+      .ggrid { grid-template-columns:1fr; }
+      .frow { grid-template-columns:1fr; }
+      .badges-toolbar { flex-wrap:wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" id="logoLink" href="/">ULTRA <span>MAX</span></a>
+  <a class="nav-back" href="/badges">← Stream Badges</a>
+</nav>
+
+<main>
+  <div class="page-hero">
+    <div class="eyebrow">Custom Packs</div>
+    <h1>Badge Builder</h1>
+    <p>Mix curated badge packs, toggle and reorder individual badges, then download your custom pack to paste into Nuvio.</p>
+  </div>
+
+  <!-- ── Live Preview ──────────────────────────────────────────────── -->
+  <div class="preview-bar">
+    <div class="preview-bar-top">
+      <span class="preview-label">Live preview</span>
+      <span class="preview-count" id="previewCount">0 badges</span>
+    </div>
+    <input class="preview-input" id="previewInput"
+      value="Example.Movie.2026.2160p.WEB-DL.REMUX.DV.HDR10Plus.Atmos.TrueHD.7.1.NFLX.HMAX.x265"
+      oninput="renderPreview()">
+    <div class="preview-chips" id="previewChips">
+      <span class="preview-empty">Load a pack to see badges here</span>
+    </div>
+  </div>
+
+  <!-- ── Pack Gallery ──────────────────────────────────────────────── -->
+  <div class="gallery-toggle" id="galleryToggle" onclick="toggleGallery()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Start from a curated pack
+    <span class="chev">▼</span>
+  </div>
+  <div class="gallery" id="gallery">
+    <div id="galleryInner">Loading…</div>
+  </div>
+
+  <!-- ── Editor ────────────────────────────────────────────────────── -->
+  <div class="editor-card">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('badges')">Badges</div>
+      <div class="tab" onclick="switchTab('groups')">Groups</div>
+      <div class="tab" onclick="switchTab('advanced')">Advanced</div>
+    </div>
+
+    <!-- Badges -->
+    <div class="tab-panel active" id="tab-badges">
+      <div class="badges-toolbar">
+        <input class="search-box" id="badgeSearch" placeholder="Search badges…" oninput="renderBadgesTab()">
+        <span class="badge-enabled-count" id="enabledCount">0 enabled</span>
+        <button class="btn-sm" onclick="enableAll()">Enable all</button>
+        <button class="btn-sm" onclick="disableAll()">Disable all</button>
+      </div>
+      <div class="badges-hint">Tap a badge to toggle on/off. Use the pencil icon to edit its look.</div>
+      <div id="badgesList"></div>
+    </div>
+
+    <!-- Groups -->
+    <div class="tab-panel" id="tab-groups">
+      <p class="groups-hint">Add, rename, reorder, and delete the groups your badges are organised into.</p>
+      <div id="groupsList"></div>
+      <button class="btn-add-group" onclick="addGroup()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add group
+      </button>
+    </div>
+
+    <!-- Advanced -->
+    <div class="tab-panel" id="tab-advanced">
+      <div class="adv-sec">
+        <span class="adv-lbl">Import a pack from a URL</span>
+        <div class="adv-row">
+          <input class="adv-input" id="importUrl" placeholder="https://raw.githubusercontent.com/.../badges.json">
+          <button class="btn-primary" onclick="importFromUrl()">Import</button>
+        </div>
+        <div class="adv-hint">Paste any community badge pack link (GitHub, gist, pastebin).</div>
+      </div>
+      <div class="adv-sec">
+        <span class="adv-lbl">Paste badge JSON</span>
+        <textarea class="adv-textarea" id="pasteJson" placeholder="Paste a filters + groups JSON pack…"></textarea>
+        <div style="margin-top:8px">
+          <button class="btn-sm" onclick="applyPastedJson()">Apply pasted JSON</button>
+        </div>
+      </div>
+      <div class="adv-sec">
+        <div class="adv-json-header">
+          <span class="adv-lbl" style="margin:0">Current pack JSON</span>
+          <div class="adv-actions">
+            <button class="btn-sm" onclick="copyJson()">Copy</button>
+            <button class="btn-sm" onclick="downloadJson()">Download</button>
+          </div>
+        </div>
+        <textarea class="adv-json" id="currentJson" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Download ───────────────────────────────────────────────────── -->
+  <div class="download-card">
+    <div class="download-title">Download your pack</div>
+    <div class="download-sub">Save the JSON file, host it anywhere (GitHub Gist, Pastebin, your own server), then paste the raw URL into Nuvio → Settings → Streams → Badge URLs → Import.</div>
+    <div class="download-row">
+      <input class="pack-name-input" id="packName" placeholder="My badge pack" value="My Ultra MAX Pack">
+      <button class="btn-outline" onclick="downloadJson()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download JSON
+      </button>
+    </div>
+    <div class="download-hint">Host on GitHub Gist → click Raw → copy the URL. On Pastebin → save as public → change /paste/ to /raw/.</div>
+  </div>
+</main>
+
+<!-- ── Badge Edit Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay" id="badgeModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Edit badge</div>
+    <div class="badge-large-preview" id="modalPreview"></div>
+
+    <div class="fgroup">
+      <label class="flabel">Badge name</label>
+      <input class="finput" id="editName" oninput="updateModalPreview()">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Group</label>
+      <select class="fselect" id="editGroup"></select>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Match pattern (regex)</label>
+      <input class="finput" id="editPattern" placeholder="(?i)\b4k\b" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Image URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave blank for text badge)</span></label>
+      <input class="finput" id="editImageUrl" placeholder="https://..." oninput="updateModalPreview()">
+    </div>
+    <div class="frow">
+      <div class="fgroup">
+        <label class="flabel">Background</label>
+        <div class="color-pair">
+          <input type="color" class="color-swatch" id="editTagColor" value="#1a1a1a" oninput="syncToHex('editTagColor','editTagColorTxt');updateModalPreview()">
+          <input class="finput" id="editTagColorTxt" placeholder="#1a1a1a" oninput="syncFromHex('editTagColorTxt','editTagColor');updateModalPreview()" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Text color</label>
+        <div class="color-pair">
+          <input type="color" class="color-swatch" id="editTextColor" value="#ffffff" oninput="syncToHex('editTextColor','editTextColorTxt');updateModalPreview()">
+          <input class="finput" id="editTextColorTxt" placeholder="#ffffff" oninput="syncFromHex('editTextColorTxt','editTextColor');updateModalPreview()" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+        </div>
+      </div>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Border color</label>
+      <div class="color-pair">
+        <input type="color" class="color-swatch" id="editBorderColor" value="#000000" oninput="syncToHex('editBorderColor','editBorderColorTxt');updateModalPreview()">
+        <input class="finput" id="editBorderColorTxt" placeholder="transparent" oninput="syncFromHex('editBorderColorTxt','editBorderColor');updateModalPreview()" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="deleteBadge()">Delete</button>
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveModal()">Save badge</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let S = { groups: [], filters: [] };
+let editingId = null;
+let dragSrc = null;
+let grpDragSrc = null;
+
+// ─── Curated gallery packs ────────────────────────────────────────────────────
+const PACKS = [
+    { sec: 'Signature Packs' },
+    { name:'Aurora',          meta:'Frosted glass · 41 badges',        url:'https://ultramax.vip/badges/packs/aurora.json' },
+    { name:'Pulse',           meta:'Neon outline · 41 badges',         url:'https://ultramax.vip/badges/packs/pulse.json' },
+    { name:'Prism',           meta:'Gradient · 41 badges',             url:'https://ultramax.vip/badges/packs/prism.json' },
+    { name:'Spectrum',        meta:'Solid colour · 41 badges',         url:'https://ultramax.vip/badges/packs/spectrum.json' },
+    { name:'Onyx',            meta:'Dark mono · 41 badges',            url:'https://ultramax.vip/badges/packs/onyx.json' },
+    { name:'Wire',            meta:'Outline · 41 badges',              url:'https://ultramax.vip/badges/packs/wire.json' },
+    { name:'Ghost',           meta:'Logo only · 41 badges',            url:'https://ultramax.vip/badges/packs/ghost.json' },
+    { sec: 'Community Packs' },
+    { name:'Studio Starter',  meta:'by voldxo · 49 badges',           url:'https://ultramax.vip/badges/packs/studio-starter.json' },
+    { name:'Dark Logos v2',   meta:'by ngreyx1 · 39 badges',          url:'https://ultramax.vip/badges/packs/dark-logos-v2.json' },
+    { name:'3D',              meta:'by nosvasedis · 84 badges',        url:'https://ultramax.vip/badges/packs/badges-3d.json' },
+    { name:'Colored Combo',   meta:'by 9mousaa · 46 badges',          url:'https://ultramax.vip/badges/packs/colored-combo.json' },
+    { name:'Mono Combo',      meta:'by 9mousaa · 46 badges',          url:'https://ultramax.vip/badges/packs/badges-3d.json' },
+    { name:'Logo Pack',       meta:'by Elbyx · 34 badges',            url:'https://ultramax.vip/badges/packs/logo-pack.json' },
+    { name:'Minimalist V2',   meta:'by starkles · 35 badges',         url:'https://ultramax.vip/badges/packs/minimalist-v2.json' },
+    { name:'Golden & Animated',meta:'by Haz · 82 badges',             url:'https://ultramax.vip/badges/packs/golden-animated.json' },
+    { name:'Tinted',          meta:'by voldxo · 39 badges',           url:'https://ultramax.vip/badges/packs/tinted.json' },
+  { sec: 'Ultra MAX Original' },
+  { name:'Ultra MAX · Text', meta:'by Ultra MAX · 36 badges · text only', url:'https://ultramax.vip/badges/ultramax.json' },
+  { name:'Ultra MAX · Visual', meta:'by Ultra MAX · image badges', url:'https://ultramax.vip/badges/ultramax-visual.json' },
+  { sec: 'Community — SVG' },
+  { name:'SVG Minimalist', meta:'by dwivedisankalp97 · v12', url:'https://ultramax.vip/badges/packs/svg-v12.json' },
+  { name:'SVG Filled Color', meta:'by dwivedisankalp97 · v15', url:'https://ultramax.vip/badges/packs/svg-v15.json' },
+  { name:'SVG Latest · v17', meta:'by dwivedisankalp97 · most up-to-date', url:'https://ultramax.vip/badges/packs/svg-v17.json' },
+  { sec: 'Community — Packs' },
+  { name:'NardBadges', meta:'by vowl313 · 103 badges · comprehensive', url:'https://ultramax.vip/badges/packs/nardbadges.json' },
+  { name:'Glassmorphic Premium', meta:'by dustincos · glow badges + scraper tags', url:'https://ultramax.vip/badges/packs/glassmorphic.json' },
+  { name:'Colorful & Concise', meta:'by starzeck · clean colourful image logos', url:'https://ultramax.vip/badges/packs/colorful-concise.json' },
+  { name:'Full Coverage', meta:'by anupamparida · streaming + audio + language', url:'https://ultramax.vip/badges/packs/full-coverage.json' },
+  { name:'Mono Logos', meta:'by leonevz · 28 image badges', url:'https://ultramax.vip/badges/packs/mono-logos.json' },
+  { name:'Colored Combo', meta:'by 9mousaa · combo rules no DV', url:'https://ultramax.vip/badges/packs/colored-combo-nodv.json' },
+  { name:'Solid Color', meta:'by nosvasedis · 97 solid fill badges', url:'https://ultramax.vip/badges/packs/solid-color.json' },
+  { name:'Gold Complete', meta:'by djgenesis · full gold theme', url:'https://ultramax.vip/badges/packs/gold-complete.json' },
+];
+
+// ─── Color helpers ────────────────────────────────────────────────────────────
+function nuvioToCSS(hex) {
+  if (!hex || hex === 'transparent') return 'transparent';
+  hex = hex.replace('#', '');
+  if (hex.length === 8) {
+    const a = parseInt(hex.slice(0,2),16)/255;
+    if (a < 0.04) return 'transparent';
+    const r=parseInt(hex.slice(2,4),16), g=parseInt(hex.slice(4,6),16), b=parseInt(hex.slice(6,8),16);
+    return `rgba(${r},${g},${b},${a.toFixed(2)})`;
+  }
+  if (hex.length === 6) return '#' + hex;
+  return '#' + hex;
+}
+
+function nuvioToHex6(nuv) {
+  if (!nuv) return '#000000';
+  const h = nuv.replace('#','');
+  return '#' + (h.length === 8 ? h.slice(2) : h).toUpperCase();
+}
+
+function hex6ToNuvio(hex) {
+  return '#FF' + hex.replace('#','').toUpperCase();
+}
+
+function syncToHex(colId, txtId) {
+  document.getElementById(txtId).value = document.getElementById(colId).value;
+}
+
+function syncFromHex(txtId, colId) {
+  const v = document.getElementById(txtId).value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(colId).value = v;
+}
+
+// ─── Chip rendering ───────────────────────────────────────────────────────────
+function chipHTML(f) {
+  if (f.imageURL) {
+    return `<div class="badge-chip"><img src="${esc(f.imageURL)}" alt="${esc(f.name||'')}" onerror="this.parentElement.style.display='none'"></div>`;
+  } else if (f.name) {
+    const bg = nuvioToCSS(f.tagColor||'#FF222233');
+    const tc = nuvioToCSS(f.textColor||'#FFFFFFFF');
+    const bd = nuvioToCSS(f.borderColor||'#00000000');
+    return `<span class="badge-chip-text" style="background:${bg};color:${tc};border:1px solid ${bd}">${esc(f.name)}</span>`;
+  }
+  return '';
+}
+
+function renderChipEl(f) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = chipHTML(f);
+  return wrap.firstElementChild;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── Regex matching ───────────────────────────────────────────────────────────
+function matches(f, filename) {
+  if (!f.isEnabled || !f.pattern) return false;
+  try {
+    let pat = f.pattern, flags = '';
+    pat = pat.replace(/^\(\?([gimsuy]+)\)/i, (_,fl) => { flags = fl.toLowerCase(); return ''; });
+    return new RegExp(pat, flags).test(filename);
+  } catch { return false; }
+}
+
+// ─── Pack normalise ───────────────────────────────────────────────────────────
+function normalizePack(data) {
+  if (!data) return { groups:[], filters:[] };
+  if (Array.isArray(data)) return { groups:[], filters: sanitizeFilters(data) };
+  return {
+    groups: data.groups || [],
+    filters: sanitizeFilters(data.filters || data.badges || [])
+  };
+}
+
+function sanitizeFilters(arr) {
+  return arr.map((f,i) => ({
+    id: f.id || 'b'+Date.now()+i,
+    name: f.name || 'Badge',
+    pattern: f.pattern || '',
+    imageURL: f.imageURL || '',
+    isEnabled: f.isEnabled !== false,
+    tagColor: f.tagColor || '#FF000000',
+    textColor: f.textColor || '#FFFFFFFF',
+    borderColor: f.borderColor || '#00000000',
+    tagStyle: f.tagStyle || 'filled',
+    groupId: f.groupId || '',
+    type: 'filter',
+  }));
+}
+
+function loadPack(data) {
+  S = normalizePack(data);
+  renderAll();
+  toast('Pack loaded — ' + S.filters.length + ' badges');
+}
+
+// ─── Gallery ──────────────────────────────────────────────────────────────────
+function toggleGallery() {
+  const tog = document.getElementById('galleryToggle');
+  const gal = document.getElementById('gallery');
+  const opening = !gal.classList.contains('open');
+  tog.classList.toggle('open', opening);
+  gal.classList.toggle('open', opening);
+  if (opening) buildGallery();
+}
+
+function buildGallery() {
+  const inner = document.getElementById('galleryInner');
+  let html = '', inGrid = false;
+  PACKS.forEach((p,i) => {
+    if (p.sec) {
+      if (inGrid) { html += '</div>'; inGrid = false; }
+      html += `<div class="gsec">${esc(p.sec)}</div><div class="ggrid">`;
+      inGrid = true;
+    } else {
+      html += `<div class="gcard" id="gc${i}" onclick="loadGalleryPack(${i})">
+        <div class="gcard-name">${esc(p.name)}</div>
+        <div class="gcard-meta">${esc(p.meta)}</div>
+        <div class="gcard-chips" id="gc-chips-${i}"><span style="font-size:11px;color:var(--faint)">Loading…</span></div>
+      </div>`;
+    }
+  });
+  if (inGrid) html += '</div>';
+  inner.innerHTML = html;
+
+  // Lazy preview chips
+  PACKS.forEach((p,i) => {
+    if (!p.url) return;
+    fetch(p.url).then(r=>r.json()).then(data => {
+      const n = normalizePack(data);
+      const el = document.getElementById('gc-chips-'+i);
+      if (!el) return;
+      const shown = n.filters.filter(f=>f.isEnabled!==false).slice(0,5);
+      el.innerHTML = shown.map(chipHTML).join('')
+        + (n.filters.length>5 ? `<span class="gcard-more">+${n.filters.length-5}</span>` : '');
+    }).catch(() => {
+      const el = document.getElementById('gc-chips-'+i);
+      if (el) el.innerHTML = '<span style="font-size:11px;color:var(--faint)">Preview unavailable</span>';
+    });
+  });
+}
+
+async function loadGalleryPack(i) {
+  const p = PACKS[i];
+  if (!p || !p.url) return;
+  const card = document.getElementById('gc'+i);
+  if (card) card.classList.add('loading-state');
+  try {
+    const r = await fetch(p.url);
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    loadPack(await r.json());
+  } catch(e) {
+    toast('Failed to load: '+e.message, 'err');
+  }
+  if (card) card.classList.remove('loading-state');
+}
+
+// ─── Preview bar ──────────────────────────────────────────────────────────────
+function renderPreview() {
+  const filename = document.getElementById('previewInput').value;
+  const container = document.getElementById('previewChips');
+  container.innerHTML = '';
+  const matched = S.filters.filter(f => matches(f, filename));
+  if (!matched.length) {
+    container.innerHTML = '<span class="preview-empty">No badges matched — try editing the filename</span>';
+  } else {
+    matched.forEach(f => {
+      const el = renderChipEl(f);
+      if (el) container.appendChild(el);
+    });
+  }
+  document.getElementById('previewCount').textContent = matched.length + ' badge' + (matched.length!==1?'s':'');
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const names = ['badges','groups','advanced'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'advanced') updateJsonArea();
+}
+
+// ─── Badges tab ───────────────────────────────────────────────────────────────
+function renderBadgesTab() {
+  const q = document.getElementById('badgeSearch').value.toLowerCase();
+  const list = document.getElementById('badgesList');
+  const enabledCount = S.filters.filter(f=>f.isEnabled).length;
+  document.getElementById('enabledCount').textContent = enabledCount + ' enabled';
+
+  if (!S.filters.length) {
+    list.innerHTML = '<div class="empty">No badges yet.<br>Load a pack from the gallery above or import one in the Advanced tab.</div>';
+    return;
+  }
+
+  let html = '';
+
+  // Grouped
+  S.groups.forEach(g => {
+    const gf = S.filters.filter(f => f.groupId === g.id);
+    const vis = gf.filter(f => !q || f.name.toLowerCase().includes(q));
+    if (q && !vis.length) return;
+    html += `<div class="bgroup" id="bg-${g.id}">
+      <div class="bgroup-header" onclick="toggleBGroup('${g.id}')">
+        <span class="bgroup-chev">▼</span>
+        <span class="bgroup-name">${esc(g.name)} (${gf.length})</span>
+        <button class="btn-add-to-group" onclick="event.stopPropagation();addBadgeToGroup('${g.id}')">+ Add badge</button>
+      </div>
+      <div class="bgroup-items" id="bgi-${g.id}">`;
+    vis.forEach(f => { html += bitemHTML(f, S.filters.indexOf(f)); });
+    html += `</div></div>`;
+  });
+
+  // Ungrouped
+  const ung = S.filters.filter(f => !f.groupId || !S.groups.find(g=>g.id===f.groupId));
+  const ungVis = ung.filter(f => !q || f.name.toLowerCase().includes(q));
+  if (ungVis.length) {
+    html += `<div class="bgroup">
+      <div class="bgroup-header">
+        <span class="bgroup-chev">▼</span>
+        <span class="bgroup-name">Ungrouped (${ung.length})</span>
+      </div>
+      <div class="bgroup-items">`;
+    ungVis.forEach(f => { html += bitemHTML(f, S.filters.indexOf(f)); });
+    html += `</div></div>`;
+  }
+
+  list.innerHTML = html || '<div class="empty">No badges match your search.</div>';
+}
+
+function bitemHTML(f, idx) {
+  const chip = f.imageURL
+    ? `<img src="${esc(f.imageURL)}" style="height:22px;max-width:64px;object-fit:contain;border-radius:3px" onerror="this.style.display='none'">`
+    : chipHTML(f);
+  return `<div class="bitem ${f.isEnabled?'':'disabled'}" id="bi-${f.id}"
+    draggable="true"
+    ondragstart="bdragStart(event,${idx})"
+    ondragover="bdragOver(event)"
+    ondrop="bdragDrop(event,${idx})"
+    ondragleave="bdragLeave(event)"
+    ondragend="bdragEnd(event)">
+    <span class="drag-handle">⋮⋮</span>
+    <div class="bitem-preview">${chip||'<span style="font-size:10px;color:var(--faint)">—</span>'}</div>
+    <span class="bitem-name">${esc(f.name)}</span>
+    <div class="bitem-actions">
+      <button class="icon-btn" title="Edit" onclick="openModal('${f.id}')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="icon-btn ${f.isEnabled?'eye-on':'eye-off'}" title="${f.isEnabled?'Disable':'Enable'}" onclick="toggleBadge('${f.id}')">
+        ${f.isEnabled
+          ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+          : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`}
+      </button>
+    </div>
+  </div>`;
+}
+
+function toggleBGroup(id) { document.getElementById('bg-'+id)?.classList.toggle('collapsed'); }
+function toggleBadge(id) { const f=S.filters.find(f=>f.id===id); if(f){f.isEnabled=!f.isEnabled;renderAll();} }
+function enableAll() { S.filters.forEach(f=>f.isEnabled=true); renderAll(); }
+function disableAll() { S.filters.forEach(f=>f.isEnabled=false); renderAll(); }
+
+function addBadgeToGroup(groupId) {
+  const f = { id:'b'+Date.now(), name:'New Badge', pattern:'', imageURL:'', isEnabled:true,
+    tagColor:'#FF222233', textColor:'#FFFFFFFF', borderColor:'#00000000', tagStyle:'filled', groupId, type:'filter' };
+  S.filters.push(f);
+  renderAll();
+  openModal(f.id);
+}
+
+// ─── Badge drag ───────────────────────────────────────────────────────────────
+function bdragStart(e,i) { dragSrc=i; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function bdragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function bdragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function bdragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over')); }
+function bdragDrop(e,i) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (dragSrc===null||dragSrc===i) return;
+  S.filters.splice(i,0,S.filters.splice(dragSrc,1)[0]);
+  dragSrc=null; renderAll();
+}
+
+// ─── Groups tab ───────────────────────────────────────────────────────────────
+function renderGroupsTab() {
+  const list = document.getElementById('groupsList');
+  if (!S.groups.length) { list.innerHTML = '<div class="empty">No groups yet. Add one below.</div>'; return; }
+  list.innerHTML = S.groups.map((g,i) => {
+    const cnt = S.filters.filter(f=>f.groupId===g.id).length;
+    return `<div class="grp-item" draggable="true"
+      ondragstart="gdragStart(event,${i})" ondragover="gdragOver(event)"
+      ondrop="gdragDrop(event,${i})" ondragleave="gdragLeave(event)" ondragend="gdragEnd(event)">
+      <span class="drag-handle">⋮⋮</span>
+      <input class="grp-name-input" value="${esc(g.name)}" onchange="renameGroup('${g.id}',this.value)">
+      <span class="grp-count">${cnt} badge${cnt!==1?'s':''}</span>
+      <button class="icon-btn" onclick="deleteGroup('${g.id}')" title="Delete group" style="color:var(--red)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function gdragStart(e,i){grpDragSrc=i;e.dataTransfer.effectAllowed='move';}
+function gdragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function gdragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function gdragEnd(e){document.querySelectorAll('.grp-item').forEach(el=>el.classList.remove('drag-over'));}
+function gdragDrop(e,i){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  if(grpDragSrc===null||grpDragSrc===i)return;
+  S.groups.splice(i,0,S.groups.splice(grpDragSrc,1)[0]);
+  grpDragSrc=null;renderGroupsTab();
+}
+function renameGroup(id,name){const g=S.groups.find(g=>g.id===id);if(g)g.name=name;}
+function deleteGroup(id){
+  if(!confirm('Delete this group? Badges in it will become ungrouped.'))return;
+  S.groups=S.groups.filter(g=>g.id!==id);
+  S.filters.forEach(f=>{if(f.groupId===id)f.groupId='';});
+  renderAll();
+}
+function addGroup(){
+  S.groups.push({id:'g'+Date.now(),name:'New Group',color:'#000000',borderColor:'#FFFFFFFF',isExpanded:true});
+  renderAll();switchTab('groups');
+}
+
+// ─── Advanced tab ─────────────────────────────────────────────────────────────
+function updateJsonArea(){
+  document.getElementById('currentJson').value = JSON.stringify(S,null,2);
+}
+
+async function importFromUrl(){
+  const url=document.getElementById('importUrl').value.trim();
+  if(!url){toast('Paste a URL first','err');return;}
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    loadPack(await r.json());
+    document.getElementById('importUrl').value='';
+  }catch(e){toast('Import failed: '+e.message,'err');}
+}
+
+function applyPastedJson(){
+  const raw=document.getElementById('pasteJson').value.trim();
+  if(!raw){toast('Paste JSON first','err');return;}
+  try{
+    loadPack(JSON.parse(raw));
+    document.getElementById('pasteJson').value='';
+  }catch(e){toast('Invalid JSON: '+e.message,'err');}
+}
+
+function copyJson(){
+  const j=JSON.stringify(S,null,2);
+  navigator.clipboard.writeText(j).then(()=>toast('Copied!')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=j;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);toast('Copied!');
+  });
+}
+
+function downloadJson(){
+  const name=(document.getElementById('packName').value.trim()||'ultramax-badges')
+    .replace(/\s+/g,'-').toLowerCase();
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('Downloaded — '+name+'.json');
+}
+
+// ─── Edit modal ───────────────────────────────────────────────────────────────
+function openModal(id){
+  const f=S.filters.find(f=>f.id===id);
+  if(!f)return;
+  editingId=id;
+  document.getElementById('editName').value=f.name||'';
+  document.getElementById('editPattern').value=f.pattern||'';
+  document.getElementById('editImageUrl').value=f.imageURL||'';
+
+  const tc=nuvioToHex6(f.tagColor);
+  const tx=nuvioToHex6(f.textColor);
+  const bc=nuvioToHex6(f.borderColor);
+  document.getElementById('editTagColor').value=tc;
+  document.getElementById('editTagColorTxt').value=tc;
+  document.getElementById('editTextColor').value=tx;
+  document.getElementById('editTextColorTxt').value=tx;
+  document.getElementById('editBorderColor').value=bc;
+  document.getElementById('editBorderColorTxt').value=bc;
+
+  const sel=document.getElementById('editGroup');
+  sel.innerHTML='<option value="">— Ungrouped —</option>'
+    +S.groups.map(g=>`<option value="${g.id}"${f.groupId===g.id?' selected':''}>${esc(g.name)}</option>`).join('');
+
+  document.getElementById('modalTitle').textContent = f.imageURL ? 'Edit image badge' : 'Edit text badge';
+  updateModalPreview();
+  document.getElementById('badgeModal').classList.add('open');
+}
+
+function updateModalPreview(){
+  const f = {
+    name: document.getElementById('editName').value,
+    imageURL: document.getElementById('editImageUrl').value,
+    tagColor: hex6ToNuvio(document.getElementById('editTagColor').value),
+    textColor: hex6ToNuvio(document.getElementById('editTextColor').value),
+    borderColor: hex6ToNuvio(document.getElementById('editBorderColor').value),
+    isEnabled: true,
+  };
+  const prev=document.getElementById('modalPreview');
+  prev.innerHTML='';
+  const el=renderChipEl(f);
+  if(el)prev.appendChild(el);
+  else prev.innerHTML='<span style="font-size:12px;color:var(--faint)">Preview will appear here</span>';
+}
+
+function closeModal(){
+  document.getElementById('badgeModal').classList.remove('open');
+  editingId=null;
+}
+
+function saveModal(){
+  const f=S.filters.find(f=>f.id===editingId);
+  if(!f)return;
+  f.name=document.getElementById('editName').value;
+  f.pattern=document.getElementById('editPattern').value;
+  f.imageURL=document.getElementById('editImageUrl').value;
+  f.groupId=document.getElementById('editGroup').value;
+  f.tagColor=hex6ToNuvio(document.getElementById('editTagColor').value);
+  f.textColor=hex6ToNuvio(document.getElementById('editTextColor').value);
+  f.borderColor=hex6ToNuvio(document.getElementById('editBorderColor').value);
+  closeModal();renderAll();toast('Badge saved');
+}
+
+function deleteBadge(){
+  if(!confirm('Delete this badge?'))return;
+  S.filters=S.filters.filter(f=>f.id!==editingId);
+  closeModal();renderAll();toast('Badge deleted');
+}
+
+document.getElementById('badgeModal').addEventListener('click',function(e){
+  if(e.target===this)closeModal();
+});
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let _tt;
+function toast(msg,kind){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='show'+(kind==='err'?' err':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ─── Render all ───────────────────────────────────────────────────────────────
+function renderAll(){
+  renderBadgesTab();
+  renderGroupsTab();
+  renderPreview();
+  updateJsonArea();
+}
+
+// ─── Init: load Ultra MAX Text as default ─────────────────────────────────────
+(async function(){
+  try{
+    const r=await fetch('https://ultramax.vip/badges/ultramax.json');
+    if(r.ok) loadPack(await r.json());
+    else renderAll();
+  }catch{ renderAll(); }
+})();
+</script>
+</body>
+</html>

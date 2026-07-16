@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+  <title>Ultra MAX Catalog Inspector</title>
+
+  <style>
+    :root {
+      --bg: #080510;
+      --panel: rgba(18, 12, 32, .92);
+      --panel2: rgba(28, 18, 49, .9);
+      --border: rgba(166, 116, 255, .22);
+      --text: #f6f2ff;
+      --muted: #a99ebb;
+      --violet: #8d4cff;
+      --violet2: #b06cff;
+      --good: #31d08b;
+      --warn: #ffb74d;
+      --bad: #ff5c76;
+      --shadow: 0 18px 60px rgba(0, 0, 0, .35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(123, 47, 255, .28), transparent 34%),
+        radial-gradient(circle at 90% 15%, rgba(190, 91, 255, .18), transparent 28%),
+        var(--bg);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid rgba(178, 117, 255, .45);
+      border-radius: 14px;
+      background: linear-gradient(145deg, #6e26ff, #b056ff);
+      box-shadow: 0 10px 30px rgba(123, 47, 255, .32);
+    }
+
+    .brand span {
+      color: var(--violet2);
+    }
+
+    .back {
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .hero {
+      margin-bottom: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(32, 20, 55, .95), rgba(14, 10, 25, .95));
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--violet2);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 5vw, 50px);
+      line-height: 1;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .card {
+      margin-bottom: 18px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr 1.4fr;
+      gap: 12px;
+    }
+
+    .form-grid.secondary {
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      font: inherit;
+    }
+
+    input,
+    select {
+      border: 1px solid rgba(176, 108, 255, .28);
+      outline: none;
+      padding: 0 13px;
+      color: var(--text);
+      background: rgba(8, 6, 15, .75);
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--violet2);
+      box-shadow: 0 0 0 3px rgba(176, 108, 255, .12);
+    }
+
+    button {
+      margin-top: 16px;
+      border: 0;
+      cursor: pointer;
+      color: white;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6d2cff, #a94fff);
+      box-shadow: 0 10px 28px rgba(123, 47, 255, .28);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: .6;
+    }
+
+    .status {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.bad {
+      color: #ffdce3;
+      border: 1px solid rgba(255, 92, 118, .25);
+      background: rgba(255, 92, 118, .1);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      min-height: 112px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel2);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .stat-note {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .good {
+      color: var(--good);
+    }
+
+    .warn {
+      color: var(--warn);
+    }
+
+    .bad {
+      color: var(--bad);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .pill {
+      padding: 6px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .duplicate-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .duplicate-table th,
+    .duplicate-table td {
+      padding: 11px 9px;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .duplicate-table th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .poster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 14px;
+    }
+
+    .poster-card {
+      min-width: 0;
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      object-fit: cover;
+      background: #120c1d;
+    }
+
+    .poster-title {
+      margin-top: 8px;
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .poster-id {
+      margin-top: 3px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .025);
+    }
+
+    summary {
+      padding: 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    pre {
+      max-height: 520px;
+      margin: 0;
+      overflow: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      color: #d9ccff;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .field-note {
+      min-height: 18px;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .field-note strong {
+      color: var(--violet2);
+    }
+
+    .catalog-picker {
+      position: relative;
+    }
+
+    .catalog-results {
+      position: absolute;
+      z-index: 300;
+      top: calc(100% + 7px);
+      right: 0;
+      left: 0;
+      display: none;
+      max-height: 340px;
+      overflow-y: auto;
+      border: 1px solid rgba(176, 108, 255, .42);
+      border-radius: 13px;
+      background: #120b20;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .7);
+    }
+
+    .catalog-results.open {
+      display: block;
+    }
+
+    button.catalog-option {
+      width: 100%;
+      min-height: 0;
+      margin: 0;
+      padding: 11px 13px;
+      border: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 0;
+      box-shadow: none;
+      text-align: left;
+      background: transparent;
+    }
+
+    button.catalog-option:hover,
+    button.catalog-option:focus {
+      outline: none;
+      background: rgba(141, 76, 255, .2);
+    }
+
+    .catalog-option-name {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .catalog-option-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .catalog-empty {
+      padding: 13px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 840px) {
+      .form-grid,
+      .form-grid.secondary,
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats .stat:last-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 18px, 1180px);
+        padding-top: 14px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .form-grid,
+      .form-grid.secondary,
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stats .stat:last-child {
+        grid-column: auto;
+      }
+
+      .hero,
+      .card {
+        padding: 16px;
+      }
+
+      .poster-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .duplicate-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <div class="brand-mark">U</div>
+        <div>ULTRA <span>MAX</span></div>
+      </a>
+
+      <a class="back" href="/">← Back to Dev home</a>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">Dev Tool</div>
+      <h1>Catalog Inspector</h1>
+      <p>
+        Test the real Ultra MAX catalog engine, measure its speed, spot duplicate
+        IDs, inspect artwork quality, and preview the first results before any
+        change reaches Production.
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="form-grid">
+        <div>
+          <label for="token">Dev token</label>
+          <input
+            id="token"
+            value="14FB1C02"
+            autocomplete="off"
+            spellcheck="false"
+          >
+        </div>
+
+        <div>
+          <label for="type">Type</label>
+          <select id="type">
+            <option value="movie">Movie</option>
+            <option value="series">Series</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="catalogId">Catalog ID</label>
+          <div class="catalog-picker">
+            <input
+              id="catalogId"
+              value="netflix_movies"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Search by name or catalog ID"
+            >
+            <div
+              id="catalogResults"
+              class="catalog-results"
+              role="listbox"
+            ></div>
+          </div>
+          <div id="catalogHint" class="field-note">
+            Loading catalog definitions…
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid secondary">
+        <div>
+          <label for="search">Search, optional</label>
+          <input id="search" autocomplete="off">
+        </div>
+
+        <div>
+          <label for="skip">Skip, optional</label>
+          <input id="skip" type="number" min="0" step="20">
+        </div>
+
+        <div>
+          <label for="tmdbId">TMDB ID, optional</label>
+          <input id="tmdbId" autocomplete="off">
+        </div>
+      </div>
+
+      <button id="runButton" type="button">
+        Run inspection
+      </button>
+
+      <div id="status" class="status"></div>
+    </section>
+
+    <section id="results" class="hidden">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Response time</div>
+          <div id="duration" class="stat-value">0 ms</div>
+          <div class="stat-note">Catalog engine duration</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Results</div>
+          <div id="resultCount" class="stat-value">0</div>
+          <div class="stat-note">Total metas returned</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Unique IDs</div>
+          <div id="uniqueIds" class="stat-value">0</div>
+          <div class="stat-note">Distinct catalog entries</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Exact duplicates</div>
+          <div id="duplicateCount" class="stat-value">0</div>
+          <div class="stat-note">Repeated IDs safe to remove</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Title collisions</div>
+          <div id="titleCollisionCount" class="stat-value">0</div>
+          <div class="stat-note">Same title, different IDs</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Missing posters</div>
+          <div id="missingPoster" class="stat-value">0</div>
+          <div class="stat-note">Artwork completeness</div>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Inspection summary</h2>
+          <span id="catalogBadge" class="pill"></span>
+        </div>
+
+        <div id="summaryText" style="color:var(--muted);line-height:1.7"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Exact duplicate entries</h2>
+          <span id="duplicateBadge" class="pill"></span>
+        </div>
+
+        <div id="duplicates"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Title collisions</h2>
+          <span id="titleCollisionBadge" class="pill"></span>
+        </div>
+
+        <div id="titleCollisions"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Sample results</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button
+              id="toggleDedupe"
+              type="button"
+              style="
+                width:auto;
+                min-height:34px;
+                margin:0;
+                padding:7px 11px;
+                font-size:12px;
+              "
+            >
+              Show deduplicated preview
+            </button>
+            <span id="sampleBadge" class="pill"></span>
+          </div>
+        </div>
+
+        <div id="dedupeNotice" class="status"></div>
+        <div id="posterGrid" class="poster-grid"></div>
+      </section>
+
+      <section class="card">
+        <details>
+          <summary>Raw inspector JSON</summary>
+          <pre id="rawJson"></pre>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(message, bad = false) {
+      const el = $("status");
+      el.textContent = message;
+      el.className = "status show" + (bad ? " bad" : "");
+    }
+
+    function clearStatus() {
+      $("status").className = "status";
+      $("status").textContent = "";
+    }
+
+    function safeText(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function metricClass(value, goodLimit, warnLimit) {
+      if (value <= goodLimit) return "good";
+      if (value <= warnLimit) return "warn";
+      return "bad";
+    }
+
+    function renderDuplicates(items) {
+      const container = $("duplicates");
+
+      if (!items.length) {
+        container.innerHTML =
+          '<div style="color:var(--good)">No exact duplicate IDs found.</div>';
+        return;
+      }
+
+      const rows = items.map((item) => `
+        <tr>
+          <td>${safeText(item.name)}</td>
+          <td>${safeText(item.id)}</td>
+          <td>${safeText(item.reason)}</td>
+          <td>${safeText(item.firstIndex)}</td>
+          <td>${safeText(item.duplicateIndex)}</td>
+        </tr>
+      `).join("");
+
+      container.innerHTML = `
+        <table class="duplicate-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>ID</th>
+              <th>Reason</th>
+              <th>First</th>
+              <th>Duplicate</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderTitleCollisions(items) {
+      const container = $("titleCollisions");
+
+      if (!items.length) {
+        container.innerHTML =
+          '<div style="color:var(--good)">No title collisions found.</div>';
+        return;
+      }
+
+      const rows = items.map((item) => `
+        <tr>
+          <td>${safeText(item.name)}</td>
+          <td>${safeText(item.firstId)}</td>
+          <td>${safeText(item.duplicateId)}</td>
+          <td>${safeText(item.firstIndex)}</td>
+          <td>${safeText(item.duplicateIndex)}</td>
+        </tr>
+      `).join("");
+
+      container.innerHTML = `
+        <div style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:12px;">
+          These entries share a title but have different IDs. They may be
+          remakes, regional versions, adaptations, or separate productions.
+          They are not removed automatically.
+        </div>
+
+        <table class="duplicate-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>First ID</th>
+              <th>Second ID</th>
+              <th>First</th>
+              <th>Second</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderPosters(items) {
+      $("posterGrid").innerHTML = items.map((meta) => `
+        <article class="poster-card">
+          ${
+            meta.poster
+              ? `<img class="poster" src="${safeText(meta.poster)}" alt="">`
+              : `<div class="poster"></div>`
+          }
+          <div class="poster-title">${safeText(meta.name || meta.title)}</div>
+          <div class="poster-id">${safeText(meta.id)}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderPosterMode() {
+      if (!currentInspectorData) return;
+
+      const dedupe = currentInspectorData.dedupePreview || {};
+      const original = currentInspectorData.sample || [];
+      const cleaned = dedupe.sample || [];
+
+      const items = showingDedupePreview
+        ? cleaned
+        : original;
+
+      renderPosters(items);
+
+      $("sampleBadge").textContent =
+        `${items.length} shown`;
+
+      $("toggleDedupe").textContent =
+        showingDedupePreview
+          ? "Show original results"
+          : "Show deduplicated preview";
+
+      const notice = $("dedupeNotice");
+
+      if (showingDedupePreview) {
+        notice.className = "status show";
+        notice.textContent =
+          `Preview only: ${dedupe.removedCount || 0} duplicate ` +
+          `item${dedupe.removedCount === 1 ? "" : "s"} removed. ` +
+          `The live catalog response is unchanged.`;
+      } else {
+        notice.className = "status";
+        notice.textContent = "";
+      }
+    }
+
+    let catalogDefinitions = {};
+    let catalogEntries = [];
+    let currentInspectorData = null;
+    let showingDedupePreview = false;
+
+    function findCatalog(value) {
+      const query = String(value || "").trim().toLowerCase();
+
+      if (!query) return null;
+
+      if (catalogDefinitions[query]) {
+        return {
+          id: query,
+          ...catalogDefinitions[query]
+        };
+      }
+
+      return catalogEntries.find((entry) =>
+        entry.name.toLowerCase() === query
+      ) || null;
+    }
+
+    function updateCatalogSelection(canonicalize = false) {
+      const value = $("catalogId").value.trim();
+      const match = findCatalog(value);
+      const hint = $("catalogHint");
+
+      if (!value) {
+        hint.textContent =
+          `${catalogEntries.length} catalogs available.`;
+        return;
+      }
+
+      if (!match) {
+        hint.innerHTML =
+          `Search or manual catalog ID: <strong>${safeText(value)}</strong>`;
+        return;
+      }
+
+      if (canonicalize) {
+        $("catalogId").value = match.id;
+      }
+
+      $("type").value = match.type;
+
+      hint.innerHTML =
+        `<strong>${safeText(match.name)}</strong> · ` +
+        `${safeText(match.type)} · ` +
+        `${safeText(match.handler || "unknown handler")}`;
+    }
+
+    function selectCatalog(entry) {
+      $("catalogId").value = entry.id;
+      $("type").value = entry.type;
+      $("catalogResults").classList.remove("open");
+      updateCatalogSelection(true);
+    }
+
+    function renderCatalogResults(searchValue = "") {
+      const container = $("catalogResults");
+      const query = String(searchValue).trim().toLowerCase();
+
+      const matches = catalogEntries
+        .filter((entry) => {
+          if (!query) return true;
+
+          return (
+            entry.id.toLowerCase().includes(query) ||
+            entry.name.toLowerCase().includes(query) ||
+            entry.handler.toLowerCase().includes(query)
+          );
+        })
+        .slice(0, 40);
+
+      if (!matches.length) {
+        container.innerHTML =
+          '<div class="catalog-empty">No matching catalogs found.</div>';
+        container.classList.add("open");
+        return;
+      }
+
+      container.innerHTML = matches.map((entry) => `
+        <button
+          type="button"
+          class="catalog-option"
+          data-catalog-id="${safeText(entry.id)}"
+        >
+          <div class="catalog-option-name">
+            ${safeText(entry.name)}
+          </div>
+          <div class="catalog-option-meta">
+            ${safeText(entry.id)} ·
+            ${safeText(entry.type)} ·
+            ${safeText(entry.handler || "unknown handler")}
+          </div>
+        </button>
+      `).join("");
+
+      container.querySelectorAll(".catalog-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          const entry = catalogEntries.find(
+            (item) => item.id === button.dataset.catalogId
+          );
+
+          if (entry) selectCatalog(entry);
+        });
+      });
+
+      container.classList.add("open");
+    }
+
+    async function loadCatalogDefinitions() {
+      const hint = $("catalogHint");
+
+      try {
+        const response = await fetch("/catalog-defs.json", {
+          headers: {
+            "Accept": "application/json"
+          },
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        catalogDefinitions = await response.json();
+
+        catalogEntries = Object.entries(catalogDefinitions)
+          .map(([id, definition]) => ({
+            id,
+            name: definition.name || id,
+            type: definition.type || "movie",
+            handler: definition.handler || ""
+          }))
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {
+              sensitivity: "base"
+            })
+          );
+
+        hint.textContent =
+          `${catalogEntries.length} real Ultra MAX catalogs loaded.`;
+
+        updateCatalogSelection();
+      } catch (error) {
+        hint.textContent =
+          "Catalog list unavailable. Manual IDs still work.";
+
+        console.error(
+          "Catalog definition load failed:",
+          error
+        );
+      }
+    }
+
+    async function runInspection() {
+      clearStatus();
+
+      const token = $("token").value.trim();
+      const type = $("type").value;
+      const catalogId = $("catalogId").value.trim();
+
+      if (!token || !catalogId) {
+        setStatus("Token and catalog ID are required.", true);
+        return;
+      }
+
+      const params = new URLSearchParams();
+
+      if ($("search").value.trim()) {
+        params.set("search", $("search").value.trim());
+      }
+
+      if ($("skip").value.trim()) {
+        params.set("skip", $("skip").value.trim());
+      }
+
+      if ($("tmdbId").value.trim()) {
+        params.set("tmdbId", $("tmdbId").value.trim());
+      }
+
+      const query = params.toString();
+      const url =
+        `/api/inspect/catalog/${encodeURIComponent(token)}/` +
+        `${encodeURIComponent(type)}/${encodeURIComponent(catalogId)}` +
+        (query ? `?${query}` : "");
+
+      $("runButton").disabled = true;
+      $("runButton").textContent = "Inspecting…";
+      setStatus("Running the live Dev catalog engine…");
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          },
+          cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        const quality = data.quality || {};
+        const performance = data.performance || {};
+
+        $("duration").textContent =
+          `${performance.durationMs ?? 0} ms`;
+
+        $("duration").className =
+          "stat-value " +
+          metricClass(performance.durationMs ?? 0, 750, 2000);
+
+        $("resultCount").textContent =
+          quality.resultCount ?? 0;
+
+        $("uniqueIds").textContent =
+          quality.uniqueIds ?? 0;
+
+        const exactDuplicateCount =
+          quality.exactDuplicateCount ??
+          quality.duplicateCount ??
+          0;
+
+        const titleCollisionCount =
+          quality.titleCollisionCount ?? 0;
+
+        $("duplicateCount").textContent =
+          exactDuplicateCount;
+
+        $("duplicateCount").className =
+          "stat-value " +
+          metricClass(exactDuplicateCount, 0, 3);
+
+        $("titleCollisionCount").textContent =
+          titleCollisionCount;
+
+        $("titleCollisionCount").className =
+          "stat-value " +
+          metricClass(titleCollisionCount, 0, 5);
+
+        $("missingPoster").textContent =
+          quality.missingPoster ?? 0;
+
+        $("missingPoster").className =
+          "stat-value " +
+          metricClass(quality.missingPoster ?? 0, 0, 2);
+
+        $("catalogBadge").textContent =
+          `${data.catalog.type} · ${data.catalog.id}`;
+
+        $("duplicateBadge").textContent =
+          `${exactDuplicateCount} found`;
+
+        $("titleCollisionBadge").textContent =
+          `${titleCollisionCount} review`;
+
+        $("sampleBadge").textContent =
+          `${(data.sample || []).length} shown`;
+
+        $("summaryText").innerHTML = `
+          Returned <strong>${quality.resultCount ?? 0}</strong> metas with
+          <strong>${quality.uniqueIds ?? 0}</strong> unique IDs in
+          <strong>${performance.durationMs ?? 0} ms</strong>.
+          The inspector found
+          <strong>${exactDuplicateCount}</strong> exact duplicate IDs,
+          <strong>${titleCollisionCount}</strong> title collisions, and
+          <strong>${quality.missingPoster ?? 0}</strong> missing posters.
+          Title collisions are review-only because separate productions can
+          legitimately share the same title. Missing descriptions are
+          informational because catalog metas may intentionally defer full
+          descriptions to the metadata route.
+        `;
+
+        currentInspectorData = data;
+        showingDedupePreview = false;
+
+        renderDuplicates(
+          quality.exactDuplicates ||
+          quality.duplicates ||
+          []
+        );
+
+        renderTitleCollisions(
+          quality.titleCollisions || []
+        );
+
+        renderPosterMode();
+
+        $("rawJson").textContent =
+          JSON.stringify(data, null, 2);
+
+        $("results").classList.remove("hidden");
+        setStatus("Inspection complete.");
+      } catch (error) {
+        $("results").classList.add("hidden");
+        setStatus(error.message || "Inspection failed.", true);
+      } finally {
+        $("runButton").disabled = false;
+        $("runButton").textContent = "Run inspection";
+      }
+    }
+
+    $("runButton").addEventListener("click", runInspection);
+
+    $("toggleDedupe").addEventListener("click", () => {
+      if (!currentInspectorData) return;
+
+      showingDedupePreview = !showingDedupePreview;
+      renderPosterMode();
+    });
+
+    $("catalogId").addEventListener("focus", () => {
+      renderCatalogResults($("catalogId").value);
+    });
+
+    $("catalogId").addEventListener("input", () => {
+      updateCatalogSelection();
+      renderCatalogResults($("catalogId").value);
+    });
+
+    $("catalogId").addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        $("catalogResults").classList.remove("open");
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        const first =
+          $("catalogResults").querySelector(".catalog-option");
+
+        if (
+          $("catalogResults").classList.contains("open") &&
+          first
+        ) {
+          first.click();
+        } else {
+          updateCatalogSelection();
+          runInspection();
+        }
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".catalog-picker")) {
+        $("catalogResults").classList.remove("open");
+      }
+    });
+
+    loadCatalogDefinitions();
+  </script>
+</body>
+</html>

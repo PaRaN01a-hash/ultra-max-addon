@@ -1633,23 +1633,15 @@ html.native-app #umBackToast.show {
     );
 
     updateButton.addEventListener(
-    'click',
-    function () {
-      if (!data.downloadUrl) return;
+      'click',
+      function () {
+        if (!data.downloadUrl) return;
 
-      updateButton.disabled = true;
-      updateButton.textContent = 'Opening download…';
+        window.location.href = data.downloadUrl;
+      }
+    );
 
-      window.location.href = data.downloadUrl;
-
-      setTimeout(function () {
-        updateButton.disabled = false;
-        updateButton.textContent = 'Update now';
-      }, 2000);
-    }
-  );
-
-  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
       overlay.classList.add('open');
     });
   } catch (error) {
