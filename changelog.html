@@ -212,17 +212,67 @@
   <div id="ultramaxTab">
   <div class="timeline">
 
+    <!-- v7.5.0 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v7.5.0</div>
+        <div class="version-date">Jul 2026</div>
+      </div>
+      <div class="version-dot dot-latest"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Smarter Release Filtering
+          <span class="badge badge-latest">Latest</span>
+        </div>
+        <div class="version-sub">Powerful new release controls, stronger search filtering, faster cached results and improved Nuvio manifest handling across Ultra MAX.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">📀</span><span><strong>Digital Releases Only</strong> — Added a new movie filter that only shows titles with a confirmed digital release available on or before today.</span></div>
+          <div class="change"><span class="change-icon">🎬</span><span><strong>Full Catalog Coverage</strong> — Digital release filtering now works across standard catalogs, provider rows, Quick Picks, searches, actor results, collections, recommendations, AI rows, custom catalogs and MDBList lists.</span></div>
+          <div class="change"><span class="change-icon">🚫</span><span><strong>Improved Unreleased Filtering</strong> — Hide Unreleased Titles now applies consistently across catalog searches, actor searches, TMDB ID lists, custom catalogs, related content and other previously uncovered paths.</span></div>
+          <div class="change"><span class="change-icon">🧹</span><span><strong>Upcoming Rows Removed Cleanly</strong> — Upcoming catalogs are now removed from configured manifests when unreleased titles are hidden instead of appearing as empty shelves.</span></div>
+          <div class="change"><span class="change-icon">📺</span><span><strong>Nuvio Manifest Support</strong> — Added working public routing for Nuvio-compatible manifests and aligned their catalog visibility rules with standard configured manifests.</span></div>
+          <div class="change"><span class="change-icon">🔎</span><span><strong>Search Improvements</strong> — Title search, actor search and catalog search now respect release filtering settings more consistently.</span></div>
+          <div class="change"><span class="change-icon">🗂️</span><span><strong>MDBList Filtering</strong> — MDBList movie rows now resolve titles through TMDB and apply the same digital release checks while leaving series untouched.</span></div>
+          <div class="change"><span class="change-icon">⚡</span><span><strong>Faster Cached Results</strong> — Digital release lookups are cached for seven days, cutting repeat catalog requests from several seconds to under a tenth of a second in testing.</span></div>
+          <div class="change"><span class="change-icon">🛡️</span><span><strong>Resilient API Handling</strong> — Temporary TMDB lookup failures now fail open so catalogs remain available instead of disappearing during an external API problem.</span></div>
+          <div class="change"><span class="change-icon">🧩</span><span><strong>Custom Catalog Fix</strong> — Corrected an existing argument-order issue that could cause custom catalog metadata, language and poster settings to be passed incorrectly.</span></div>
+          <div class="change"><span class="change-icon">💾</span><span><strong>Configuration Persistence</strong> — The new digital release option is now preserved through setup creation, updates, loading, project export, project import and browser draft recovery.</span></div>
+          <div class="change"><span class="change-icon">✅</span><span><strong>Expanded Validation</strong> — Verified standard manifests, Nuvio manifests, movie and series catalogs, Quick Picks, searches, collections, MDBList rows and cached request performance in Dev.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- v7.4.4 -->
+    <div class="version-block">
+      <div class="version-left">
+        <div class="version-num">v7.4.4</div>
+        <div class="version-date">Jul 2026</div>
+      </div>
+      <div class="version-dot"></div>
+      <div class="version-content">
+        <div class="version-title">
+          Fresher Catalog Browsing
+        </div>
+        <div class="version-sub">Regular catalog rows now refresh their ordering automatically while remaining stable and consistent throughout each day.</div>
+        <div class="changes">
+          <div class="change"><span class="change-icon">🔀</span><span><strong>Daily Catalog Shuffle</strong> — Regular movie and series catalogs now rotate their ordering each day so the same titles do not continually dominate the front of each row.</span></div>
+          <div class="change"><span class="change-icon">🧭</span><span><strong>Stable Daily Ordering</strong> — Once shuffled, catalog ordering remains consistent throughout the day for dependable browsing and pagination.</span></div>
+          <div class="change"><span class="change-icon">🎯</span><span><strong>Protected Catalog Ordering</strong> — Search, trending, latest, top-rated, upcoming and deliberately ordered collections continue to use their intended sequence.</span></div>
+          <div class="change"><span class="change-icon">🧹</span><span><strong>Duplicate-Free Results</strong> — Repeated Dev tests confirmed stable catalog ordering with unique titles and no duplicate IDs.</span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- v7.4.3 -->
     <div class="version-block">
       <div class="version-left">
         <div class="version-num">v7.4.3</div>
         <div class="version-date">Jul 2026</div>
       </div>
-      <div class="version-dot dot-latest"></div>
+      <div class="version-dot"></div>
       <div class="version-content">
         <div class="version-title">
           Cleaner Catalogs &amp; Reliability Improvements
-          <span class="badge badge-latest">Latest</span>
         </div>
         <div class="version-sub">Cleaner results, stronger catalog loading and a more reliable Ultra MAX experience across Nuvio, Stremio and the Android app.</div>
         <div class="changes">
