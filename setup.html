@@ -10319,6 +10319,15 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="info-box" style="margin-top:10px;">Filters out movies and series that haven't released yet.</div>
             </div>
 
+            <!-- Preserve Kitsu IDs -->
+            <div class="field-block">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="preserveKitsuIds" style="width:18px;height:18px;cursor:pointer;" />
+                <span style="font-weight:600;">🌸 Preserve original Kitsu IDs for anime</span>
+              </label>
+              <div class="info-box" style="margin-top:10px;">Publishes original Kitsu IDs for supported anime catalogs so Kitsu-only streaming addons can respond. Titles without a confident Kitsu match continue using IMDb IDs.</div>
+            </div>
+
             <!-- Digital releases only -->
             <div class="field-block">
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -12150,23 +12159,45 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  // Trakt OAuth callback check
+  // Trakt / Simkl OAuth callback check
   const _tp = new URLSearchParams(window.location.search);
-  if(_tp.get('trakt')==='connected'){
-    const _tt = _tp.get('token')||'';
-    if(_tt){ editToken=_tt; sessionStorage.setItem('um_setup_token',_tt); setTimeout(()=>{ if(typeof checkTraktStatus==='function') checkTraktStatus(_tt); },800); }
+  const _isOAuthReturn =
+    _tp.get('trakt') === 'connected' ||
+    _tp.get('simkl') === 'connected';
+
+  if(_isOAuthReturn){
+    const _oauthToken = _tp.get('token') || '';
+    if(_oauthToken){
+      editToken = _oauthToken;
+      sessionStorage.setItem('um_setup_token', _oauthToken);
+
+      setTimeout(function(){
+        if(typeof checkTraktStatus === 'function') checkTraktStatus(_oauthToken);
+        if(typeof checkSimklStatus === 'function') checkSimklStatus(_oauthToken);
+      }, 800);
+    }
   }
+
   const _st = sessionStorage.getItem('um_setup_token');
   if(_st && !editToken){ editToken=_st; setTimeout(()=>{ if(typeof checkTraktStatus==='function') checkTraktStatus(_st); if(typeof checkSimklStatus==='function') checkSimklStatus(_st); },500); }
   const urlParams = new URLSearchParams(window.location.search);
   const urlToken = urlParams.get('token');
 
-  // Restore form state after OAuth redirect — but NOT if we're loading a specific token via URL,
-  // since that would overwrite the freshly-loaded config with a stale draft.
-  if(sessionStorage.getItem('um_form_state') && !urlToken){
-    setTimeout(()=>{ if(typeof restoreFormState==='function') restoreFormState(); },300);
+  // Restore the temporary form state after OAuth.
+  // A normal token URL still loads the saved setup without applying a stale draft.
+  const _hasOAuthFormState =
+    !!sessionStorage.getItem('um_form_state') ||
+    !!localStorage.getItem('um_oauth_form_state');
+
+  if(_hasOAuthFormState && (!urlToken || _isOAuthReturn)){
+    setTimeout(function(){
+      if(typeof restoreFormState === 'function') restoreFormState();
+    }, 300);
   }
-  if(urlToken){
+
+  // OAuth callbacks also contain a token, but must not enter the normal
+  // returning-user password/load flow.
+  if(urlToken && !_isOAuthReturn){
     editToken = urlToken;
     sessionStorage.setItem('um_setup_token', urlToken);
     // Clear draft so auto-restore doesn't jump to step 4
@@ -16151,6 +16182,7 @@ async function loadConfigByToken(token){
     if(data.tpKey) document.getElementById('tpKey').value = data.tpKey;
     if(data.traktUser) document.getElementById('traktUser').value = data.traktUser;
     if(data.excludeUnreleased){ const el=document.getElementById('excludeUnreleased'); if(el) el.checked = true; }
+    { const el=document.getElementById('preserveKitsuIds'); if(el) el.checked = !!data.preserveKitsuIds; }
     if(data.digitalReleaseOnly){ const el=document.getElementById('digitalReleaseOnly'); if(el) el.checked = true; }
     if(data.hideWatched){ const el2=document.getElementById('hideWatched'); if(el2) el2.checked = true; }
     if(data.maxRating){ const el=document.getElementById('maxRating'); if(el) el.value = data.maxRating; }
@@ -16452,6 +16484,7 @@ function buildProjectExport(){
       tpKey: (document.getElementById('tpKey') || {}).value || '',
       traktUser: (document.getElementById('traktUser') || {}).value || '',
       excludeUnreleased: !!((document.getElementById('excludeUnreleased') || {}).checked),
+      preserveKitsuIds: !!((document.getElementById('preserveKitsuIds') || {}).checked),
       digitalReleaseOnly: !!((document.getElementById('digitalReleaseOnly') || {}).checked),
       hideWatched: !!((document.getElementById('hideWatched') || {}).checked),
       maxRating: (document.getElementById('maxRating') || {}).value || '',
@@ -16691,6 +16724,8 @@ function importProjectData(data){
 
   const excl = document.getElementById('excludeUnreleased');
   if(excl) excl.checked = !!setup.excludeUnreleased;
+  const preserveKitsu = document.getElementById('preserveKitsuIds');
+  if(preserveKitsu) preserveKitsu.checked = !!setup.preserveKitsuIds;
   const digital = document.getElementById('digitalReleaseOnly');
   if(digital) digital.checked = !!setup.digitalReleaseOnly;
   const hw = document.getElementById('hideWatched');
@@ -17117,6 +17152,7 @@ function buildDraftState(){
       tpKey: (document.getElementById('tpKey') || {}).value || '',
       traktUser: (document.getElementById('traktUser') || {}).value || '',
       excludeUnreleased: !!((document.getElementById('excludeUnreleased') || {}).checked),
+      preserveKitsuIds: !!((document.getElementById('preserveKitsuIds') || {}).checked),
       digitalReleaseOnly: !!((document.getElementById('digitalReleaseOnly') || {}).checked),
       hideWatched: !!((document.getElementById('hideWatched') || {}).checked),
       maxRating: (document.getElementById('maxRating') || {}).value || '',
@@ -17167,6 +17203,8 @@ function restoreDraftState(){
 
     const excl = document.getElementById('excludeUnreleased');
     if(excl) excl.checked = !!setup.excludeUnreleased;
+    const preserveKitsu = document.getElementById('preserveKitsuIds');
+    if(preserveKitsu) preserveKitsu.checked = !!setup.preserveKitsuIds;
     const hw = document.getElementById('hideWatched');
     if(hw) hw.checked = !!setup.hideWatched;
   const adult = document.getElementById('includeAdult');
@@ -17262,7 +17300,7 @@ function showDraftPrompt(){
 
 function bindDraftAutoSave(){
   const ids = [
-    'language','mdblistKey','rpdbKey','tpKey','traktUser','excludeUnreleased','digitalReleaseOnly','hideWatched','maxRating'
+    'language','mdblistKey','rpdbKey','tpKey','traktUser','excludeUnreleased','preserveKitsuIds','digitalReleaseOnly','hideWatched','maxRating'
   ];
 
   ids.forEach(function(id){
@@ -17346,7 +17384,7 @@ async function generate(){
     const res = await fetch(endpoint, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
+      body: JSON.stringify({ password:pass, catalogs:Array.from(selected), mdblistKey: mdbKey||null, language: document.getElementById('language').value, rpdbKey: document.getElementById('rpdbKey').value.trim() || null, tpKey: document.getElementById('tpKey').value.trim() || null, traktUser: document.getElementById('traktUser').value.trim() || null, excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, preserveKitsuIds: !!(document.getElementById('preserveKitsuIds')||{}).checked, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
       hideWatched: (document.getElementById('hideWatched')||{}).checked || false, maxRating: (document.getElementById('maxRating')||{}).value || null, hiddenCatalogs: Array.from(hidden), streamAddons: getStreamAddonsFromForm(), customCatalogs: getCustomCatalogsFromForm(), excludeLanguages: getExcludeLanguages(), betterPostersStyle: (document.getElementById("betterPostersStyleHidden")||{}).value || null, debridServices: debridProviders || [], debridCachedOnly: !!(document.getElementById("debridCachedOnly")||{}).checked, debridEnglishOnly: !!(document.getElementById("debridEnglishOnly")||{}).checked, debridRemoveTrash: (document.getElementById("debridRemoveTrash")||{}).checked !== false, debridRes4k: (document.getElementById("debridRes4k")||{}).checked !== false, debridRes1080: (document.getElementById("debridRes1080")||{}).checked !== false, debridRes720: (document.getElementById("debridRes720")||{}).checked !== false, debridRes480: !!(document.getElementById("debridRes480")||{}).checked, debridMaxSizeGb: Number((document.getElementById("debridMaxSizeGb")||{}).value) || 0, fanartKey: (document.getElementById("fanartKey")||{}).value.trim() || null, omdbKey: (document.getElementById("omdbKey")||{}).value.trim() || null, googleAiKey: (document.getElementById("googleAiKey")||{}).value.trim() || null, enableAiRecommended: !!(document.getElementById("enableAiRecommended")||{}).checked, includeAdult: !!(document.getElementById("includeAdult")||{}).checked })
     });
     const data = await res.json();
@@ -17591,7 +17629,7 @@ function saveFormState(){
       googleAiKey: (document.getElementById('googleAiKey')||{}).value || '',
       language: (document.getElementById('language')||{}).value || '',
       maxRating: (document.getElementById('maxRating')||{}).value || '',
-      excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
+      excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, preserveKitsuIds: !!(document.getElementById('preserveKitsuIds')||{}).checked, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
       hideWatched: (document.getElementById('hideWatched')||{}).checked || false,
       includeAdult: (document.getElementById('includeAdult')||{}).checked || false,
       betterPostersStyle: (document.getElementById('betterPostersStyleHidden')||{}).value || (document.getElementById('betterPostersStyle')||{}).value || '',
@@ -17600,14 +17638,25 @@ function saveFormState(){
       hidden: Array.from(hidden),
       currentStep: currentStep
     };
-    sessionStorage.setItem('um_form_state', JSON.stringify(state));
-  } catch(e) {}
+    const serialized = JSON.stringify(state);
+    sessionStorage.setItem('um_form_state', serialized);
+
+    // Android may destroy the WebView session while Trakt or Simkl is open.
+    // Keep a temporary durable OAuth recovery copy as well.
+    localStorage.setItem('um_oauth_form_state', serialized);
+  } catch(e) {
+    console.warn('saveFormState failed', e);
+  }
 }
 
 function restoreFormState(){
   try {
-    const raw = sessionStorage.getItem('um_form_state');
-    if(!raw) return;
+    const raw =
+      sessionStorage.getItem('um_form_state') ||
+      localStorage.getItem('um_oauth_form_state');
+
+    if(!raw) return false;
+
     const state = JSON.parse(raw);
     const setVal = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.value = val; };
     const setCheck = (id, val) => { const el = document.getElementById(id); if(el) el.checked = !!val; };
@@ -17623,11 +17672,36 @@ function restoreFormState(){
     setVal('maxRating', state.maxRating);
     setVal('betterPostersStyle', state.betterPostersStyle);
     setCheck('excludeUnreleased', state.excludeUnreleased);
+    setCheck('preserveKitsuIds', state.preserveKitsuIds);
     setCheck('includeAdult', state.includeAdult);
     if(state.excludeLanguages) setExcludeLanguages(state.excludeLanguages);
-    if(state.selectedCatalogs) { selected = new Set(state.selectedCatalogs); }
-    if(state.hidden) { hidden = new Set(state.hidden); }
-  } catch(e) {}
+    if(state.selectedCatalogs) {
+      selected = new Set(state.selectedCatalogs);
+    }
+
+    if(state.hidden) {
+      hidden = new Set(state.hidden);
+    }
+
+    if(typeof updateCounter === 'function') updateCounter();
+    if(typeof updateCategoryCounts === 'function') updateCategoryCounts();
+    if(typeof renderCollections === 'function') renderCollections();
+    if(typeof restoreHiddenState === 'function') restoreHiddenState();
+
+    if(state.currentStep && typeof setStep === 'function'){
+      setTimeout(function(){
+        setStep(Number(state.currentStep) || 1);
+      }, 100);
+    }
+
+    // The durable copy is only an OAuth safety net.
+    localStorage.removeItem('um_oauth_form_state');
+
+    return true;
+  } catch(e) {
+    console.warn('restoreFormState failed', e);
+    return false;
+  }
 }
 
 async function connectTrakt(){
@@ -17651,7 +17725,7 @@ async function connectTrakt(){
         rpdbKey: (document.getElementById('rpdbKey')||{}).value || null,
         tpKey: (document.getElementById('tpKey')||{}).value || null,
         traktUser: null,
-        excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
+        excludeUnreleased: (document.getElementById('excludeUnreleased')||{}).checked || false, preserveKitsuIds: !!(document.getElementById('preserveKitsuIds')||{}).checked, digitalReleaseOnly: (document.getElementById('digitalReleaseOnly')||{}).checked || false,
       hideWatched: (document.getElementById('hideWatched')||{}).checked || false,
         maxRating: (document.getElementById('maxRating')||{}).value || null,
         hiddenCatalogs: Array.from(hidden),
@@ -18272,7 +18346,7 @@ function initGuidedSetup(){
     if(el) posters.appendChild(el);
   });
 
-  [field('traktUser'), field('excludeUnreleased'), field('hideWatched'), field('maxRating')].forEach(el => {
+  [field('traktUser'), field('excludeUnreleased'), field('preserveKitsuIds'), field('hideWatched'), field('maxRating')].forEach(el => {
     if(el) filters.appendChild(el);
   });
 

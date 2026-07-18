@@ -1,5 +1,5 @@
 {
-  "latestVersionCode": 4,
+  "latestVersionCode": 5,
   "latestVersionName": "1.3",
   "downloadUrl": "https://dluma.duckdns.org/update-bridge.html",
   "notes": "New Avatar Vault with custom uploads, cropping and recent avatars. Added shared Nuvio login, remembered setup controls, improved token loading, app navigation and update support."
