@@ -2,7 +2,7 @@
   "id": "/app.html",
   "name": "Ultra MAX",
   "short_name": "Ultra MAX",
-  "description": "The ultimate fully managed catalog addon for Stremio & Nuvio — 500+ curated catalogs, direct Nuvio account push, and more.",
+  "description": "The ultimate self-hosted catalog addon for Stremio & Nuvio — 500+ curated catalogs, direct Nuvio account push, and more.",
   "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",

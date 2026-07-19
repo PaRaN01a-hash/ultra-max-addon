@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Check — Ultra MAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810; --bg2:#0f0f1e; --card:#12121f; --border:#1e1e36; --border2:#2a2a45;
+    --violet:#7B2FFF; --violet2:#9B5FFF; --coral:#FF3D5A;
+    --green:#00d2a0; --amber:#ffb800; --blue:#60a5fa;
+    --text:#e0e0f0; --muted:#7070a0; --faint:#44445a;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;}
+  @keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.6;}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0;}}
+  #cursorGlow{position:fixed;pointer-events:none;z-index:1;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.08) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;}
+
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);background:rgba(8,8,16,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.08em;color:#fff;text-decoration:none;}
+  .logo span{background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-back:hover{color:var(--text);}
+
+  .hero{text-align:center;padding:70px 24px 48px;max-width:600px;margin:0 auto;position:relative;z-index:2;}
+  .hero-orb{position:absolute;top:0;left:50%;transform:translateX(-50%);width:500px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,0.12) 0%,transparent 70%);filter:blur(60px);pointer-events:none;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet2);background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:6px 16px;border-radius:100px;margin-bottom:20px;}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--violet2);animation:blink 2s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,5rem);letter-spacing:.04em;line-height:.9;margin-bottom:14px;color:#fff;}
+  .hero h1 span{background:linear-gradient(135deg,var(--violet),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+  .hero p{font-size:14px;color:var(--muted);line-height:1.7;}
+
+  .main{max-width:600px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:2;}
+
+  /* Search */
+  .search-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:24px;display:flex;gap:10px;transition:border-color .2s;}
+  .search-box:focus-within{border-color:var(--violet);}
+  .search-box input{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'JetBrains Mono',monospace;outline:none;text-transform:uppercase;transition:border-color .2s;letter-spacing:.1em;}
+  .search-box input:focus{border-color:var(--violet);}
+  .search-box input::placeholder{color:var(--faint);text-transform:none;font-family:'Inter',sans-serif;letter-spacing:0;}
+  .search-box button{background:linear-gradient(135deg,var(--violet),var(--coral));border:none;border-radius:10px;padding:12px 24px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .search-box button:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(123,47,255,.3);}
+
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,47,255,.04),transparent);pointer-events:none;}
+  .card-title{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row-label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .row-value{font-size:13px;font-weight:600;color:var(--text);}
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.08em;}
+
+  /* Badges */
+  .badge{padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.06em;}
+  .badge-green{background:rgba(0,210,160,.12);color:var(--green);border:1px solid rgba(0,210,160,.25);}
+  .badge-red{background:rgba(255,61,90,.12);color:var(--coral);border:1px solid rgba(255,61,90,.25);}
+  .badge-yellow{background:rgba(255,184,0,.12);color:var(--amber);border:1px solid rgba(255,184,0,.25);}
+  .badge-blue{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25);}
+
+  .error{color:var(--coral);text-align:center;padding:24px;background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);border-radius:14px;}
+  .checking{text-align:center;padding:32px;color:var(--muted);font-size:13px;}
+  .hidden{display:none;}
+
+  .edit-link{display:block;text-align:center;margin-top:20px;color:var(--violet2);font-size:13px;text-decoration:none;font-weight:600;}
+  .edit-link:hover{text-decoration:underline;}
+
+  @media(max-width:600px){
+    nav{padding:14px 16px;}
+    .hero{padding:50px 16px 36px;}
+    .main{padding:0 14px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+<div id="cursorGlow"></div>
+
+<nav>
+  <a href="/" class="logo">ULTRA <span>MAX</span></a>
+  <a href="/" class="nav-back">← Back to home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-orb"></div>
+  <div class="eyebrow">Token Inspector</div>
+  <h1>TOKEN<br><span>CHECK</span></h1>
+  <p>Enter your Ultra MAX token to inspect your setup — catalogs, keys, connected accounts and streams.</p>
+</div>
+
+<div class="main">
+  <div class="search-box">
+    <input type="text" id="tokenInput" placeholder="Enter your token e.g. ABC12345" maxlength="8" />
+    <button onclick="checkToken()">Inspect →</button>
+  </div>
+  <div id="result" class="hidden"></div>
+</div>
+
+<script>
+async function checkToken() {
+  const token = document.getElementById('tokenInput').value.trim().toUpperCase();
+  if(token.length < 6) return;
+
+  const result = document.getElementById('result');
+  result.innerHTML = '<div class="checking">Inspecting token...</div>';
+  result.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`/c/${token}/inspect`);
+    if(!res.ok) { result.innerHTML = '<div class="error">Token not found. Check your token and try again.</div>'; return; }
+    const d = await res.json();
+
+    result.innerHTML = `
+      <div class="card">
+        <div class="card-title">Overview</div>
+        <div class="row"><span class="row-label">Token</span><span class="row-value mono">${d.token}</span></div>
+        <div class="row"><span class="row-label">Catalogs selected</span><span class="row-value">${d.catalogCount}</span></div>
+        <div class="row"><span class="row-label">Hidden from home</span><span class="row-value">${d.hiddenCount}</span></div>
+        <div class="row"><span class="row-label">Language</span><span class="row-value">${d.language}</span></div>
+        <div class="row"><span class="row-label">Hide unreleased</span><span class="row-value">${d.excludeUnreleased ? '<span class="badge badge-green">ON</span>' : '<span class="badge badge-red">OFF</span>'}</span></div>
+        <div class="row"><span class="row-label">Max rating</span><span class="row-value">${d.maxRating || 'No restriction'}</span></div>
+        <div class="row"><span class="row-label">BetterPosters</span><span class="row-value">${d.betterPosters || '<span class="badge badge-red">OFF</span>'}</span></div>
+        <div class="row"><span class="row-label">Excluded languages</span><span class="row-value">${d.excludeLanguages.length ? d.excludeLanguages.join(', ') : 'None'}</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">API Keys</div>
+        <div class="row"><span class="row-label">MDBList</span><span class="row-value">${d.keys.mdblist ? '<span class="badge badge-green">✓ Set</span>' : '<span class="badge badge-red">Missing</span>'}</span></div>
+        <div class="row"><span class="row-label">RPDB</span><span class="row-value">${d.keys.rpdb ? '<span class="badge badge-green">✓ Set</span>' : '<span class="badge badge-blue">Optional</span>'}</span></div>
+        <div class="row"><span class="row-label">TOP Posters</span><span class="row-value">${d.keys.topPosters ? '<span class="badge badge-green">✓ Set</span>' : '<span class="badge badge-blue">Optional</span>'}</span></div>
+        <div class="row"><span class="row-label">Fanart.tv</span><span class="row-value">${d.keys.fanart ? '<span class="badge badge-green">✓ Set</span>' : '<span class="badge badge-blue">Optional</span>'}</span></div>
+        <div class="row"><span class="row-label">OMDb</span><span class="row-value">${d.keys.omdb ? '<span class="badge badge-green">✓ Set</span>' : '<span class="badge badge-blue">Optional</span>'}</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Connected Accounts</div>
+        <div class="row">
+          <span class="row-label"><img src="https://walter.trakt.tv/hotlink-ok/public/favicon.ico" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;">Trakt</span>
+          <span class="row-value">${d.trakt.connected
+            ? `<span class="badge badge-green">✓ ${d.trakt.username}</span>${d.trakt.expired ? ' <span class="badge badge-yellow">Token expired</span>' : ''}`
+            : '<span class="badge badge-blue">Not connected</span>'}</span>
+        </div>
+        <div class="row">
+          <span class="row-label"><img src="https://simkl.com/favicon.ico" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;">Simkl</span>
+          <span class="row-value">${d.simkl.connected
+            ? `<span class="badge badge-green">✓ ${d.simkl.username}</span>`
+            : '<span class="badge badge-blue">Not connected</span>'}</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Streams</div>
+        ${d.streams && d.streams.debrid ? `
+        <div class="row"><span class="row-label">Provider</span><span class="row-value"><span class="badge badge-green">✓ ${({'torbox':'TorBox','realdebrid':'Real-Debrid','alldebrid':'AllDebrid','premiumize':'Premiumize','offcloud':'Offcloud','debridlink':'Debrid-Link'})[d.streams.debrid.service] || d.streams.debrid.service}</span></span></div>
+        <div class="row"><span class="row-label">Cached only</span><span class="row-value">${d.streams.debrid.cachedOnly ? '<span class="badge badge-green">ON</span>' : '<span class="badge badge-blue">OFF</span>'}</span></div>
+        <div class="row"><span class="row-label">English only</span><span class="row-value">${d.streams.debrid.englishOnly ? '<span class="badge badge-green">ON</span>' : '<span class="badge badge-blue">OFF</span>'}</span></div>
+        <div class="row"><span class="row-label">Quality</span><span class="row-value">${[d.streams.debrid.res4k?'4K':'',d.streams.debrid.res1080?'1080p':'',d.streams.debrid.res720?'720p':'',d.streams.debrid.res480?'480p':''].filter(Boolean).join(' · ') || 'All'}</span></div>
+        ` : '<div class="row"><span class="row-label">Debrid</span><span class="row-value"><span class="badge badge-blue">Not configured</span></span></div>'}
+        <div class="row"><span class="row-label">Manual addons</span><span class="row-value">${d.streams ? d.streams.manualCount || 0 : 0}</span></div>
+      </div>
+
+      <a class="edit-link" href="/setup.html?token=${token}">Edit your setup →</a>
+    `;
+  } catch(e) {
+    result.innerHTML = '<div class="error">Something went wrong. Please try again.</div>';
+  }
+}
+
+document.getElementById('tokenInput').addEventListener('keydown', e => { if(e.key === 'Enter') checkToken(); });
+const urlToken = new URLSearchParams(window.location.search).get('token');
+if(urlToken) { document.getElementById('tokenInput').value = urlToken; checkToken(); }
+</script>
+
+<script>
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');p.className='particle';
+    const r=Math.random();
+    const clr=r<0.2?'rgba(123,47,255,0.7)':r<0.3?'rgba(255,61,90,0.5)':'rgba(255,255,255,0.4)';
+    p.style.cssText=`width:${Math.random()*2+.5}px;height:${Math.random()*2+.5}px;left:${Math.random()*100}%;bottom:-10px;background:${clr};--dx:${(Math.random()-.5)*60}px;animation-duration:${Math.random()*20+15}s;animation-delay:-${Math.random()*20}s;`;
+    c.appendChild(p);
+  }
+})();
+const _glow=document.getElementById('cursorGlow');
+if(_glow) document.addEventListener('mousemove',e=>{_glow.style.left=e.clientX+'px';_glow.style.top=e.clientY+'px';});
+</script>
+</body>
+</html>
