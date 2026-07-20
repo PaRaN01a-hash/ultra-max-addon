@@ -1749,7 +1749,7 @@ body.quick-v3-mode #advancedStreamBridgeBlock {
 
 .um-mode-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
@@ -9542,8 +9542,7 @@ html.um-app-mode body {
 }
 
 /* Remove browser-style floating controls from the native shell. */
-.um-app-mode #themeToggle,
-.um-app-mode #umBackToTop {
+.um-app-mode #themeToggle {
   display: none !important;
 }
 
@@ -9705,6 +9704,131 @@ html.um-app-mode body {
 }
 </style>
 
+
+<style id="ultramax-step2-ordered-grid">
+/* ULTRA MAX STEP 2 ORDERED CATALOG GRID */
+
+/*
+ * Two equal columns keep matching movie and series rows together.
+ * The layout is intentionally retained on mobile, where the current
+ * catalogue labels comfortably fit side by side.
+ */
+#step-2 .s2-cat-pills {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 9px;
+}
+
+#step-2 .s2-cat.s2-open .s2-cat-pills {
+  display: grid;
+}
+
+/* Equal-sized catalogue choices */
+#step-2 .s2-cat-pills > .s2-pill {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  box-sizing: border-box;
+  line-height: 1.22;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Keep the media icon compact and aligned */
+#step-2 .s2-pill-type {
+  flex: 0 0 auto;
+  margin-left: 2px;
+}
+
+/* Keep the hidden control available without distorting each tile */
+#step-2 .s2-pill-hidden-cb {
+  flex: 0 0 auto;
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  font-size: 8px;
+  white-space: nowrap;
+  opacity: .46;
+}
+
+#step-2 .s2-pill:hover .s2-pill-hidden-cb,
+#step-2 .s2-pill.s2-sel .s2-pill-hidden-cb,
+#step-2 .s2-pill.s2-hidden .s2-pill-hidden-cb {
+  opacity: .82;
+}
+
+/* Select all and Clear belong on their own full-width footer */
+#step-2 .s2-cat-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 4px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255,255,255,.055);
+}
+
+/* The power-user raw catalogue list gets the same tidy geometry */
+#step-2 #s2RawPills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 9px;
+}
+
+#step-2 #s2RawPills > .s2-pill {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  box-sizing: border-box;
+  line-height: 1.22;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Very narrow screens need a little breathing room */
+@media (max-width: 370px) {
+  #step-2 .s2-cat-pills,
+  #step-2 #s2RawPills {
+    gap: 7px;
+  }
+
+  #step-2 .s2-cat-pills > .s2-pill,
+  #step-2 #s2RawPills > .s2-pill {
+    min-height: 40px;
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+
+  #step-2 .s2-pill-hidden-cb {
+    font-size: 7px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -9807,6 +9931,20 @@ html.um-app-mode body {
       <div class="um-mode-desc">
         Choose keys, catalogs, collections, streams
         and every advanced option yourself.
+      </div>
+    </button>
+
+    <button
+      type="button"
+      class="um-mode-card"
+      style="--mode-colour:#F59E0B;"
+      onclick="selectSetupMode('kids')"
+    >
+      <div class="um-mode-icon">🧸</div>
+      <div class="um-mode-name">Kids Setup</div>
+      <div class="um-mode-desc">
+        Build a restricted Kids profile with age limits,
+        safe catalogs and isolated Nuvio add-ons.
       </div>
     </button>
 
@@ -11808,6 +11946,377 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function normaliseKidsProfile(profile) {
+    return {
+      profile_index: Number(profile.profile_index),
+      name:
+        String(profile.name || '').trim() ||
+        'Profile ' + Number(profile.profile_index),
+      avatar_color_hex:
+        profile.avatar_color_hex || '#1E88E5',
+      uses_primary_addons:
+        Boolean(profile.uses_primary_addons),
+      uses_primary_plugins:
+        Boolean(profile.uses_primary_plugins),
+      avatar_id:
+        profile.avatar_id || null,
+      avatar_url:
+        profile.avatar_url || null
+    };
+  }
+
+  function saveKidsNuvioBackup(
+    profile,
+    addons,
+    collections
+  ) {
+    const backup = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      profile: normaliseKidsProfile(profile),
+      addons: Array.isArray(addons) ? addons : [],
+      collections:
+        Array.isArray(collections)
+          ? collections
+          : []
+    };
+
+    localStorage.setItem(
+      'ultramax_kids_nuvio_backup',
+      JSON.stringify(backup)
+    );
+
+    return backup;
+  }
+
+  async function ensureIsolatedKidsProfile(
+    accessToken,
+    currentProfiles
+  ) {
+    const maxProfiles = 6;
+
+    const profiles = currentProfiles
+      .map(normaliseKidsProfile)
+      .sort(
+        (a, b) =>
+          a.profile_index - b.profile_index
+      );
+
+    let kids = profiles.find(
+      profile =>
+        profile.name.trim().toLowerCase() ===
+        'kids'
+    );
+
+    let kidsIndex = kids
+      ? kids.profile_index
+      : null;
+
+    if (!kidsIndex) {
+      const used = new Set(
+        profiles.map(
+          profile => profile.profile_index
+        )
+      );
+
+      for (
+        let index = 1;
+        index <= maxProfiles;
+        index++
+      ) {
+        if (!used.has(index)) {
+          kidsIndex = index;
+          break;
+        }
+      }
+    }
+
+    if (!kidsIndex) {
+      throw new Error(
+        'All six Nuvio profile slots are already in use.'
+      );
+    }
+
+    const payload = profiles.map(profile => ({
+      profile_index:
+        profile.profile_index,
+      name:
+        profile.profile_index === kidsIndex
+          ? 'Kids'
+          : profile.name,
+      avatar_color_hex:
+        profile.avatar_color_hex ||
+        '#1E88E5',
+      uses_primary_addons:
+        profile.profile_index === kidsIndex
+          ? false
+          : Boolean(
+              profile.uses_primary_addons
+            ),
+      uses_primary_plugins:
+        profile.profile_index === kidsIndex
+          ? false
+          : Boolean(
+              profile.uses_primary_plugins
+            ),
+      avatar_id:
+        profile.avatar_id || null,
+      avatar_url:
+        profile.avatar_url || null
+    }));
+
+    if (!kids) {
+      payload.push({
+        profile_index: kidsIndex,
+        name: 'Kids',
+        avatar_color_hex: '#43A047',
+        uses_primary_addons: false,
+        uses_primary_plugins: false,
+        avatar_id: null,
+        avatar_url: null
+      });
+    }
+
+    payload.sort(
+      (a, b) =>
+        a.profile_index - b.profile_index
+    );
+
+    await nuvioPushProfiles(
+      accessToken,
+      payload,
+      maxProfiles
+    );
+
+    const refreshed =
+      await nuvioGetAllProfiles(
+        accessToken
+      );
+
+    const verified = refreshed
+      .map(normaliseKidsProfile)
+      .find(
+        profile =>
+          profile.profile_index ===
+            kidsIndex &&
+          profile.name
+            .trim()
+            .toLowerCase() === 'kids'
+      );
+
+    if (!verified) {
+      throw new Error(
+        'Nuvio accepted the profile update, but the Kids profile could not be verified.'
+      );
+    }
+
+    if (
+      verified.uses_primary_addons ||
+      verified.uses_primary_plugins
+    ) {
+      throw new Error(
+        'The Kids profile exists, but it is not isolated from the primary profile.'
+      );
+    }
+
+    nuvioProfiles = refreshed;
+
+    return verified;
+  }
+
+  function getGeneratedKidsCollections() {
+    const collections = Array.isArray(
+      window.generatedNuvioCollections
+    )
+      ? window.generatedNuvioCollections
+      : [];
+
+    const kidsCollections =
+      collections.filter(collection => {
+        const id = String(
+          collection && collection.id || ''
+        ).toLowerCase();
+
+        const title = String(
+          collection && collection.title || ''
+        ).toLowerCase();
+
+        return (
+          id ===
+            'collection-ultramax-kids' ||
+          title === 'ultra max kids'
+        );
+      });
+
+    if (kidsCollections.length === 0) {
+      throw new Error(
+        'The generated setup does not contain the Ultra MAX Kids collection.'
+      );
+    }
+
+    return kidsCollections;
+  }
+
+  async function doKidsNuvioPush() {
+    const manifestUrl =
+      window.generatedAddonUrl;
+
+    if (!manifestUrl) {
+      throw new Error(
+        'Generate the Kids setup before pushing it to Nuvio.'
+      );
+    }
+
+    const confirmed = window.confirm(
+      'Set up an isolated Nuvio Kids profile?\n\n' +
+      'Ultra MAX will create or update the Kids profile, turn off shared add-ons and plugins, then replace that profile’s add-ons and collections with the restricted Kids setup.\n\n' +
+      'A backup of the existing Kids add-ons and collections will be saved in this browser first.'
+    );
+
+    if (!confirmed) {
+      statusEl.textContent =
+        'Kids profile setup cancelled. No changes were made.';
+
+      statusEl.style.color =
+        'var(--muted)';
+
+      return;
+    }
+
+    statusEl.style.color = 'inherit';
+
+    const originalKidsProfile =
+      nuvioProfiles
+        .map(normaliseKidsProfile)
+        .find(profile =>
+          profile.name
+            .trim()
+            .toLowerCase() === 'kids'
+        ) || null;
+
+    statusEl.textContent =
+      'Creating or verifying the isolated Kids profile...';
+
+    const kidsProfile =
+      await ensureIsolatedKidsProfile(
+        nuvioAccessToken,
+        nuvioProfiles
+      );
+
+    statusEl.textContent =
+      'Backing up the current Kids profile...';
+
+    const existingAddons =
+      await nuvioGetAddons(
+        nuvioAccessToken,
+        kidsProfile.profile_index
+      );
+
+    const existingCollections =
+      await nuvioGetCollections(
+        nuvioAccessToken,
+        kidsProfile.profile_index
+      );
+
+    saveKidsNuvioBackup(
+      originalKidsProfile || kidsProfile,
+      existingAddons,
+      existingCollections
+    );
+
+    const kidsCollections =
+      getGeneratedKidsCollections();
+
+    statusEl.textContent =
+      'Installing the restricted Ultra MAX Kids add-on...';
+
+    await nuvioPushAddons(
+      nuvioAccessToken,
+      kidsProfile.profile_index,
+      [
+        {
+          url: manifestUrl,
+          name: 'Ultra MAX Kids',
+          enabled: true
+        }
+      ]
+    );
+
+    statusEl.textContent =
+      'Installing the Ultra MAX Kids collection...';
+
+    await nuvioPushCollections(
+      nuvioAccessToken,
+      kidsProfile.profile_index,
+      kidsCollections
+    );
+
+    statusEl.textContent =
+      'Verifying the Kids profile...';
+
+    const verifiedAddons =
+      await nuvioGetAddons(
+        nuvioAccessToken,
+        kidsProfile.profile_index
+      );
+
+    const verifiedCollections =
+      await nuvioGetCollections(
+        nuvioAccessToken,
+        kidsProfile.profile_index
+      );
+
+    const addonVerified =
+      Array.isArray(verifiedAddons) &&
+      verifiedAddons.length === 1 &&
+      verifiedAddons[0].url ===
+        manifestUrl &&
+      verifiedAddons[0].enabled !== false;
+
+    if (!addonVerified) {
+      throw new Error(
+        'The Kids add-on push completed, but verification did not match the generated manifest.'
+      );
+    }
+
+    const expectedIds =
+      new Set(
+        kidsCollections.map(
+          collection => collection.id
+        )
+      );
+
+    const actualIds =
+      new Set(
+        (
+          Array.isArray(
+            verifiedCollections
+          )
+            ? verifiedCollections
+            : []
+        ).map(
+          collection => collection.id
+        )
+      );
+
+    const collectionsVerified =
+      expectedIds.size === actualIds.size &&
+      Array.from(expectedIds).every(
+        id => actualIds.has(id)
+      );
+
+    if (!collectionsVerified) {
+      throw new Error(
+        'The Kids collections were pushed, but the verification result did not match.'
+      );
+    }
+
+    statusEl.textContent =
+      'Kids profile ready. It is isolated and contains only Ultra MAX Kids.';
+
+    statusEl.style.color = '#4caf50';
+  }
+
   loginBtn.addEventListener('click', async () => {
     const email = document.getElementById('nuvio-email').value.trim();
     const password = document.getElementById('nuvio-password').value;
@@ -11833,6 +12342,15 @@ document.addEventListener('DOMContentLoaded', function() {
       nuvioAccessToken = result.accessToken;
       nuvioProfiles = result.profiles;
       document.getElementById('nuvio-password').value = '';
+
+      if (
+        document.body.classList.contains(
+          'um-kids-mode'
+        )
+      ) {
+        await doKidsNuvioPush();
+        return;
+      }
 
       if (nuvioProfiles.length === 1) {
         nuvioSelectedProfileIds = new Set([nuvioProfiles[0].profile_index]);
@@ -12582,7 +13100,56 @@ function setStep(n){
     setTimeout(function(){ if(typeof s2Init==='function') s2Init(); }, 200);
   }
   if(n === 3) {
-    setTimeout(function(){ if(typeof s3InitStickyPresets==='function') s3InitStickyPresets(); }, 300);
+    setTimeout(function(){
+      /*
+       * Recover the predefined Kids collection only if another
+       * UI path has unexpectedly cleared the collection state.
+       * Existing user edits are deliberately preserved.
+       */
+      if(
+        document.body.classList.contains('um-kids-mode') &&
+        (
+          typeof v2Collections === 'undefined' ||
+          !Array.isArray(v2Collections) ||
+          v2Collections.length === 0
+        ) &&
+        typeof buildKidsSetupCollections === 'function'
+      ){
+        v2Collections = buildKidsSetupCollections();
+        window.v2Collections = v2Collections;
+
+        if(
+          typeof window.syncKidsNickJrOption === 'function'
+        ){
+          window.syncKidsNickJrOption();
+        }
+      }
+
+      /*
+       * Do not leave the mobile collection editor stuck in
+       * single-collection detail mode when Step 3 is reopened.
+       */
+      document.body.classList.remove('s3-app-detail-mode');
+
+      var appBackButton =
+        document.getElementById('s3AppBackBtn');
+
+      if(appBackButton){
+        appBackButton.style.display = 'none';
+      }
+
+      if(typeof renderCollections === 'function'){
+        renderCollections();
+      }
+
+      if(typeof updateCounters === 'function'){
+        updateCounters();
+      }
+
+      if(typeof s3InitStickyPresets === 'function'){
+        s3InitStickyPresets();
+      }
+    }, 100);
   }
 }
 
@@ -12700,6 +13267,211 @@ var S2_CATEGORIES = [
     posters:['tt0111161','tt0068646','tt0071562','tt0468569'] },
 ];
 
+
+var S2_ORDER = {
+  quickpicks: [
+    'ai_recommended_movies',
+    'ai_recommended_series',
+
+    'rightnow_movies',
+    'rightnow_series',
+
+    'trending_movies',
+    'trending_series',
+
+    'popular_movies',
+    'popular_series',
+
+    'top_movies',
+    'top_series',
+
+    'now_playing_movies',
+    'airing_series',
+    'ontheair_series',
+
+    'trakt_trending_movies',
+    'trakt_trending_series',
+
+    'mdb_2236',
+    'mdb_1198',
+    'mdb_69',
+    'mdb_87667',
+    'mdb_88434',
+    'mdb_960',
+    'mdb_86934',
+    'mdb_2202',
+    'mdb_1176',
+    'mdb_86710'
+  ],
+
+  streaming: [
+    'netflix_movies',
+    'netflix_series',
+    'amazon_movies',
+    'amazon_series',
+    'disney_movies',
+    'disney_series',
+    'hbo_movies',
+    'hbo_series',
+    'apple_movies',
+    'apple_series',
+    'paramount_movies',
+    'paramount_series',
+    'peacock_movies',
+    'peacock_series',
+    'hulu_movies',
+    'hulu_series',
+    'mgm_movies',
+    'mgm_series',
+    'starz_movies',
+    'starz_series',
+    'shudder_movies',
+    'shudder_series',
+    'britbox_movies',
+    'britbox_series',
+    'acorn_movies',
+    'acorn_series',
+    'itvx_movies',
+    'itvx_series',
+    'channel4_movies',
+    'channel4_series',
+    'crunchyroll_movies',
+    'crunchyroll_series',
+    'hidive_movies',
+    'hidive_series',
+    'mubi_movies',
+    'discovery_series',
+    'natgeo_series',
+    'ae_series',
+    'animalplanet_series'
+  ],
+
+  genres: [
+    'action_movies',
+    'action_series',
+    'adventure_movies',
+    'adventure_series',
+    'animation_movies',
+    'animation_series',
+    'comedy_movies',
+    'comedy_series',
+    'crime_movies',
+    'crime_series',
+    'documentary_movies',
+    'documentary_series',
+    'drama_movies',
+    'drama_series',
+    'family_movies',
+    'family_series',
+    'fantasy_movies',
+    'fantasy_series',
+    'history_movies',
+    'history_series',
+    'horror_movies',
+    'horror_series',
+    'mystery_movies',
+    'mystery_series',
+    'reality_movies',
+    'reality_series',
+    'romance_movies',
+    'romance_series',
+    'romcom_movies',
+    'romcom_series',
+    'scifi_movies',
+    'scifi_series',
+    'thriller_movies',
+    'thriller_series',
+    'war_movies',
+    'war_series',
+    'western_movies',
+    'western_series',
+    'anime_movies',
+    'anime_series',
+    'bollywood_movies',
+    'bollywood_series'
+  ],
+
+  trakt: [
+    'trakt_watchlist_movies',
+    'trakt_watchlist_series',
+    'trakt_favorites_movies',
+    'trakt_favorites_series',
+    'trakt_collection_movies',
+    'trakt_collection_series',
+    'trakt_history_movies',
+    'trakt_history_series',
+    'trakt_recommendations_movies',
+    'trakt_recommendations_series',
+    'simkl_watchlist_movies',
+    'simkl_watchlist_series',
+    'simkl_favorites_movies',
+    'simkl_favorites_series'
+  ]
+};
+
+function s2NormaliseLabel(value){
+  return String(value || '')
+    .replace(/^[^\w]+/, '')
+    .replace(/\s*[🎬📺]\s*$/, '')
+    .replace(/\s+(Movies|Series|TV Series)$/i, '')
+    .trim()
+    .toLowerCase();
+}
+
+function s2MediaRank(def){
+  if(!def) return 2;
+  if(def.type === 'movie') return 0;
+  if(def.type === 'series') return 1;
+  return 2;
+}
+
+function s2SortIds(categoryId, ids){
+  var preferred = S2_ORDER[categoryId] || [];
+  var rank = Object.create(null);
+
+  preferred.forEach(function(id, index){
+    rank[id] = index;
+  });
+
+  return ids.slice().sort(function(a, b){
+    var aPreferred = Object.prototype.hasOwnProperty.call(rank, a);
+    var bPreferred = Object.prototype.hasOwnProperty.call(rank, b);
+
+    if(aPreferred || bPreferred){
+      if(aPreferred && bPreferred) return rank[a] - rank[b];
+      return aPreferred ? -1 : 1;
+    }
+
+    if(categoryId === 'decades'){
+      var aDecade = Number((String(a).match(/\d{4}/) || [0])[0]);
+      var bDecade = Number((String(b).match(/\d{4}/) || [0])[0]);
+
+      if(aDecade !== bDecade) return bDecade - aDecade;
+    }
+
+    var aDef = S2_DEFS[a] || {};
+    var bDef = S2_DEFS[b] || {};
+
+    var aLabel = s2NormaliseLabel(aDef.name || a);
+    var bLabel = s2NormaliseLabel(bDef.name || b);
+
+    if(aLabel !== bLabel){
+      return aLabel.localeCompare(bLabel, undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      });
+    }
+
+    var mediaDifference = s2MediaRank(aDef) - s2MediaRank(bDef);
+    if(mediaDifference !== 0) return mediaDifference;
+
+    return String(a).localeCompare(String(b), undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    });
+  });
+}
+
 var S2_PRESETS = [
   { id:'streaming_fan', icon:'📡', name:'Streaming Fan', ids:['netflix_movies','netflix_series','amazon_movies','amazon_series','disney_movies','disney_series','hbo_movies','hbo_series','apple_movies','apple_series','peacock_movies','peacock_series','hulu_movies','hulu_series','paramount_movies','paramount_series','trending_movies','trending_series','popular_movies','popular_series'], posters:['tt15398776','tt5180504','tt7366338','tt2442560'] },
   { id:'cinema_lover', icon:'🎬', name:'Cinema Lover', ids:['director_nolan','director_kubrick','director_tarantino','director_scorsese','director_spielberg','studio_a24','mubi_movies','top_movies','top_series','drama_movies','thriller_movies','crime_movies','hp_collection','godfather_collection'], posters:['tt0816692','tt1375666','tt0468569','tt0111161'] },
@@ -12786,7 +13558,10 @@ function s2RenderCats(){
   if(!grid) return;
   grid.innerHTML = '';
   S2_CATEGORIES.forEach(function(cat){
-    var ids = Object.keys(S2_DEFS).filter(cat.filter);
+    var ids = s2SortIds(
+      cat.id,
+      Object.keys(S2_DEFS).filter(cat.filter)
+    );
     var div = document.createElement('div');
     div.className = 's2-cat';
     div.id = 's2cat-' + cat.id;
@@ -12906,8 +13681,8 @@ function s2RenderRaw(){
   var container = document.getElementById('s2RawPills');
   if(!container) return;
   container.innerHTML = '';
-  Object.entries(S2_DEFS).forEach(function(entry){
-    var id = entry[0], def = entry[1];
+  s2SortIds('raw', Object.keys(S2_DEFS)).forEach(function(id){
+    var def = S2_DEFS[id];
     var t = def.type === 'movie' ? '🎬' : '📺';
     var pill = document.createElement('span');
     pill.className = 's2-pill';
@@ -13872,7 +14647,20 @@ function renderCollections(){
             +'<div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6666aa;">Rows</div>'
             +'<span style="font-size:11px;color:#7B2FFF;font-weight:600;">'+(f.rows||[]).length+'</span>'
             +'</div>'
-            +((f.rows||[]).length?(f.rows||[]).map(function(rowId,ri){return '<div style="display:flex;align-items:center;justify-content:space-between;background:#1a1a35;border:1px solid #2a2a45;border-radius:6px;padding:7px 10px;margin-bottom:6px;"><div style="color:#c8c8e0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-right:8px;">'+getCatalogLabel(rowId)+'</div><button class="global-btn" onclick="removeRowFromFolder('+i+','+fi+','+ri+')">&#x2715;</button></div>';}).join(''):'<div style="text-align:center;padding:14px 0;font-size:11px;color:#2a2a45;border:2px dashed #1a1a2e;border-radius:6px;">No rows added yet</div>')
+            +((f.rows||[]).length?(f.rows||[]).map(function(row,ri){
+              var rowId = getCollectionRowId(row);
+              var rowLabel =
+                rowId
+                  ? (getCatalogLabel(rowId) || rowId)
+                  : 'Unknown catalog';
+
+              return '<div class="folder-row-entry">'
+                + '<div class="folder-row-label">'
+                + escapeHtml(rowLabel)
+                + '</div>'
+                + '<button class="global-btn folder-row-remove" onclick="removeRowFromFolder('+i+','+fi+','+ri+')" aria-label="Remove row">&#x2715;</button>'
+                + '</div>';
+            }).join(''):'<div style="text-align:center;padding:14px 0;font-size:11px;color:#2a2a45;border:2px dashed #1a1a2e;border-radius:6px;">No rows added yet</div>')
             +'<div style="display:flex;gap:8px;margin-top:8px;">'
             +'<select id="addRowSelect-'+i+'-'+fi+'" style="flex:1;min-width:0;padding:7px 10px;background:#0d0d1a;color:#e8e8f0;border:1px solid #2a2a45;border-radius:6px;font-size:12px;">'
             +'<option value="">Select a row to add…</option>'
@@ -14387,7 +15175,34 @@ function applyFolderMedia(folder){
   return folder;
 }
 
+function getCollectionRowId(row){
+  if(typeof row === 'string' || typeof row === 'number'){
+    return String(row);
+  }
+
+  if(!row || typeof row !== 'object'){
+    return '';
+  }
+
+  return String(
+    row.id ||
+    row.catalogId ||
+    row.catalog_id ||
+    row.rowId ||
+    row.row_id ||
+    row.sourceId ||
+    row.source_id ||
+    ''
+  );
+}
+
 function getCatalogLabel(id){
+  id = getCollectionRowId(id);
+
+  if(!id){
+    return '';
+  }
+
   if(typeof S2_DEFS !== 'undefined' && S2_DEFS[id]){
     var def = S2_DEFS[id];
     var typeLabel = def.type === 'movie' ? ' · Movies' : def.type === 'series' ? ' · Series' : '';
@@ -17424,6 +18239,14 @@ async function generate(){
   if(!editToken && pass !== confirm){ genError.textContent='Passwords do not match'; genError.classList.add('visible'); return; }
   if(!mdbKey){ genError.textContent='MDBList API key is required — go back to Step 1'; genError.classList.add('visible'); return; }
   genError.classList.remove('visible');
+
+  if (
+    typeof window.enforceKidsSetupBeforeGenerate ===
+    'function'
+  ) {
+    window.enforceKidsSetupBeforeGenerate();
+  }
+
   if(selected.size === 0) return;
 
   document.getElementById('loading').classList.add('visible');
@@ -21415,8 +22238,724 @@ body.um-app-mode #themeToggle {
     });
   };
 
+  function kidsSetupCatalogs() {
+    return [
+      "mdb_88307",
+      "mdb_88309",
+      "mdb_13",
+      "animation_movies",
+      "family_movies",
+      "family_series",
+      "disney_movies",
+      "disney_series",
+      "studio_disney",
+      "mdb_3918",
+      "mdb_3928",
+      "network_nickelodeon",
+      "network_cartoon",
+      "network_disney_ch"
+    ];
+  }
+
+  function buildKidsSetupCollections() {
+    return [
+      {
+        id: "collection-ultramax-kids",
+        title: "Ultra MAX Kids",
+        collapsed: false,
+        folders: [
+          {
+            id: "folder-ultramax-kids-trending-movies",
+            title: "Trending Kids Movies",
+            rows: [
+              "mdb_88307",
+              "mdb_13"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/trending_new__trending_movies__cover.png",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/trending_new__trending_movies__hero.webp",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-trending-shows",
+            title: "Trending Kids Shows",
+            rows: [
+              "mdb_88309"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/trending_new__trending_tv__cover.png",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/trending_new__trending_tv__hero.webp",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-family-movies",
+            title: "Family Movies",
+            rows: [
+              "family_movies"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/genres__family__cover.png",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/genres__family__hero.webp",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-family-shows",
+            title: "Family Shows",
+            rows: [
+              "family_series"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/Family_Base.png",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_family.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-animation",
+            title: "Animation",
+            rows: [
+              "animation_movies"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/genres__animation__cover.png",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_animation.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-disney-plus",
+            title: "Disney+",
+            rows: [
+              "disney_movies",
+              "disney_series"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/streaming_services__disney__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_disneyplus.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-walt-disney-studios",
+            title: "Walt Disney Studios",
+            rows: [
+              "studio_disney"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/studios__walt_disney_studio__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/studios__walt_disney_studio__hero.webp",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-pixar",
+            title: "Pixar",
+            rows: [
+              "mdb_3918"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/studios__pixar__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_pixar.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-dreamworks",
+            title: "DreamWorks",
+            rows: [
+              "mdb_3928"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/dreamworks.jpg",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_dreamworks_pictures.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-cartoon-network",
+            title: "Cartoon Network",
+            rows: [
+              "network_cartoon"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/networks__cartoon_network__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_cartoon_network.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-nickelodeon",
+            title: "Nickelodeon",
+            rows: [
+              "network_nickelodeon"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/networks__nickelodeon__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/hero_nickelodeon.jpg",
+            focusGifEnabled: false
+          },
+          {
+            id: "folder-ultramax-kids-disney-channel",
+            title: "Disney Channel",
+            rows: [
+              "network_disney_ch"
+            ],
+            tileShape: "LANDSCAPE",
+            coverImageUrl:
+              "https://ultramax.vip/images/quick/networks__disney_channel__cover.webp",
+            focusGifUrl: "",
+            heroBackdropUrl:
+              "https://ultramax.vip/images/quick/networks__disney_channel__hero.webp",
+            focusGifEnabled: false
+          }
+        ]
+      }
+    ];
+  }
+
+  function createKidsNickJrFolder() {
+    return {
+      id: "folder-ultramax-kids-nick-jr",
+      title: "Nick Jr",
+      rows: [
+        "network_nickjr"
+      ],
+      tileShape: "LANDSCAPE",
+      coverImageUrl:
+        "https://ultramax.vip/images/kids_family.nick_jr.webp",
+      focusGifUrl: "",
+      heroBackdropUrl:
+        "https://ultramax.vip/images/network_nickjr.jpg",
+      focusGifEnabled: false
+    };
+  }
+
+  window.syncKidsNickJrOption = function () {
+    if (
+      !document.body.classList.contains(
+        "um-kids-mode"
+      )
+    ) {
+      return;
+    }
+
+    var rating =
+      document.getElementById("maxRating");
+
+    var youngest =
+      rating && rating.value === "G";
+
+    if (
+      typeof selected !== "undefined" &&
+      selected
+    ) {
+      if (youngest) {
+        selected.add("network_nickjr");
+      } else {
+        selected.delete("network_nickjr");
+      }
+    }
+
+    var legacyPill =
+      document.querySelector(
+        '.pill[data-id="network_nickjr"]'
+      );
+
+    if (legacyPill) {
+      legacyPill.classList.toggle(
+        "selected",
+        youngest
+      );
+    }
+
+    var modernPill =
+      document.getElementById(
+        "s2pill-network_nickjr"
+      );
+
+    if (modernPill) {
+      modernPill.classList.toggle(
+        "s2-sel",
+        youngest
+      );
+    }
+
+    if (
+      typeof v2Collections !== "undefined" &&
+      Array.isArray(v2Collections)
+    ) {
+      var kidsCollection =
+        v2Collections.find(function (
+          collection
+        ) {
+          return (
+            collection &&
+            collection.id ===
+              "collection-ultramax-kids"
+          );
+        });
+
+      if (
+        kidsCollection &&
+        Array.isArray(
+          kidsCollection.folders
+        )
+      ) {
+        kidsCollection.folders =
+          kidsCollection.folders.filter(
+            function (folder) {
+              return (
+                folder.id !==
+                "folder-ultramax-kids-nick-jr"
+              );
+            }
+          );
+
+        if (youngest) {
+          var nickelodeonIndex =
+            kidsCollection.folders.findIndex(
+              function (folder) {
+                return (
+                  folder.id ===
+                  "folder-ultramax-kids-nickelodeon"
+                );
+              }
+            );
+
+          var insertAt =
+            nickelodeonIndex >= 0
+              ? nickelodeonIndex + 1
+              : kidsCollection.folders.length;
+
+          kidsCollection.folders.splice(
+            insertAt,
+            0,
+            createKidsNickJrFolder()
+          );
+        }
+
+        window.v2Collections =
+          v2Collections;
+      }
+    }
+
+    if (
+      typeof renderCollections ===
+      "function"
+    ) {
+      renderCollections();
+    }
+
+    if (
+      typeof s2RestoreFromSelected ===
+      "function"
+    ) {
+      s2RestoreFromSelected();
+    }
+
+    if (
+      typeof s2UpdatePreview ===
+      "function"
+    ) {
+      s2UpdatePreview();
+    }
+
+    if (
+      typeof updateCounter ===
+      "function"
+    ) {
+      updateCounter();
+    }
+
+    if (
+      typeof updateCategoryCounts ===
+      "function"
+    ) {
+      updateCategoryCounts();
+    }
+  };
+
+  window.enforceKidsSetupBeforeGenerate = function () {
+    if (
+      !document.body.classList.contains(
+        "um-kids-mode"
+      )
+    ) {
+      return;
+    }
+
+    var ratingField =
+      document.getElementById("maxRating");
+
+    var allowedRatings = [
+      "G",
+      "PG",
+      "PG-13"
+    ];
+
+    var rating =
+      ratingField &&
+      allowedRatings.includes(ratingField.value)
+        ? ratingField.value
+        : "PG";
+
+    if (ratingField) {
+      ratingField.value = rating;
+    }
+
+    var approvedCatalogs = [
+      "mdb_88307",
+      "mdb_88309",
+      "mdb_13",
+      "animation_movies",
+      "family_movies",
+      "family_series",
+      "disney_movies",
+      "disney_series",
+      "studio_disney",
+      "mdb_3918",
+      "mdb_3928",
+      "network_nickelodeon",
+      "network_cartoon",
+      "network_disney_ch"
+    ];
+
+    if (rating === "G") {
+      approvedCatalogs.push(
+        "network_nickjr"
+      );
+    }
+
+    if (
+      typeof selected !== "undefined" &&
+      selected
+    ) {
+      selected.clear();
+
+      approvedCatalogs.forEach(
+        function (id) {
+          selected.add(id);
+        }
+      );
+    }
+
+    if (
+      typeof hidden !== "undefined" &&
+      hidden
+    ) {
+      Array.from(hidden).forEach(
+        function (id) {
+          if (!approvedCatalogs.includes(id)) {
+            hidden.delete(id);
+          }
+        }
+      );
+    }
+
+    var adultField =
+      document.getElementById(
+        "includeAdult"
+      );
+
+    if (adultField) {
+      adultField.checked = false;
+      adultField.disabled = true;
+    }
+
+    if (
+      typeof buildKidsSetupCollections ===
+      "function"
+    ) {
+      v2Collections =
+        buildKidsSetupCollections();
+
+      window.v2Collections =
+        v2Collections;
+    }
+
+    if (
+      rating === "G" &&
+      Array.isArray(v2Collections)
+    ) {
+      var kidsCollection =
+        v2Collections.find(
+          function (collection) {
+            return (
+              collection &&
+              collection.id ===
+                "collection-ultramax-kids"
+            );
+          }
+        );
+
+      if (
+        kidsCollection &&
+        Array.isArray(
+          kidsCollection.folders
+        )
+      ) {
+        var hasNickJr =
+          kidsCollection.folders.some(
+            function (folder) {
+              return (
+                folder &&
+                folder.id ===
+                  "folder-ultramax-kids-nick-jr"
+              );
+            }
+          );
+
+        if (!hasNickJr) {
+          var nickelodeonIndex =
+            kidsCollection.folders.findIndex(
+              function (folder) {
+                return (
+                  folder &&
+                  folder.id ===
+                    "folder-ultramax-kids-nickelodeon"
+                );
+              }
+            );
+
+          kidsCollection.folders.splice(
+            nickelodeonIndex >= 0
+              ? nickelodeonIndex + 1
+              : kidsCollection.folders.length,
+            0,
+            createKidsNickJrFolder()
+          );
+        }
+      }
+    }
+
+    if (Array.isArray(v2Collections)) {
+      v2Collections.forEach(
+        function (collection) {
+          (
+            collection.folders || []
+          ).forEach(function (folder) {
+            folder.focusGifUrl = "";
+            folder.focusGifEnabled = false;
+          });
+        }
+      );
+
+      window.v2Collections =
+        v2Collections;
+    }
+
+    if (
+      typeof s2UpdateAll ===
+      "function"
+    ) {
+      s2UpdateAll();
+    }
+
+    if (
+      typeof renderCollections ===
+      "function"
+    ) {
+      renderCollections();
+    }
+
+    collapseKidsCatalogGroups();
+  };
+
+  function collapseKidsCatalogGroups() {
+    if (
+      !document.body.classList.contains(
+        "um-kids-mode"
+      )
+    ) {
+      return;
+    }
+
+    var modernSearch =
+      document.getElementById("s2SearchInput");
+
+    if (modernSearch) {
+      modernSearch.value = "";
+    }
+
+    document
+      .querySelectorAll(".s2-cat")
+      .forEach(function (category) {
+        category.style.display = "";
+        category.classList.remove("s2-open");
+      });
+
+    document
+      .querySelectorAll(".pills-wrap")
+      .forEach(function (wrapper) {
+        wrapper.classList.remove("open");
+      });
+
+    document
+      .querySelectorAll(".cat-chevron")
+      .forEach(function (chevron) {
+        chevron.classList.remove("open");
+      });
+
+    document
+      .querySelectorAll(".sub-pills")
+      .forEach(function (wrapper) {
+        wrapper.style.display = "none";
+      });
+
+    document
+      .querySelectorAll(".sub-cat-chevron")
+      .forEach(function (chevron) {
+        chevron.classList.remove("open");
+      });
+  }
+
+  function applyKidsSetupMode() {
+    if (typeof clearCurrentBuilderState === "function") {
+      clearCurrentBuilderState();
+    }
+
+    var catalogIds = kidsSetupCatalogs();
+
+    catalogIds.forEach(function (id) {
+      if (typeof selected !== "undefined" && selected) {
+        selected.add(id);
+      }
+
+      var legacyPill = document.querySelector(
+        '.pill[data-id="' + id + '"]'
+      );
+
+      if (legacyPill) {
+        legacyPill.classList.add("selected");
+      }
+
+      var modernPill = document.getElementById(
+        "s2pill-" + id
+      );
+
+      if (modernPill) {
+        modernPill.classList.add("s2-sel");
+      }
+    });
+
+    if (
+      typeof v2Collections !== "undefined"
+    ) {
+      v2Collections = buildKidsSetupCollections();
+      window.v2Collections = v2Collections;
+    }
+
+    var adult = document.getElementById(
+      "includeAdult"
+    );
+
+    if (adult) {
+      adult.checked = false;
+      adult.disabled = true;
+    }
+
+    var rating = document.getElementById(
+      "maxRating"
+    );
+
+    if (rating) {
+      rating.value = "PG";
+    }
+
+    var preserveKitsu =
+      document.getElementById(
+        "preserveKitsuIds"
+      );
+
+    if (preserveKitsu) {
+      preserveKitsu.checked = false;
+    }
+
+    var digitalOnly =
+      document.getElementById(
+        "digitalReleaseOnly"
+      );
+
+    if (digitalOnly) {
+      digitalOnly.checked = false;
+    }
+
+    if (
+      typeof renderCollections === "function"
+    ) {
+      renderCollections();
+    }
+
+    if (
+      typeof updateCounter === "function"
+    ) {
+      updateCounter();
+    }
+
+    if (
+      typeof updateCategoryCounts === "function"
+    ) {
+      updateCategoryCounts();
+    }
+
+    if (
+      typeof s2RestoreFromSelected === "function"
+    ) {
+      s2RestoreFromSelected();
+    }
+
+    if (
+      typeof s2UpdatePreview === "function"
+    ) {
+      s2UpdatePreview();
+    }
+
+    window.syncKidsNickJrOption();
+    collapseKidsCatalogGroups();
+
+    if (
+      typeof saveDraftState === "function"
+    ) {
+      saveDraftState();
+    }
+  }
+
   window.selectSetupMode = function (mode) {
     document.body.classList.remove('um-route-choosing');
+    document.body.classList.remove('um-kids-mode');
+
+    var adultField =
+      document.getElementById('includeAdult');
+
+    if (adultField) {
+      adultField.disabled = false;
+    }
 
     var chooser = element('umModeChooser');
     var reopen = element('umModeReopen');
@@ -21464,6 +23003,53 @@ body.um-app-mode #themeToggle {
           });
         }
       }, 60);
+
+      return;
+    }
+
+    if (mode === 'kids') {
+      if (quick) quick.style.display = 'none';
+      if (advanced) advanced.style.display = '';
+      if (backBar) backBar.style.display = 'none';
+
+      document.body.classList.add(
+        'um-kids-mode'
+      );
+
+      applyKidsSetupMode();
+
+      setTimeout(function () {
+        if (advanced) {
+          advanced.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+
+        if (
+          typeof s2Init === 'function'
+        ) {
+          Promise.resolve(
+            s2Init()
+          ).then(function () {
+            if (
+              typeof s2RestoreFromSelected ===
+              'function'
+            ) {
+              s2RestoreFromSelected();
+            }
+
+            if (
+              typeof s2UpdatePreview ===
+              'function'
+            ) {
+              s2UpdatePreview();
+            }
+
+            collapseKidsCatalogGroups();
+          });
+        }
+      }, 80);
 
       return;
     }
@@ -22335,6 +23921,30 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
+
+<script id="ultramax-kids-nickjr-rating-rule">
+(function () {
+  var rating =
+    document.getElementById("maxRating");
+
+  if (!rating) {
+    return;
+  }
+
+  rating.addEventListener(
+    "change",
+    function () {
+      if (
+        typeof window.syncKidsNickJrOption ===
+        "function"
+      ) {
+        window.syncKidsNickJrOption();
+      }
+    }
+  );
+})();
+</script>
+
 </body>
 
 
@@ -22343,5 +23953,139 @@ document.addEventListener('DOMContentLoaded', function () {
   .s2-desktop-preview-btn{
     display:inline-flex !important;
   }
+}
+</style>
+
+<style id="ultramax-kids-mode-responsive">
+@media (max-width: 1050px) {
+  .um-mode-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .um-mode-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<style id="ultramax-kids-mode-banner-style">
+#ultramaxKidsModeBanner {
+  display: none;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(245,158,11,.45);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245,158,11,.12),
+      rgba(52,211,153,.07)
+    );
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+body.um-kids-mode #ultramaxKidsModeBanner {
+  display: block;
+}
+</style>
+
+<script id="ultramax-kids-mode-banner-script">
+(function () {
+  var advanced =
+    document.getElementById(
+      'advancedBuilderContainer'
+    );
+
+  if (
+    !advanced ||
+    document.getElementById(
+      'ultramaxKidsModeBanner'
+    )
+  ) {
+    return;
+  }
+
+  var banner =
+    document.createElement('div');
+
+  banner.id =
+    'ultramaxKidsModeBanner';
+
+  banner.innerHTML =
+    '<strong>🧸 Kids Setup active</strong><br>' +
+    'Safe catalogs are preselected, adult content is locked off, ' +
+    'and the default maximum age rating is PG.';
+
+  advanced.insertBefore(
+    banner,
+    advanced.firstChild
+  );
+})();
+</script>
+
+<style id="ultramax-folder-row-layout-fix">
+#step-3 .folder-row-entry {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+
+  margin-bottom: 6px;
+  padding: 7px 10px;
+
+  background: #1a1a35;
+  border: 1px solid #2a2a45;
+  border-radius: 6px;
+}
+
+#step-3 .folder-row-label {
+  display: block !important;
+  flex: 1 1 auto !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+
+  color: #e8e8f0 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#step-3 .folder-row-entry > .folder-row-remove {
+  display: inline-flex !important;
+  flex: 0 0 36px !important;
+
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 16px !important;
+  line-height: 1 !important;
 }
 </style>

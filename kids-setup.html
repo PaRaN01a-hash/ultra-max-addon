@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+  <title>Ultra MAX Kids Setup</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080a0f;
+      --panel: #11151d;
+      --panel-2: #171c26;
+      --line: #293141;
+      --text: #f7f8fb;
+      --muted: #a7afbf;
+      --green: #44c767;
+      --green-dark: #258a42;
+      --red: #ff6577;
+      --amber: #ffcb66;
+      --blue: #69a7ff;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #17261d 0, transparent 38rem),
+        var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(760px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 34px 0 60px;
+    }
+
+    .brand {
+      margin-bottom: 24px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: clamp(32px, 8vw, 54px);
+      line-height: 0.95;
+      letter-spacing: -2px;
+    }
+
+    .brand-title span {
+      color: var(--green);
+    }
+
+    .brand-subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .card {
+      padding: 22px;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(17, 21, 29, 0.94);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.32);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .fields {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      min-height: 50px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      color: var(--text);
+      background: var(--panel-2);
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(68, 199, 103, 0.15);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .primary {
+      color: #061108;
+      background: var(--green);
+    }
+
+    .primary:hover:not(:disabled) {
+      background: #5bdb7b;
+    }
+
+    .secondary {
+      color: var(--text);
+      background: #252d3b;
+    }
+
+    .danger {
+      color: #fff;
+      background: #8f2835;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.18);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .status.ok {
+      border-color: rgba(68, 199, 103, 0.45);
+      color: #baf4c8;
+      background: rgba(68, 199, 103, 0.08);
+    }
+
+    .status.error {
+      border-color: rgba(255, 101, 119, 0.5);
+      color: #ffc0c8;
+      background: rgba(255, 101, 119, 0.08);
+    }
+
+    .status.warn {
+      border-color: rgba(255, 203, 102, 0.5);
+      color: #ffe4ad;
+      background: rgba(255, 203, 102, 0.08);
+    }
+
+    .profile-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 58px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel-2);
+    }
+
+    .profile-dot {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .profile-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .profile-name {
+      font-weight: 800;
+    }
+
+    .profile-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #baf4c8;
+      background: rgba(68, 199, 103, 0.12);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .security {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    code {
+      color: var(--blue);
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 20px, 760px);
+        padding-top: 22px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="brand">
+      <h1 class="brand-title">ULTRA <span>MAX</span> KIDS</h1>
+      <p class="brand-subtitle">
+        Dev-only profile creation test. This first stage creates an isolated
+        Nuvio profile named <strong>Kids</strong>. It does not yet change
+        add-ons, plugins, collections, or the main Ultra MAX profile.
+      </p>
+    </header>
+
+    <section id="loginCard" class="card">
+      <h2>Sign in to Nuvio</h2>
+      <p>
+        Authentication is sent directly from this browser to Nuvio.
+        Ultra MAX does not receive or store the password.
+      </p>
+
+      <div class="fields">
+        <label>
+          Nuvio email
+          <input
+            id="email"
+            type="email"
+            autocomplete="username"
+            placeholder="name@example.com"
+          >
+        </label>
+
+        <label>
+          Nuvio password
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Nuvio password"
+          >
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="loginButton" class="primary" type="button">
+          Sign in and inspect profiles
+        </button>
+      </div>
+
+      <div id="loginStatus" class="status hidden"></div>
+
+      <div class="security">
+        No refresh token is stored. Reloading or closing this page signs the
+        setup session out locally.
+      </div>
+    </section>
+
+    <section id="profileCard" class="card hidden">
+      <h2>Nuvio profiles</h2>
+      <p id="accountSummary"></p>
+
+      <div id="profileList" class="profile-list"></div>
+
+      <div id="profileStatus" class="status hidden"></div>
+
+      <div id="kidsManifestPanel" class="card" style="margin-top:18px;">
+        <h2>Ultra MAX Kids manifest</h2>
+        <p>
+          Choose the maximum age rating. Ultra MAX will create a separate,
+          restricted configuration for the Kids profile.
+        </p>
+
+        <div class="fields">
+          <label>
+            Age level
+            <select
+              id="kidsAgeRating"
+              style="width:100%;min-height:50px;padding:0 15px;border:1px solid var(--line);border-radius:12px;color:var(--text);background:var(--panel-2);"
+            >
+              <option value="G">Little Kids · U / G</option>
+              <option value="PG" selected>Kids · U / PG</option>
+              <option value="PG-13">Older Kids · up to 12 / PG-13</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button
+            id="manifestButton"
+            class="primary"
+            type="button"
+          >
+            Create Kids manifest
+          </button>
+        </div>
+
+        <div id="manifestStatus" class="status hidden"></div>
+
+        <div
+          id="manifestResult"
+          class="hidden"
+          style="margin-top:16px;"
+        >
+          <label>
+            Kids manifest URL
+            <input
+              id="manifestUrl"
+              type="text"
+              readonly
+            >
+          </label>
+
+          <div class="actions">
+            <button
+              id="copyManifestButton"
+              class="secondary"
+              type="button"
+            >
+              Copy manifest URL
+            </button>
+
+            <button
+              id="installManifestButton"
+              class="primary"
+              type="button"
+            >
+              Install into Kids profile
+            </button>
+
+            <button
+              id="restoreAddonsButton"
+              class="danger hidden"
+              type="button"
+            >
+              Restore previous add-ons
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="createButton" class="primary" type="button">
+          Create isolated Kids profile
+        </button>
+
+        <button id="refreshButton" class="secondary" type="button">
+          Refresh profiles
+        </button>
+
+        <button id="logoutButton" class="danger" type="button">
+          Sign out
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const API_BASE = "https://api.nuvio.tv";
+
+    const API_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+      "eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNTIxMzQ2LCJleHAiOjE5MzkyMDEzNDZ9." +
+      "tmQaj682pwzehpqlgCDMnySOqiUvpgRbrE43T4VJpDI";
+
+    const CLIENT_INFO = "UltraMAXKidsDev/0.1";
+    const MAX_PROFILES = 6;
+
+    let session = null;
+    let profiles = [];
+
+    const loginCard = document.getElementById("loginCard");
+    const profileCard = document.getElementById("profileCard");
+    const loginButton = document.getElementById("loginButton");
+    const createButton = document.getElementById("createButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const loginStatus = document.getElementById("loginStatus");
+    const profileStatus = document.getElementById("profileStatus");
+    const profileList = document.getElementById("profileList");
+    const accountSummary = document.getElementById("accountSummary");
+    const manifestButton = document.getElementById("manifestButton");
+    const manifestStatus = document.getElementById("manifestStatus");
+    const manifestResult = document.getElementById("manifestResult");
+    const manifestUrlInput = document.getElementById("manifestUrl");
+    const copyManifestButton =
+      document.getElementById("copyManifestButton");
+    const installManifestButton =
+      document.getElementById("installManifestButton");
+    const restoreAddonsButton =
+      document.getElementById("restoreAddonsButton");
+
+    const KIDS_ADDON_BACKUP_KEY =
+      "ultramax_kids_addon_backup_v1";
+
+    let generatedKidsToken = null;
+    let generatedKidsManifestUrl = null;
+    let kidsAddonSnapshot = null;
+
+    function createOriginClientId() {
+      const random =
+        globalThis.crypto && globalThis.crypto.randomUUID
+          ? globalThis.crypto.randomUUID().replace(/-/g, "")
+          : Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+      return ("ultramax-kids-dev-" + random).slice(0, 64);
+    }
+
+    const originClientId = createOriginClientId();
+
+    function setStatus(element, message, type = "") {
+      element.textContent = message;
+      element.className = "status" + (type ? " " + type : "");
+    }
+
+    function hideStatus(element) {
+      element.textContent = "";
+      element.className = "status hidden";
+    }
+
+    function authHeaders() {
+      return {
+        apikey: API_KEY,
+        "Content-Type": "application/json",
+        "X-Client-Info": CLIENT_INFO,
+        ...(session
+          ? { Authorization: "Bearer " + session.access_token }
+          : {})
+      };
+    }
+
+    async function api(path, options = {}) {
+      return fetch(API_BASE + path, {
+        ...options,
+        headers: {
+          ...authHeaders(),
+          ...(options.headers || {})
+        }
+      });
+    }
+
+    async function rpc(name, body = {}) {
+      const payload = { ...body };
+
+      const originAware = new Set([
+        "sync_push_profiles",
+        "sync_push_addons"
+      ]);
+
+      if (originAware.has(name)) {
+        payload.p_origin_client_id = originClientId;
+      }
+
+      const response = await api("/rest/v1/rpc/" + name, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+
+        throw new Error(
+          error.message ||
+          error.error_description ||
+          error.hint ||
+          "Nuvio API returned HTTP " + response.status
+        );
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      return response.json().catch(() => null);
+    }
+
+    function normaliseProfile(profile) {
+      return {
+        profile_index: Number(profile.profile_index),
+        name:
+          String(profile.name || "").trim() ||
+          "Profile " + Number(profile.profile_index),
+        avatar_color_hex:
+          profile.avatar_color_hex || "#1E88E5",
+        uses_primary_addons:
+          Boolean(profile.uses_primary_addons),
+        uses_primary_plugins:
+          Boolean(profile.uses_primary_plugins),
+        avatar_id:
+          profile.avatar_id || null,
+        avatar_url:
+          profile.avatar_url || null
+      };
+    }
+
+    function renderProfiles() {
+      const sorted = [...profiles].sort(
+        (a, b) => a.profile_index - b.profile_index
+      );
+
+      profileList.innerHTML = "";
+
+      for (const profile of sorted) {
+        const row = document.createElement("div");
+        row.className = "profile";
+
+        const dot = document.createElement("div");
+        dot.className = "profile-dot";
+        dot.style.background =
+          profile.avatar_color_hex || "#1E88E5";
+
+        const main = document.createElement("div");
+        main.className = "profile-main";
+
+        const name = document.createElement("div");
+        name.className = "profile-name";
+        name.textContent = profile.name;
+
+        const meta = document.createElement("div");
+        meta.className = "profile-meta";
+        meta.textContent =
+          "Profile " +
+          profile.profile_index +
+          " · shared add-ons: " +
+          (profile.uses_primary_addons ? "yes" : "no") +
+          " · shared plugins: " +
+          (profile.uses_primary_plugins ? "yes" : "no");
+
+        main.append(name, meta);
+        row.append(dot, main);
+
+        if (profile.name.trim().toLowerCase() === "kids") {
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = "Kids";
+          row.appendChild(badge);
+        }
+
+        profileList.appendChild(row);
+      }
+
+      const kidsExists = sorted.some(
+        profile =>
+          profile.name.trim().toLowerCase() === "kids"
+      );
+
+      createButton.textContent = kidsExists
+        ? "Verify existing Kids profile"
+        : "Create isolated Kids profile";
+
+      createButton.disabled =
+        !kidsExists && sorted.length >= MAX_PROFILES;
+    }
+
+    async function pullProfiles() {
+      const result = await rpc("sync_pull_profiles");
+
+      if (!Array.isArray(result) || result.length === 0) {
+        throw new Error("Nuvio returned no profiles for this account");
+      }
+
+      profiles = result.map(normaliseProfile);
+      renderProfiles();
+
+      return profiles;
+    }
+
+    async function signIn() {
+      const email = document
+        .getElementById("email")
+        .value
+        .trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      if (!email || !password) {
+        setStatus(
+          loginStatus,
+          "Enter the Nuvio email and password.",
+          "warn"
+        );
+        return;
+      }
+
+      loginButton.disabled = true;
+
+      setStatus(
+        loginStatus,
+        "Signing directly into Nuvio…"
+      );
+
+      try {
+        const response = await fetch(
+          API_BASE + "/auth/v1/token?grant_type=password",
+          {
+            method: "POST",
+            headers: {
+              apikey: API_KEY,
+              "Content-Type": "application/json",
+              "X-Client-Info": CLIENT_INFO
+            },
+            body: JSON.stringify({
+              email,
+              password
+            })
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data.error_description ||
+            data.msg ||
+            data.message ||
+            "Nuvio sign-in failed with HTTP " + response.status
+          );
+        }
+
+        if (!data.access_token) {
+          throw new Error(
+            "Nuvio did not return an access token"
+          );
+        }
+
+        session = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token || null,
+          email:
+            (data.user && data.user.email) ||
+            email
+        };
+
+        document.getElementById("password").value = "";
+
+        await rpc("sync_set_origin_client_id", {
+          p_origin_client_id: originClientId
+        }).catch(() => null);
+
+        await pullProfiles();
+
+        accountSummary.textContent =
+          "Signed in as " + session.email + ".";
+
+        loginCard.classList.add("hidden");
+        profileCard.classList.remove("hidden");
+
+        hideStatus(loginStatus);
+
+        setStatus(
+          profileStatus,
+          "Signed in successfully. No changes have been made.",
+          "ok"
+        );
+      } catch (error) {
+        session = null;
+
+        setStatus(
+          loginStatus,
+          "Sign-in failed: " +
+            (error.message || String(error)),
+          "error"
+        );
+      } finally {
+        loginButton.disabled = false;
+      }
+    }
+
+    async function createOrVerifyKidsProfile() {
+      if (!session) {
+        return;
+      }
+
+      createButton.disabled = true;
+      refreshButton.disabled = true;
+
+      setStatus(
+        profileStatus,
+        "Checking available profile slots…"
+      );
+
+      try {
+        await pullProfiles();
+
+        const sorted = [...profiles].sort(
+          (a, b) => a.profile_index - b.profile_index
+        );
+
+        const existingKids =
+          sorted.find(
+            profile =>
+              profile.name.trim().toLowerCase() === "kids"
+          ) || null;
+
+        let kidsIndex =
+          existingKids
+            ? existingKids.profile_index
+            : null;
+
+        if (!kidsIndex) {
+          const used = new Set(
+            sorted.map(profile => profile.profile_index)
+          );
+
+          for (
+            let index = 1;
+            index <= MAX_PROFILES;
+            index += 1
+          ) {
+            if (!used.has(index)) {
+              kidsIndex = index;
+              break;
+            }
+          }
+        }
+
+        if (!kidsIndex) {
+          throw new Error(
+            "All " +
+              MAX_PROFILES +
+              " Nuvio profile slots are already in use"
+          );
+        }
+
+        if (!existingKids) {
+          const confirmed = window.confirm(
+            "Create a new isolated Nuvio profile named Kids in profile slot " +
+              kidsIndex +
+              "?\n\n" +
+              "This changes the Nuvio account profile list, but it will not yet install add-ons or collections."
+          );
+
+          if (!confirmed) {
+            setStatus(
+              profileStatus,
+              "Kids profile creation cancelled. No changes were made.",
+              "warn"
+            );
+            return;
+          }
+        }
+
+        const payload = sorted.map(profile => ({
+          profile_index: profile.profile_index,
+          name:
+            profile.profile_index === kidsIndex
+              ? "Kids"
+              : profile.name,
+          avatar_color_hex:
+            profile.avatar_color_hex || "#1E88E5",
+          uses_primary_addons:
+            profile.profile_index === kidsIndex
+              ? false
+              : Boolean(profile.uses_primary_addons),
+          uses_primary_plugins:
+            profile.profile_index === kidsIndex
+              ? false
+              : Boolean(profile.uses_primary_plugins),
+          avatar_id:
+            profile.avatar_id || null,
+          avatar_url:
+            profile.avatar_url || null
+        }));
+
+        if (!existingKids) {
+          payload.push({
+            profile_index: kidsIndex,
+            name: "Kids",
+            avatar_color_hex: "#43A047",
+            uses_primary_addons: false,
+            uses_primary_plugins: false,
+            avatar_id: null,
+            avatar_url: null
+          });
+        }
+
+        payload.sort(
+          (a, b) => a.profile_index - b.profile_index
+        );
+
+        setStatus(
+          profileStatus,
+          existingKids
+            ? "Verifying the existing Kids profile…"
+            : "Creating the isolated Kids profile…"
+        );
+
+        await rpc("sync_push_profiles", {
+          p_client_max_profiles: MAX_PROFILES,
+          p_profiles: payload
+        });
+
+        await pullProfiles();
+
+        const verified = profiles.find(
+          profile =>
+            profile.profile_index === kidsIndex &&
+            profile.name.trim().toLowerCase() === "kids"
+        );
+
+        if (!verified) {
+          throw new Error(
+            "Nuvio accepted the request, but the Kids profile could not be verified"
+          );
+        }
+
+        if (
+          verified.uses_primary_addons ||
+          verified.uses_primary_plugins
+        ) {
+          throw new Error(
+            "Kids profile exists, but it is not isolated from the primary profile"
+          );
+        }
+
+        setStatus(
+          profileStatus,
+          existingKids
+            ? "Kids profile verified successfully. It is isolated from the primary add-ons and plugins."
+            : "Kids profile created and verified successfully in profile slot " +
+                kidsIndex +
+                ". It is isolated from the primary add-ons and plugins.",
+          "ok"
+        );
+      } catch (error) {
+        setStatus(
+          profileStatus,
+          "Kids profile setup failed: " +
+            (error.message || String(error)),
+          "error"
+        );
+      } finally {
+        refreshButton.disabled = false;
+        renderProfiles();
+      }
+    }
+
+
+    function createTemporaryConfigPassword() {
+      const random =
+        globalThis.crypto && globalThis.crypto.randomUUID
+          ? globalThis.crypto.randomUUID().replace(/-/g, "")
+          : Math.random().toString(36).slice(2) +
+            Date.now().toString(36);
+
+      return "kids-" + random;
+    }
+
+    function kidsCatalogs() {
+      return [
+        "mdb_88307",
+        "mdb_88309",
+        "mdb_13",
+        "animation_movies",
+        "family_movies",
+        "family_series",
+        "disney_movies",
+        "disney_series",
+        "studio_disney",
+        "mdb_3918",
+        "mdb_3928",
+        "network_nickelodeon",
+        "network_cartoon",
+        "network_disney_ch"
+      ];
+    }
+
+    async function createKidsManifest() {
+      if (!session) {
+        setStatus(
+          manifestStatus,
+          "Sign in to Nuvio first.",
+          "warn"
+        );
+        return;
+      }
+
+      const kidsProfile = profiles.find(
+        profile =>
+          profile.name.trim().toLowerCase() === "kids"
+      );
+
+      if (!kidsProfile) {
+        setStatus(
+          manifestStatus,
+          "Create and verify the Kids profile first.",
+          "warn"
+        );
+        return;
+      }
+
+      const maxRating =
+        document.getElementById("kidsAgeRating").value;
+
+      manifestButton.disabled = true;
+      manifestResult.classList.add("hidden");
+
+      setStatus(
+        manifestStatus,
+        "Creating the restricted Ultra MAX Kids configuration…"
+      );
+
+      try {
+        const password = createTemporaryConfigPassword();
+
+        const response = await fetch("/c/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            password,
+            catalogs: kidsCatalogs(),
+            language: "en-GB",
+            maxRating,
+            includeAdult: false,
+            excludeUnreleased: true,
+            digitalReleaseOnly: false,
+            enableAiRecommended: false,
+            preserveKitsuIds: false,
+            streamAddons: [],
+            customCatalogs: [],
+            hiddenCatalogs: []
+          })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.token) {
+          throw new Error(
+            data.error ||
+            "Ultra MAX could not create the Kids configuration"
+          );
+        }
+
+        const manifestUrl =
+          window.location.origin +
+          "/c/" +
+          data.token +
+          "/manifest.json";
+
+        setStatus(
+          manifestStatus,
+          "Verifying the generated Kids manifest…"
+        );
+
+        const manifestResponse = await fetch(
+          manifestUrl,
+          { cache: "no-store" }
+        );
+
+        const manifest =
+          await manifestResponse.json().catch(() => null);
+
+        if (
+          !manifestResponse.ok ||
+          !manifest ||
+          !Array.isArray(manifest.catalogs)
+        ) {
+          throw new Error(
+            "The Kids configuration was created, but its manifest could not be verified"
+          );
+        }
+
+        const expectedCatalogs = kidsCatalogs();
+        const actualIds = new Set(
+          manifest.catalogs.map(catalog => catalog.id)
+        );
+
+        const missing = expectedCatalogs.filter(
+          id => !actualIds.has(id)
+        );
+
+        if (missing.length) {
+          throw new Error(
+            "Manifest verification failed. Missing catalogs: " +
+            missing.join(", ")
+          );
+        }
+
+        generatedKidsToken = data.token;
+        generatedKidsManifestUrl = manifestUrl;
+
+        manifestUrlInput.value = manifestUrl;
+        manifestResult.classList.remove("hidden");
+
+        setStatus(
+          manifestStatus,
+          "Kids manifest created and verified successfully.\n\n" +
+          "Age ceiling: " +
+          maxRating +
+          "\nCatalog rows: " +
+          expectedCatalogs.length +
+          "\nToken: " +
+          generatedKidsToken +
+          "\n\n" +
+          "It has not been installed into Nuvio yet.",
+          "ok"
+        );
+      } catch (error) {
+        generatedKidsToken = null;
+        generatedKidsManifestUrl = null;
+
+        setStatus(
+          manifestStatus,
+          "Kids manifest creation failed: " +
+            (error.message || String(error)),
+          "error"
+        );
+      } finally {
+        manifestButton.disabled = false;
+      }
+    }
+
+
+    function getKidsProfile() {
+      return profiles.find(
+        profile =>
+          profile.name.trim().toLowerCase() === "kids"
+      ) || null;
+    }
+
+    function normalizeAddonForPush(addon, index) {
+      return {
+        url: String(addon.url || "").trim(),
+        name:
+          String(addon.name || "").trim() ||
+          "Nuvio add-on",
+        enabled: addon.enabled !== false,
+        sort_order: Number.isFinite(Number(addon.sort_order))
+          ? Number(addon.sort_order)
+          : index
+      };
+    }
+
+    async function pullProfileAddons(profileId) {
+      const response = await api(
+        "/rest/v1/addons" +
+        "?select=*" +
+        "&profile_id=eq." +
+        encodeURIComponent(profileId) +
+        "&order=sort_order",
+        {
+          method: "GET"
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          error.message ||
+          "Could not read the Kids profile add-ons"
+        );
+      }
+
+      const rows = await response.json();
+
+      return Array.isArray(rows)
+        ? rows
+        : [];
+    }
+
+    function saveAddonSnapshot(profileId, addons) {
+      kidsAddonSnapshot = {
+        version: 1,
+        account: session ? session.email : "",
+        profileId,
+        takenAt: new Date().toISOString(),
+        addons: addons.map(normalizeAddonForPush)
+      };
+
+      try {
+        localStorage.setItem(
+          KIDS_ADDON_BACKUP_KEY,
+          JSON.stringify(kidsAddonSnapshot)
+        );
+      } catch {
+        // The in-memory snapshot still remains usable.
+      }
+
+      restoreAddonsButton.classList.remove("hidden");
+    }
+
+    function loadAddonSnapshot() {
+      if (kidsAddonSnapshot) {
+        return kidsAddonSnapshot;
+      }
+
+      try {
+        const parsed = JSON.parse(
+          localStorage.getItem(
+            KIDS_ADDON_BACKUP_KEY
+          ) || "null"
+        );
+
+        if (
+          parsed &&
+          Array.isArray(parsed.addons) &&
+          parsed.profileId
+        ) {
+          kidsAddonSnapshot = parsed;
+          restoreAddonsButton.classList.remove(
+            "hidden"
+          );
+        }
+      } catch {
+        kidsAddonSnapshot = null;
+      }
+
+      return kidsAddonSnapshot;
+    }
+
+    async function pushProfileAddons(
+      profileId,
+      addons
+    ) {
+      const payload = addons
+        .filter(addon => addon && addon.url)
+        .map((addon, index) => ({
+          url: String(addon.url).trim(),
+          name:
+            String(addon.name || "").trim() ||
+            "Nuvio add-on",
+          enabled: addon.enabled !== false,
+          sort_order: index
+        }));
+
+      await rpc("sync_push_addons", {
+        p_profile_id: profileId,
+        p_addons: payload
+      });
+    }
+
+    async function installKidsManifest() {
+      if (!session) {
+        setStatus(
+          manifestStatus,
+          "Sign in to Nuvio first.",
+          "warn"
+        );
+        return;
+      }
+
+      if (!generatedKidsManifestUrl) {
+        setStatus(
+          manifestStatus,
+          "Create and verify the Kids manifest first.",
+          "warn"
+        );
+        return;
+      }
+
+      const kidsProfile = getKidsProfile();
+
+      if (!kidsProfile) {
+        setStatus(
+          manifestStatus,
+          "The Kids profile could not be found.",
+          "error"
+        );
+        return;
+      }
+
+      installManifestButton.disabled = true;
+      manifestButton.disabled = true;
+
+      try {
+        setStatus(
+          manifestStatus,
+          "Rechecking the Kids manifest before installation…"
+        );
+
+        const manifestResponse = await fetch(
+          generatedKidsManifestUrl,
+          { cache: "no-store" }
+        );
+
+        const manifest =
+          await manifestResponse
+            .json()
+            .catch(() => null);
+
+        if (
+          !manifestResponse.ok ||
+          !manifest ||
+          !Array.isArray(manifest.catalogs)
+        ) {
+          throw new Error(
+            "The Kids manifest is no longer available"
+          );
+        }
+
+        setStatus(
+          manifestStatus,
+          "Reading the Kids profile’s current add-ons…"
+        );
+
+        const existing =
+          await pullProfileAddons(
+            kidsProfile.profile_index
+          );
+
+        saveAddonSnapshot(
+          kidsProfile.profile_index,
+          existing
+        );
+
+        const alreadyInstalled =
+          existing.some(addon =>
+            String(addon.url || "").trim() ===
+            generatedKidsManifestUrl
+          );
+
+        const confirmed = window.confirm(
+          alreadyInstalled
+            ? "Ultra MAX Kids is already present on this profile.\n\nReinstall it and move it to the first position?"
+            : "Install Ultra MAX Kids into the isolated Kids profile?\n\n" +
+              "The Kids profile will be locked to Ultra MAX Kids only. Its previous add-ons have already been saved as a rollback snapshot in this browser."
+        );
+
+        if (!confirmed) {
+          setStatus(
+            manifestStatus,
+            "Installation cancelled. No Nuvio add-ons were changed.",
+            "warn"
+          );
+          return;
+        }
+
+        // The Kids profile must remain isolated from Nuvio's default
+        // add-ons and any other unrestricted catalog sources.
+        // The complete previous list has already been saved as a
+        // rollback snapshot before this replacement occurs.
+        const merged = [
+          {
+            url: generatedKidsManifestUrl,
+            name: "Ultra MAX Kids",
+            enabled: true,
+            sort_order: 0
+          }
+        ];
+
+        setStatus(
+          manifestStatus,
+          "Installing Ultra MAX Kids into Nuvio…"
+        );
+
+        await pushProfileAddons(
+          kidsProfile.profile_index,
+          merged
+        );
+
+        setStatus(
+          manifestStatus,
+          "Verifying the installed add-on…"
+        );
+
+        const verified =
+          await pullProfileAddons(
+            kidsProfile.profile_index
+          );
+
+        const installed =
+          verified.find(addon =>
+            String(addon.url || "").trim() ===
+            generatedKidsManifestUrl
+          );
+
+        if (!installed) {
+          throw new Error(
+            "Nuvio accepted the update, but the Kids manifest was not found during verification"
+          );
+        }
+
+        if (installed.enabled === false) {
+          throw new Error(
+            "Ultra MAX Kids was installed but is disabled"
+          );
+        }
+
+        setStatus(
+          manifestStatus,
+          "Ultra MAX Kids installed and verified successfully.\n\n" +
+          "Profile: Kids (" +
+          kidsProfile.profile_index +
+          ")\n" +
+          "Manifest: " +
+          generatedKidsManifestUrl +
+          "\n" +
+          "Installed add-ons: " +
+          verified.length +
+          "\n\n" +
+          "The Kids profile is now locked to Ultra MAX Kids only. Collections have not been changed yet.",
+          "ok"
+        );
+      } catch (error) {
+        setStatus(
+          manifestStatus,
+          "Kids add-on installation failed: " +
+          (error.message || String(error)) +
+          "\n\nUse Restore previous add-ons if Nuvio’s add-on list changed unexpectedly.",
+          "error"
+        );
+      } finally {
+        installManifestButton.disabled = false;
+        manifestButton.disabled = false;
+      }
+    }
+
+    async function restoreKidsAddons() {
+      if (!session) {
+        setStatus(
+          manifestStatus,
+          "Sign in to Nuvio before restoring.",
+          "warn"
+        );
+        return;
+      }
+
+      const snapshot = loadAddonSnapshot();
+
+      if (
+        !snapshot ||
+        !Array.isArray(snapshot.addons)
+      ) {
+        setStatus(
+          manifestStatus,
+          "No Kids add-on snapshot is available in this browser.",
+          "warn"
+        );
+        return;
+      }
+
+      const kidsProfile = getKidsProfile();
+
+      if (!kidsProfile) {
+        setStatus(
+          manifestStatus,
+          "The Kids profile could not be found.",
+          "error"
+        );
+        return;
+      }
+
+      if (
+        Number(snapshot.profileId) !==
+        Number(kidsProfile.profile_index)
+      ) {
+        setStatus(
+          manifestStatus,
+          "The saved snapshot belongs to a different profile slot. Restore was stopped.",
+          "error"
+        );
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "Restore the Kids profile’s add-ons to the snapshot saved at " +
+        snapshot.takenAt +
+        "?\n\n" +
+        "This replaces the current Kids add-on list."
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      restoreAddonsButton.disabled = true;
+      installManifestButton.disabled = true;
+
+      try {
+        setStatus(
+          manifestStatus,
+          "Restoring the previous Kids add-on list…"
+        );
+
+        await pushProfileAddons(
+          kidsProfile.profile_index,
+          snapshot.addons
+        );
+
+        const verified =
+          await pullProfileAddons(
+            kidsProfile.profile_index
+          );
+
+        const expectedUrls =
+          snapshot.addons
+            .map(addon =>
+              String(addon.url || "").trim()
+            )
+            .filter(Boolean);
+
+        const verifiedUrls =
+          new Set(
+            verified.map(addon =>
+              String(addon.url || "").trim()
+            )
+          );
+
+        const missing = expectedUrls.filter(
+          url => !verifiedUrls.has(url)
+        );
+
+        if (missing.length) {
+          throw new Error(
+            "Restore verification failed. Missing " +
+            missing.length +
+            " saved add-on URL(s)."
+          );
+        }
+
+        setStatus(
+          manifestStatus,
+          "Previous Kids add-ons restored and verified.\n\n" +
+          "Restored add-ons: " +
+          verified.length,
+          "ok"
+        );
+      } catch (error) {
+        setStatus(
+          manifestStatus,
+          "Add-on restore failed: " +
+          (error.message || String(error)),
+          "error"
+        );
+      } finally {
+        restoreAddonsButton.disabled = false;
+        installManifestButton.disabled = false;
+      }
+    }
+
+    async function copyKidsManifestUrl() {
+      if (!generatedKidsManifestUrl) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(
+          generatedKidsManifestUrl
+        );
+
+        setStatus(
+          manifestStatus,
+          "Kids manifest URL copied.",
+          "ok"
+        );
+      } catch {
+        manifestUrlInput.focus();
+        manifestUrlInput.select();
+
+        setStatus(
+          manifestStatus,
+          "The URL has been selected. Use your browser’s Copy command.",
+          "warn"
+        );
+      }
+    }
+
+    async function refreshProfiles() {
+      if (!session) {
+        return;
+      }
+
+      refreshButton.disabled = true;
+
+      setStatus(
+        profileStatus,
+        "Refreshing profiles from Nuvio…"
+      );
+
+      try {
+        await pullProfiles();
+
+        setStatus(
+          profileStatus,
+          "Profiles refreshed. No changes were made.",
+          "ok"
+        );
+      } catch (error) {
+        setStatus(
+          profileStatus,
+          "Refresh failed: " +
+            (error.message || String(error)),
+          "error"
+        );
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    async function logout() {
+      if (session) {
+        try {
+          await api("/auth/v1/logout", {
+            method: "POST"
+          });
+        } catch {
+          // Local sign-out still proceeds.
+        }
+      }
+
+      session = null;
+      profiles = [];
+
+      profileList.innerHTML = "";
+      accountSummary.textContent = "";
+
+      profileCard.classList.add("hidden");
+      loginCard.classList.remove("hidden");
+
+      hideStatus(profileStatus);
+
+      setStatus(
+        loginStatus,
+        "Signed out. No login token was retained.",
+        "ok"
+      );
+    }
+
+    loginButton.addEventListener("click", signIn);
+    createButton.addEventListener(
+      "click",
+      createOrVerifyKidsProfile
+    );
+    refreshButton.addEventListener(
+      "click",
+      refreshProfiles
+    );
+    logoutButton.addEventListener("click", logout);
+    manifestButton.addEventListener(
+      "click",
+      createKidsManifest
+    );
+    copyManifestButton.addEventListener(
+      "click",
+      copyKidsManifestUrl
+    );
+    installManifestButton.addEventListener(
+      "click",
+      installKidsManifest
+    );
+    restoreAddonsButton.addEventListener(
+      "click",
+      restoreKidsAddons
+    );
+
+    loadAddonSnapshot();
+
+    document
+      .getElementById("password")
+      .addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          signIn();
+        }
+      });
+  </script>
+</body>
+</html>
